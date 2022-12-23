@@ -18,10 +18,10 @@
 // dependencies
 #include "ncurses/ncurses.h"
 
-#ifdef GCC
-#   if defined(__x86_64__ || __amd64)
+#ifdef __GNUG__
+#   if defined(__x86_64__) || (__amd64)
 #       define _NOMAD_64
-#   elif defined(__i586__ || __i386__)
+#   elif defined(__i586__) || (__i386__) || (__i486__)
 #       define _NOMAD_32
 #   endif
 /*

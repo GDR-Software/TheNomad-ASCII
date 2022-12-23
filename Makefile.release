@@ -1,15 +1,15 @@
+CC             = g++
+CFLAGS         = -std=c++17 -Wall
+INCLUDE        = -IFiles/gamedata/DEPS/include
+LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a
 VERSION        = 0
 VERSION_UPDATE = 0
 VERSION_PATCH  = 1
-CC             = g++
-CFLAGS         = -g -std=c++17 -Wall
 O              = obj
 SDIR           = src
-INCLUDE        = -IFiles/gamedata/DEPS/include
-LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a
 EXE            = nomadascii
 
-.PHONY: all clean clean.exe clean.objs
+.PHONY: all exe objs
 
 ERRORS         = \
 				-Werror=type-limits \
@@ -22,7 +22,15 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 
 CFLAGS += $(DEFINES) $(INCLUDE)
 
-all: $(EXE)
+exe: $(EXE)
+
+all:
+	@echo "building 'The Nomad' (ASCII)"
+	@echo "ARCH: $(shell uname -m)"
+	@echo "OS: $(shell uname)"
+	@echo "compiling & creating the binary..."
+	@make exe
+	@rm -rf obj
 
 OBJS= \
 	$(O)/n_shared.o \
@@ -46,15 +54,7 @@ OBJS= \
 	$(O)/m_tuilib.o \
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -Os $(OBJS) $(LDFLAGS) -o $(EXE)
+	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE)
 
 $(O)/%.o: $(SDIR)/%.cpp
-	$(CC) $(CFLAGS) $(ERRORS) -Ofast -o $@ -c $<
-
-clean:
-	rm -rf $(O)/*
-	rm $(EXE)
-clean.exe:
-	rm $(EXE)
-clean.objs:
-	rm -rf $(O)/*
+	$(CC) $(CFLAGS) -Ofast $(ERRORS) -o $@ -c $<
