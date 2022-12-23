@@ -32,7 +32,9 @@ typedef struct
 	memblock_t* rover;
 } memzone_t;
 
+#ifndef _TESTING
 static constexpr int heapsize = 1126136 + sizeof(memzone_t);
+#endif
 
 memzone_t* mainzone;
 

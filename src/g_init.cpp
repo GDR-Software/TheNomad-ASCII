@@ -2,12 +2,17 @@
 
 static char bffname[81];
 
-static inline void M_Init(Game* game);
+static inline void M_Init(Game* const game);
+static inline void E_Init(Game* const game);
+static inline void TUI_Init(Game* const game);
 static inline void I_ProcessArgs(const std::vector<char*>& myargv);
 
 void I_NomadInit(int argc, char* argv[], Game* game)
 {
 	bffname[80] = '\0';
+	game->gamestate = GS_TITLE;
+	game->gamescreen = MENU_TITLE;
+	game->ticcount = 0;
 	char buf[256];
 	switch (_NOMAD_VERSION) {
 	case 0:
@@ -30,24 +35,13 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	for (nomadushort_t i = 0; i < argc; i++) {
 		myargv.push_back(argv[i]);
 	}
-	printf("I_ProcessArgs(): Parsing Launch Parameters...\n");
 	I_ProcessArgs(myargv);
-	game->gamestate = GS_TITLE;
-	game->gamescreen = MENU_TITLE;
-	game->ticcount = 0;
-	printf("I_InitEntities(): Initializing Entities...\n");
-	game->I_InitEntities();
+	E_Init(game);
 	M_Init(game);
-	puts("Done.");
-	printf("Starting Up Game...\n");
-	printf("I_InitCurses(): Initializing NCurses/Curses Libraries...\n");
-	if (!game->I_InitCurses()) {
-		printf("ERROR(Fatal): Could Not Initialize Curses!\n");
-		exit(-1);
-	}
+	TUI_Init(game);
 }
 
-static inline void M_Init(Game* game)
+static inline void M_Init(Game* const game)
 {
 	puts("M_Init(): Initializing Map Data...");
 	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
@@ -154,43 +148,42 @@ static inline void M_Init(Game* game)
 	game->I_InitHUD();
 }
 
-inline int8_t Game::I_InitCurses(void)
+static inline void TUI_Init(Game* const game)
 {
+	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
 	setlocale(LC_ALL, "");
 	initscr();
 	raw();
 	cbreak();
 	noecho();
 	curs_set(0);
-	screen = newwin(34, 129, 0, 0);
-	keypad(screen, TRUE);
+	game->screen = newwin(34, 129, 0, 0);
+	keypad(game->screen, TRUE);
 	
-	if (getmaxy(screen) < 30 && getmaxx(screen) < 45) {
+	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45) {
 		endwin();
-		std::printf("ERROR(Fatal): Screen Is Too Small For The Nomad (ASCII)\n");
-		return 0;
+		N_Error("Screen Too Small For nomadascii!");
 	}
 	// change this in the future, this game doesn't "require" colors
 	if (!has_colors()) {
 		refresh();
 		endwin();
-		return -1;
-	}
-	else {
-		return 1;
+		N_Error("Must Support 256 Terminal Colors!");
 	}
 }
 
-inline void Game::I_InitEntities(void)
+static inline void E_Init(Game* const game)
 {
-	playr = (Playr*)Z_Malloc(sizeof(Playr), TAG_STATIC, &playr);
-	playr->P_Init();
-	I_InitNPCs();
-	M_GenMobs();
+	puts("E_Init(): Initializing Entities...");
+	game->playr = (Playr*)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
+	game->playr->P_Init();
+	game->I_InitNPCs();
+	game->M_GenMobs();
 }
 
 static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 {
+	puts("I_ProcessArgs(): Parsing Command-Line Arguments...");
 	for (nomaduint_t i = 1; i < myargv.size(); i++) {
 		if (strstr(myargv[i], "-fastmobs") != NULL) {
 			if (strchr(myargv[i], '1') != NULL) {

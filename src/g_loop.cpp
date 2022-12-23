@@ -71,7 +71,6 @@ void mainLoop(int argc, char* argv[])
 				attroff(COLOR_PAIR(0));
 				delwin(game->screen);
 				endwin();
-				system("rm -rf Files/gamedata/RUNTIME/*");
 				exit(1);
 				break;
 			}
@@ -108,7 +107,6 @@ void mainLoop(int argc, char* argv[])
 							attroff(COLOR_PAIR(0));
 							delwin(game->screen);
 							endwin();
-							system("rm -rf Files/gamedata/RUNTIME/*");
 							exit(1);
 							break;
 						default:
@@ -167,7 +165,6 @@ void mainLoop(int argc, char* argv[])
 							attroff(COLOR_PAIR(0));
 							delwin(game->screen);
 							endwin();
-							system("rm -rf Files/gamedata/RUNTIME/*");
 							exit(1);
 							break;
 						case 5:

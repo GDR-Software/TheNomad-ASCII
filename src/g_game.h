@@ -115,25 +115,12 @@ public:
 
 	void I_InitBiomes(void);
 	void I_InitHUD(void);
-	inline void P_GetVMatrix(void);
-	inline void G_DisplayConsole(void);
-	inline void G_DisplayTPS(void);
-	inline void G_DisplayWeapons(void);
-	inline void G_DisplayLocation(void);
-	inline void G_DisplayVMatrix(void);
-	inline void G_DisplayVitals(void);
-	inline void G_InsertSprites(void);
-	inline void G_DisplayCompass(void);
 	void G_ResetMap(void);
 	void G_DisplayHUD(void);
 	void G_CopyBufferToMap(void);
 	void G_CopyMapBuffer(void);
 	void G_BotLoop(void);
 	void P_Ticker(nomadint_t input);
-
-	inline void I_InitEntities(void);
-	//void I_InitBFF(void);
-	inline int8_t I_InitCurses(void);
 
 	void G_MobLoop(void);
 //	void M_MakeMob(void);

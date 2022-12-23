@@ -1,10 +1,11 @@
 #ifndef _Z_ZONE_
 #define _Z_ZONE_
 
-#define TAG_FREE       0
-#define TAG_STATIC     1
+constexpr auto TAG_FREE       = 0;
+constexpr auto TAG_STATIC     = 1; // stays allocated for the entire execution time
 
-#define TAG_PURGELEVEL 100
+constexpr auto TAG_PURGELEVEL = 100;
+constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
 typedef unsigned char byte;
 
