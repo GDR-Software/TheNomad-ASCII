@@ -9,5 +9,9 @@ ncurses-6.3/
 .ccls-cache/
 
 # the resources (this is the literals money's worth)
-Files/gamedata/MAP/*
-Files/gamedata/DEPS/* # ncurses-6.3 is required for the game, build it yourself or use the release ncurses build
+Files/gamedata/MAP/*.txt
+# ncurses-6.3 is required for the game, build it yourself or use the release ncurses build
+Files/gamedata/DEPS/bin/
+Files/gamedata/DEPS/include/
+Files/gamedata/DEPS/lib/
+Files/gamedata/DEPS/share/
