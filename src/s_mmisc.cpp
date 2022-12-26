@@ -232,7 +232,7 @@ void Mob::M_FleeThink(Game* const game)
 	return;
 }
 void Mob::M_WanderThink(Game* const game)
-{
+{/*
 	if (mticker < 0) {
 		// basically idle state
 		nomadenum_t pursuitcounter = idle;
@@ -250,7 +250,7 @@ void Mob::M_WanderThink(Game* const game)
 		else {
 			return;
 		}
-
+		
 		if (pursuitcounter & hearplayr) {
 			mstate = stateinfo[S_MOB_WANDER];
 		}
@@ -259,23 +259,30 @@ void Mob::M_WanderThink(Game* const game)
 		}
 		mticker = mstate.numticks;
 	}
-	if (!stepcounter) {
-		stepcounter = P_Random() & 10; // get a cardinal number in the future
-		
-		// and now with a newly set step counter, we change the direction if rng decides it so
-		if ((P_Random() & 100) < c_mob.rng) {
-			mdir = P_Random() & 3; // might be the same direction
-		}
-	}
-	else {
-		stepcounter--;
-		coord_t pos = game->E_GetDir(mdir);
-		if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
-			game->E_MoveImmediate(&mpos, mdir);
+*/	
+	if (mticker < 0) {
+		if (!stepcounter) {
+			stepcounter = P_Random() & 10; // get a cardinal number in the future
+			
+			// and now with a newly set step counter, we change the direction if rng decides it so
+			if ((P_Random() & 100) < c_mob.rng) {
+				mdir = P_Random() & 3; // might be the same direction
+			}
 		}
 		else {
-			mdir = P_Random() & 3;
+			stepcounter--;
+			coord_t pos = game->E_GetDir(mdir);
+			if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
+				game->E_MoveImmediate(&mpos, mdir);
+			}
+			else {
+				mdir = P_Random() & 3;
+			}
 		}
+		mticker = stateinfo[S_MOB_WANDER].numticks;
+	}
+	else {
+		return;
 	}
 }
 void Mob::M_DeadThink(Game* const game)

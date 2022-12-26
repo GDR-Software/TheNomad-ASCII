@@ -188,14 +188,7 @@ static void* M_Looper(void *arg)
 	for (nomadenum_t i = 0; i < MAX_MOBS_ACTIVE; i++) {
 		Mob* mob = game->m_Active[i];
 		mob->mticker--;
-		switch (mob->mstate.id) {
-		/*case S_MOB_IDLE:
-			mob->M_IdleThink(game);
-			break; */
-		case S_MOB_WANDER:
-			mob->M_WanderThink(game);
-			break;
-		};
+		mob->M_WanderThink(game);
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
 	return NULL;
