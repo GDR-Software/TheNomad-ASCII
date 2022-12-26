@@ -221,6 +221,93 @@ void Z_ClearZone(void)
 	block->size = mainzone->size - sizeof(memzone_t);
 }
 
+void* Z_Calloc(int val, int size, int tag, void* user)
+{
+	memblock_t* rover;
+	memblock_t* userblock;
+	memblock_t* base;
+	memblock_t* start;
+	int space;
+
+	size = (size + MEM_ALIGN - 1) & ~(MEM_ALIGN - 1);
+	
+	// accounting for header size
+	size += sizeof(memblock_t);
+	
+	base = mainzone->rover;
+	
+	// checking behind the rover
+	if (!base->prev->user) {
+		base = base->prev;
+	}
+	
+	rover = base;
+	start = base->prev;
+	
+	do {
+		if (rover == start) {
+			fprintf(stderr, "Z_Malloc: failed on allocation of %i bytes because zone isn't\n"
+				"big enough! zone size: %i\n", size, mainzone->size);
+			exit(-1);
+			return NULL;
+		}
+		if (rover->user) {
+			if (rover->tag < TAG_PURGELEVEL) {
+				// hit a block that can't be purged, so move the base past it
+				base = rover = rover->next;
+			}
+			else {
+				// free the rover block (adding to the size of the base)
+				// the rover can be the base block
+				base = base->prev;
+				Z_Free((byte *)rover+sizeof(memblock_t));
+				base = base->next;
+				rover = base->next;
+			}
+		}
+		else {
+			rover = rover->next;
+		}
+	} while (base->user || base->size < size);
+	
+	space = base->size - size;
+	
+	if (space > 64) {
+		userblock = (memblock_t *)((byte *)base+size);
+		userblock->size = space;
+		userblock->user = nullptr;
+		userblock->tag = TAG_FREE;
+		userblock->prev = base;
+		userblock->next = base->next;
+		userblock->next->prev = userblock;
+	
+		base->next = userblock;
+		base->size = size;
+	}
+	if (user) {
+		// mark as an in use block
+		base->user = user;
+		user = (void *)((byte *)base+sizeof(memblock_t));
+	}
+	else {
+		if (tag >= TAG_PURGELEVEL) {
+			fprintf(stderr, "Z_Malloc: an owner is required for purgable blocks\n");
+			exit(-1);
+			return NULL;
+		}
+		// mark as in used, but unowned
+		base->user = UNOWNED;
+	}
+	base->tag = tag;
+
+	// next allocation will start looking here
+	mainzone->rover = base->next;
+	base->id = ZONEID;
+	memset(&userblock, val, sizeof(mmeblock_t));
+
+	return (void *)((byte *)base+sizeof(memblock_t));
+}
+
 void* Z_Malloc(int size, int tag, void* user)
 {
 	memblock_t* rover;
