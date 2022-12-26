@@ -47,7 +47,6 @@ static inline void M_Init(Game* const game)
 {
 	puts("M_Init(): Initializing Map Data...");
 	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
-	game->G_ResetMap();
 	nomaduint_t y, x;
 	for (nomadenum_t i = 0; i < NUM_SECTORS; i++) {
 		char path[180];
