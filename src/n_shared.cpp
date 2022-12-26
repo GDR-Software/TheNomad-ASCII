@@ -1,43 +1,5 @@
 #include "n_shared.h"
 
-static void __attribute__((constructor)) set_nonblock(void)
-{
-	struct termios ttystate;
-	
-	// get the terminal state
-	tcgetattr(STDIN_FILENO, &ttystate);
-	
-	// turn off canonical mode
-	ttystate.c_lflag &= ~ICANON;
-	
-	// minimum of number input read.
-	ttystate.c_cc[VMIN] = 1;
-	
-	// set the terminal attributes.
-	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-}
-
-static void set_block(void)
-{
-	struct termios ttystate;
-	
-	// get the terminal state
-	tcgetattr(STDIN_FILENO, &ttystate);
-	
-	//turn on canonical mode
-	ttystate.c_lflag |= ICANON;
-
-	// set the terminal attributes.
-	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-}
-
-void __attribute__((destructor)) kill_process(void)
-{
-	kill_game();
-	kill_zone();
-	set_block();
-}
-
 #ifdef __cplusplus
 nomadbool_t kbhit(nomadushort_t& in)
 {

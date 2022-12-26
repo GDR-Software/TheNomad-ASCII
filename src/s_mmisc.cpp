@@ -235,7 +235,7 @@ void Mob::M_FleeThink(Game* const game)
 void Mob::M_WanderThink(Game* const game)
 {
 	if (!stepcounter) {
-		stepcounter = P_Random() & 18; // get a cardinal number in the future
+		stepcounter = P_Random() & 10; // get a cardinal number in the future
 		
 		// and now with a newly set step counter, we change the direction if rng decides it so
 		if ((P_Random() & 100) < c_mob.rng) {
@@ -247,6 +247,9 @@ void Mob::M_WanderThink(Game* const game)
 		coord_t pos = game->E_GetDir(mdir);
 		if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
 			game->E_MoveImmediate(&mpos, mdir);
+		}
+		else {
+			mdir = P_Random() & 3;
 		}
 	}
 	/*

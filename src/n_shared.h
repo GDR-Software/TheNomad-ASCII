@@ -130,8 +130,4 @@ float Q_root(float x);
 
 using namespace std::literals::chrono_literals;
 
-void __attribute__((destructor)) kill_process(void);
-void kill_game(void);
-void kill_zone(void);
-
 #endif

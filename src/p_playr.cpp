@@ -94,6 +94,7 @@ void Game::P_Ticker(nomadint_t input)
 		gamestate = GS_PAUSE;
 		break;
 	case ctrl('z'):
+		this->~Game();
 		exit(1);
 		break;
 	default: break;

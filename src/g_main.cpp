@@ -44,6 +44,23 @@ void signal_somethins_corrupt(int signum)
 	exit(EXIT_FAILURE);
 }
 
+static void set_nonblock(void)
+{
+	struct termios ttystate;
+	
+	// get the terminal state
+	tcgetattr(STDIN_FILENO, &ttystate);
+	
+	// turn off canonical mode
+	ttystate.c_lflag &= ~ICANON;
+	
+	// minimum of number input read.
+	ttystate.c_cc[VMIN] = 1;
+	
+	// set the terminal attributes.
+	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+}
+
 int main(int argc, char* argv[])
 {
 #ifdef __unix__
@@ -54,6 +71,7 @@ int main(int argc, char* argv[])
 	signal(SIGILL, signal_somethins_corrupt);
 	signal(SIGQUIT, signal_interrupt);
 #endif
+	set_nonblock();
 	mainLoop(argc, argv);
 	return 0;
 }

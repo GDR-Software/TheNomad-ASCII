@@ -38,11 +38,6 @@ static constexpr int heapsize = 1972504 + sizeof(memzone_t);
 
 memzone_t* mainzone;
 
-void kill_zone(void)
-{
-	Z_KillHeap();
-}
-
 static void Z_KillHeap(void)
 {
 	free(mainzone);
@@ -168,7 +163,7 @@ void Z_Init(int size)
 	base->prev = base->next = &mainzone->blocklist;
 	base->user = NULL;
 	base->size = mainzone->size - sizeof(memzone_t);
-	atexit(kill_process);
+	atexit(Z_KillHeap);
 	printf("Allocated Zone From %p -> %p\n", mainzone, (mainzone+mainzone->size));
 }
 #else

@@ -1,18 +1,11 @@
 #include "g_game.h"
 
 static Game* game;
-void kill_game(void)
-{
-	attroff(COLOR_PAIR(0));
-	delwin(game->screen);
-	erase();
-	endwin();
-}
 
 static void levelLoop(void);
 
-static constexpr nomaduint_t ticrate_mil  = 28;
-static constexpr nomaduint_t ticrate_base = 35;
+static constexpr nomaduint_t ticrate_mil  = 16;
+static constexpr nomaduint_t ticrate_base = 60;
 
 void mainLoop(int argc, char* argv[])
 {
@@ -36,6 +29,7 @@ void mainLoop(int argc, char* argv[])
 				game->gamestate = GS_MENU;
 			}
 			else if (c == ctrl('x')) {
+				game->~Game();
 				break;
 			}
 			else {
@@ -68,6 +62,7 @@ void mainLoop(int argc, char* argv[])
 							game->gamestate = GS_LEVEL;
 							break;
 						case 5:
+							game->~Game();
 							exit(1);
 							break;
 						default:
@@ -123,6 +118,7 @@ void mainLoop(int argc, char* argv[])
 							break; }
 						case 4:
 							game->G_SaveGame();
+							game->~Game();
 							exit(1);
 							break;
 						case 5:
