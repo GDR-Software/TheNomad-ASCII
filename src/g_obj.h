@@ -2,7 +2,7 @@
 #define _G_OBJ_
 
 #include "n_shared.h"
-
+/*
 enum : nomadenum_t
 {
 	S_MOB_NULL,
@@ -13,7 +13,7 @@ enum : nomadenum_t
 	S_MOB_FIGHT,
 	S_MOB_FLEE,
 	S_MOB_DEAD
-};
+}; */
 
 typedef enum : nomadenum_t
 {

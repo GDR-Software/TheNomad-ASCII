@@ -3,7 +3,14 @@
 #include "g_rng.h"
 #include "g_game.h"
 
-static coord_t E_GetDir(nomadenum_t dir)
+void Game::E_MoveImmediate(coord_t* epos, nomadenum_t edir)
+{
+	coord_t pos = E_GetDir(edir);
+	epos->y += pos.y;
+	epos->x += pos.x;
+}
+
+coord_t Game::E_GetDir(nomadenum_t dir)
 {
 	coord_t coords;
 	coords.x = coords.y = 0;
@@ -27,25 +34,29 @@ static coord_t E_GetDir(nomadenum_t dir)
 	return coords;
 }
 
-nomadbool_t Game::E_Move(coord_t* epos, nomadenum_t* edir)
+inline coord_t Game::E_TryMove(coord_t* epos, nomadenum_t* edir)
 {
 	coord_t pos = E_GetDir(*edir);
-	nomadbool_t trymove = false;
-	if (c_map[epos->y+pos.y][epos->x+pos.x] == '#') {
-		trymove = true;
+	if (c_map[epos->y+pos.y][epos->x+pos.x] != '#') {
+		return pos;
 	}
-	// now try and move the mob
-	if (trymove) {
-		*edir = P_Random() & 3; // this might end up in the same direction
+	else {
+		*edir = P_Random() & 3; // might be the same direction rolled
 		pos = E_GetDir(*edir);
-		if (c_map[epos->y+pos.y][epos->x+pos.x] == '#') {
-			return false;
+		if (c_map[epos->y+pos.y][epos->x+pos.x] != '#') {
+			return pos;
 		}
 		else {
-			epos->y += pos.y;
-			epos->x += pos.x;
-			return true;
+			return {0, 0};
 		}
+	}
+}
+
+nomadbool_t Game::E_Move(coord_t* epos, nomadenum_t* edir)
+{
+	coord_t pos = E_TryMove(epos, edir);
+	if (pos.x == 0 && pos.y == 0) {
+		return false;
 	}
 	else {
 		epos->y += pos.y;

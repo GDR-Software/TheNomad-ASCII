@@ -229,6 +229,12 @@ static void* N_Looper(void* arg)
 static void M_Looper(Mob* mob)
 {
 	mob->mticker--;
+	if (mob->mticker < 0) {
+		mob->mticker = stateinfo[S_MOB_WANDER].numticks;
+		mob->M_WanderThink(game);
+	}
+	/*
+	mob->mticker--;
 	switch (mob->mstate.id) {
 	case S_MOB_NULL:
 		mob->mstate = stateinfo[S_MOB_SPAWN];
@@ -259,4 +265,5 @@ static void M_Looper(Mob* mob)
 		N_Error("Unknown/Invalid Mob State!");
 		break;
 	};
+	*/
 }

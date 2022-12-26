@@ -14,14 +14,14 @@
 // used for locating vars in the stateinfo array
 enum
 {
-	MT_ZHULK = 9,
-	MT_ZRAVAGER = 18,
-	MT_ZGRUNT = 27,
-	MT_PISTOL = 36,
-	MT_SHOTTY = 45,
-	MT_GUNNER = 54,
-	MT_MERC = 63,
-	MT_NOMAD = 70
+	MT_HULK,
+	MT_RAVAGER,
+	MT_GRUNT,
+	MT_PISTOL,
+	MT_SHOTTY,
+	MT_GUNNER,
+	MT_MERC,
+	MT_NOMAD
 };
 
 typedef struct mobj_s

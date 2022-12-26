@@ -29,14 +29,14 @@ const entitystate_t stateinfo[NUMSTATES] = {
 // hitscan dmg, hitscan range, projectile dmg, projectile range, mlore, mdrops
 const mobj_t mobinfo[NUMMOBS] = {
 
-{"Zurgut Hulk",   'H', 487, 56,  MT_ZHULK,   ET_MOB, 150, },
-{"Zurgut Ravager",'R', 353, 40,  MT_ZRAVAGER,ET_MOB, 43},
-{"Zurgut Grunt",  'Z', 21,  11,  MT_ZGRUNT,  ET_MOB, 210},
-{"Pistol Guy",    'P', 49,  18,  MT_PISTOL,  ET_MOB, 160},
-{"Shotgun Dude",  'S', 111, 55,  MT_SHOTTY,  ET_MOB, 57},
-{"Heavy Gunner",  'G', 245, 69,  MT_GUNNER,  ET_MOB, 111},
-{"Mercenary",     'M', 233, 78,  MT_MERC,    ET_MOB, 30},
-{"Nomad",         'N', 689, 105, MT_NOMAD,   ET_MOB, 17}
+{"Hulk",        'H', 487, 56,  MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 0},
+{"Ravager",     'R', 353, 40,  MT_RAVAGER, ET_MOB, 43,  18, SND_LOW,  7,  SMELL_LOW,  10, 10},
+{"Grunt",       'Z', 21,  11,  MT_GRUNT,   ET_MOB, 210, 89, SND_LOW,  10, SMELL_LOW,  10, 14},
+{"Pistol Guy",  'P', 49,  18,  MT_PISTOL,  ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 10},
+{"Shotgun Dude",'S', 111, 55,  MT_SHOTTY,  ET_MOB, 57,  66, SND_LOW,  10, SMELL_LOW,  10, 10},
+{"Heavy Gunner",'G', 245, 69,  MT_GUNNER,  ET_MOB, 111, 59, SND_LOW,  10, SMELL_LOW,  10, 10},
+{"Mercenary",   'M', 233, 78,  MT_MERC,    ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 10},
+{"Nomad",       'N', 689, 105, MT_NOMAD,   ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 10},
 
 };
 
