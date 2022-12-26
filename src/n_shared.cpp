@@ -1,9 +1,47 @@
 #include "n_shared.h"
 
-#ifdef _WIN32
+static void __attribute__((constructor)) set_nonblock(void)
+{
+	struct termios ttystate;
+	
+	// get the terminal state
+	tcgetattr(STDIN_FILENO, &ttystate);
+	
+	// turn off canonical mode
+	ttystate.c_lflag &= ~ICANON;
+	
+	// minimum of number input read.
+	ttystate.c_cc[VMIN] = 1;
+	
+	// set the terminal attributes.
+	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+}
+
+static void set_block(void)
+{
+	struct termios ttystate;
+	
+	// get the terminal state
+	tcgetattr(STDIN_FILENO, &ttystate);
+	
+	//turn on canonical mode
+	ttystate.c_lflag |= ICANON;
+
+	// set the terminal attributes.
+	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+}
+
+void __attribute__((destructor)) kill_process(void)
+{
+	kill_game();
+	kill_zone();
+	set_block();
+}
+
 #ifdef __cplusplus
 nomadbool_t kbhit(nomadushort_t& in)
 {
+#ifdef _WIN32
 	if (_kbhit()) {
 		in = (nomadushort_t)_getch();
 		return true;
@@ -11,7 +49,16 @@ nomadbool_t kbhit(nomadushort_t& in)
 	else {
 		return false;
 	}
-}
+#elif defined(__unix__)
+	struct timeval tv;
+	fd_set fds;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	FD_ZERO(&fds);
+	FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
+	select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+	return FD_ISSET(STDIN_FILENO, &fds);
+#endif
 #else
 nomadbool_t kbhit(nomadushort_t* in)
 {
@@ -23,7 +70,6 @@ nomadbool_t kbhit(nomadushort_t* in)
 		return false;
 	}
 }
-#endif
 #endif
 
 namespace std {

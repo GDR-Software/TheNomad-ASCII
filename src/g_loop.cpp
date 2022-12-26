@@ -1,44 +1,10 @@
 #include "g_game.h"
-#include <termios.h>
-
-static int kbhit()
-{
-    struct timeval tv;
-    fd_set fds;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    FD_ZERO(&fds);
-    FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
-    select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
-    return FD_ISSET(STDIN_FILENO, &fds);
-}
-
-#define NB_ENABLE 1
-#define NB_DISABLE 2
-
-static void nonblock(int state)
-{
-    struct termios ttystate;
-
-    //get the terminal state
-    tcgetattr(STDIN_FILENO, &ttystate);
-
-    if (state == NB_ENABLE) {
-        //turn off canonical mode
-        ttystate.c_lflag &= ~ICANON;
-        //minimum of number input read.
-        ttystate.c_cc[VMIN] = 1;
-    }
-    else if (state == NB_DISABLE) {
-        //turn on canonical mode
-        ttystate.c_lflag |= ICANON;
-    }
-    //set the terminal attributes.
-    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-
-}
 
 static Game* game;
+void kill_game(void)
+{
+	game->kill();
+}
 
 static void levelLoop(void);
 
@@ -57,7 +23,6 @@ void mainLoop(int argc, char* argv[])
 	nomadushort_t c{};
 	start_color();
 	init_pair(0, COLOR_WHITE, COLOR_WHITE);
-	nonblock(NB_ENABLE);
 	attron(COLOR_PAIR(0));
 	while (1) {
 		if (game->gamestate == GS_TITLE) {
@@ -68,10 +33,6 @@ void mainLoop(int argc, char* argv[])
 				game->gamestate = GS_MENU;
 			}
 			else if (c == ctrl('x')) {
-				attroff(COLOR_PAIR(0));
-				delwin(game->screen);
-				endwin();
-				exit(1);
 				break;
 			}
 			else {
@@ -104,9 +65,6 @@ void mainLoop(int argc, char* argv[])
 							game->gamestate = GS_LEVEL;
 							break;
 						case 5:
-							attroff(COLOR_PAIR(0));
-							delwin(game->screen);
-							endwin();
 							exit(1);
 							break;
 						default:
@@ -162,9 +120,6 @@ void mainLoop(int argc, char* argv[])
 							break; }
 						case 4:
 							game->G_SaveGame();
-							attroff(COLOR_PAIR(0));
-							delwin(game->screen);
-							endwin();
 							exit(1);
 							break;
 						case 5:

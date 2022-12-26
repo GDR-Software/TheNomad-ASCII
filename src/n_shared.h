@@ -2,12 +2,8 @@
 #ifndef _N_SHARED_
 #define _N_SHARED_
 
-#ifdef __unix__
-#    include <unistd.h>
-#    include <signal.h>
-#    include <poll.h>
-#    include <sys/stat.h>
-#else // this should never happen, but if it does, then oh hell, you'll have to port it over
+// if you got this, well then, port it
+#if !defined(__unix__) || (_WIN32)
 #   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
 #endif
 
@@ -24,14 +20,14 @@
 #   elif defined(__i586__) || (__i386__) || (__i486__)
 #       define _NOMAD_32
 #   endif
-/*
 #elif _MSVC_VER
 #   ifdef _M_X86
 #       define _NOMAD_32
 #   elif defined(_M_X64)
 #       define _NOMAD_64
 #   endif
-*/
+#else
+#    error UNSUPPORTED COMPILER!
 #endif
 
 class Game;
@@ -47,6 +43,7 @@ typedef __int128_t nomadllong_t;
 typedef int64_t nomadlong_t;
 typedef int32_t nomadint_t;
 typedef int16_t nomadshort_t;
+
 typedef __uint128_t nomadullong_t;
 typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
@@ -57,6 +54,7 @@ typedef int64_t nomadllong_t;
 typedef int32_t nomadlong_t;
 typedef int16_t nomadint_t;
 typedef int8_t nomadshort_t;
+
 typedef uint64_t noamdullong_t;
 typedef uint32_t nomadulong_t;
 typedef uint16_t nomaduint_t;
@@ -79,29 +77,40 @@ typedef enum{false, true} nomadbool_t;
 
 #endif
 
-#include <pthread.h>
+// c++ standard library
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <string>
+
+// c++ STL
+#include <vector>
+
+// c/c++ standard library
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <chrono>
-#include <thread>
-//#include <atomic>
 #include <ctime>
 #include <cmath>
-#include <fstream>
 
-/*
-#ifdef _WIN32
+// OS-specific headers
+#if defined(__unix__)
+#   include <unistd.h>
+#   include <sys/stat.h>
+#   include <termios.h>
+#   include <fcntl.h>
+#elif defined(_WIN32)
+#   include <conio.h>
+#   include <windows.h>
+#   include <dos.h>
+#   include <bios.h>
+#endif
+
 #ifdef __cplusplus
 nomadbool_t kbhit(nomadushort_t& in);
 #else
 nomadbool_t kbhit(nomadushort_t* in);
 #endif
-#endif
-*/
 
 namespace std {
 	size_t filelength(const char* filename);
@@ -136,5 +145,9 @@ inline nomaduint_t disBetweenOBJ(coord_t src, coord_t tar);
 float Q_root(float x);
 
 using namespace std::literals::chrono_literals;
+
+void __attribute__((destructor)) kill_process(void);
+void kill_game(void);
+void kill_zone(void);
 
 #endif

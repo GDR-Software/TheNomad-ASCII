@@ -1,7 +1,5 @@
 #include "n_shared.h"
 
-#include <math.h>
-
 /*
 * this algorithm was improved over the many months of this game's development.
 * originally, it didn't compute distance between diagonal objects, only vertical and horizontal
@@ -10,29 +8,17 @@
 inline nomaduint_t disBetweenOBJ(coord_t src, coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
-		if (src.x > tar.x) {
-			return (src.x - tar.x);
-		}
-		else if (src.x < tar.x) {
-			return (tar.x - src.x);
-		}
-		else {
-			return 0;
-		}
+		if (src.x > tar.x) { return (src.x - tar.x);}
+		else if (src.x < tar.x) { return (tar.x - src.x); }
+		else { return 0; }
 	}
 	else if (src.x == tar.x) { // vertical
-		if (src.y > tar.y) {
-			return (src.y - tar.y);
-		}
-		else if (src.y < tar.y) {
-			return (tar.y - src.y);
-		}
-		else {
-			return 0;
-		}
+		if (src.y > tar.y) { return (src.y - tar.y); }
+		else if (src.y < tar.y) { return (tar.y - src.y); }
+		else { return 0 }
 	}
 	else { // diagonal
-		return pow(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2), 0.5);
+		return (pow(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2), 0.5));
 	}
 }
 
