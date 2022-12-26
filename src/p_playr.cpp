@@ -94,10 +94,7 @@ void Game::P_Ticker(nomadint_t input)
 		gamestate = GS_PAUSE;
 		break;
 	case ctrl('z'):
-		attroff(COLOR_PAIR(0));
-		delwin(screen);
-		endwin();
-		exit(EXIT_SUCCESS);
+		exit(1);
 		break;
 	default: break;
 	};

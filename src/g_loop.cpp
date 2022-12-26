@@ -3,7 +3,10 @@
 static Game* game;
 void kill_game(void)
 {
-	game->kill();
+	attroff(COLOR_PAIR(0));
+	delwin(game->screen);
+	erase();
+	endwin();
 }
 
 static void levelLoop(void);
@@ -148,14 +151,15 @@ static void levelLoop(void)
 	game->G_DisplayHUD();
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	nomaduint_t i;
+	nomadushort_t c;
 	while (game->gamestate == GS_LEVEL) {
 		game->ClearMainWin();
 		// custom key-binds will be implemented in the future
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		game->PrintMainWin();
-		if (kbhit()) {
-			game->P_Ticker(getc(stdin));
+		if (kbhit(c)) {
+			game->P_Ticker(c);
 		}
 		for (i = 0; i < game->m_Active.size(); i++) {
 			M_Looper(game->m_Active[i]);

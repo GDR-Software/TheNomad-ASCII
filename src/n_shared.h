@@ -32,10 +32,23 @@
 
 class Game;
 
+#include <bits/stdc++.h>
+
+// OS-specific headers
+#if defined(__unix__)
+#   include <unistd.h>
+#   include <sys/stat.h>
+#   include <termios.h>
+#   include <fcntl.h>
+#elif defined(_WIN32)
+#   include <conio.h>
+#   include <windows.h>
+#   include <dos.h>
+#   include <bios.h>
+#endif
+
 #ifndef _N_TYPES_
 #define _N_TYPES_
-
-#include <stdint.h>
 
 // these types depend on your arch/OS
 #ifdef _NOMAD_64
@@ -75,35 +88,6 @@ typedef bool nomadbool_t;
 typedef enum{false, true} nomadbool_t;
 #endif
 
-#endif
-
-// c++ standard library
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <string>
-
-// c++ STL
-#include <vector>
-
-// c/c++ standard library
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <cmath>
-
-// OS-specific headers
-#if defined(__unix__)
-#   include <unistd.h>
-#   include <sys/stat.h>
-#   include <termios.h>
-#   include <fcntl.h>
-#elif defined(_WIN32)
-#   include <conio.h>
-#   include <windows.h>
-#   include <dos.h>
-#   include <bios.h>
 #endif
 
 #ifdef __cplusplus

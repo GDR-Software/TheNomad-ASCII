@@ -57,8 +57,15 @@ nomadbool_t kbhit(nomadushort_t& in)
 	FD_ZERO(&fds);
 	FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
 	select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
-	return FD_ISSET(STDIN_FILENO, &fds);
+	if ((FD_ISSET(STDIN_FILENO, &fds))) {
+		in = getc(stdin);
+		return true;
+	}
+	else {
+		return false;
+	}
 #endif
+}
 #else
 nomadbool_t kbhit(nomadushort_t* in)
 {
