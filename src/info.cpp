@@ -17,7 +17,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_DEAD,      35},
 	{S_MOB_NULL,        0},
 	{S_MOB_SPAWN,       15},
-	{S_MOB_WANDER,      35},
+	{S_MOB_WANDER,      15},
 //	{S_MOB_IDLE,        35*2},
 	{S_MOB_CHASEPLAYR,  35*25},
 	{S_MOB_FIGHT,       35*15},
