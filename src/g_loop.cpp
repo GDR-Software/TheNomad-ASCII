@@ -4,8 +4,8 @@ static Game* game;
 
 static void levelLoop(void);
 
-static constexpr nomaduint_t ticrate_mil  = 16;
-static constexpr nomaduint_t ticrate_base = 60;
+static constexpr nomaduint_t ticrate_mil  = 28;
+static constexpr nomaduint_t ticrate_base = 35;
 
 void mainLoop(int argc, char* argv[])
 {
@@ -152,6 +152,7 @@ static void levelLoop(void)
 		game->ClearMainWin();
 		// custom key-binds will be implemented in the future
 		game->DrawMainWinBorder();
+		game->P_GetVPerim();
 		game->G_DisplayHUD();
 		game->PrintMainWin();
 		if (kbhit(c)) {

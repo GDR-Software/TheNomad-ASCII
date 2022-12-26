@@ -24,7 +24,6 @@ public:
 	nomaduint_t pstate;
 	nomadulong_t pticker;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
-//	pint_t vperim[MAX_VERT_FOV+20*2][MAX_HORZ_FOV+20*2];
 	// anything within this perimeter is an active entity, anything not is a static entity
 public:
 	Playr();
