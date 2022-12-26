@@ -183,7 +183,7 @@ void Mob::M_SpawnThink(Game* const game)
 		return;
 	}
 	else {
-		mstate = stateinfo[S_MOB_IDLE];
+		mstate = stateinfo[S_MOB_WANDER];
 		mticker = mstate.numticks;
 	}
 }
