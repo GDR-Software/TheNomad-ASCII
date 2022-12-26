@@ -53,6 +53,7 @@ class Game;
 #   include <sys/stat.h>
 #   include <termios.h>
 #   include <fcntl.h>
+#   include <signal.h>
 #elif defined(_WIN32)
 #   include <conio.h>
 #   include <windows.h>
