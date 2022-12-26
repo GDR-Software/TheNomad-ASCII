@@ -33,7 +33,7 @@ typedef struct
 } memzone_t;
 
 #ifndef _TESTING
-static constexpr int heapsize = 1126136 + sizeof(memzone_t);
+static constexpr int heapsize = 1972504 + sizeof(memzone_t);
 #endif
 
 memzone_t* mainzone;
@@ -360,7 +360,9 @@ void Z_ChangeUser(void *ptr, void *user)
 	user = ptr;
 }
 
+#ifndef _TESTING
 constexpr unsigned long Z_ZoneSize(void)
 {
 	return heapsize;
 }
+#endif

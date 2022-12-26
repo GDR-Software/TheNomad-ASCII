@@ -4,6 +4,7 @@ obj/*
 heaplog.txt
 nomadascii # its x86_64 built
 *.tar.gz
+nomadsv.ngd
 replit.nix
 ncurses-6.3/
 .ccls-cache/

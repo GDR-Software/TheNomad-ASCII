@@ -56,7 +56,12 @@ typedef struct
 } bossj_t;
 
 extern const mobj_t mobinfo[NUMMOBS];
-extern bossj_t bossinfo;
+extern const bossj_t bossinfo;
+
+constexpr nomadenum_t idle       = 0b00000000;
+constexpr nomadenum_t smellplayr = 0b00000001;
+constexpr nomadenum_t hearplayr  = 0b00000010;
+constexpr nomadenum_t seeplayr   = 0b00000011;
 
 class Mob
 {
@@ -72,27 +77,24 @@ public:
 	nomadenum_t mdir;
 	coord_t mpos;
 	entitystate_t mstate;
+	nomadshort_t stepcounter;
 public:
-	Mob() = default;
+	Mob();
 	~Mob();
-/*
-	nomadbool_t M_SmellImmediate(const std::unique_ptr<Game>& map);
-	nomadbool_t M_SmellPlayr(const std::unique_ptr<Game>& map);
-	nomadbool_t M_SeePlayr(const std::unique_ptr<Game>& map);
-	nomadbool_t M_HearImmediate(const std::unique_ptr<Game>& map);
-	nomadbool_t M_HearPlayr(const std::unique_ptr<Game>& map);
 
-	void M_SpawnThink(std::unique_ptr<Game>& game);
-	void M_IdleThink(std::unique_ptr<Game>& game);
-	void M_SmellThink(std::unique_ptr<Game>& game);
-	void M_HearThink(std::unique_ptr<Game>& game);
-	void M_ChasePlayr(std::unique_ptr<Game>& game);
-	void M_FightThink(std::unique_ptr<Game>& game);
-	void M_FleeThink(std::unique_ptr<Game>& game);
-	void M_WanderThink(std::unique_ptr<Game>& game);
-	void M_DeadThink(std::unique_ptr<Game>& game); */
+	nomadbool_t M_SmellImmediate(const Game* map);
+	nomadbool_t M_SmellPlayr(const Game* map);
+	nomadbool_t M_SeePlayr(const Game* map);
+	nomadbool_t M_HearImmediate(const Game* map);
+	nomadbool_t M_HearPlayr(const Game* map);
+
+	void M_SpawnThink(Game* const game);
+	void M_IdleThink(Game* const game);
+	void M_ChasePlayr(Game* const game);
+	void M_FightThink(Game* const game);
+	void M_FleeThink(Game* const game);
+	void M_WanderThink(Game* const game);
+	void M_DeadThink(Game* const game);
 };
-
-//void M_AngryPunch(Mob* mob, std::unique_ptr<Game>& game);
 
 #endif

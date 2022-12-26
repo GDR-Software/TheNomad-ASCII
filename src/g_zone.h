@@ -18,7 +18,9 @@ void Z_Init(void);
 void* Z_Malloc(int size, int tag, void* user);
 void Z_Free(void *ptr);
 void Z_ClearZone(void);
+#ifndef _TESTING
 constexpr unsigned long Z_ZoneSize(void);
+#endif
 void Z_ChangeUser(void *ptr, void *user);
 void Z_FreeTags(int lowtag, int hightag);
 void Z_CheckHeap(void);

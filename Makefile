@@ -30,25 +30,29 @@ OBJS= \
 	$(O)/g_game.o \
 	$(O)/g_init.o \
 	$(O)/scf.o \
-	$(O)/c_saveg.o \
+	$(O)/s_saveg.o \
 	$(O)/g_zone.o \
 	$(O)/p_playr.o \
 	$(O)/p_common.o \
 	$(O)/info.o \
-	$(O)/c_mmisc.o \
+	$(O)/s_mmisc.o \
 	$(O)/m_hud.o \
 	$(O)/m_inventory.o \
 	$(O)/p_physics.o \
-	$(O)/m_biome.o \
 	$(O)/g_loop.o \
-	$(O)/c_behave.o \
+	$(O)/s_behave.o \
 	$(O)/g_rng.o \
 	$(O)/m_tuilib.o \
+#	$(O)/c_dungen.o \
+#	$(O)/c_nemsis.o \
+#	$(O)/c_sao.o \
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -Os $(OBJS) $(LDFLAGS) -o $(EXE)
+	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE)
 
 $(O)/%.o: $(SDIR)/%.cpp
+	$(CC) $(CFLAGS) $(ERRORS) -Ofast -o $@ -c $<
+$(O)/%.o: $(SDIR)/cardinal/%.cpp
 	$(CC) $(CFLAGS) $(ERRORS) -Ofast -o $@ -c $<
 
 clean:

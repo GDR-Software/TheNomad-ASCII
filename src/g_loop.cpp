@@ -202,8 +202,8 @@ static void levelLoop(void)
 		if (kbhit()) {
 			game->P_Ticker(getc(stdin));
 		}
-		for (i = 0; i < sizeof(game->m_Active); i++) {
-//			M_Looper(&game->m_Active[i]);
+		for (i = 0; i < game->m_Active.size(); i++) {
+			M_Looper(game->m_Active[i]);
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		game->ticcount++;
@@ -225,14 +225,14 @@ static void* N_Looper(void* arg)
 	pthread_mutex_unlock(&npc_mutex);
 	return NULL;
 } */
-/*
+
 static void M_Looper(Mob* mob)
 {
 	mob->mticker--;
-	switch (mob->mstate.id - mob->c_mob.mtype) {
+	switch (mob->mstate.id) {
 	case S_MOB_NULL:
-		mob->mstate = stateinfo[S_MOB_SPAWN+mob->c_mob.mtype];
-		mob->mticker = mstate.numticks;
+		mob->mstate = stateinfo[S_MOB_SPAWN];
+		mob->mticker = mob->mstate.numticks;
 		break;
 	case S_MOB_SPAWN:
 		mob->M_SpawnThink(game);
@@ -243,27 +243,20 @@ static void M_Looper(Mob* mob)
 	case S_MOB_IDLE:
 		mob->M_IdleThink(game);
 		break;
-	case S_MOB_SMELLPLAYR:
-		mob->M_SmellThink(game);
-		break;
-	case S_MOB_HEARPLAYR:
-		mob->M_HearThink(game);
-		break;
 	case S_MOB_CHASEPLAYR:
-		mob->M_ChaseThink(game);
+		mob->M_ChasePlayr(game);
 		break;
 	case S_MOB_FIGHT:
 		mob->M_FightThink(game);
 		break;
 	case S_MOB_FLEE:
-		game->M_FleeThink(game);
+		mob->M_FleeThink(game);
 		break;
 	case S_MOB_DEAD:
-		game->M_DeadThink(game);
+		mob->M_DeadThink(game);
 		break;
 	default:
 		N_Error("Unknown/Invalid Mob State!");
 		break;
 	};
 }
-*/

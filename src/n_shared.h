@@ -34,6 +34,8 @@
 */
 #endif
 
+class Game;
+
 #ifndef _N_TYPES_
 #define _N_TYPES_
 
