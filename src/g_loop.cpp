@@ -189,9 +189,9 @@ static void* M_Looper(void *arg)
 		Mob* mob = game->m_Active[i];
 		mob->mticker--;
 		switch (mob->mstate.id) {
-		case S_MOB_IDLE:
+		/*case S_MOB_IDLE:
 			mob->M_IdleThink(game);
-			break;
+			break; */
 		case S_MOB_WANDER:
 			mob->M_WanderThink(game);
 			break;

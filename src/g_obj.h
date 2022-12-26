@@ -42,7 +42,7 @@ typedef enum : nomaduint_t
 	S_MOB_NULL,
 	S_MOB_SPAWN,
 	S_MOB_WANDER,
-	S_MOB_IDLE,
+//	S_MOB_IDLE,
 	S_MOB_CHASEPLAYR,
 	S_MOB_FIGHT,
 	S_MOB_FLEE,

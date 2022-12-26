@@ -187,34 +187,38 @@ void Mob::M_SpawnThink(Game* const game)
 		mticker = mstate.numticks;
 	}
 }
+/*
 void Mob::M_IdleThink(Game* const game)
 {
 	nomadenum_t pursuitcounter = idle;
-	if (M_SmellPlayr(game)) {
-		pursuitcounter |= smellplayr;
-	}
-	if (M_HearPlayr(game)) {
-		pursuitcounter |= hearplayr;
-	}
-	// check if the pursuitcounter is above smellplayr, if not, mob stays idle
-	if (pursuitcounter > smellplayr) {
-		if (M_SeePlayr(game)) {
-			pursuitcounter |= seeplayr;
+	if (mticker < 0) {
+		if (M_SmellPlayr(game)) {
+			pursuitcounter |= smellplayr;
+		}
+		if (M_HearPlayr(game)) {
+			pursuitcounter |= hearplayr;
+		}
+		// check if the pursuitcounter is above smellplayr, if not, mob stays idle
+		if (pursuitcounter > smellplayr) {
+			if (M_SeePlayr(game)) {
+				pursuitcounter |= seeplayr;
+			}
+		}
+		// don't check sight if the mob doesn't smell the player
+		else {
+			return;
+		}
+		
+		if (pursuitcounter & seeplayr) {
+			mstate = stateinfo[S_MOB_WANDER]; // wander until i get to writing the chaseplayr state
+			mticker = mstate.numticks;
+		}
+		else {
+			mticker = mstate.numticks;
 		}
 	}
-	// don't check sight if the mob doesn't smell the player
-	else {
-		return;
-	}
-
-	if (pursuitcounter & seeplayr) {
-		mstate = stateinfo[S_MOB_WANDER]; // wander until i get to writing the chaseplayr state
-		mticker = mstate.numticks;
-	}
-	else {
-		mticker = mstate.numticks;
-	}
 }
+*/
 void Mob::M_ChasePlayr(Game* const game)
 {
 	return;
@@ -244,7 +248,7 @@ void Mob::M_WanderThink(Game* const game)
 			}
 		}
 		else {
-			mstate = stateinfo[S_MOB_IDLE];
+			return;
 		}
 
 		if (pursuitcounter & hearplayr) {
