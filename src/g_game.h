@@ -46,8 +46,6 @@ constexpr auto MAP            = 0x07;
 constexpr auto MENU_SAVEFILES = 0x08;
 constexpr auto MENU_PAUSE     = 0x09;
 
-
-
 class Game
 {
 public:
@@ -59,11 +57,17 @@ public:
 	std::vector<Mob*> m_Active;
 	std::vector<NPC*> b_Active;
 public: // map stuff
-	pint_t mapbuffer[MAP_MAX_Y+160][MAP_MAX_X+160];
+	sndlvl_t sndmap[MAP_MAX_Y+160][MAP_MAX_X+160];
+	smelllvl_t smellmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	char c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
 public:
 	WINDOW* screen;
 	WINDOW* hudwin[NUMHUDLAYERS];
+public: // *** multithreading! ***
+	pthread_mutex_t mob_mutex;
+	pthread_mutex_t playr_mutex;
+	pthread_t mthread;
+	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:
 	Game();
 	~Game();

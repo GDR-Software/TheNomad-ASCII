@@ -17,9 +17,10 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_DEAD,      35},
 	{S_MOB_NULL,        0},
 	{S_MOB_SPAWN,       15},
-	{S_MOB_WANDER,      21},
-	{S_MOB_CHASEPLAYR,  50},
-	{S_MOB_FIGHT,       34},
+	{S_MOB_WANDER,      35*10},
+	{S_MOB_IDLE,        35*2},
+	{S_MOB_CHASEPLAYR,  35*25},
+	{S_MOB_FIGHT,       35*15},
 	{S_MOB_FLEE,        15},
 	{S_MOB_DEAD,        65}
 };
@@ -29,7 +30,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 // hitscan dmg, hitscan range, projectile dmg, projectile range, mlore, mdrops
 const mobj_t mobinfo[NUMMOBS] = {
 
-{"Hulk",        'H', 487, 56,  MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 0},
+{"Hulk",        'H', 487, 56,  MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 10},
 {"Ravager",     'R', 353, 40,  MT_RAVAGER, ET_MOB, 43,  18, SND_LOW,  7,  SMELL_LOW,  10, 10},
 {"Grunt",       'Z', 21,  11,  MT_GRUNT,   ET_MOB, 210, 89, SND_LOW,  10, SMELL_LOW,  10, 14},
 {"Pistol Guy",  'P', 49,  18,  MT_PISTOL,  ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 10},

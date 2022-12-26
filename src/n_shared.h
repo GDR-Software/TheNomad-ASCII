@@ -32,7 +32,20 @@
 
 class Game;
 
-#include <bits/stdc++.h>
+#include <fstream>
+#include <vector>
+#include <pthread.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <exception>
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <cstring>
+#include <cassert>
+#include <string>
+#include <cstdarg>
 
 // OS-specific headers
 #if defined(__unix__)

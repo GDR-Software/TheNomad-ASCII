@@ -6,7 +6,7 @@ CFLAGS         = -g -std=c++17 -Wall
 O              = obj
 SDIR           = src
 INCLUDE        = -IFiles/gamedata/DEPS/include
-LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a
+LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a -lpthread
 EXE            = nomadascii
 
 .PHONY: all clean clean.exe clean.objs

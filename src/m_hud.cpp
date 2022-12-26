@@ -303,46 +303,46 @@ static inline void Hud_GetVMatrix(Game* const game)
 	}
 }
 
-static inline void G_SetSndPerim(pint_t mapbuffer[MAP_MAX_Y+160][MAP_MAX_X+160],
+static inline void G_SetSndPerim(Game* const game,
 	nomadenum_t by, sndlvl_t num, coord_t from)
 {
-	mapbuffer[from.y + by][from.x].snd_lvl = num;
-	mapbuffer[from.y][from.x + by].snd_lvl = num;
-	mapbuffer[from.y - by][from.x].snd_lvl = num;
-	mapbuffer[from.y][from.x - by].snd_lvl = num;
-	mapbuffer[from.y + by][from.x + by].snd_lvl = num;
-	mapbuffer[from.y + by][from.x - by].snd_lvl = num;
-	mapbuffer[from.y - by][from.x + by].snd_lvl = num;
-	mapbuffer[from.y - by][from.x - by].snd_lvl = num;
+	game->sndmap[from.y + by][from.x] = num;
+	game->sndmap[from.y][from.x + by] = num;
+	game->sndmap[from.y - by][from.x] = num;
+	game->sndmap[from.y][from.x - by] = num;
+	game->sndmap[from.y + by][from.x + by] = num;
+	game->sndmap[from.y + by][from.x - by] = num;
+	game->sndmap[from.y - by][from.x + by] = num;
+	game->sndmap[from.y - by][from.x - by] = num;
 }
 
-static inline void G_SetSmellPerim(pint_t mapbuffer[MAP_MAX_Y+160][MAP_MAX_X+160],
-	nomadenum_t by,smelllvl_t num, coord_t from)
+static inline void G_SetSmellPerim(Game* const game,
+	nomadenum_t by, smelllvl_t num, coord_t from)
 {
-	mapbuffer[from.y + by][from.x].smell_lvl = num;
-	mapbuffer[from.y][from.x + by].smell_lvl = num;
-	mapbuffer[from.y - by][from.x].smell_lvl = num;
-	mapbuffer[from.y][from.x - by].smell_lvl = num;
-	mapbuffer[from.y + by][from.x + by].smell_lvl = num;
-	mapbuffer[from.y + by][from.x - by].smell_lvl = num;
-	mapbuffer[from.y - by][from.x + by].smell_lvl = num;
-	mapbuffer[from.y - by][from.x - by].smell_lvl = num;
+	game->smellmap[from.y + by][from.x] = num;
+	game->smellmap[from.y][from.x + by] = num;
+	game->smellmap[from.y - by][from.x] = num;
+	game->smellmap[from.y][from.x - by] = num;
+	game->smellmap[from.y + by][from.x + by] = num;
+	game->smellmap[from.y + by][from.x - by] = num;
+	game->smellmap[from.y - by][from.x + by] = num;
+	game->smellmap[from.y - by][from.x - by] = num;
 }
 
-static inline void G_SetMapSnd(pint_t mapbuffer[MAP_MAX_Y+160][MAP_MAX_X+160])
+static inline void G_SetMapSnd(Game* const game)
 {
 	for (nomaduint_t y = 0; y < MAP_MAX_Y+160; y++) {
 		for (nomaduint_t x = 0; x < MAP_MAX_X+160; x++) {
-			mapbuffer[y][x].snd_lvl = SND_LOW;
+			game->sndmap[y][x] = SND_LOW;
 		}
 	}
 }
 
-static inline void G_SetMapSmell(pint_t mapbuffer[MAP_MAX_Y+160][MAP_MAX_X+160])
+static inline void G_SetMapSmell(Game* const game)
 {
 	for (nomaduint_t y = 0; y < MAP_MAX_Y+160; y++) {
 		for (nomaduint_t x = 0; x < MAP_MAX_X+160; x++) {
-			mapbuffer[y][x].smell_lvl = SMELL_LOW;
+			game->smellmap[y][x] = SMELL_LOW;
 		}
 	}
 }
@@ -351,29 +351,29 @@ void Game::G_ResetMap(void)
 {
 	nomadenum_t i;
 //	memset(&mapbuffer, 0, sizeof(mapbuffer));
-	G_SetMapSnd(mapbuffer);
-	G_SetMapSmell(mapbuffer);
+	G_SetMapSnd(this);
+	G_SetMapSmell(this);
 	for (i = 0; i < m_Active.size(); i++) {
 		Mob* mob = m_Active[i];
-		mapbuffer[mob->mpos.y][mob->mpos.x].snd_lvl = SND_MEDIUM;
-		mapbuffer[mob->mpos.y][mob->mpos.x].smell_lvl = SMELL_MEDIUM;
-		G_SetSndPerim(mapbuffer, 1, SND_MEDIUM, mob->mpos);
-		G_SetSndPerim(mapbuffer, 2, SND_MEDIUM, mob->mpos);
-		G_SetSndPerim(mapbuffer, 3, SND_SOME, mob->mpos);
-		G_SetSndPerim(mapbuffer, 4, SND_SOME, mob->mpos);
+		sndmap[mob->mpos.y][mob->mpos.x] = SND_MEDIUM;
+		smellmap[mob->mpos.y][mob->mpos.x] = SMELL_MEDIUM;
+		G_SetSndPerim(this, 1, SND_MEDIUM, mob->mpos);
+		G_SetSndPerim(this, 2, SND_MEDIUM, mob->mpos);
+		G_SetSndPerim(this, 3, SND_SOME, mob->mpos);
+		G_SetSndPerim(this, 4, SND_SOME, mob->mpos);
 	} /*
 	for (i = 0; i < b_Active.size(); i++) {
 		NPC* npc = b_Active[i];
 	} */
-	mapbuffer[playr->pos.y][playr->pos.x].snd_lvl = SND_MEDIUM;
-	mapbuffer[playr->pos.y][playr->pos.x].smell_lvl = SMELL_MEDIUM;
+	sndmap[playr->pos.y][playr->pos.x] = SND_MEDIUM;
+	smellmap[playr->pos.y][playr->pos.x] = SMELL_MEDIUM;
 	for (i = 1; i < 4; i++) {
-		G_SetSndPerim(mapbuffer, i, SND_MEDIUM, playr->pos);
-		G_SetSmellPerim(mapbuffer, 1, SMELL_MEDIUM, playr->pos);
+		G_SetSndPerim(this, i, SND_MEDIUM, playr->pos);
+		G_SetSmellPerim(this, i, SMELL_MEDIUM, playr->pos);
 	}
 	for (i = 4; i < 6; i++) {
-		G_SetSndPerim(mapbuffer, i, SND_SOME, playr->pos);
-		G_SetSmellPerim(mapbuffer, 4, SMELL_SOME, playr->pos);
+		G_SetSndPerim(this, i, SND_SOME, playr->pos);
+		G_SetSmellPerim(this, i, SMELL_SOME, playr->pos);
 	}
 
 }

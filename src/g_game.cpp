@@ -27,7 +27,9 @@ Game::~Game()
 	erase();
 	endwin();
 	set_block();
-	
+
+	pthread_mutex_destroy(&mob_mutex);
+	pthread_mutex_destroy(&playr_mutex);
 	// now we delete any of the runtime-only resources
 	system("rm Files/gamedata/RUNTIME/*.txt");
 }

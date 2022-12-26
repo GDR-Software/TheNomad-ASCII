@@ -9,6 +9,8 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv);
 
 void I_NomadInit(int argc, char* argv[], Game* game)
 {
+	pthread_mutex_init(&game->mob_mutex, NULL);
+	pthread_mutex_init(&game->playr_mutex, NULL);
 	bffname[80] = '\0';
 	game->gamestate = GS_TITLE;
 	game->gamescreen = MENU_TITLE;

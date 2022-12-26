@@ -48,14 +48,14 @@ Mob::~Mob()
 
 nomadbool_t Mob::M_HearImmediate(const Game* map)
 {
-	if (map->mapbuffer[mpos.y - 1][mpos.x].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y][mpos.x - 1].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y + 1][mpos.x].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y][mpos.x + 1].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y - 1][mpos.y - 1].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y - 1][mpos.y + 1].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y + 1][mpos.y - 1].snd_lvl >= c_mob.snd_tol
-	|| map->mapbuffer[mpos.y + 1][mpos.y + 1].snd_lvl >= c_mob.snd_tol) {
+	if (map->sndmap[mpos.y - 1][mpos.x] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y][mpos.x - 1] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y + 1][mpos.x] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y][mpos.x + 1] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y - 1][mpos.y - 1] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y - 1][mpos.y + 1] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y + 1][mpos.y - 1] >= c_mob.snd_tol
+	|| map->sndmap[mpos.y + 1][mpos.y + 1] >= c_mob.snd_tol) {
 		return true;
 	}
 	else {
@@ -72,10 +72,10 @@ nomadbool_t Mob::M_HearPlayr(const Game* map)
 		if (!M_HearImmediate(map)) {
 			bool found = false;
 			for (nomadushort_t y = mpos.y;
-			y < (mpos.y - (c_mob.snd_area >> 1)); y--) {
+			y < (mpos.y - (c_mob.snd_area >> 1)); y++) {
 				for (nomadushort_t x = mpos.x;
-				x < (mpos.x + (c_mob.snd_area >> 1)); x--) {
-					if (map->mapbuffer[y][x].snd_lvl >= c_mob.snd_tol) {
+				x < (mpos.x + (c_mob.snd_area >> 1)); x++) {
+					if (map->sndmap[y][x] >= c_mob.snd_tol) {
 						found = true;
 					}
 				}
@@ -137,14 +137,14 @@ nomadbool_t Mob::M_SeePlayr(const Game* map)
 
 nomadbool_t Mob::M_SmellImmediate(const Game* map)
 {
-	if (map->mapbuffer[mpos.y - 1][mpos.x].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y][mpos.x - 1].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y + 1][mpos.x].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y][mpos.x + 1].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y - 1][mpos.y - 1].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y - 1][mpos.y + 1].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y + 1][mpos.y - 1].smell_lvl >= c_mob.smell_tol
-	|| map->mapbuffer[mpos.y + 1][mpos.y + 1].smell_lvl >= c_mob.smell_tol) {
+	if (map->smellmap[mpos.y - 1][mpos.x] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y][mpos.x - 1] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y + 1][mpos.x] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y][mpos.x + 1] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y - 1][mpos.y - 1] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y - 1][mpos.y + 1] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y + 1][mpos.y - 1] >= c_mob.smell_tol
+	|| map->smellmap[mpos.y + 1][mpos.y + 1] >= c_mob.smell_tol) {
 		return true;
 	}
 	else {
@@ -161,10 +161,10 @@ nomadbool_t Mob::M_SmellPlayr(const Game* map)
 		if (!M_SmellImmediate(map)) {
 			bool found = false;
 			for (nomadushort_t y = mpos.y;
-			y < (mpos.y - (c_mob.snd_area >> 1)); y--) {
+			y < (mpos.y - (c_mob.snd_area >> 1)); y++) {
 				for (nomadushort_t x = mpos.x;
-				x < (mpos.x + (c_mob.snd_area >> 1)); x--) {
-					if (map->mapbuffer[y][x].smell_lvl >= c_mob.smell_tol) {
+				x < (mpos.x + (c_mob.snd_area >> 1)); x++) {
+					if (map->smellmap[y][x] >= c_mob.smell_tol) {
 						found = true;
 					}
 				}
@@ -189,35 +189,30 @@ void Mob::M_SpawnThink(Game* const game)
 }
 void Mob::M_IdleThink(Game* const game)
 {
-	// if the mob smells and hears the playr OR sees the playr, they'll enter chase state
-	if (mticker <= 0) {
-		nomadenum_t pursuitcounter = idle;
-		if (M_SmellPlayr(game)) {
-			pursuitcounter |= smellplayr;
-		}
-		if (M_HearPlayr(game)) {
-			pursuitcounter |= hearplayr;
-		}
+	nomadenum_t pursuitcounter = idle;
+	if (M_SmellPlayr(game)) {
+		pursuitcounter |= smellplayr;
+	}
+	if (M_HearPlayr(game)) {
+		pursuitcounter |= hearplayr;
+	}
+	// check if the pursuitcounter is above smellplayr, if not, mob stays idle
+	if (pursuitcounter > smellplayr) {
 		if (M_SeePlayr(game)) {
 			pursuitcounter |= seeplayr;
 		}
-		if (pursuitcounter < smellplayr) {
-			return;
-		}
-		else if (pursuitcounter > smellplayr && pursuitcounter < seeplayr) {
-			mstate = stateinfo[S_MOB_WANDER];
-			mticker = mstate.numticks;
-		}
-		else if (pursuitcounter & seeplayr) {
-			mstate = stateinfo[S_MOB_CHASEPLAYR];
-			mticker = mstate.numticks;
-		}
-		else {
-			return;
-		}
 	}
+	// don't check sight if the mob doesn't smell the player
 	else {
 		return;
+	}
+
+	if (pursuitcounter & seeplayr) {
+		mstate = stateinfo[S_MOB_WANDER]; // wander until i get to writing the chaseplayr state
+		mticker = mstate.numticks;
+	}
+	else {
+		mticker = mstate.numticks;
 	}
 }
 void Mob::M_ChasePlayr(Game* const game)
@@ -234,6 +229,32 @@ void Mob::M_FleeThink(Game* const game)
 }
 void Mob::M_WanderThink(Game* const game)
 {
+	if (mticker < 0) {
+		// basically idle state
+		nomadenum_t pursuitcounter = idle;
+		if (M_SmellPlayr(game)) {
+			pursuitcounter |= smellplayr;
+		}
+		if (M_HearPlayr(game)) {
+			pursuitcounter |= hearplayr;
+		}
+		if (pursuitcounter > smellplayr) {
+			if (M_SeePlayr(game)) {
+				pursuitcounter |= seeplayr;
+			}
+		}
+		else {
+			mstate = stateinfo[S_MOB_IDLE];
+		}
+
+		if (pursuitcounter & hearplayr) {
+			mstate = stateinfo[S_MOB_WANDER];
+		}
+		else if (pursuitcounter & seeplayr) {
+			mstate = stateinfo[S_MOB_WANDER];
+		}
+		mticker = mstate.numticks;
+	}
 	if (!stepcounter) {
 		stepcounter = P_Random() & 10; // get a cardinal number in the future
 		
@@ -252,32 +273,6 @@ void Mob::M_WanderThink(Game* const game)
 			mdir = P_Random() & 3;
 		}
 	}
-	/*
-	nomadenum_t pursuitcounter = idle;
-	if (M_SmellPlayr(game)) {
-		pursuitcounter |= smellplayr;
-	}
-	if (M_HearPlayr(game)) {
-		pursuitcounter |= hearplayr;
-	}
-	if (M_SeePlayr(game)) {
-		pursuitcounter |= seeplayr;
-	}
-	if (pursuitcounter < hearplayr) {
-		mstate = stateinfo[S_MOB_IDLE];
-		mticker = mstate.numticks;
-}
-	else if (pursuitcounter > smellplayr && pursuitcounter < seeplayr) {
-		mticker = mstate.numticks;
-	}
-	else if (pursuitcounter & seeplayr) {
-		mstate = stateinfo[S_MOB_CHASEPLAYR];
-		mticker = mstate.id;
-	}
-	if (!game->E_Move(&mpos, &mdir)) {
-		return;
-	}
-	*/
 }
 void Mob::M_DeadThink(Game* const game)
 {
