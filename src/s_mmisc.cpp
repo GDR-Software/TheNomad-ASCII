@@ -94,43 +94,33 @@ nomadbool_t Mob::M_SeePlayr(const Game* map)
 		return false;
 	}
 	else {
+		coord_t pos = map->E_GetDir(mdir);
+		coord_t endc;
 		switch (mdir) {
-		case D_NORTH: {
-			for (nomadushort_t i = mpos.y; 
-			i < (mpos.y - c_mob.sight_range); --i) {
-			if (map->c_map[i][mpos.x] == map->playr->sprite) {
-					return true;
-				}
-			}
-			break; }
-		case D_WEST: {
-			for (nomadushort_t i = mpos.x;
-			i < (mpos.x - c_mob.sight_range); --i) {
-				if (map->c_map[mpos.y][i] == map->playr->sprite) {
-					return true;
-				}
-			}
-			break; }
-		case D_SOUTH: {
-			for (nomadushort_t i = mpos.y;
-			i < (mpos.y + c_mob.sight_range); ++i) {
-				if (map->c_map[i][mpos.x] == map->playr->sprite) {
-					return true;
-				}
-			}
-			break; }
-		case D_EAST: {
-			for (nomadushort_t i = mpos.x;
-			i < (mpos.x + c_mob.sight_range); ++i) {
-				if (map->c_map[mpos.y][i] == map->playr->sprite) {
-					return true;
-				}
-			}
-			break; }
-		default:
-			N_Error("Unknown/Invalid Direction For Mob: %s", c_mob.name);
+		case D_NORTH:
+			endc.y = mpos.y - c_mob.sight_range;
+			endc.x = 0;
+			break;
+		case D_WEST:
+			endc.y = 0;
+			endc.x = mpos.x - c_mob.sight_range;
+			break;
+		case D_SOUTH:
+			endc.y = mpos.y + c_mob.sight_range;
+			endc.x = 0;
+			break;
+		case D_EAST:
+			endc.y = 0;
+			endc.x = mpos.x + c_mob.sight_range;
 			break;
 		};
+		for (nomadushort_t y = mpos.y; y < endc.y; y += pos.y) {
+			for (nomadushort_t x = mpos.x; x < endc.x; x += pos.x) {
+				if (map->c_ma[y][x] == '@') {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 }
@@ -187,38 +177,7 @@ void Mob::M_SpawnThink(Game* const game)
 		mticker = mstate.numticks;
 	}
 }
-/*
-void Mob::M_IdleThink(Game* const game)
-{
-	nomadenum_t pursuitcounter = idle;
-	if (mticker < 0) {
-		if (M_SmellPlayr(game)) {
-			pursuitcounter |= smellplayr;
-		}
-		if (M_HearPlayr(game)) {
-			pursuitcounter |= hearplayr;
-		}
-		// check if the pursuitcounter is above smellplayr, if not, mob stays idle
-		if (pursuitcounter > smellplayr) {
-			if (M_SeePlayr(game)) {
-				pursuitcounter |= seeplayr;
-			}
-		}
-		// don't check sight if the mob doesn't smell the player
-		else {
-			return;
-		}
-		
-		if (pursuitcounter & seeplayr) {
-			mstate = stateinfo[S_MOB_WANDER]; // wander until i get to writing the chaseplayr state
-			mticker = mstate.numticks;
-		}
-		else {
-			mticker = mstate.numticks;
-		}
-	}
-}
-*/
+
 void Mob::M_ChasePlayr(Game* const game)
 {
 	return;
@@ -232,34 +191,7 @@ void Mob::M_FleeThink(Game* const game)
 	return;
 }
 void Mob::M_WanderThink(Game* const game)
-{/*
-	if (mticker < 0) {
-		// basically idle state
-		nomadenum_t pursuitcounter = idle;
-		if (M_SmellPlayr(game)) {
-			pursuitcounter |= smellplayr;
-		}
-		if (M_HearPlayr(game)) {
-			pursuitcounter |= hearplayr;
-		}
-		if (pursuitcounter > smellplayr) {
-			if (M_SeePlayr(game)) {
-				pursuitcounter |= seeplayr;
-			}
-		}
-		else {
-			return;
-		}
-		
-		if (pursuitcounter & hearplayr) {
-			mstate = stateinfo[S_MOB_WANDER];
-		}
-		else if (pursuitcounter & seeplayr) {
-			mstate = stateinfo[S_MOB_WANDER];
-		}
-		mticker = mstate.numticks;
-	}
-*/	
+{
 	if (mticker < 0) {
 		if (!stepcounter) {
 			stepcounter = P_Random() & 10; // get a cardinal number in the future
@@ -280,6 +212,9 @@ void Mob::M_WanderThink(Game* const game)
 			}
 		}
 		mticker = stateinfo[S_MOB_WANDER].numticks;
+		if (M_SeePlayr(game)) {
+			game->M_FollowPlayr(this, false, false, true);
+		}
 	}
 	else {
 		return;
@@ -293,5 +228,9 @@ void Mob::M_DeadThink(Game* const game)
 void Game::M_FollowPlayr(Mob* const mob, nomadbool_t smell, nomadbool_t hear,
 	nomadbool_t see)
 {
-	return;
+	if (see) {
+		coord_t pos = E_GetDir(mob->mdir);
+		mob->mpos.y += pos;
+		mob->mpos.x += pos;
+	}
 }

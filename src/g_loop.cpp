@@ -192,37 +192,4 @@ static void* M_Looper(void *arg)
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
 	return NULL;
-	/*
-	mob->mticker--;
-	switch (mob->mstate.id) {
-	case S_MOB_NULL:
-		mob->mstate = stateinfo[S_MOB_SPAWN];
-		mob->mticker = mob->mstate.numticks;
-		break;
-	case S_MOB_SPAWN:
-		mob->M_SpawnThink(game);
-		break;
-	case S_MOB_WANDER:
-		mob->M_WanderThink(game);
-		break;
-	case S_MOB_IDLE:
-		mob->M_IdleThink(game);
-		break;
-	case S_MOB_CHASEPLAYR:
-		mob->M_ChasePlayr(game);
-		break;
-	case S_MOB_FIGHT:
-		mob->M_FightThink(game);
-		break;
-	case S_MOB_FLEE:
-		mob->M_FleeThink(game);
-		break;
-	case S_MOB_DEAD:
-		mob->M_DeadThink(game);
-		break;
-	default:
-		N_Error("Unknown/Invalid Mob State!");
-		break;
-	};
-	*/
 }
