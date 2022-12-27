@@ -199,20 +199,8 @@ void Mob::M_FightThink(Game* const game)
 void Mob::M_FleeThink(Game* const game)
 {
 	return;
-}/*
-void Mob::M_IdleThink(Game* const game)
-{
-	if (mticker < 0) {
-		mticker = mstate.numticks;
-	}
-	if (M_SmellPlayr(game) || M_HearPlayr(game) || M_SeePlayr(game)) {
-		mstate = stateinfo[S_MOB_WANDER];
-		mticker = mstate.numticks;
-	}
-	if (M_SeePlayr(game)) {
-		game->M_FollowPlayr(this, true, true, true);
-	}
-}*/
+}
+
 void Mob::M_WanderThink(Game* const game)
 {
 	if (!stepcounter) {
@@ -226,12 +214,16 @@ void Mob::M_WanderThink(Game* const game)
 	else {
 		stepcounter--;
 		coord_t pos = game->E_GetDir(mdir);
-		if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
+		char move = game->c_map[mpos.y+pos.y][mpos.x+pos.x];
+		switch (move) {
+		case '.':
+		case ' ':
 			game->E_MoveImmediate(&mpos, mdir);
-		}
-		else {
+			break;
+		default:
 			mdir = P_Random() & 3;
-		}
+			break;
+		};
 	}
 	if (M_SeePlayr(game)) {
 		game->M_FollowPlayr(this, true, true, true);
