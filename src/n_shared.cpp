@@ -1,46 +1,5 @@
 #include "n_shared.h"
 
-#ifdef __cplusplus
-nomadbool_t kbhit(nomadushort_t& in)
-{
-#ifdef _WIN32
-	if (_kbhit()) {
-		in = (nomadushort_t)_getch();
-		return true;
-	}
-	else {
-		return false;
-	}
-#elif defined(__unix__)
-	struct timeval tv;
-	fd_set fds;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-	FD_ZERO(&fds);
-	FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
-	select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
-	if ((FD_ISSET(STDIN_FILENO, &fds))) {
-		in = getc(stdin);
-		return true;
-	}
-	else {
-		return false;
-	}
-#endif
-}
-#else
-nomadbool_t kbhit(nomadushort_t* in)
-{
-	if (_kbhit()) {
-		in = (nomadushort_t)_getch();
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-#endif
-
 namespace std {
 	size_t filelength(const char* filename)
 	{

@@ -104,11 +104,32 @@ typedef enum{false, true} nomadbool_t;
 
 #endif
 
-#ifdef __cplusplus
-nomadbool_t kbhit(nomadushort_t& in);
-#else
-nomadbool_t kbhit(nomadushort_t* in);
-#endif
+inline nomadenum_t kbhit()
+{
+/*#ifdef _WIN32 // broken - FIXME
+	if (_kbhit()) {
+		in = (nomadushort_t)_getch();
+		return true;
+	}
+	else {
+		return false;
+	} */
+//#elif defined(__unix__)
+	struct timeval tv;
+	fd_set fds;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	FD_ZERO(&fds);
+	FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
+	select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+	if ((FD_ISSET(STDIN_FILENO, &fds))) {
+		return getc(stdin);
+	}
+	else {
+		return 0;
+	}
+//#endif
+}
 
 namespace std {
 	size_t filelength(const char* filename);
