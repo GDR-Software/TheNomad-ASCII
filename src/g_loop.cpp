@@ -192,11 +192,12 @@ static void* M_Looper(void *arg)
 	pthread_mutex_lock(&game->mob_mutex);
 	for (nomadenum_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
 		Mob* mob = game->m_Active[i];
-		if (mob->mticker != -1) {
-			--mob->mticker;
+		if (mob->mticker > 0) {
+			mob->mticker--;
 		}
 		else {
 			mob->M_WanderThink(game);
+			mob->mticker = mob->mstate.numticks;
 		}
 	}
 	pthread_mutex_unlock(&game->mob_mutex);

@@ -1,13 +1,11 @@
 #include "g_game.h"
 
 static FILE* fp;
-static constexpr auto HEADER = 0x5f3759df;
+static constexpr uint64_t HEADER = 0x5f3759df;
 static constexpr auto svfile = "nomadsv.ngd";
 
 static void G_ArchivePlayr(const Playr* playr);
 static void G_UnArchivePlayr(Playr* const playr);
-static void G_ArchiveWorld(const Game* world);
-static void G_UnArchiveWorld(Game* const world);
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active);
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active);
 static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active);
@@ -22,8 +20,8 @@ void Game::G_SaveGame(void)
 	if (!fp) {
 		return;
 	}
+	fwrite(&HEADER, 1, sizeof(HEADER), fp);
 	G_ArchivePlayr(playr);
-//	G_ArchiveWorld(this);
 	G_ArchiveMobs(m_Active);
 	G_ArchiveNPCs(b_Active);
 	fclose(fp);
@@ -39,8 +37,14 @@ bool Game::G_LoadGame(void)
 	if (!fp) {
 		return false;
 	}
+	uint64_t header;
+	fread(&header, 1, sizeof(uint64_t), fp);
+	
+	// not a valid save file
+	if (!(header & HEADER)) {
+		return false;
+	}
 	G_UnArchivePlayr(playr);
-//	G_UnArchiveWorld(this);
 	G_UnArchiveMobs(m_Active);
 	G_UnArchiveNPCs(b_Active);
 	fclose(fp);
@@ -73,15 +77,6 @@ static void G_UnArchivePlayr(Playr* const playr)
 	fread(&playr->coin, 1, sizeof(playr->coin), fp);
 	fread(&playr->lvl, 1, sizeof(playr->lvl), fp);
 	fread(&playr->vmatrix, sizeof(playr->vmatrix), sizeof(char), fp);
-}
-
-static void G_ArchiveWorld(const Game* world)
-{
-	fwrite(&world->c_map, sizeof(world->c_map), sizeof(char), fp);
-}
-static void G_UnArchiveWorld(Game* const world)
-{
-	fread(&world->c_map, sizeof(world->c_map), sizeof(char), fp);
 }
 
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active)
