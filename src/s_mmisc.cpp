@@ -7,8 +7,8 @@
 void Game::M_GenMobs(void)
 {
 	m_Active.reserve(MAX_MOBS_ACTIVE);
-	for (nomadushort_t y = 0; y < MAP_MAX_Y; y++) {
-		for (nomadushort_t x = 0; x < MAP_MAX_X; x++) {
+	for (nomadushort_t y = 0; y < MAP_MAX_Y; ++y) {
+		for (nomadushort_t x = 0; x < MAP_MAX_X; ++x) {
 			if (m_Active.size() == MAX_MOBS_ACTIVE) {
 				break;
 			}
@@ -16,7 +16,7 @@ void Game::M_GenMobs(void)
 			if (i > 50) {
 				nomaduint_t randmob = 0;
 				mobj_t newmob;
-				for (nomaduint_t f = 0; f < NUMMOBS; f++) {
+				for (nomaduint_t f = 0; f < NUMMOBS; ++f) {
 					if (f == randmob) {
 						newmob = mobinfo[f];
 					}
@@ -70,21 +70,22 @@ nomadbool_t Mob::M_HearPlayr(const Game* map)
 		return false;
 	}
 	else {
-		if (!M_HearImmediate(map)) {
+		if (M_HearImmediate(map)) {
+			return true;
+		}
+		else {
 			bool found = false;
-			for (nomadushort_t y = mpos.y;
-			y < (mpos.y - (c_mob.snd_area >> 1)); y++) {
-				for (nomadushort_t x = mpos.x;
-				x < (mpos.x + (c_mob.snd_area >> 1)); x++) {
+			coord_t area;
+			area.y = mpos.y - (c_mob.snd_area >> 1);
+			area.x = mpos.x - (c_mob.snd_area >> 1);
+			for (nomadushort_t y = mpos.y; y < area.y; ++y) {
+				for (nomadushort_t x = mpos.x; x < area.x; ++x) {
 					if (map->sndmap[y][x] >= c_mob.snd_tol) {
 						found = true;
 					}
 				}
 			}
 			return found;
-		}
-		else {
-			return false;
 		}
 	}
 }
@@ -95,12 +96,13 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 		return false;
 	}
 	else {
+		nomadbool_t found = false;
 		switch (mdir) {
 		case D_NORTH: {
 			for (nomadushort_t i = mpos.y; 
 			i < (mpos.y - c_mob.sight_range); --i) {
 			if (map->c_map[i][mpos.x] == map->playr->sprite) {
-					return true;
+					found = true;
 				}
 			}
 			break; }
@@ -108,7 +110,7 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 			for (nomadushort_t i = mpos.x;
 			i < (mpos.x - c_mob.sight_range); --i) {
 				if (map->c_map[mpos.y][i] == map->playr->sprite) {
-					return true;
+					found = true;
 				}
 			}
 			break; }
@@ -116,7 +118,7 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 			for (nomadushort_t i = mpos.y;
 			i < (mpos.y + c_mob.sight_range); ++i) {
 				if (map->c_map[i][mpos.x] == map->playr->sprite) {
-					return true;
+					found = true;
 				}
 			}
 			break; }
@@ -124,7 +126,7 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 			for (nomadushort_t i = mpos.x;
 			i < (mpos.x + c_mob.sight_range); ++i) {
 				if (map->c_map[mpos.y][i] == map->playr->sprite) {
-					return true;
+					found = true;
 				}
 			}
 			break; }
@@ -132,7 +134,7 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 			N_Error("Unknown/Invalid Direction For Mob: %s", c_mob.name);
 			break;
 		};
-		return false;
+		return found;
 	}
 }
 
@@ -159,12 +161,15 @@ nomadbool_t Mob::M_SmellPlayr(const Game* map)
 		return false;
 	}
 	else {
-		if (!M_SmellImmediate(map)) {
+		if (M_SmellImmediate(map)) {
+			return true;
+		}
+		else {
 			bool found = false;
 			for (nomadushort_t y = mpos.y;
-			y < (mpos.y - (c_mob.snd_area >> 1)); y++) {
+			y < (mpos.y - (c_mob.snd_area >> 1)); ++y) {
 				for (nomadushort_t x = mpos.x;
-				x < (mpos.x + (c_mob.snd_area >> 1)); x++) {
+				x < (mpos.x + (c_mob.snd_area >> 1)); ++x) {
 					if (map->smellmap[y][x] >= c_mob.smell_tol) {
 						found = true;
 					}
@@ -172,18 +177,12 @@ nomadbool_t Mob::M_SmellPlayr(const Game* map)
 			}
 			return found;
 		}
-		else {
-			return false;
-		}
 	}
 }
 
 void Mob::M_SpawnThink(Game* const game)
 {
-	if (mticker) {
-		return;
-	}
-	else {
+	if (!mticker) {
 		mstate = stateinfo[S_MOB_WANDER];
 		mticker = mstate.numticks;
 	}
@@ -200,33 +199,42 @@ void Mob::M_FightThink(Game* const game)
 void Mob::M_FleeThink(Game* const game)
 {
 	return;
-}
-void Mob::M_WanderThink(Game* const game)
+}/*
+void Mob::M_IdleThink(Game* const game)
 {
 	if (mticker < 0) {
-		if (!stepcounter) {
-			stepcounter = P_Random() & 10; // get a cardinal number in the future
-			
-			// and now with a newly set step counter, we change the direction if rng decides it so
-			if ((P_Random() & 100) < c_mob.rng) {
-				mdir = P_Random() & 3; // might be the same direction
-			}
+		mticker = mstate.numticks;
+	}
+	if (M_SmellPlayr(game) || M_HearPlayr(game) || M_SeePlayr(game)) {
+		mstate = stateinfo[S_MOB_WANDER];
+		mticker = mstate.numticks;
+	}
+	if (M_SeePlayr(game)) {
+		game->M_FollowPlayr(this, true, true, true);
+	}
+}*/
+void Mob::M_WanderThink(Game* const game)
+{
+	if (!stepcounter) {
+		stepcounter = P_Random() & 10; // get a cardinal number in the future
+	
+		// and now with a newly set step counter, we change the direction if rng decides it so
+		if ((P_Random() & 100) < c_mob.rng) {
+			mdir = P_Random() & 3; // might be the same direction
 		}
-		else {
-			stepcounter--;
-			coord_t pos = game->E_GetDir(mdir);
-			if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
-				game->E_MoveImmediate(&mpos, mdir);
-			}
-			else {
-				mdir = P_Random() & 3;
-			}
-		}
-		mticker = stateinfo[S_MOB_WANDER].numticks;
-	//	game->M_FollowPlayr(this, false, false, true);
 	}
 	else {
-		return;
+		stepcounter--;
+		coord_t pos = game->E_GetDir(mdir);
+		if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
+			game->E_MoveImmediate(&mpos, mdir);
+		}
+		else {
+			mdir = P_Random() & 3;
+		}
+	}
+	if (M_SeePlayr(game)) {
+		game->M_FollowPlayr(this, true, true, true);
 	}
 }
 void Mob::M_DeadThink(Game* const game)

@@ -104,6 +104,8 @@ namespace scf {
 
 	extern nomadushort_t fov[2];
 	extern nomadushort_t mobspeed;
+	extern nomaduint_t ticrate_base;
+	extern nomaduint_t ticrate_mil;
 	
 	enum : nomaduint_t
 	{

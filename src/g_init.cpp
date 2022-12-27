@@ -48,7 +48,7 @@ static inline void M_Init(Game* const game)
 	puts("M_Init(): Initializing Map Data...");
 	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
 	nomaduint_t y, x;
-	for (nomadenum_t i = 0; i < NUM_SECTORS; i++) {
+	for (nomadenum_t i = 0; i < NUM_SECTORS; ++i) {
 		char path[180];
 		y = x = 0;
 		snprintf(path, sizeof(path), "Files/gamedata/MAP/mapsector_%hu.txt", i);
@@ -62,8 +62,8 @@ static inline void M_Init(Game* const game)
 		while (std::getline(file, line)) {
 			buffer.push_back(line);
 		};
-		for (y = 0; y < SECTOR_MAX_Y; y++) {
-			for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (y = 0; y < SECTOR_MAX_Y; ++y) {
+			for (x = 0; x < SECTOR_MAX_X; ++x) {
 				secbuffer[i][y][x] = buffer[y][x];
 			}
 		}
@@ -78,68 +78,68 @@ static inline void M_Init(Game* const game)
 	if (!fp) {
 		N_Error("Could Not Create RUNTIME/mapfile.txt!");
 	}
-	for (y = 0; y < 80; y++) {
-		for (x = 0; x < MAP_MAX_X; x++) {
+	for (y = 0; y < 80; ++y) {
+		for (x = 0; x < MAP_MAX_X; ++x) {
 			fprintf(fp, "#");
 		}
 		fprintf(fp, "\n");
 	}
-	for (y = 0; y < SECTOR_MAX_Y; y++) {
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
 		for (x = 0; x < 80; x++) {
 			fprintf(fp, "#");
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[0][y][x]);
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[7][y][x]);
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[6][y][x]);
 		}
-		for (x = 0; x < 80; x++) {
+		for (x = 0; x < 80; ++x) {
 			fprintf(fp, "#");
 		}
 		fprintf(fp, "\n");
 	}
-	for (y = 0; y < SECTOR_MAX_Y; y++) {
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
 		for (x = 0; x < 80; x++) {
 			fprintf(fp, "#");
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[1][y][x]);
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[8][y][x]);
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[5][y][x]);
 		}
-		for (x = 0; x < 80; x++) {
+		for (x = 0; x < 80; ++x) {
 			fprintf(fp, "#");
 		}
 		fprintf(fp, "\n");
 	}
-	for (y = 0; y < SECTOR_MAX_Y; y++) {
-		for (x = 0; x < 80; x++) {
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; ++x) {
 			fprintf(fp, "#");
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[2][y][x]);
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[3][y][x]);
 		}
-		for (x = 0; x < SECTOR_MAX_X; x++) {
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
 			fprintf(fp, "%c", secbuffer[4][y][x]);
 		}
-		for (x = 0; x < 80; x++) {
+		for (x = 0; x < 80; ++x) {
 			fprintf(fp, "#");
 		}
 		fprintf(fp, "\n");
 	}
-	for (y = 0; y < 80; y++) {
-		for (x = 0; x < MAP_MAX_X; x++) {
+	for (y = 0; y < 80; ++y) {
+		for (x = 0; x < MAP_MAX_X; ++x) {
 			fprintf(fp, "#");
 		}
 		fprintf(fp, "\n");
@@ -186,7 +186,7 @@ static inline void E_Init(Game* const game)
 static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 {
 	puts("I_ProcessArgs(): Parsing Command-Line Arguments...");
-	for (nomaduint_t i = 1; i < myargv.size(); i++) {
+	for (nomaduint_t i = 1; i < myargv.size(); ++i) {
 		if (strstr(myargv[i], "-fastmobs") != NULL) {
 			if (strchr(myargv[i], '1') != NULL) {
 				scf::launch::fastmobs1 = true;

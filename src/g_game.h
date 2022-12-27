@@ -16,7 +16,6 @@
 
 #define ctrl(x) (x & 0x1F)
 constexpr auto NotFound = std::string::npos;
-//#define MAX_SAVES	15
 
 typedef enum : nomadenum_t
 {

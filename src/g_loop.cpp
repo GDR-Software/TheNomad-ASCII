@@ -4,9 +4,6 @@ static Game* game;
 
 static void levelLoop(void);
 
-static constexpr nomaduint_t ticrate_mil  = 28;
-static constexpr nomaduint_t ticrate_base = 35;
-
 void mainLoop(int argc, char* argv[])
 {
 	Z_Init();
@@ -139,6 +136,16 @@ void mainLoop(int argc, char* argv[])
 
 //static void* N_Looper(void* arg);
 static void* M_Looper(void *arg);
+static void* P_Loop(void *arg)
+{
+	pthread_mutex_lock(&game->playr_mutex);
+	nomadushort_t c;
+	if (kbhit(c)) {
+		game->P_Ticker(c);
+	}
+	pthread_mutex_unlock(&game->playr_mutex);
+	return NULL;
+}
 
 static void levelLoop(void)
 {
@@ -147,22 +154,20 @@ static void levelLoop(void)
 	game->G_DisplayHUD();
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	nomaduint_t i;
+	pthread_t playr_thread;
 	nomadushort_t c;
 	while (game->gamestate == GS_LEVEL) {
-		game->ClearMainWin();
-		// custom key-binds will be implemented in the future
+		werase(game->screen);
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
-		game->PrintMainWin();
-		pthread_mutex_lock(&game->playr_mutex);
+		// custom key-binds will be implemented in the future
 		pthread_create(&game->mthread, NULL, M_Looper, NULL);
-		if (kbhit(c)) {
-			game->P_Ticker(c);
-		}
+		pthread_create(&playr_thread, NULL, P_Loop, NULL);
 		pthread_join(game->mthread, NULL);
-		pthread_mutex_unlock(&game->playr_mutex);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		pthread_join(playr_thread, NULL);
+		std::this_thread::sleep_for(std::chrono::milliseconds(scf::ticrate_mil));
 		game->ticcount++;
+		wrefresh(game->screen);
 	};
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
@@ -185,10 +190,14 @@ static void* N_Looper(void* arg)
 static void* M_Looper(void *arg)
 {
 	pthread_mutex_lock(&game->mob_mutex);
-	for (nomadenum_t i = 0; i < MAX_MOBS_ACTIVE; i++) {
+	for (nomadenum_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
 		Mob* mob = game->m_Active[i];
-		mob->mticker--;
-		mob->M_WanderThink(game);
+		if (mob->mticker != -1) {
+			--mob->mticker;
+		}
+		else {
+			mob->M_WanderThink(game);
+		}
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
 	return NULL;

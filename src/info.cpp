@@ -1,8 +1,7 @@
 // this is where all the boiled-into-the-binaries takes place
 #include "g_items.h"
-#include "g_mob.h"
 #include "scf.h"
-#include "p_npc.h"
+#include "g_game.h"
 #include "g_obj.h"
 
 const entitystate_t stateinfo[NUMSTATES] = {
@@ -14,13 +13,13 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_MELEE,     8},
 	{S_PLAYR_INTERACT,  10},
 	{S_PLAYR_LOWHEALTH, 24},
-	{S_PLAYR_DEAD,      35},
+	{S_PLAYR_DEAD,      scf::ticrate_base*3},
 	{S_MOB_NULL,        0},
 	{S_MOB_SPAWN,       15},
-	{S_MOB_WANDER,      15},
-//	{S_MOB_IDLE,        35*2},
-	{S_MOB_CHASEPLAYR,  35*25},
-	{S_MOB_FIGHT,       35*15},
+	{S_MOB_WANDER,      scf::ticrate_base},
+	{S_MOB_IDLE,        scf::ticrate_base*2},
+	{S_MOB_CHASEPLAYR,  scf::ticrate_base*25},
+	{S_MOB_FIGHT,       scf::ticrate_base*15},
 	{S_MOB_FLEE,        15},
 	{S_MOB_DEAD,        65}
 };
