@@ -4,8 +4,11 @@
 #include "g_rng.h"
 #include "g_obj.h"
 
+static Game* game;
+
 void Game::M_GenMobs(void)
 {
+	game = this;
 	m_Active.reserve(MAX_MOBS_ACTIVE);
 	for (nomadushort_t y = 0; y < MAP_MAX_Y; ++y) {
 		for (nomadushort_t x = 0; x < MAP_MAX_X; ++x) {
@@ -47,8 +50,9 @@ Mob::~Mob()
 {
 }
 
-nomadbool_t Mob::M_HearImmediate(const Game* map)
+nomadbool_t Mob::M_HearImmediate()
 {
+	Game* const map = game;
 	if (map->sndmap[mpos.y - 1][mpos.x] >= c_mob.snd_tol
 	|| map->sndmap[mpos.y][mpos.x - 1] >= c_mob.snd_tol
 	|| map->sndmap[mpos.y + 1][mpos.x] >= c_mob.snd_tol
@@ -64,13 +68,14 @@ nomadbool_t Mob::M_HearImmediate(const Game* map)
 	}
 }
 
-nomadbool_t Mob::M_HearPlayr(const Game* map)
+nomadbool_t Mob::M_HearPlayr()
 {
+	Game* const map = game;
 	if (scf::launch::deafmobs) {
 		return false;
 	}
 	else {
-		if (M_HearImmediate(map)) {
+		if (M_HearImmediate()) {
 			return true;
 		}
 		else {
@@ -90,8 +95,9 @@ nomadbool_t Mob::M_HearPlayr(const Game* map)
 	}
 }
 
-nomadbool_t Mob::M_SeePlayr(Game* const map)
+nomadbool_t Mob::M_SeePlayr()
 {
+	Game* const map = game;
 	if (scf::launch::blindmobs) {
 		return false;
 	}
@@ -138,8 +144,9 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 	}
 }
 
-nomadbool_t Mob::M_SmellImmediate(const Game* map)
+nomadbool_t Mob::M_SmellImmediate()
 {
+	Game* const map = game;
 	if (map->smellmap[mpos.y - 1][mpos.x] >= c_mob.smell_tol
 	|| map->smellmap[mpos.y][mpos.x - 1] >= c_mob.smell_tol
 	|| map->smellmap[mpos.y + 1][mpos.x] >= c_mob.smell_tol
@@ -155,13 +162,14 @@ nomadbool_t Mob::M_SmellImmediate(const Game* map)
 	}
 }
 
-nomadbool_t Mob::M_SmellPlayr(const Game* map)
+nomadbool_t Mob::M_SmellPlayr()
 {
+	Game* const map = game;
 	if (scf::launch::nosmell) {
 		return false;
 	}
 	else {
-		if (M_SmellImmediate(map)) {
+		if (M_SmellImmediate()) {
 			return true;
 		}
 		else {
@@ -180,7 +188,7 @@ nomadbool_t Mob::M_SmellPlayr(const Game* map)
 	}
 }
 
-void Mob::M_SpawnThink(Game* const game)
+void Mob::M_SpawnThink()
 {
 	if (!mticker) {
 		mstate = stateinfo[S_MOB_WANDER];
@@ -188,20 +196,20 @@ void Mob::M_SpawnThink(Game* const game)
 	}
 }
 
-void Mob::M_ChasePlayr(Game* const game)
+void Mob::M_ChasePlayr()
 {
 	return;
 }
-void Mob::M_FightThink(Game* const game)
+void Mob::M_FightThink()
 {
 	return;
 }
-void Mob::M_FleeThink(Game* const game)
+void Mob::M_FleeThink()
 {
 	return;
 }
 
-void Mob::M_WanderThink(Game* const game)
+void Mob::M_WanderThink()
 {
 	if (!stepcounter) {
 		stepcounter = P_Random() & 10; // get a cardinal number in the future
@@ -225,21 +233,11 @@ void Mob::M_WanderThink(Game* const game)
 			break;
 		};
 	}
-	if (M_SeePlayr(game)) {
-		game->M_FollowPlayr(this, true, true, true);
+	if (M_SeePlayr()) {
+		M_FollowPlayr(this, game);
 	}
 }
-void Mob::M_DeadThink(Game* const game)
+void Mob::M_DeadThink()
 {
 	return;
-}
-
-void Game::M_FollowPlayr(Mob* const mob, nomadbool_t smell, nomadbool_t hear,
-	nomadbool_t see)
-{
-	if (see) {
-		coord_t pos = E_GetDir(mob->mdir);
-		mob->mpos.y += pos.y;
-		mob->mpos.x += pos.x;
-	}
 }

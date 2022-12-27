@@ -193,7 +193,7 @@ static void* M_Looper(void *arg)
 			mob->mticker--;
 		}
 		else {
-			mob->M_WanderThink(game);
+			mob->M_WanderThink();
 			mob->mticker = mob->mstate.numticks;
 		}
 	}

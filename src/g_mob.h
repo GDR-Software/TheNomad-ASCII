@@ -82,19 +82,21 @@ public:
 	Mob();
 	~Mob();
 
-	nomadbool_t M_SmellImmediate(const Game* map);
-	nomadbool_t M_SmellPlayr(const Game* map);
-	nomadbool_t M_SeePlayr(Game* const map);
-	nomadbool_t M_HearImmediate(const Game* map);
-	nomadbool_t M_HearPlayr(const Game* map);
+	nomadbool_t M_SmellImmediate();
+	nomadbool_t M_SmellPlayr();
+	nomadbool_t M_SeePlayr();
+	nomadbool_t M_HearImmediate();
+	nomadbool_t M_HearPlayr();
 
-	void M_SpawnThink(Game* const game);
-	void M_IdleThink(Game* const game);
-	void M_ChasePlayr(Game* const game);
-	void M_FightThink(Game* const game);
-	void M_FleeThink(Game* const game);
-	void M_WanderThink(Game* const game);
-	void M_DeadThink(Game* const game);
+	void M_SpawnThink();
+	void M_IdleThink();
+	void M_ChasePlayr();
+	void M_FightThink();
+	void M_FleeThink();
+	void M_WanderThink();
+	void M_DeadThink();
 };
+
+extern void M_FollowPlayr(Mob* const mob, Game* const game);
 
 #endif
