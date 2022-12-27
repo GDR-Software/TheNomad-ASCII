@@ -95,68 +95,32 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 		return false;
 	}
 	else {
-<<<<<<< HEAD
-		nomadshort_t endc;
-		nomadbool_t found = false;
-		switch (mdir) {
-		case D_NORTH: {
-			endc = mpos.y - c_mob.sight_range;
-			for (nomadshort_t i = mpos.y; i > endc; i--) {
-				if (i == map->playr->pos.y && mpos.x == map->playr->pos.x) {
-					found = true;
-=======
 		switch (mdir) {
 		case D_NORTH: {
 			for (nomadushort_t i = mpos.y; 
 			i < (mpos.y - c_mob.sight_range); --i) {
 			if (map->c_map[i][mpos.x] == map->playr->sprite) {
 					return true;
->>>>>>> parent of 44959a4... updating mob AI
 				}
 			}
 			break; }
 		case D_WEST: {
-<<<<<<< HEAD
-			endc = mpos.x - c_mob.sight_range;
-			for (nomadshort_t i = mpos.x; i > endc; i--) {
-				if (i == map->playr->pos.x && mpos.y == map->playr->pos.y) {
-					found = true;
-=======
 			for (nomadushort_t i = mpos.x;
 			i < (mpos.x - c_mob.sight_range); --i) {
 				if (map->c_map[mpos.y][i] == map->playr->sprite) {
 					return true;
->>>>>>> parent of 44959a4... updating mob AI
 				}
 			}
 			break; }
 		case D_SOUTH: {
-<<<<<<< HEAD
-			endc = mpos.y + c_mob.sight_range;
-			for (nomadshort_t i = mpos.x; i < endc; i++) {
-				if (i == map->playr->pos.x && mpos.y == map->playr->pos.y) {
-					found = true;
-=======
 			for (nomadushort_t i = mpos.y;
 			i < (mpos.y + c_mob.sight_range); ++i) {
 				if (map->c_map[i][mpos.x] == map->playr->sprite) {
 					return true;
->>>>>>> parent of 44959a4... updating mob AI
 				}
 			}
 			break; }
 		case D_EAST: {
-<<<<<<< HEAD
-			endc = mpos.x + c_mob.sight_range;
-			for (nomadshort_t i = mpos.x; i < endc; i++) {
-				if (i == map->playr->pos.x && mpos.y == map->playr->pos.y) {
-					found = true;
-				}
-			}
-			break; }
-		};
-		return found;
-=======
 			for (nomadushort_t i = mpos.x;
 			i < (mpos.x + c_mob.sight_range); ++i) {
 				if (map->c_map[mpos.y][i] == map->playr->sprite) {
@@ -169,7 +133,6 @@ nomadbool_t Mob::M_SeePlayr(Game* const map)
 			break;
 		};
 		return false;
->>>>>>> parent of 44959a4... updating mob AI
 	}
 }
 
@@ -225,38 +188,7 @@ void Mob::M_SpawnThink(Game* const game)
 		mticker = mstate.numticks;
 	}
 }
-/*
-void Mob::M_IdleThink(Game* const game)
-{
-	nomadenum_t pursuitcounter = idle;
-	if (mticker < 0) {
-		if (M_SmellPlayr(game)) {
-			pursuitcounter |= smellplayr;
-		}
-		if (M_HearPlayr(game)) {
-			pursuitcounter |= hearplayr;
-		}
-		// check if the pursuitcounter is above smellplayr, if not, mob stays idle
-		if (pursuitcounter > smellplayr) {
-			if (M_SeePlayr(game)) {
-				pursuitcounter |= seeplayr;
-			}
-		}
-		// don't check sight if the mob doesn't smell the player
-		else {
-			return;
-		}
-		
-		if (pursuitcounter & seeplayr) {
-			mstate = stateinfo[S_MOB_WANDER]; // wander until i get to writing the chaseplayr state
-			mticker = mstate.numticks;
-		}
-		else {
-			mticker = mstate.numticks;
-		}
-	}
-}
-*/
+
 void Mob::M_ChasePlayr(Game* const game)
 {
 	return;
@@ -270,34 +202,7 @@ void Mob::M_FleeThink(Game* const game)
 	return;
 }
 void Mob::M_WanderThink(Game* const game)
-{/*
-	if (mticker < 0) {
-		// basically idle state
-		nomadenum_t pursuitcounter = idle;
-		if (M_SmellPlayr(game)) {
-			pursuitcounter |= smellplayr;
-		}
-		if (M_HearPlayr(game)) {
-			pursuitcounter |= hearplayr;
-		}
-		if (pursuitcounter > smellplayr) {
-			if (M_SeePlayr(game)) {
-				pursuitcounter |= seeplayr;
-			}
-		}
-		else {
-			return;
-		}
-		
-		if (pursuitcounter & hearplayr) {
-			mstate = stateinfo[S_MOB_WANDER];
-		}
-		else if (pursuitcounter & seeplayr) {
-			mstate = stateinfo[S_MOB_WANDER];
-		}
-		mticker = mstate.numticks;
-	}
-*/	
+{
 	if (mticker < 0) {
 		if (!stepcounter) {
 			stepcounter = P_Random() & 10; // get a cardinal number in the future
@@ -310,7 +215,7 @@ void Mob::M_WanderThink(Game* const game)
 		else {
 			stepcounter--;
 			coord_t pos = game->E_GetDir(mdir);
-			if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] == '#') {
+			if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
 				game->E_MoveImmediate(&mpos, mdir);
 			}
 			else {
@@ -318,10 +223,7 @@ void Mob::M_WanderThink(Game* const game)
 			}
 		}
 		mticker = stateinfo[S_MOB_WANDER].numticks;
-<<<<<<< HEAD
-		game->M_FollowPlayr(this, false, false, true);
-=======
->>>>>>> parent of 44959a4... updating mob AI
+	//	game->M_FollowPlayr(this, false, false, true);
 	}
 	else {
 		return;
@@ -335,13 +237,9 @@ void Mob::M_DeadThink(Game* const game)
 void Game::M_FollowPlayr(Mob* const mob, nomadbool_t smell, nomadbool_t hear,
 	nomadbool_t see)
 {
-<<<<<<< HEAD
 	if (see) {
 		coord_t pos = E_GetDir(mob->mdir);
 		mob->mpos.y += pos.y;
 		mob->mpos.x += pos.x;
 	}
-=======
-	return;
->>>>>>> parent of 44959a4... updating mob AI
 }
