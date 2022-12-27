@@ -2,18 +2,6 @@
 #define _G_OBJ_
 
 #include "n_shared.h"
-/*
-enum : nomadenum_t
-{
-	S_MOB_NULL,
-	S_MOB_SPAWN,
-	S_MOB_WANDER,
-	S_MOB_IDLE,
-	S_MOB_CHASEPLAYR,
-	S_MOB_FIGHT,
-	S_MOB_FLEE,
-	S_MOB_DEAD
-}; */
 
 typedef enum : nomadenum_t
 {
@@ -55,22 +43,6 @@ typedef struct entitystate_s
 {
 	state_t id;
 	nomaduint_t numticks;
-//	sprite_t sprite;
-//	nomadushort_t color;
-/*	nomadbool_t operator==(const entitystate_s& state)
-	{
-		if (this->id & state.id) {
-			if (this->numticks & state.numticks) {
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else {
-			return false;
-		}
-	} */
 } entitystate_t;
 
 extern const entitystate_t stateinfo[NUMSTATES];
