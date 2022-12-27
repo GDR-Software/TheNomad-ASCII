@@ -30,8 +30,10 @@ void Game::M_GenMobs(void)
 				mob->mpos = mpos;
 				mob->c_mob = newmob;
 				mob->is_boss = false;
-				mob->mstate = stateinfo[S_MOB_NULL];
+				mob->mstate = stateinfo[S_MOB_WANDER];
 				mob->mticker = mob->mstate.numticks;
+				mob->stepcounter &= 0;
+				mob->mdir = P_Random() & 3;
 			}
 		}
 	}
@@ -39,7 +41,6 @@ void Game::M_GenMobs(void)
 
 Mob::Mob()
 {
-	stepcounter &= 0;
 }
 
 Mob::~Mob()
@@ -88,40 +89,49 @@ nomadbool_t Mob::M_HearPlayr(const Game* map)
 	}
 }
 
-nomadbool_t Mob::M_SeePlayr(const Game* map)
+nomadbool_t Mob::M_SeePlayr(Game* const map)
 {
 	if (scf::launch::blindmobs) {
 		return false;
 	}
 	else {
-		coord_t pos = map->E_GetDir(mdir);
-		coord_t endc;
+		nomadshort_t endc;
+		nomadbool_t found = false;
 		switch (mdir) {
-		case D_NORTH:
-			endc.y = mpos.y - c_mob.sight_range;
-			endc.x = 0;
-			break;
-		case D_WEST:
-			endc.y = 0;
-			endc.x = mpos.x - c_mob.sight_range;
-			break;
-		case D_SOUTH:
-			endc.y = mpos.y + c_mob.sight_range;
-			endc.x = 0;
-			break;
-		case D_EAST:
-			endc.y = 0;
-			endc.x = mpos.x + c_mob.sight_range;
-			break;
-		};
-		for (nomadushort_t y = mpos.y; y < endc.y; y += pos.y) {
-			for (nomadushort_t x = mpos.x; x < endc.x; x += pos.x) {
-				if (map->c_ma[y][x] == '@') {
-					return true;
+		case D_NORTH: {
+			endc = mpos.y - c_mob.sight_range;
+			for (nomadshort_t i = mpos.y; i > endc; i--) {
+				if (i == map->playr->pos.y && mpos.x == map->playr->pos.x) {
+					found = true;
 				}
 			}
-		}
-		return false;
+			break; }
+		case D_WEST: {
+			endc = mpos.x - c_mob.sight_range;
+			for (nomadshort_t i = mpos.x; i > endc; i--) {
+				if (i == map->playr->pos.x && mpos.y == map->playr->pos.y) {
+					found = true;
+				}
+			}
+			break; }
+		case D_SOUTH: {
+			endc = mpos.y + c_mob.sight_range;
+			for (nomadshort_t i = mpos.x; i < endc; i++) {
+				if (i == map->playr->pos.x && mpos.y == map->playr->pos.y) {
+					found = true;
+				}
+			}
+			break; }
+		case D_EAST: {
+			endc = mpos.x + c_mob.sight_range;
+			for (nomadshort_t i = mpos.x; i < endc; i++) {
+				if (i == map->playr->pos.x && mpos.y == map->playr->pos.y) {
+					found = true;
+				}
+			}
+			break; }
+		};
+		return found;
 	}
 }
 
@@ -204,7 +214,7 @@ void Mob::M_WanderThink(Game* const game)
 		else {
 			stepcounter--;
 			coord_t pos = game->E_GetDir(mdir);
-			if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] != '#') {
+			if (game->c_map[mpos.y+pos.y][mpos.x+pos.x] == '#') {
 				game->E_MoveImmediate(&mpos, mdir);
 			}
 			else {
@@ -212,9 +222,7 @@ void Mob::M_WanderThink(Game* const game)
 			}
 		}
 		mticker = stateinfo[S_MOB_WANDER].numticks;
-		if (M_SeePlayr(game)) {
-			game->M_FollowPlayr(this, false, false, true);
-		}
+		game->M_FollowPlayr(this, false, false, true);
 	}
 	else {
 		return;
@@ -230,7 +238,7 @@ void Game::M_FollowPlayr(Mob* const mob, nomadbool_t smell, nomadbool_t hear,
 {
 	if (see) {
 		coord_t pos = E_GetDir(mob->mdir);
-		mob->mpos.y += pos;
-		mob->mpos.x += pos;
+		mob->mpos.y += pos.y;
+		mob->mpos.x += pos.x;
 	}
 }

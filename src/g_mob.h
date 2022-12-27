@@ -84,7 +84,7 @@ public:
 
 	nomadbool_t M_SmellImmediate(const Game* map);
 	nomadbool_t M_SmellPlayr(const Game* map);
-	nomadbool_t M_SeePlayr(const Game* map);
+	nomadbool_t M_SeePlayr(Game* const map);
 	nomadbool_t M_HearImmediate(const Game* map);
 	nomadbool_t M_HearPlayr(const Game* map);
 
