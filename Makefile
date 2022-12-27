@@ -43,6 +43,7 @@ OBJS= \
 	$(O)/s_behave.o \
 	$(O)/g_rng.o \
 	$(O)/m_tuilib.o \
+	$(O)/n_w32_ncurses.o \
 #	$(O)/c_dungen.o \
 #	$(O)/c_nemsis.o \
 #	$(O)/c_sao.o \
