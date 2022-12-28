@@ -33,7 +33,7 @@ typedef struct
 } memzone_t;
 
 #ifndef _TESTING
-static constexpr int heapsize = 2972504 + sizeof(memzone_t);
+static constexpr int heapsize = 939000;
 #endif
 
 memzone_t* mainzone;
