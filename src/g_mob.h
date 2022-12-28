@@ -9,7 +9,7 @@
 #undef MAX_MOBS_ACTIVE
 #endif
 
-#define MAX_MOBS_ACTIVE 100
+#define MAX_MOBS_ACTIVE 400
 
 // used for locating vars in the stateinfo array
 enum
@@ -78,8 +78,6 @@ public:
 	coord_t mpos;
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
-	pthread_mutex_t mutex;
-	pthread_t mthread;
 public:
 	Mob();
 	~Mob();
@@ -101,5 +99,6 @@ public:
 
 extern void M_FollowPlayr(Mob* const mob, Game* const game);
 extern void M_GetLeaders(Game* const game);
+extern void M_FollowLeader(Mob* const mob, Game* const game);
 
 #endif

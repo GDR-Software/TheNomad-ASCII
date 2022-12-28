@@ -5,7 +5,7 @@
 * originally, it didn't compute distance between diagonal objects, only vertical and horizontal
 * but now, thanks to my friend Catazat, it does, using the pythagorean theorem.
 */
-inline nomaduint_t disBetweenOBJ(const coord_t src, const coord_t tar)
+nomaduint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
 		if (src.x > tar.x) { return (src.x - tar.x);}
@@ -18,7 +18,7 @@ inline nomaduint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 		else { return 0; }
 	}
 	else { // diagonal
-		return (Q_root(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+		return abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
 	}
 }
 

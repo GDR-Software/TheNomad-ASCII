@@ -179,6 +179,7 @@ static inline void E_Init(Game* const game)
 	puts("E_Init(): Initializing Entities...");
 	game->playr = (Playr*)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
 	game->playr->P_Init();
+	srand(time(NULL));
 	game->I_InitNPCs();
 	game->M_GenMobs();
 }

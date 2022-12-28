@@ -100,6 +100,7 @@ public:
 	void I_InitNPCs(void);
 
 	inline coord_t E_TryMove(coord_t* epos, nomadenum_t* edir);
+	nomadenum_t E_GetFacing(coord_t current, coord_t orig);
 	void E_MoveImmediate(coord_t* epos, nomadenum_t edir); // the checks have already been performed by said entity
 	coord_t E_GetDir(nomadenum_t dir);
 	nomadbool_t E_Move(coord_t* epos, nomadenum_t* edir);

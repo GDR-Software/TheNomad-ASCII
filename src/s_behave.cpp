@@ -5,7 +5,7 @@
 
 npc_t Game::N_MakeNPC(void)
 {
-	nomaduint_t randnpc = rand() & 0;//sizeof(npcinfo);
+	nomaduint_t randnpc = rand() % sizeof(npcinfo);
 	npc_t npc;
 	for (nomadulong_t i = 0; i < 9; i++) {
 		if (randnpc == i) {

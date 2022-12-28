@@ -170,7 +170,7 @@ typedef struct
 	nomadenum_t height, width;
 } dim_t;
 
-inline nomaduint_t disBetweenOBJ(coord_t src, coord_t tar);
+nomaduint_t disBetweenOBJ(const coord_t src, const coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
 nomadfloat_t Q_root(nomadfloat_t x);
 
