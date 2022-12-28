@@ -16,22 +16,24 @@ typedef struct _win32_ncurses_window
 	int startx;
 } WINDOW;
 
-constexpr WINDOW* stdscr;
+WINDOW* stdscr;
 
 constexpr inline WINDOW* newwin(int height, int width, int starty, int startx);
 constexpr inline void initscr();
 constexpr inline void endwin();
-constexpr inline void move();
-constexpr inline void waddch();
-constexpr inline void addch();
-constexpr inline void mvaddch();
-constexpr inline void mvwaddch();
-constexpr inline void addstr();
-constexpr inline void printw();
-constexpr inline void scanw(const char* str, ...);
-constexpr inline char getch();
+constexpr inline void move(int y, int x);
 
-constexpr inline void wmove(WINDOW* win);;
+constexpr inline void waddch(WINDOW* window, chtype ch);
+constexpr inline void addch(chtype ch);
+constexpr inline void mvaddch(int y, int x, chtype ch);
+constexpr inline void mvwaddch(WINDOW* window, int y, int x, chtype ch);
+
+constexpr inline void addstr(const char* message);
+constexpr inline void printw(const char* message, ...);
+constexpr inline void scanw(const char* str, ...);
+constexpr inline char getch(void);
+
+constexpr inline void wmove(WINDOW* win, int y, int x);
 
 #endif
 
