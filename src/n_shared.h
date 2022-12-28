@@ -13,6 +13,7 @@
 
 // dependencies
 #include "ncurses/ncurses.h"
+#include "ncurses/menu.h"
 
 #ifdef __GNUG__
 #   if defined(__x86_64__) || (__amd64)
@@ -36,16 +37,18 @@ class Game;
 #include <vector>
 #include <pthread.h>
 #include <iostream>
-#include <cstdlib>
-#include <cstdio>
+#include <stdlib.h>
+#include <stdio.h>
 #include <exception>
 #include <thread>
 #include <chrono>
 #include <atomic>
-#include <cstring>
-#include <cassert>
+#include <string.h>
+#include <assert.h>
+#include <math.h>
+#include <algorithm>
 #include <string>
-#include <cstdarg>
+#include <stdarg.h>
 
 // OS-specific headers
 #if defined(__unix__)
@@ -75,7 +78,7 @@ typedef __uint128_t nomadullong_t;
 typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
 typedef uint16_t nomadushort_t;
-typedef double nomadfloat_t;
+//typedef double nomadfloat_t;
 #elif _NOMAD_32
 typedef int64_t nomadllong_t;
 typedef int32_t nomadlong_t;
@@ -86,12 +89,12 @@ typedef uint64_t noamdullong_t;
 typedef uint32_t nomadulong_t;
 typedef uint16_t nomaduint_t;
 typedef uint8_t nomadushort_t;
-typedef float nomadfloat_t;
 #endif
 
 // these types don't depend on the arch
 typedef uint_fast8_t nomadenum_t;
 typedef nomadenum_t sprite_t;
+typedef float nomadfloat_t;
 
 #define chtype chtype_small
 typedef sprite_t chtype;
@@ -103,6 +106,13 @@ typedef enum{false, true} nomadbool_t;
 #endif
 
 #endif
+
+constexpr uint8_t DIF_NOOB               = 0;
+constexpr uint8_t DIF_RECRUIT            = 1;
+constexpr uint8_t DIF_MERC               = 2;
+constexpr uint8_t DIF_NOMAD              = 3;
+constexpr uint8_t DIF_BLACKDEATH         = 4;
+constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
 
 inline nomadenum_t kbhit()
 {
@@ -161,7 +171,8 @@ typedef struct
 } dim_t;
 
 inline nomaduint_t disBetweenOBJ(coord_t src, coord_t tar);
-float Q_root(float x);
+coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
+nomadfloat_t Q_root(nomadfloat_t x);
 
 using namespace std::literals::chrono_literals;
 

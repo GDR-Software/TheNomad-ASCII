@@ -151,6 +151,7 @@ static void levelLoop(void)
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
 	game->ClearMainWin();
 	game->G_DisplayHUD();
+	nomaduint_t i;
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	pthread_t pthread;
 	while (game->gamestate == GS_LEVEL) {
@@ -184,18 +185,29 @@ static void* N_Looper(void* arg)
 	return NULL;
 } */
 
+static void* MobLoop(void *arg)
+{
+	nomaduint_t a = *(nomaduint_t *)arg;
+	Mob* const mob = game->m_Active[a];
+	pthread_mutex_lock(&mob->mutex);
+	if (mob->mticker > 0) {
+		mob->mticker--;
+	}
+	else {
+		mob->M_WanderThink();
+		mob->mticker = mob->mstate.numticks;
+	}
+	pthread_mutex_unlock(&mob->mutex);
+	return NULL;
+}
+
 static void* M_Looper(void *arg)
 {
 	pthread_mutex_lock(&game->mob_mutex);
-	for (nomadenum_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
-		Mob* mob = game->m_Active[i];
-		if (mob->mticker > 0) {
-			mob->mticker--;
-		}
-		else {
-			mob->M_WanderThink();
-			mob->mticker = mob->mstate.numticks;
-		}
+	M_GetLeaders(game);
+	for (nomaduint_t i = 0; i < game->m_Active.size(); ++i) {
+		pthread_create(&game->mthread, NULL, MobLoop, &i);
+		pthread_join(game->mthread, NULL);
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
 	return NULL;

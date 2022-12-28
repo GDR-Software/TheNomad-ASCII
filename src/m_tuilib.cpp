@@ -23,7 +23,6 @@ void Game::MainWinPrintf(const char *msg)
 void Game::DrawMainWinBorder(void)
 {
 	nomadenum_t i;
-//	wborder(screen, '#', '#', '#', '#', '#', '#', '#', '#');
 	for (i = 0; i < getmaxx(screen); i++) {
 		mvwaddch(screen, 0, i, '#');
 		mvwaddch(screen, (getmaxy(screen) - 1), i, '#');
@@ -35,6 +34,16 @@ void Game::DrawMainWinBorder(void)
 }
 
 static std::string buffer;
+/*
+void Game::DrawSettingsScreen()
+{
+	
+}
+
+void Game::DrawLevelScreen()
+{
+	
+}*/
 
 void Game::DrawTitleScreen()
 {

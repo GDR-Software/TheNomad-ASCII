@@ -15,29 +15,26 @@ void Game::M_GenMobs(void)
 			if (m_Active.size() == MAX_MOBS_ACTIVE) {
 				break;
 			}
-			nomaduint_t i = rand() % 255;
-			if (i > 50) {
-				nomaduint_t randmob = 0;
-				mobj_t newmob;
-				for (nomaduint_t f = 0; f < NUMMOBS; ++f) {
-					if (f == randmob) {
-						newmob = mobinfo[f];
-					}
-				}
-				coord_t mpos;
-				mpos.y = (P_Random() & 400)+90;
-				mpos.x = (P_Random() & 400)+90;
-				m_Active.emplace_back();
-				m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
-				Mob* mob = m_Active.back();
-				mob->mpos = mpos;
-				mob->c_mob = newmob;
-				mob->is_boss = false;
-				mob->mstate = stateinfo[S_MOB_WANDER];
-				mob->mticker = mob->mstate.numticks;
-				mob->stepcounter &= 0;
-				mob->mdir = P_Random() & 3;
-			}
+			srand(time(NULL));
+			nomaduint_t i = rand() % 100;
+			mobj_t newmob = mobinfo[(rand() % NUMMOBS)];
+			while (i > newmob.chance_to_spawn) {
+				newmob = mobinfo[(rand() % NUMMOBS)];
+			};
+			coord_t mpos;
+			mpos.y = (P_Random() & 400)+90;
+			mpos.x = (P_Random() & 400)+90;
+			m_Active.emplace_back();
+			m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
+			Mob* mob = m_Active.back();
+			mob->mpos = mpos;
+			mob->c_mob = newmob;
+			pthread_mutex_init(&mob->mutex, NULL);
+			mob->is_boss = false;
+			mob->mstate = stateinfo[S_MOB_WANDER];
+			mob->mticker = mob->mstate.numticks;
+			mob->stepcounter &= 0;
+			mob->mdir = P_Random() & 3;
 		}
 	}
 }
@@ -48,6 +45,7 @@ Mob::Mob()
 
 Mob::~Mob()
 {
+	pthread_mutex_destroy(&mutex);
 }
 
 nomadbool_t Mob::M_HearImmediate()
