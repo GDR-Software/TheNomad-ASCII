@@ -3,110 +3,7 @@
 #include "p_npc.h"
 #include "g_obj.h"
 
-static constexpr coord_t bot_zones[] = {
-	{254, 245},
-	{256, 246},
-	{271, 235}
-};
-static std::vector<auto> bot_names[] = {
-	"KEK"
-};
-
 Game* game;
-
-/*
-typedef struct
-{
-	coord_t bpos[4];
-	std::vector<NPC*> npcs;
-	nomadenum_t btype;
-} building_t;
-
-std::vector<building_t*> buildings;
-static char c_map[MAP_MAX_Y][MAP_MAX_X];
-
-static inline coord_t G_FindBuilding(nomadshort_t y, nomadshort_t x)
-{
-	for (;; ++y) {
-		for (;; ++x) {
-			if (c_map[y][x] == '#') { return {y, x}; }
-		}
-	}
-}
-
-static inline void G_GetBuildingCoords(building_t* building,
-	nomadshort_t& y, nomadshort_t& x)
-{
-	nomadbool_t done = false;
-	for (;; ++y) {
-		switch (c_map[y][x]) {
-		case '#':
-		case '_':
-			break;
-		default:
-			building->bpos[2] = {y, x};
-			done = true;
-			break;
-		};
-		if (done) { break; }
-	}
-	done = false;
-	for (;; ++x) {
-		switch (c_map[y][x]) {
-		case '#':
-		case '_':
-			break;
-		default:
-			building->bpos[3] = {y, x};
-			done = true;
-			break;
-		};
-		if (done) { break; }
-	}
-	done = false;
-	for (;; --y) {
-		switch (c_map[y][x]) {
-		case '#':
-		case '_':
-			break;
-		default:
-			building->bpos[1] = {y, x};
-			done = true;
-			break;
-		};
-		if (done) { break; }
-	}
-}
-
-static void G_GenBuilding(building_t *building)
-{
-	building->btype = 5;
-}
-
-static void G_MapBuildings(void)
-{
-	nomadshort_t y, x;
-	for (y = 0; y < MAP_MAX_Y; ++y) {
-		memcpy(&c_map[y][0], &game->c_map[y+80][80], MAP_MAX_X);
-	}
-
-	for (y = 0; y < MAP_MAX_Y; ++y) {
-		for (x = 0; x < MAP_MAX_X; ++x) {
-			building_t building;
-			building.bpos[0] = G_FindBuilding(y, x);
-			G_GetBuildingCoords(&building, y, x);
-		//	if ((disBetweenOBJ(building.bpos[0], building.bpos[2])) < 81
-		//	&& (disBetweenOBJ(building.bpos[0], building.bpos[1])) < 81) {
-	//			G_GenBuilding(building);
-//				buildings.push_back(&building);
-		//	}
-		//	else { // forbid massive f'ing buildings
-		//		break;
-		//	}
-		}
-	}
-}
-*/
 
 static constexpr coord_t botpos[] = {
 	{263, 283},
@@ -147,25 +44,34 @@ static void B_SpawnShopBots(void)
 	npc->c_npc = npcinfo[2];
 	npc->ndir = D_EAST;
 }
+
+static void B_GenerateCivilian(NPC* const npc)
+{
+	npc->pos.y = (P_Random() & 204) + 112;
+	npc->pos.x = (P_Random() & 107) + 208;
+	if (game->c_map[npc->pos.y][npc->pos.x] == '#') {
+		Z_Free(npc);
+		return;
+	}
+	npc->c_npc.sprite = 'c';
+	npc->c_npc.health = 100;
+	npc->c_npc.armor = 12;
+}
 static void B_SpawnCivilianBots(void)
 {
 	std::vector<NPC*>& b_Active = game->b_Active;
-	for (nomaduint_t i = 0; i < 3; ++i) {
+	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
 		b_Active.emplace_back();
 		b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-		NPC* npc = b_Active.back();
-		npc->pos = bot_zones[i];
-//		npc->c_npc.name = bot_names[rand() % bot_names.size()];
-		npc->c_npc.sprite = 'c';
-		npc->c_npc.health = 100;
-		npc->c_npc.armor = 12;
+		NPC* const npc = b_Active.back();
+		B_GenerateCivilian(npc);
 	}
 }
 
 void Game::I_InitNPCs(void)
 {
 	game = this;
-	b_Active.reserve(npcinfo.size()+3);
+	b_Active.reserve(npcinfo.size()+MAX_NPC_ACTIVE);
 	B_SpawnShopBots();
 	B_SpawnCivilianBots();
 }
