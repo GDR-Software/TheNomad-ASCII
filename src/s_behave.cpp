@@ -17,7 +17,7 @@ static std::vector<npc_t> npcinfo = {
 	{"Mercenary Master\0", 'M', 200, 50},
 	{"Weapons Smith\0",    'w', 100, 43}
 };
-static void B_SpawnShopBots(void)
+__CFUNC__ void B_SpawnShopBots(void)
 {
 	// hardcoded until the BFFs roll around
 	std::vector<NPC*>& b_Active = game->b_Active;
@@ -45,7 +45,7 @@ static void B_SpawnShopBots(void)
 	npc->ndir = D_EAST;
 }
 
-static void B_GenerateCivilian(NPC* const npc)
+__CFUNC__ void B_GenerateCivilian(NPC* const npc)
 {
 	npc->pos.y = (P_Random() & 204) + 112;
 	npc->pos.x = (P_Random() & 107) + 208;
@@ -57,7 +57,7 @@ static void B_GenerateCivilian(NPC* const npc)
 	npc->c_npc.health = 100;
 	npc->c_npc.armor = 12;
 }
-static void B_SpawnCivilianBots(void)
+__CFUNC__ void B_SpawnCivilianBots(void)
 {
 	std::vector<NPC*>& b_Active = game->b_Active;
 	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
@@ -81,11 +81,44 @@ NPC::~NPC()
 	Z_Free(this);
 }
 
+static nomadbool_t B_IsScared(NPC* const npc)
+{
+	if (npc->c_npc.btype == BOT_CIVILIAN) {
+		return true; // auto-true if its a civilian
+	}
+	nomaduint_t rand = (P_Random() & 49) + 1;
+	if (rand > 15 && npc->c_npc.btype != BOT_GUARD) {
+		return true;
+	}
+	else if (rand > 30 && npc->c_npc.btype == BOT_GUARD) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 void B_FleeArea(NPC* const npc)
 {
-	if (npc->c_npc.sprite != 'c') { return; }
+	if (!B_IsScared(npc)) {
+		return;
+	}
 
+	// extra-scared flag
+	nomadbool_t panic =
+	(P_Random()&100)>75||npc->c_npc.btype==BOT_CIVILIAN ? true : false;
+	
+	if (panic) {
+		// run in wild circles
+		npc->pos.y += rand() % 444;
+	}
+	/*
 	coord_t pos = game->E_GetDir(npc->ndir);
 	npc->pos.y += pos.y;
-	npc->pos.x += pos.x;
+	npc->pos.x += pos.x; */
+}
+
+void B_KillBot(NPC* const npc)
+{
+	npc->~NPC();
 }

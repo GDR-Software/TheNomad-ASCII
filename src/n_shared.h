@@ -31,6 +31,8 @@
 #    error UNSUPPORTED COMPILER!
 #endif
 
+#define __CFUNC__ extern "C"
+
 class Game;
 
 #include <fstream>

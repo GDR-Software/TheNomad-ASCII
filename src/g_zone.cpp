@@ -7,7 +7,7 @@
 static constexpr auto ZONEID  = 0xa21d49;
 static constexpr auto MEM_ALIGN = (sizeof(void *));
 
-static void Z_KillHeap();
+__CFUNC__ void Z_KillHeap();
 
 // size: 60 bytes
 typedef struct memblock_s
@@ -38,12 +38,12 @@ static constexpr int heapsize = 2000000;
 
 memzone_t* mainzone;
 
-static void Z_KillHeap(void)
+__CFUNC__ void Z_KillHeap(void)
 {
 	free(mainzone);
 }
 
-void Z_Free(void *ptr)
+__CFUNC__ void Z_Free(void *ptr)
 {
 	memblock_t* block;
 	memblock_t* other;
@@ -89,7 +89,7 @@ void Z_Free(void *ptr)
 	}
 }
 
-void Z_DumpHeap(void)
+__CFUNC__ void Z_DumpHeap(void)
 {
 	memblock_t* block;
 	fprintf(stdout, "zone size:%i   location:%p\n", mainzone->size, mainzone);
@@ -112,7 +112,7 @@ void Z_DumpHeap(void)
 	}
 }
 
-void Z_FileDumpHeap(void)
+__CFUNC__ void Z_FileDumpHeap(void)
 {
 	memblock_t* block;
 	FILE* fp = fopen("heaplog.txt", "w");
@@ -138,7 +138,7 @@ void Z_FileDumpHeap(void)
 }
 
 #ifdef _TESTING
-void Z_Init(int size)
+__CFUNC__ void Z_Init(int size)
 {
 	memblock_t* base;
 
@@ -167,7 +167,7 @@ void Z_Init(int size)
 	printf("Allocated Zone From %p -> %p\n", mainzone, (mainzone+mainzone->size));
 }
 #else
-void Z_Init(void)
+__CFUNC__ void Z_Init(void)
 {
 	memblock_t* base;
 	puts("Z_Init(): Allocating Zone Memory...");
@@ -195,7 +195,7 @@ void Z_Init(void)
 }
 #endif
 
-void Z_ClearZone(void)
+__CFUNC__ void Z_ClearZone(void)
 {
 	memblock_t*		block;
 	
@@ -216,7 +216,7 @@ void Z_ClearZone(void)
 	block->size = mainzone->size - sizeof(memzone_t);
 }
 
-void* Z_Malloc(int size, int tag, void* user)
+__CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 {
 	memblock_t* rover;
 	memblock_t* userblock;
@@ -302,7 +302,7 @@ void* Z_Malloc(int size, int tag, void* user)
 	return (void *)((byte *)base+sizeof(memblock_t));
 }
 
-void Z_FreeTags(int lowtag, int hightag)
+__CFUNC__ void Z_FreeTags(int lowtag, int hightag)
 {
 	memblock_t*	block;
     memblock_t*	next;
@@ -322,7 +322,7 @@ void Z_FreeTags(int lowtag, int hightag)
 	}
 }
 
-void Z_CheckHeap(void)
+__CFUNC__ void Z_CheckHeap(void)
 {
 	memblock_t* block;
 
@@ -346,7 +346,7 @@ void Z_CheckHeap(void)
 	}
 }
 
-void Z_ChangeUser(void *ptr, void *user)
+__CFUNC__ void Z_ChangeUser(void *ptr, void *user)
 {
 	memblock_t*	block;
 	
@@ -361,7 +361,7 @@ void Z_ChangeUser(void *ptr, void *user)
 }
 
 #ifndef _TESTING
-constexpr unsigned long Z_ZoneSize(void)
+__CFUNC__ constexpr unsigned long Z_ZoneSize(void)
 {
 	return heapsize;
 }
