@@ -35,7 +35,7 @@ const mobj_t mobinfo[NUMMOBS] = {
 {"Pistol Guy\0",  'P', 49,  18,  MT_PISTOL,  ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 40},
 {"Shotgun Dude\0",'S', 111, 55,  MT_SHOTTY,  ET_MOB, 57,  66, SND_LOW,  10, SMELL_LOW,  10, 40},
 {"Heavy Gunner\0",'G', 245, 69,  MT_GUNNER,  ET_MOB, 111, 59, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Mercenary\0",   'M', 233, 78,  MT_MERC,    ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Mercenary\0",   'm', 233, 78,  MT_MERC,    ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 40},
 {"Nomad\0",       'N', 689, 105, MT_NOMAD,   ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 40}
 
 };
@@ -56,21 +56,3 @@ std::vector<item_t> iteminfo = {
 	{},
 };
 */
-
-// forewarning: this array is really chunky, and you may find some interesting stuff here...
-// also, since this is a free game, and only really the bff's are the payment, I've included some
-// characters from fiction
-npc_t npcinfo[9] = {
-	{"Rinfur Hummain",    'R',  533, 24, {0, 0, 0, 0, 0}},/*
-	{"Asturion Gurnovil", 'A',  543, 53, {0, 0, 0, 0, 0}},
-	{"Ismalda Gurnovil",  'I',  453, 66, {0, 0, 0, 0, 0}},
-	{"Farant Kirosla",    'F',   54, 10, {0, 0, 0, 0, 0}},
-	// just cuz
-	{"Darth Vader",       'D',  704, 76, {0, 0, 0, 0, 0}},
-	// thanks ben
-	{"Yukko The Clown",   'Y',  321, 14, {0, 0, 0, 0, 0}},
-	// im a tolkien nerd at heart
-	{"Sauron",            'S', 1094, 89, {0, 0, 0, 0, 0}},
-	// ...
-	{"Chizuru",           'C',  540, 34, {0, 0, 0, 0, 0}}*/
-};

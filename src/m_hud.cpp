@@ -8,7 +8,6 @@ static constexpr coord_t origin = {260, 260};
 static inline void P_GetMapBuffer(Game* const game);
 static inline void Hud_GetVMatrix(Game* const game);
 static inline void Hud_InsertSprites(Game* const game);
-static inline void G_ResetMap(Game* const game);
 
 static inline void Hud_DisplayConsole(WINDOW* const screen);
 static inline void Hud_DisplayBarVitals(Game* const game);
@@ -279,6 +278,8 @@ static inline void P_GetMapBuffer(Game* const game)
 	file.close();
 }
 
+static void G_ResetMap(Game* const game);
+
 static inline void Hud_GetVMatrix(Game* const game)
 {
 	Playr* const playr = game->playr;
@@ -292,11 +293,11 @@ static inline void Hud_GetVMatrix(Game* const game)
 	endc.x = playr->pos.x + horz_fov;
 	memset(&playr->vmatrix, '#', sizeof(playr->vmatrix));
 	
-	nomaduint_t u{}, c{};
+	nomadshort_t u, c;
 	u = c = 0;
 	Hud_InsertSprites(game);
-	for (nomaduint_t y = startc.y; y < endc.y; ++y) {
-		for (nomaduint_t x = startc.x; x < endc.x; ++x) {
+	for (nomadshort_t y = startc.y; y < endc.y; ++y) {
+		for (nomadshort_t x = startc.x; x < endc.x; ++x) {
 			playr->vmatrix[u][c] = game->c_map[y][x];
 			c++;
 		}
@@ -348,33 +349,29 @@ static inline void G_SetMapSmell(Game* const game)
 	}
 }
 
-inline void G_ResetMap(Game* const game)
+static void G_ResetMap(Game* const game)
 {
 	nomadenum_t i;
-	G_SetMapSnd(game);
-	G_SetMapSmell(game);
-	for (i = 0; i < game->m_Active.size(); ++i) {
-		Mob* mob = game->m_Active[i];
-		game->sndmap[mob->mpos.y][mob->mpos.x] = SND_MEDIUM;
-		game->smellmap[mob->mpos.y][mob->mpos.x] = SMELL_MEDIUM;
-		G_SetSndPerim(game, 1, SND_MEDIUM, mob->mpos);
-		G_SetSndPerim(game, 2, SND_MEDIUM, mob->mpos);
-		G_SetSndPerim(game, 3, SND_SOME, mob->mpos);
-		G_SetSndPerim(game, 4, SND_SOME, mob->mpos);
-	} /*
-	for (i = 0; i < b_Active.size(); i++) {
-		NPC* npc = b_Active[i];
-	} */
-	game->sndmap[game->playr->pos.y][game->playr->pos.x] = SND_MEDIUM;
-	game->smellmap[game->playr->pos.y][game->playr->pos.x] = SMELL_MEDIUM;
+//	G_SetMapSnd(game);
+//	G_SetMapSmell(game);
+//	for (i = 0; i < game->m_Active.size(); ++i) {
+//		Mob* mob = game->m_Active[i];
+//		game->sndmap[mob->mpos.y][mob->mpos.x] = SND_MEDIUM;
+//		game->smellmap[mob->mpos.y][mob->mpos.x] = SMELL_MEDIUM;
+//		G_SetSndPerim(game, 1, SND_MEDIUM, mob->mpos);
+//		G_SetSndPerim(game, 2, SND_MEDIUM, mob->mpos);
+//		G_SetSndPerim(game, 3, SND_SOME, mob->mpos);
+//		G_SetSndPerim(game, 4, SND_SOME, mob->mpos);
+//	}
+//	game->sndmap[game->playr->pos.y][game->playr->pos.x] = SND_MEDIUM;
+//	game->smellmap[game->playr->pos.y][game->playr->pos.x] = SMELL_MEDIUM;
 	game->c_map[game->playr->pos.y][game->playr->pos.x] = '@';
-	for (i = 1; i < 4; ++i) {
-		G_SetSndPerim(game, i, SND_MEDIUM, game->playr->pos);
-		G_SetSmellPerim(game, i, SMELL_MEDIUM, game->playr->pos);
-	}
-	for (i = 4; i < 6; ++i) {
-		G_SetSndPerim(game, i, SND_SOME, game->playr->pos);
-		G_SetSmellPerim(game, i, SMELL_SOME, game->playr->pos);
-	}
-
+//	for (i = 1; i < 4; ++i) {
+//		G_SetSndPerim(game, i, SND_MEDIUM, game->playr->pos);
+//		G_SetSmellPerim(game, i, SMELL_MEDIUM, game->playr->pos);
+//	}
+//	for (i = 4; i < 6; ++i) {
+//		G_SetSndPerim(game, i, SND_SOME, game->playr->pos);
+//		G_SetSmellPerim(game, i, SMELL_SOME, game->playr->pos);
+//	}
 }

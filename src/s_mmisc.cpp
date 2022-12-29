@@ -21,7 +21,6 @@ static void M_GenGroup()
 	leader->c_mob = mob;
 	leader->mpos.y = origin.y;
 	leader->mpos.x = origin.x;
-	pthread_mutex_init(&leader->mutex, NULL);
 	leader->mstate = stateinfo[S_MOB_WANDER];
 	leader->mticker = leader->mstate.numticks;
 	leader->stepcounter &= 0;
@@ -46,7 +45,6 @@ static void M_GenGroup()
 		}
 		m->is_boss = false;
 		m->c_mob = mob;
-		pthread_mutex_init(&m->mutex, NULL);
 		m->mstate = stateinfo[S_MOB_WANDER];
 		m->mticker = m->mstate.numticks;
 		m->stepcounter &= 0;
@@ -78,7 +76,6 @@ Mob::Mob()
 
 Mob::~Mob()
 {
-	pthread_mutex_destroy(&mutex);
 }
 
 nomadbool_t Mob::M_HearImmediate()

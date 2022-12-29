@@ -21,14 +21,12 @@ typedef struct
 
 typedef struct
 {
-	const char* name;
+	std::string name;
 	sprite_t sprite;
 	nomadint_t health;
 	nomadushort_t armor;
 	traits_t personality;
 } npc_t;
-
-extern npc_t npcinfo[9];
 
 class NPC
 {

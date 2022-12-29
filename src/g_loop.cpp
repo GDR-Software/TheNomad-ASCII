@@ -188,7 +188,7 @@ static void* N_Looper(void* arg)
 static void* M_Looper(void *arg)
 {
 	pthread_mutex_lock(&game->mob_mutex);
-//	M_GetLeaders(game);
+	M_GetLeaders(game);
 	for (auto* const m : game->m_Active) {
 		Mob* const mob = m;
 		if (mob->mticker > 0) {
