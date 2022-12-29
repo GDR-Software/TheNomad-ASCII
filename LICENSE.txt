@@ -1,0 +1,29 @@
+SACE Source Code License version 0.1
+
+Copyright (C) 2022-2023 SIGAAMDAD
+
+NOTE THAT THE TERM "COMMERCIAL" MEANS FOR MONETARY GAIN.
+
+Permission is granted to everything under the usage of the SACE Source Code License for modification and/or distribution as long as the following rules are met:
+
+	1. You must give due credit and acknowledge that you are not the original writer of the code, nor
+	do you own the rights to the original works.
+
+	2. If and when you are adding and/or modifying the original source, you must comment that the code is modified,
+	unless the modification is for the entirety of the source code's file.
+
+	3. You may redistribute any modifications of the original source for commercial, educational, and/or
+	non-profit use, but they must be redistributed separately from the original distribution and labeled 
+	as an add-on/modification of the original source.
+
+	4. All source code redistributed under the SACE Source Code License for commercial use must be published
+	and open-source free software for all to use, the only work you may sell are the resources.
+	
+	5. If you are to modify the original resources, but not the original source code, you may not under any circumstances
+	distribute the modifications for commercial use, but instead for non-profit and/or educational usage.
+
+<<<<<<< HEAD
+If the above requirements/rules are not followed strictly, or you simply don't want to use this license for the original source, then you may use the original source as if it were to be licensed under the GNU General Public License (GPL) version 2.0 or later as published by the Free Software Foundation.
+=======
+If the above requirements/rules are not followed strictly, or you simply don't want to use this license for the original source, then you may use the original source as if it were to be licensed under the GNU General Public License (GPL) version 2.0 or later as published by the Free Software Foundation.
+>>>>>>> e2709883d434ac4347cc51ed47711cb5c5c28457
