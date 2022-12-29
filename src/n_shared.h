@@ -1,3 +1,27 @@
+//----------------------------------------------------------
+//
+// Copyright (C) SIGAAMDAD 2022-2023
+//
+// This source is available for distribution and/or modification
+// only under the terms of the SACE Source Code License as
+// published by SIGAAMDAD. All rights reserved
+//
+// The source is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied
+// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
+// Source Code License for more details. If you, however do not
+// want to use the SACE Source Code License, then you must use
+// this source as if it were to be licensed under the GNU General
+// Public License (GPL) version 2.0 or later as published by the
+// Free Software Foundation.
+//
+// DESCRIPTION:
+//  /src
+//  the big, chunky header that's supposed to be the first include
+//  in every header file within the main /src directory.
+//  DO NOT MODIFY UNLESS YOU KNOW WHAT YOU ARE DOING!!!!
+//----------------------------------------------------------
+
 // fast32 isn't size 4, its a long, shit lies
 #ifndef _N_SHARED_
 #define _N_SHARED_
@@ -13,7 +37,6 @@
 
 // dependencies
 #include "ncurses/ncurses.h"
-#include "ncurses/menu.h"
 
 #ifdef __GNUG__
 #   if defined(__x86_64__) || (__amd64)

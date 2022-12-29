@@ -17,11 +17,21 @@ enum
 	MT_HULK,
 	MT_RAVAGER,
 	MT_GRUNT,
-	MT_PISTOL,
-	MT_SHOTTY,
-	MT_GUNNER,
+
+	/* mythical/fantasy-style mobs */
+	MT_DRUID,
+	MT_SANDWURM,
+	
+	/* humanoid mobs */
+	MT_THUG,
+	MT_BEGGER,
 	MT_MERC,
-	MT_NOMAD
+	// galakas-soldiers
+	MT_SOLDIER,
+	MT_SHOTTY,
+	MT_PISTOL, // technically the police
+	MT_GUARD,
+	MT_SNIPER
 };
 
 typedef struct mobj_s
@@ -100,5 +110,8 @@ public:
 extern void M_FollowPlayr(Mob* const mob, Game* const game);
 extern void M_GetLeaders(Game* const game);
 extern void M_FollowLeader(Mob* const mob, Game* const game);
+
+
+void Assigner(Game* const gptr);
 
 #endif

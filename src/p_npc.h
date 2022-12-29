@@ -10,6 +10,15 @@
 
 #define MAX_NPC_ACTIVE 200
 
+typedef enum : nomadenum_t
+{
+	BOT_CIVILIAN,
+	BOT_GUARD,
+	BOT_MERCHANT,
+	
+	NUMBOTTYPES
+} bot_t;
+
 typedef struct
 {
 	nomadushort_t personality;
@@ -26,6 +35,7 @@ typedef struct
 	nomadint_t health;
 	nomadushort_t armor;
 	traits_t personality;
+	bot_t btype;
 } npc_t;
 
 class NPC
