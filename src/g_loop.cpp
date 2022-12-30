@@ -170,7 +170,7 @@ static void levelLoop(void)
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
 }
-/*
+
 static void* N_Looper(void* arg)
 {
 	pthread_mutex_lock(&npc_mutex);
@@ -183,7 +183,7 @@ static void* N_Looper(void* arg)
 	}
 	pthread_mutex_unlock(&npc_mutex);
 	return NULL;
-} */
+}
 
 static void* M_Looper(void *arg)
 {
