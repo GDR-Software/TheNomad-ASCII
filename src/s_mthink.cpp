@@ -198,7 +198,7 @@ void Mob::M_WanderThink()
 		}
 	}
 	else {
-		stepcounter--;
+		--stepcounter;
 		coord_t pos = game->E_GetDir(mdir);
 		char move = game->c_map[mpos.y+pos.y][mpos.x+pos.x];
 		switch (move) {
@@ -211,7 +211,7 @@ void Mob::M_WanderThink()
 			break;
 		};
 	}
-	M_FollowLeader(this, game);
+//	M_FollowLeader(this, game);
 	if (M_SeePlayr()) {
 		M_FollowPlayr(this, game);
 	}

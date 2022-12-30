@@ -50,7 +50,6 @@ void M_GetLeaders(Game* const game)
 	leaders.clear();
 	std::copy_if(game->m_Active.begin(), game->m_Active.end(), std::back_inserter(leaders),
                [](Mob* mob) { return ((mob->c_mob.mtype == MT_RAVAGER)
-				|| (mob->c_mob.mtype == MT_NOMAD)
 				|| (mob->c_mob.mtype == MT_MERC)
 				|| (mob->c_mob.mtype == MT_SHOTTY)); });
 }
@@ -66,8 +65,7 @@ static void M_FaceLeader(Mob* const mob, Game* const game)
 	for (nomadshort_t y = startc.y; y < endc.y; ++y) {
 		for (nomadshort_t x = startc.x; x < endc.x; ++x) {
 			if (game->c_map[y][x] == mobinfo[MT_RAVAGER].sprite
-			|| mobinfo[MT_NOMAD].sprite || mobinfo[MT_MERC].sprite
-			|| mobinfo[MT_SHOTTY].sprite) {
+			|| mobinfo[MT_MERC].sprite || mobinfo[MT_SHOTTY].sprite) {
 				mob->mdir = game->E_GetFacing({y, x}, mob->mpos);
 				break;
 			}
@@ -79,7 +77,6 @@ void M_FollowLeader(Mob* const mob, Game* const game)
 {
 	// ignore this function if the mob type is a leader
 	if ((mob->c_mob.mtype == MT_RAVAGER)
-		|| (mob->c_mob.mtype == MT_NOMAD)
 		|| (mob->c_mob.mtype == MT_MERC)
 		|| (mob->c_mob.mtype == MT_SHOTTY)) {
 		return;

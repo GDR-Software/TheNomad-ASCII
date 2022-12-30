@@ -84,8 +84,11 @@ public:
 	WINDOW* hudwin[NUMHUDLAYERS];
 public: // *** multithreading! ***
 	pthread_mutex_t mob_mutex;
+	pthread_mutex_t npc_mutex;
 	pthread_mutex_t playr_mutex;
 	pthread_t mthread;
+	pthread_t nthread;
+	pthread_t pthread;
 	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:
 	Game();

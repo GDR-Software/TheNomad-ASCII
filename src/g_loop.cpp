@@ -154,7 +154,7 @@ void mainLoop(int argc, char* argv[])
 	}
 }
 
-//static void* N_Looper(void* arg);
+static void* N_Looper(void* arg);
 static void* M_Looper(void *arg);
 static void* P_Loop(void *arg)
 {
@@ -171,18 +171,18 @@ static void levelLoop(void)
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
 	game->ClearMainWin();
 	game->G_DisplayHUD();
-	nomaduint_t i;
 	wrefresh(game->hudwin[HL_VMATRIX]);
-	pthread_t pthread;
 	while (game->gamestate == GS_LEVEL) {
 		werase(game->screen);
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
 		pthread_create(&game->mthread, NULL, M_Looper, NULL);
-		pthread_create(&pthread, NULL, P_Loop, NULL);
+		pthread_create(&game->nthread, NULL, N_Looper, NULL);
+		pthread_create(&game->pthread, NULL, P_Loop, NULL);
 		pthread_join(game->mthread, NULL);
-		pthread_join(pthread, NULL);
+		pthread_join(game->nthread, NULL);
+		pthread_join(game->pthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(scf::ticrate_mil));
 		game->ticcount++;
 		wrefresh(game->screen);
@@ -190,33 +190,36 @@ static void levelLoop(void)
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
 }
-/*
+
 static void* N_Looper(void* arg)
 {
-	pthread_mutex_lock(&npc_mutex);
-	for (nomadenum_t i = 0; i < game->b_Active.size(); i++) {
-		NPC* npc = &game->b_Active[i];
-		npc->nticker--;
-		if (!game->E_Move(npc)) {
-			continue;
+	pthread_mutex_lock(&game->npc_mutex);
+	for (auto* const b : game->b_Active) {
+		if (b->nticker > 0) {
+			--b->nticker;
+		}
+		else {
+			if (b->c_npc.btype == BOT_CIVILIAN) {
+				B_CivilianThink(b);
+			}
+			b->nticker = b->nstate.numticks;
 		}
 	}
-	pthread_mutex_unlock(&npc_mutex);
+	pthread_mutex_unlock(&game->npc_mutex);
 	return NULL;
-} */
+}
 
 static void* M_Looper(void *arg)
 {
 	pthread_mutex_lock(&game->mob_mutex);
 	M_GetLeaders(game);
 	for (auto* const m : game->m_Active) {
-		Mob* const mob = m;
-		if (mob->mticker > 0) {
-			mob->mticker--;
+		if (m->mticker > 0) {
+			--m->mticker;
 		}
 		else {
-			mob->M_WanderThink();
-			mob->mticker = mob->mstate.numticks;
+			m->M_WanderThink();
+			m->mticker = m->mstate.numticks;
 		}
 	}
 	pthread_mutex_unlock(&game->mob_mutex);

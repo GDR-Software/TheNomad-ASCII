@@ -35,6 +35,8 @@ typedef enum : nomadenum_t
 	BOT_CIVILIAN,
 	BOT_GUARD,
 	BOT_MERCHANT,
+	BOT_MERCMASTER,
+	BOT_BARTENDER,
 	BOT_NOMAD_CIVILIAN,
 	BOT_NOMAD_TRADER,
 	BOT_BLACKSMITH,
@@ -79,5 +81,7 @@ public:
 	NPC() = default;
 	~NPC();
 };
+
+__CFUNC__ void B_CivilianThink(NPC* const npc);
 
 #endif

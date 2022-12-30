@@ -55,6 +55,13 @@ typedef enum : nomaduint_t
 	S_MOB_FIGHT,
 	S_MOB_FLEE,
 	S_MOB_DEAD,
+
+	S_BOT_NULL,
+	S_BOT_SPAWN,
+	S_BOT_WANDER,
+	S_BOT_IDLE,
+	S_BOT_INTERACTING,
+	S_BOT_DEAD,
 	
 	NUMSTATES
 } state_t;

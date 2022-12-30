@@ -48,6 +48,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	npc = b_Active.back();
 	npc->pos = botpos[0];
 	npc->c_npc = npcinfo[0];
+	npc->c_npc.btype = BOT_BARTENDER;
 	npc->ndir = D_WEST;
 
 	b_Active.emplace_back(); // creating the guns 'n' grenades mercenary master
@@ -55,6 +56,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	npc = b_Active.back();
 	npc->pos = botpos[1];
 	npc->c_npc = npcinfo[1];
+	npc->c_npc.btype = BOT_MERCMASTER;
 	npc->ndir = D_NORTH;
 
 	b_Active.emplace_back(); // creating the guns 'n' grenades weapons smith
@@ -62,6 +64,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	npc = b_Active.back();
 	npc->pos = botpos[2];
 	npc->c_npc = npcinfo[2];
+	npc->c_npc.btype = BOT_WEAPONSMITH;
 	npc->ndir = D_EAST;
 }
 
@@ -69,13 +72,20 @@ __CFUNC__ void B_GenerateCivilian(NPC* const npc)
 {
 	npc->pos.y = (P_Random() & 204) + 112;
 	npc->pos.x = (P_Random() & 107) + 208;
-	if (game->c_map[npc->pos.y][npc->pos.x] == '#') {
+	switch (game->c_map[npc->pos.y][npc->pos.x]) {
+	case ' ':
+	case '_':
+	case '.':
+		break;
+	default:
 		Z_Free(npc);
 		return;
-	}
+		break;
+	};
 	npc->c_npc.sprite = 'c';
 	npc->c_npc.health = 100;
 	npc->c_npc.armor = 12;
+	npc->c_npc.btype = BOT_CIVILIAN;
 }
 __CFUNC__ void B_SpawnCivilianBots(void)
 {
@@ -84,10 +94,26 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 		b_Active.emplace_back();
 		b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 		NPC* const npc = b_Active.back();
+		npc->nstate = stateinfo[S_BOT_WANDER];
+		npc->nticker = npc->nstate.numticks;
 		B_GenerateCivilian(npc);
 	}
 }
-_
+__CFUNC__ void B_CivilianThink(NPC* const npc)
+{
+	// move at random
+	if (P_Random() > 75) {
+		coord_t pos = game->E_GetDir(npc->ndir);
+		if (E_CloseCollider(npc->ndir, npc->pos, game)) {
+			npc->pos.y += pos.y;
+			npc->pos.x += pos.x;
+		}
+		else {
+			npc->ndir = P_Random() & 3;
+		}
+	}
+	// TODO: you know what to do
+}
 
 void Game::I_InitNPCs(void)
 {

@@ -23,6 +23,17 @@
 #include "scf.h"
 #include "g_game.h"
 #include "g_obj.h"
+/*
+const mstate_t mstates[NUMMOBSTATES] = {
+	{S_MOB_NULL,      0,                   NULL},
+	{S_MOB_SPAWN,     15,                  &M_SpawnThink},
+	{S_MOB_WANDER,    16,                  &M_WanderThink},
+	{S_MOB_IDLE,      scf::ticrate_base*2, NULL},
+	{S_MOB_CHASEPLAYR,scf::ticrate_base*25,NULL},
+	{S_MOB_FIGHT,     scf::ticrate_base*15,NULL},
+	{S_MOB_FLEE,      15,                  NULL},
+	{S_MOB_DEAD,      65,                  NULL},
+}; */
 
 const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_NULL,      0},
@@ -41,7 +52,13 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_MOB_CHASEPLAYR,  scf::ticrate_base*25},
 	{S_MOB_FIGHT,       scf::ticrate_base*15},
 	{S_MOB_FLEE,        15},
-	{S_MOB_DEAD,        65}
+	{S_MOB_DEAD,        65},
+	{S_BOT_NULL,        0},
+	{S_BOT_SPAWN,       10},
+	{S_BOT_WANDER,      scf::ticrate_base*2},
+	{S_BOT_IDLE,        scf::ticrate_base*3},
+	{S_BOT_INTERACTING, scf::ticrate_base*6},
+	{S_BOT_DEAD,        10},
 };
 
 // name, sprite, health, armor, mtype, etype, rng, chance-to-spawn, sndtol, sndarea,
