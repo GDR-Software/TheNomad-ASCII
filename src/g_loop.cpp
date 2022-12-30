@@ -194,17 +194,17 @@ static void levelLoop(void)
 static void* N_Looper(void* arg)
 {
 	pthread_mutex_lock(&game->npc_mutex);
-	for (auto* const b : game->b_Active) {
+/*	for (auto* const b : game->b_Active) {
 		if (b->nticker > 0) {
 			--b->nticker;
 		}
 		else {
-			if (b->c_npc.btype == BOT_CIVILIAN) {
-				B_CivilianThink(b);
-			}
+		//	if (b->c_npc.btype == BOT_CIVILIAN) {
+		//		B_CivilianThink(b);
+		//	}
 			b->nticker = b->nstate.numticks;
 		}
-	}
+	}*/
 	pthread_mutex_unlock(&game->npc_mutex);
 	return NULL;
 }

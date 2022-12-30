@@ -67,7 +67,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	npc->c_npc.btype = BOT_WEAPONSMITH;
 	npc->ndir = D_EAST;
 }
-
+/*
 __CFUNC__ void B_GenerateCivilian(NPC* const npc)
 {
 	npc->pos.y = (P_Random() & 204) + 112;
@@ -98,29 +98,28 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 		npc->nticker = npc->nstate.numticks;
 		B_GenerateCivilian(npc);
 	}
-}
-__CFUNC__ void B_CivilianThink(NPC* const npc)
+} */
+/*__CFUNC__ void B_CivilianThink(NPC* const npc)
 {
 	// move at random
 	if (P_Random() > 75) {
 		coord_t pos = game->E_GetDir(npc->ndir);
 		if (E_CloseCollider(npc->ndir, npc->pos, game)) {
-			npc->pos.y += pos.y;
-			npc->pos.x += pos.x;
+		//	npc->pos.y += pos.y;
+		//	npc->pos.x += pos.x;
 		}
 		else {
 			npc->ndir = P_Random() & 3;
 		}
 	}
 	// TODO: you know what to do
-}
+} */
 
 void Game::I_InitNPCs(void)
 {
 	game = this;
-	b_Active.reserve(npcinfo.size()+MAX_NPC_ACTIVE);
+	b_Active.reserve(npcinfo.size());
 	B_SpawnShopBots();
-	B_SpawnCivilianBots();
 }
 
 NPC::~NPC()
