@@ -28,6 +28,7 @@ static Game* game;
 
 static void M_GenMercSquad();
 static void M_GenZurgutLegion();
+static void M_GenNomadTribe();
 
 static void M_GenGroup()
 {

@@ -44,16 +44,21 @@ enum
 	
 	/* humanoid mobs */
 	MT_THUG,
-	MT_BEGGER,
+	MT_BEGGAR,
 	MT_MERC,
-	MT_NOMAD,
+	MT_MERC_LEADER,
 	// galakas-soldiers
 	MT_SOLDIER,
 	MT_SHOTTY,
 	MT_PISTOL, // technically the police
 	MT_GUARD,
 	MT_SNIPER,
-	MT_GUNNER
+	MT_GUNNER,
+	// nomads
+	MT_NOMAD_LEADER,
+	MT_NOMAD_WARRIOR,
+	
+	NUMMOBS
 };
 
 typedef struct mobj_s

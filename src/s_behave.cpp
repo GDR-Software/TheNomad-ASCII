@@ -87,6 +87,7 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 		B_GenerateCivilian(npc);
 	}
 }
+_
 
 void Game::I_InitNPCs(void)
 {

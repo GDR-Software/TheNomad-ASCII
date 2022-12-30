@@ -46,6 +46,7 @@ OBJS= \
 	$(O)/s_enemy.o \
 	$(O)/g_math.o \
 	$(O)/s_mthink.o \
+	$(O)/s_nomads.o \
 #	$(O)/c_dungen.o \
 #	$(O)/c_nemsis.o \
 #	$(O)/c_sao.o \

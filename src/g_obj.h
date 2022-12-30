@@ -67,20 +67,4 @@ typedef struct entitystate_s
 
 extern const entitystate_t stateinfo[NUMSTATES];
 
-typedef enum
-{
-	M_ZHULK,
-	M_ZRAVAGER,
-	M_ZGRUNT,
-
-	M_HPISTOL,
-	M_HSHOTTY,
-	M_HGUNNER,
-	M_HROCKET,
-	M_HMERC,
-	M_HNOMAD,
-
-	NUMMOBS
-} mob_t;
-
 #endif

@@ -49,14 +49,21 @@ const entitystate_t stateinfo[NUMSTATES] = {
 // hitscan dmg, hitscan range, projectile dmg, projectile range, mlore, mdrops
 const mobj_t mobinfo[NUMMOBS] = {
 
-{"Hulk\0",        'H', 487, 56,  MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 40},
-{"Ravager\0",     'R', 353, 40,  MT_RAVAGER, ET_MOB, 43,  18, SND_LOW,  7,  SMELL_LOW,  10, 40},
-{"Grunt\0",       'Z', 21,  11,  MT_GRUNT,   ET_MOB, 210, 89, SND_LOW,  10, SMELL_LOW,  10, 44},
-{"Pistol Guy\0",  'P', 49,  18,  MT_PISTOL,  ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Shotgun Dude\0",'S', 111, 55,  MT_SHOTTY,  ET_MOB, 57,  66, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Heavy Gunner\0",'G', 245, 69,  MT_GUNNER,  ET_MOB, 111, 59, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Mercenary\0",   'm', 233, 78,  MT_MERC,    ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Nomad\0",       'N', 689, 105, MT_NOMAD,   ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 40}
+{"Hulk\0",           'h', 487, 56,  MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 40},
+{"Ravager\0",        'r', 353, 40,  MT_RAVAGER, ET_MOB, 43,  18, SND_LOW,  7,  SMELL_LOW,  10, 40},
+{"Grunt\0",          'z', 21,  11,  MT_GRUNT,   ET_MOB, 210, 89, SND_LOW,  10, SMELL_LOW,  10, 44},
+{"Druid\0",          'd', 135, 42,  MT_DRUID,        ET_MOB,},
+{"Sand Wurm\0",      'W', 3153,35,  MT_SANDWURM,     ET_MOB,},
+{"Street Thug\0",    't',},
+{"Beggar\0",         'b',},
+{"Mercenary\0",      'm', 233, 78,  MT_MERC,         ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Pistol Guy\0",     'p', 49,  18,  MT_PISTOL,       ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Shotgun Dude\0",   's', 111, 55,  MT_SHOTTY,       ET_MOB, 57,  66, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"City Guard\0",     'c',},
+{"Sharpshooter\0",   's',},
+{"Heavy Gunner\0",   'g', 245, 69,  MT_GUNNER,       ET_MOB, 111, 59, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Nomadic Warrior\0",'n', 689, 105, MT_NOMAD_WARRIOR, ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Nomadic Leader\0", 'l',}
 
 };
 
