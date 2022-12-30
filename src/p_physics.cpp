@@ -20,42 +20,25 @@
 //----------------------------------------------------------
 #include "g_game.h"
 
-collider_t Game::P_RangedCollider(nomadushort_t range, nomaduint_t wpn)
+// false if entity can walk, true if cannot
+nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game)
 {
-	
-}
-
-collider_t Game::P_RangedCollider(nomadushort_t range)
-{
-	
-}
-
-collider_t Game::P_CloseCollider(nomadenum_t dir)
-{
-	nomadshort_t y{};
-	nomadshort_t x{};
-	collider_t hit;
-	switch (dir) {
-	case D_NORTH:
-		y = -1; x = 0;
+	coord_t pos = game->E_GetDir(dir);
+	switch (game->c_map[from.y+pos.y][from.x+pos.x]) {
+	case '.':
+	case '_':
+	case ' ':
+		return false;
 		break;
-	case D_WEST:
-		y = 0; x = -1;
-		break;
-	case D_SOUTH:
-		y = 1; x = 0;
-		break;
-	case D_EAST:
-		y = 0; x = 1;
+	default:
+		return true;
 		break;
 	};
-	if (c_map[playr->pos.y+y][playr->pos.x+x] == '#') {
-		hit.where = {playr->pos.y+y, playr->pos.x};
-		hit.what = ET_WALL;
-	}
-	else {
-		hit.where = {playr->pos.y, playr->pos.x};
-		hit.what = ET_AIR;
-	}
-	return hit;
+	return true;
+}
+
+std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
+	nomadshort_t range, Game* const game)
+{
+	coord_t pos = game->E_GetDir(dir);
 }

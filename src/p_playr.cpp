@@ -85,26 +85,58 @@ void Game::P_Ticker(nomadint_t input)
 		break; }
 	case KEY_w: {
 		if (!P_MoveTicker(playr)) {
-			if (c_map[playr->pos.y - 1][playr->pos.x] == '#') {break;}
-			else {playr->P_MoveN(); wrefresh(hudwin[HL_VMATRIX]);}
+			switch (c_map[playr->pos.y - 1][playr->pos.x]) {
+			case ' ':
+			case '_':
+			case '.':
+				playr->P_MoveN();
+				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			default:
+				break;
+			};
 		}
 		break; }
 	case KEY_a: {
 		if (!P_MoveTicker(playr)) {
-			if (c_map[playr->pos.y][playr->pos.x - 1] ==  '#') {break;}
-			else {playr->P_MoveW(); wrefresh(hudwin[HL_VMATRIX]);}
+			switch (c_map[playr->pos.y][playr->pos.x - 1]) {
+			case ' ':
+			case '_':
+			case '.':
+				playr->P_MoveW();
+				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			default:
+				break;
+			};
 		}
 		break; }
 	case KEY_s: {
 		if (!P_MoveTicker(playr)) {
-			if (c_map[playr->pos.y+1][playr->pos.x] == '#') {break;}
-			else {playr->P_MoveS(); wrefresh(hudwin[HL_VMATRIX]);}
+			switch (c_map[playr->pos.y + 1][playr->pos.x]) {
+			case ' ':
+			case '_':
+			case '.':
+				playr->P_MoveS();
+				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			default:
+				break;
+			};
 		}
 		break; }
 	case KEY_d: {
 		if (!P_MoveTicker(playr)) {
-			if (c_map[playr->pos.y][playr->pos.x+1] == '#') {break;}
-			else {playr->P_MoveE(); wrefresh(hudwin[HL_VMATRIX]);}
+			switch (c_map[playr->pos.y][playr->pos.x + 1]) {
+			case ' ':
+			case '_':
+			case '.':
+				playr->P_MoveE();
+				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			default:
+				break;
+			};
 		}
 		break; }
 	case KEY_TILDA:
