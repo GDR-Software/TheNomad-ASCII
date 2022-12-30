@@ -16,7 +16,7 @@
 // Free Software Foundation.
 //
 // DESCRIPTION:
-//  /src
+//  src/n_shared.h
 //  the big, chunky header that's supposed to be the first include
 //  in every header file within the main /src directory.
 //  DO NOT MODIFY UNLESS YOU KNOW WHAT YOU ARE DOING!!!!
