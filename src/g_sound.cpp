@@ -16,7 +16,7 @@
 // Free Software Foundation.
 //
 // DESCRIPTION:
-//  src/s_saveg.cpp
+//  src/g_sound.cpp
 //----------------------------------------------------------
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_audio.h>
