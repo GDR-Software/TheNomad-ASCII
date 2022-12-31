@@ -21,7 +21,6 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH) \
 
 CFLAGS += $(DEFINES) $(INCLUDE)
-
 all: $(EXE)
 
 OBJS= \
@@ -55,9 +54,7 @@ $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE)
 
 $(O)/%.o: $(SDIR)/%.cpp
-	$(CC) $(CFLAGS) $(ERRORS) -Ofast -o $@ -c $<
-$(O)/%.o: $(SDIR)/cardinal/%.cpp
-	$(CC) $(CFLAGS) $(ERRORS) -Ofast -o $@ -c $<
+	$(CC) $(CFLAGS) -Ofast -o $@ -c $<
 
 clean:
 	rm -rf $(O)/*

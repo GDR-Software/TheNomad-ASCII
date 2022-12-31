@@ -30,48 +30,9 @@ static void M_GenMercSquad();
 static void M_GenZurgutLegion();
 static void M_GenNomadTribe();
 
-typedef struct
-{
-	nomadenum_t sector_id;
-	coord_t area[4];
-	std::vector<Mob*> mobs;
-	Mob* leader;
-} mobgroup_t;
 
-std::vector<mobgroup_t*> groups
-
-static void M_GenGroups()
-{
-	srand(time(NULL));
-	nomadenum_t numgroups[9]; // number of groups per sector
-	nomadenum_t totalgroups = 0;
-	for (nomadenum_t i = 0; i < 9; ++i) {
-		numgroups[i] = rand() % 24+1;
-		totalgroups += numgroups[i];
-	}
-	groups.reserve(totalgroups);
-	groups.emplace_back();
-	groups.back() = (mobgroup_t *)Z_Malloc(sizeof(mobgroup_t), TAG_STATIC, &groups.back());
-	mobgroup_t *group = groups.back();
-	group
-}
 static void M_GenGroup()
 {
-	mobgroup_t* group = (mobgroup_t *)Z_Malloc(sizeof(mobgroup_t), TAG_STATIC, &group);
-	coord_t& tl = group->area[0];
-	coord_t& tr = group->area[1];
-	coord_t& bl = group->area[2];
-	coord_t& br = group->area[3];
-	
-	tl.y = (rand() % 300)+190;
-	tl.x = (rand() % 300)+190;
-	std::copy_if(game->m_Active.begin(), game->m_Active.end(), std::back_inserter(),
-               [](Mob* mob) { return ((mob->c_mob.mtype == MT_RAVAGER)
-				|| (mob->c_mob.mtype == MT_MERC)
-				|| (mob->c_mob.mtype == MT_SHOTTY)); });
-	
-	coord_t cGroup = closestOBJ; // search for the closest other mob group to this current one
-	
 	coord_t origin;
 	srand(time(NULL));
 	origin.y = (rand() % 300)+190;
