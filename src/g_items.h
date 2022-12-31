@@ -45,7 +45,10 @@ enum
 
 	// desert rifle, lever-action 4 shot
 	W_DMR_DR,
+	// the slapper, y'know
 	W_DMR_HOSIG,
+
+	W_SMG_PLASMA,
 
 	NUMWEAPONS,
 	
