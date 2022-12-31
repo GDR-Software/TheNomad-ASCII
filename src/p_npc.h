@@ -66,6 +66,8 @@ typedef struct
 	bot_t btype;
 } npc_t;
 
+extern std::vector<npc_t> npcinfo;
+
 class NPC
 {
 public:
@@ -83,5 +85,6 @@ public:
 };
 
 __CFUNC__ void B_CivilianThink(NPC* const npc);
+void B_GenNomadTribe();
 
 #endif

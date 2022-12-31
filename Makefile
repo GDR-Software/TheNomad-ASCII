@@ -5,8 +5,9 @@ CC             = g++
 CFLAGS         = -g -std=c++17 -Wall
 O              = obj
 SDIR           = src
-INCLUDE        = -IFiles/gamedata/DEPS/include
-LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a -lpthread
+INCLUDE        = -IFiles/gamedata/DEPS/include -I/usr/include
+LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a -L/usr/lib/x86_64-linux-gnu
+LDLIBS         = -lpthread -lasound -lSDL2 -lSDL2_mixer
 EXE            = nomadascii
 
 .PHONY: all clean clean.exe clean.objs
@@ -46,12 +47,13 @@ OBJS= \
 	$(O)/g_math.o \
 	$(O)/s_mthink.o \
 	$(O)/s_nomads.o \
+	$(O)/g_sound.o \
 #	$(O)/c_dungen.o \
 #	$(O)/c_nemsis.o \
 #	$(O)/c_sao.o \
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE)
+	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE) $(LDLIBS)
 
 $(O)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -Ofast -o $@ -c $<

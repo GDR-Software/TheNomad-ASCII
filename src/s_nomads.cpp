@@ -19,6 +19,8 @@
 //  src/s_nomads.cpp
 //----------------------------------------------------------
 #include "g_game.h"
+#include "p_npc.h"
+#include "g_rng.h"
 
 static Game* game;
 
@@ -34,7 +36,7 @@ typedef struct nomad_s
 
 class Tribe
 {
-private:
+public:
 	std::string name; // the tribe's name
  	nomadenum_t sector_id; // really just the biome
 	std::vector<nomad_t*> warriors; // the assigned warriors of the tribe
@@ -47,6 +49,14 @@ public:
 	Tribe(){}
 	~Tribe()
 	{
+		for (auto* const i : bots) {
+			Z_Free(i->npc);
+			Z_Free(i);
+		}
+		for (auto* const i : warriors) {
+			Z_Free(i->mob);
+			Z_Free(i);
+		}
 		Z_Free(this);
 	}
 	void T_SetRoute();
@@ -63,6 +73,43 @@ void NomadAssigner(Game* const gptr)
 void T_Interact()
 {
 	
+}
+
+void B_GenNomadTribe()
+{
+	nomadenum_t numwarriors = (P_Random() & 4)+1;
+	nomadenum_t numbots = (P_Random() & 10)+3;
+	nomadenum_t i;
+	Tribe* tribe = (Tribe *)Z_Malloc(sizeof(Tribe), TAG_STATIC, &tribe);
+	std::vector<nomad_t*>& warriors = tribe->warriors;
+	std::vector<nomad_t*>& bots = tribe->bots;
+	tribe->leader = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &tribe->leader);
+	nomad_t& leader = *tribe->leader;
+	// nomadic leaders are the only ones in a tribe who can be both diplomats as well as soldiers
+	leader.npc = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &leader.npc);
+	leader.mob = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &leader.mob);
+
+	warriors.reserve(numwarriors);
+	bots.reserve(numbots);
+
+	for (i = 0; i < numbots; ++i) {
+		bots.emplace_back();
+		bots.back() = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &bots.back());
+		nomad_t* bot = bots.back();
+		bot->mob = nullptr;
+		bot->npc = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &bot->npc);
+	//	bot->npc->c_npc = npcinfo[BOT_NOMAD_CIVILIAN]; // TODO: finish this up
+	}
+	for (i = 0; i < numwarriors; ++i) {
+		warriors.emplace_back();
+		warriors.back() = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &warriors.back());
+		nomad_t* n = warriors.back();
+		n->mob = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &n->mob);
+		n->npc = nullptr;
+		n->mob->c_mob = mobinfo[MT_NOMAD_WARRIOR];
+	}
+	tribes.push_back(tribe);
+
 }
 
 void Tribe::T_SetRoute()

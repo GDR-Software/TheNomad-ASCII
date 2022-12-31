@@ -91,31 +91,7 @@ typedef struct
 	nomaduint_t minion_type;
 	mobj_t base_mob;
 } bossj_t;
-/*
-typedef enum : nomaduint_t
-{
-	S_MOB_NULL,
-	S_MOB_SPAWN,
-	S_MOB_WANDER,
-	S_MOB_IDLE,
-	S_MOB_CHASEPLAYR,
-	S_MOB_FIGHT,
-	S_MOB_FLEE,
-	S_MOB_DEAD,
 
-	NUMMOBSTATES
-} mobstate_t;
-
-class Mob;
-
-typedef void(*maction_t)(Mob* const mob);
-typedef struct
-{
-	mobstate_t id;
-	nomadlong_t numticks;
-	maction_t func;
-} mstate_t;
-*/
 extern const mobj_t mobinfo[NUMMOBS];
 extern const bossj_t bossinfo;
 
@@ -163,6 +139,7 @@ extern void M_GetLeaders(Game* const game);
 extern void M_FollowLeader(Mob* const mob, Game* const game);
 
 void Assigner(Game* const gptr);
+void NomadAssigner(Game* const gptr);
 
 //extern const mstate_t mstates[NUMMOBSTATES];
 

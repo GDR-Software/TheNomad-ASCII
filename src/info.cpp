@@ -23,17 +23,13 @@
 #include "scf.h"
 #include "g_game.h"
 #include "g_obj.h"
-/*
-const mstate_t mstates[NUMMOBSTATES] = {
-	{S_MOB_NULL,      0,                   NULL},
-	{S_MOB_SPAWN,     15,                  &M_SpawnThink},
-	{S_MOB_WANDER,    16,                  &M_WanderThink},
-	{S_MOB_IDLE,      scf::ticrate_base*2, NULL},
-	{S_MOB_CHASEPLAYR,scf::ticrate_base*25,NULL},
-	{S_MOB_FIGHT,     scf::ticrate_base*15,NULL},
-	{S_MOB_FLEE,      15,                  NULL},
-	{S_MOB_DEAD,      65,                  NULL},
-}; */
+
+
+std::vector<npc_t> npcinfo = {
+	{"The Bartender\0",    'b', 90,  49},
+	{"Mercenary Master\0", 'M', 200, 50},
+	{"Weapons Smith\0",    'w', 100, 43}
+};
 
 const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_NULL,      0},
@@ -66,21 +62,21 @@ const entitystate_t stateinfo[NUMSTATES] = {
 // hitscan dmg, hitscan range, projectile dmg, projectile range, mlore, mdrops
 const mobj_t mobinfo[NUMMOBS] = {
 
-{"Hulk\0",           'h', 487, 56,  MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 40},
-{"Ravager\0",        'r', 353, 40,  MT_RAVAGER, ET_MOB, 43,  18, SND_LOW,  7,  SMELL_LOW,  10, 40},
-{"Grunt\0",          'z', 21,  11,  MT_GRUNT,   ET_MOB, 210, 89, SND_LOW,  10, SMELL_LOW,  10, 44},
-{"Druid\0",          'd', 135, 42,  MT_DRUID,        ET_MOB,},
-{"Sand Wurm\0",      'W', 3153,35,  MT_SANDWURM,     ET_MOB,},
+{"Hulk\0",           'h', 487, 56, MT_HULK,    ET_MOB, 150, 44, SND_VLOW, 15, SMELL_VLOW, 10, 40},
+{"Ravager\0",        'r', 353, 40, MT_RAVAGER, ET_MOB, 43,  18, SND_LOW,  7,  SMELL_LOW,  10, 40},
+{"Grunt\0",          'z', 21,  11, MT_GRUNT,   ET_MOB, 210, 89, SND_LOW,  10, SMELL_LOW,  10, 44},
+{"Druid\0",          'd', 135, 42, MT_DRUID,        ET_MOB,},
+{"Sand Wurm\0",      'W', 3153,35, MT_SANDWURM,     ET_MOB,},
 {"Street Thug\0",    't',},
 {"Beggar\0",         'b',},
-{"Mercenary\0",      'm', 233, 78,  MT_MERC,         ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Pistol Guy\0",     'p', 49,  18,  MT_PISTOL,       ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Shotgun Dude\0",   's', 111, 55,  MT_SHOTTY,       ET_MOB, 57,  66, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Mercenary\0",      'm', 233, 78, MT_MERC,         ET_MOB, 30,  41, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Pistol Guy\0",     'p', 49,  18, MT_PISTOL,       ET_MOB, 160, 95, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Shotgun Dude\0",   's', 111, 55, MT_SHOTTY,       ET_MOB, 57,  66, SND_LOW,  10, SMELL_LOW,  10, 40},
 {"City Guard\0",     'c',},
 {"Sharpshooter\0",   's',},
-{"Heavy Gunner\0",   'g', 245, 69,  MT_GUNNER,       ET_MOB, 111, 59, SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Nomadic Warrior\0",'n', 689, 105, MT_NOMAD_WARRIOR, ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 40},
-{"Nomadic Leader\0", 'l',}
+{"Heavy Gunner\0",   'g', 245, 69, MT_GUNNER,       ET_MOB, 111, 59, SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Nomadic Warrior\0",'n', 389, 79, MT_NOMAD_WARRIOR, ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 40},
+{"Nomadic Leader\0", 'l', 644, 96, MT_NOMAD_LEADER,  ET_MOB, 8}
 
 };
 

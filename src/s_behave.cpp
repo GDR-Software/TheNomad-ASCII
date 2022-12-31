@@ -32,11 +32,6 @@ static constexpr coord_t botpos[] = {
 	{259, 283},
 };
 
-static std::vector<npc_t> npcinfo = {
-	{"The Bartender\0",    'b', 90,  49},
-	{"Mercenary Master\0", 'M', 200, 50},
-	{"Weapons Smith\0",    'w', 100, 43}
-};
 __CFUNC__ void B_SpawnShopBots(void)
 {
 	// hardcoded until the BFFs roll around
@@ -119,7 +114,9 @@ void Game::I_InitNPCs(void)
 {
 	game = this;
 	b_Active.reserve(npcinfo.size());
+	NomadAssigner(this);
 	B_SpawnShopBots();
+	B_GenNomadTribe();
 }
 
 NPC::~NPC()
