@@ -105,6 +105,9 @@ typedef struct
 	nomadenum_t tfrf;
 	// reloading time, with still unfired bullets
 	nomadenum_t tfrs;
+
+	// only ever used for shotguns
+	nomadenum_t numpellets;
 } weapon_t;
 
 constexpr uint8_t MAXMATERIALS = 15;
@@ -118,8 +121,8 @@ typedef struct
 	std::vector<nomadenum_t> mtl_ls;
 } item_t;
 
-extern std::vector<weapon_t> wpninfo;
-extern std::vector<item_t> iteminfo;
+extern const weapon_t wpninfo[NUMWEAPONS];
+extern const item_t iteminfo[NUMITEMS];
 
 class Item
 {
@@ -138,6 +141,11 @@ public:
 	Weapon();
 	~Weapon();
 };
+
+std::vector<collider_t>& P_GetHitEntities(Weapon* const wpn);
+void P_ShootShotty(Weapon* const wpn);
+void P_ShootSingle(Weapon* const wpn);
+void P_ShootAuto(Weapon* const wpn);
 
 
 #endif

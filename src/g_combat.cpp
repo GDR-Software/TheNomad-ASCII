@@ -22,147 +22,51 @@
 #include "g_playr.h"
 #include "g_mob.h"
 #include "g_items.h"
+#include "g_rng.h"
 
-typedef struct
-{
-	coord_t pos;
-	uint8_t etype;
-} entity_loc_t;
+static Game* game;
+static Playr* playr;
 
-void Playr::P_DamageMobYX(Game& game, coord_t& m_pos, uint_fast8_t dmg)
+void CombatAssigner(Game* const gptr)
 {
-	for (uint_fast8_t i = 0; i < game.m_Active.size(); i++) {
-		if (game.m_Active[i].pos == m_pos) {
-		//	game.
-		}
-	}
+	game = gptr;
+	playr = game->playr;
 }
 
-static entity_loc_t HitscanCollider(uint8_t& dir, coord_t& pos, 
-	uint16_t& wpnid, const std::unique_ptr<Map>& pmap)
+void P_ShootShotty(Weapon* const wpn)
 {
-	entity_loc_t hit;
-	hit.pos.y = NULL;
-	hit.pos.x = NULL;
-	hit.etype = NULL;
-	int8_t y, x, d;
-	switch (dir) {
+	weapon_t* w = &wpn->c_wpn;
+	coord_t origin;
+	nomadshort_t spos;
+	switch (playr->pdir) {
 	case D_NORTH:
-		y = -1; x = 0; d = -1;
-		break;
-	case D_EAST:
-		y = 0; x = -1; d = -1;
-		break;
-	case D_SOUTH:
-		y = 1; x = 0; d = 1;
+		spos = playr->pos.x;
 		break;
 	case D_WEST:
-		y = 0; x = 1; d = 1;
+		spos = playr->pos.y;
 		break;
-	default:
-#ifdef DEVMODE
-		gameError(VAR_IS_INVALID_VALUE);
-#endif
-		return hit;
+	case D_SOUTH:
+		spos = playr->pos.x;
+		break;
+	case D_EAST:
+		spos = playr->pos.y;
+		break;
+	default: /*
+#ifdef _NOMAD_DEBUG
+// TODO: add in debug log
+#endif*/
+		N_Error("Unknown/Invalid Player Direction: %i", playr->pdir); // this should never happen
+		break;
 	};
-	if (dir == D_NORTH || D_WEST) {
-		for (int16_t y = 0; y < wpninfo[wpnid + WI_RANGE]; y++) {
-			for (int16_t x =)
-				if (pmap->c_map[])
-		}
-	}
-	else if (dir == D_SOUTH || D_EAST) {
+	nomadshort_t offset;
+	nomadenum_t numpellets = w->numpellets;
+	for (nomadshort_t o = numpellets; o > -1; --o) {
+		nomadbool_t s = (rand() % 1) == 1 ? offset = -P_Random() & -2 : offset = P_Random() & 2;
+		nomadshort_t spread[2];
+		spread[0] = spos - ((w->spread >> 1) + offset);
+		spread[1] = spos + ((w->spread >> 1) + offset);
 		
+		// first, cast a straight line ray whence the player is facing
+		// TODO: THIS
 	}
-}
-
-void Playr::ShootShotty(const std::unique_ptr<Map>& pmap)
-{
-	entity_loc_t hit = HitscanCollider(pdir, pos, wpn_in_hand[0], pmap);
-	int16_t spread = wpninfo[wpn_in_hand[0] + WI_SPREAD];
-	uint16_t pellets = wpninfo[wpn_in_hand[0] + WI_NUMBULLETS];
-	uint16_t rng = wpninfo[wpn_in_hand[0] + WI_RNG];
-	int16_t nspread[2];
-	if (pdir == D_NORTH || D_SOUTH) {
-		nspread[0] = px - (spread >> 1); // west
-		nspread[1] = px + (spread >> 1); // east
-	}
-	else if (pdir == D_EAST || D_WEST) {
-		nspread[0] = py - (spread >> 1); // north
-		nspread[1] = py + (spread >> 1); // south
-	}
-#ifdef EXPERIMENTAL // doesn't work rn, don't use
-	coord_t dspread[2];
-	else if (pdir == D_NORTHEAST) {
-		// left
-		dspread[0].y = py - (spread >> 1);
-		dspread[0].x = px - (spread >> 1);
-		// right
-		dspread[1].y = py + (spread >> 1);
-		dspread[1].x = px + (spread >> 1);
-	}
-	else if (pdir == D_SOUTHEAST) {
-		// left
-	//	dspread[0]
-		// right
-		
-	}
-	else if (pdir == D_NORTHWEST) {
-		
-	}
-	else if (pdir == D_SOUTHWEST) {
-		
-	}
-#endif
-#ifdef DEVMODE
-	else {
-		gameError(HOW_DID_YOU_GET_HERE);
-	}
-#endif
-	for (uint8_t o = 0; o < pellets; o++) {
-		uint8_t hashit = (P_random() + rng) & 110;
-		int8_t offset;
-		int8_t which = nspread[rand() % 1];
-		if ((rand() % 2) == 2) {
-			offset = P_random() & 2;
-		}
-		else if ((rand() % 2) == 1) {
-			// NOTE: this might need fixing, its
-			// meant to be a negative offset
-			offset = -P_random() & 2;
-		}
-		else {
-			offset = 0;
-		}
-		switch (pdir) {
-		case D_NORTH:
-			if (pmap->c_map[pos.y][which] == ET_MOB) {
-				P_DamageMobYX({pos.y, which});
-			}
-		case D_EAST:
-		case D_SOUTH:
-		case D_WEST:
-		default:
-#ifdef DEVMODE
-			gameError(OK_HOW_THE_FUCK_DID_YOU_GET_HERE);
-#endif
-			break;
-		};
-	}
-}
-
-// used for any semi-auto weapon except shotguns
-void Playr::ShootSingle(const std::unique_ptr<Map>& pmap)
-{
-	
-}
-
-void Playr::ShootBurst3(const std::unique_ptr<Map>& pmap)
-{
-	
-}
-
-void Playr::ShootBurst4(const std::unique_ptr<Map>& pmap)
-{
-	
 }
