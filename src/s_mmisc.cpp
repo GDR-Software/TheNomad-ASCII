@@ -28,7 +28,6 @@ static Game* game;
 
 static void M_GenMercSquad();
 static void M_GenZurgutLegion();
-static void M_GenNomadTribe();
 
 
 static void M_GenGroup()
@@ -81,6 +80,7 @@ void Game::M_GenMobs(void)
 {
 	game = this;
 	Assigner(this);
+	NomadAssigner(this);
 	m_Active.reserve(MAX_MOBS_ACTIVE);
 	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
 		if (m_Active.size() >= MAX_MOBS_ACTIVE) {
