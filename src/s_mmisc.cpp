@@ -72,7 +72,7 @@ static void M_GenGroup()
 		m->c_mob = mob;
 		m->mstate = stateinfo[S_MOB_WANDER];
 		m->mticker = m->mstate.numticks;
-		m->stepcounter &= 0;
+		m->stepcounter = P_Random() & 10;
 		m->mdir = P_Random() & 3;
 	}
 }
