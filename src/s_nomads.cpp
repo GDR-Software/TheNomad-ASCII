@@ -44,7 +44,7 @@ public:
 	std::vector<nomad_t*> bots; // the civilains of said tribe
 	nomad_t* leader; // called "Tarsin" in the common nomadic tongue, the tribe's commander/leader
 	nomaduint_t size; // number of members in the tribe
-	nomadenum_t alignment; // the average moral of the tribe
+	nomadenum_t alignment; // the average alignment of the tribe
 public:
 	Tribe(){}
 	~Tribe()
@@ -57,6 +57,13 @@ public:
 			Z_Free(i->mob);
 			Z_Free(i);
 		}
+		for (auto* const i : traders) {
+			Z_Free(i->npc);
+			Z_Free(i);
+		}
+		Z_Free(leader->npc);
+		Z_Free(leader->mob);
+		Z_Free(leader);
 		Z_Free(this);
 	}
 	void T_SetRoute();
