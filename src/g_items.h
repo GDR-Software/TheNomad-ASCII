@@ -22,6 +22,7 @@
 #define _G_ITEMS_
 
 #include "n_shared.h"
+#include "g_map.h"
 
 enum
 {
@@ -129,7 +130,7 @@ class Item
 public: // basic item statistics
 	item_t c_item;
 public:
-	Item();
+	Item() = default;
 	~Item();
 };
 
@@ -138,7 +139,7 @@ class Weapon : public Item
 public:
 	weapon_t c_wpn;
 public:
-	Weapon();
+	Weapon() = default;
 	~Weapon();
 };
 

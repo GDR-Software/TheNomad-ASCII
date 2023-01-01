@@ -23,6 +23,7 @@
 
 #include "n_shared.h"
 #include "scf.h"
+#include "g_items.h"
 #include "g_map.h"
 
 #define MAX_PLAYR_WPNS 11
@@ -38,8 +39,8 @@ public:
 	nomadint_t coin;
 	coord_t pos;
 	nomadenum_t sector_id;
-	nomaduint_t P_wpns[MAX_PLAYR_WPNS];
-	nomaduint_t** inv;
+	Weapon* P_wpns[MAX_PLAYR_WPNS];
+	std::vector<Item*> inv;
 	nomadint_t body_health[4];
 	nomaduint_t pstate;
 	nomadulong_t pticker;

@@ -84,26 +84,29 @@ static void G_ArchivePlayr(const Playr* playr)
 	fwrite(&playr->coin, 1, sizeof(playr->coin), fp);
 	fwrite(&playr->lvl, 1, sizeof(playr->lvl), fp);
 	fwrite(&playr->vmatrix, sizeof(playr->vmatrix), sizeof(char), fp);
+	fwrite(&playr->P_wpns, sizeof(playr->P_wpns), sizeof(Weapon*), fp);
 }
 static void G_UnArchivePlayr(Playr* const playr)
 {
 	short size;
-	fread(&size, 1, sizeof(short), fp);
-	fread((char*)&playr->name, size, sizeof(char), fp);
-	fread(&playr->health, 1, sizeof(playr->health), fp);
-	fread(&playr->armor, 1, sizeof(playr->armor), fp);
+	nomadulong_t read;
+	assert((read=fread(&size, 1, sizeof(short), fp)));
+	assert((read=fread((char*)&playr->name, size, sizeof(char), fp)));
+	assert((read=fread(&playr->health, 1, sizeof(playr->health), fp)));
+	assert((read=fread(&playr->armor, 1, sizeof(playr->armor), fp)));
 	fread(&playr->pos.y, 1, sizeof(playr->pos.y), fp);
 	fread(&playr->pos.x, 1, sizeof(playr->pos.x), fp);
 	fread(&playr->coin, 1, sizeof(playr->coin), fp);
 	fread(&playr->lvl, 1, sizeof(playr->lvl), fp);
 	fread(&playr->vmatrix, sizeof(playr->vmatrix), sizeof(char), fp);
+	fwrite(&playr->P_wpns, sizeof(playr->P_wpns), sizeof(Weapon*), fp);
 }
 
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active)
 {
 	short size = (short)m_Active.size();
 	fwrite(&size, 1, sizeof(short), fp);
-	for (nomaduint_t i = 0; i < m_Active.size(); i++) {
+	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		Mob* mob = m_Active[i];
 		fwrite(&mob->c_mob.mtype, 1, sizeof(mob->c_mob.mtype), fp);
 		fwrite(&mob->health, 1, sizeof(mob->health), fp);
@@ -116,15 +119,15 @@ static void G_ArchiveMobs(const std::vector<Mob*>& m_Active)
 }
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active)
 {
-	nomaduint_t i;
-	for (i = 0; i < m_Active.size(); i++) {
+	nomadshort_t i;
+	for (i = 0; i < m_Active.size(); ++i) {
 		Z_Free(m_Active[i]);
 	}
 	m_Active.clear();
 	short size;
 	fread(&size, 1, sizeof(short), fp);
 	m_Active.reserve(size);
-	for (i = 0; i < size; i++) {
+	for (i = 0; i < size; ++i) {
 		m_Active.emplace_back();
 		m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
 		Mob* mob = m_Active.back();
@@ -142,7 +145,7 @@ static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active)
 {
 	short size = (short)b_Active.size();
 	fwrite(&size, 1, sizeof(short), fp);
-	for (nomaduint_t i = 0; i < b_Active.size(); i++) {
+	for (nomadshort_t i = 0; i < b_Active.size(); i++) {
 		NPC* npc = b_Active[i];
 		fwrite(&npc->c_npc.sprite, 1, sizeof(npc->c_npc.sprite), fp);
 		fwrite(&npc->ndir, 1, sizeof(npc->ndir), fp);

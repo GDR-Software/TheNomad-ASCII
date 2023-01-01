@@ -33,6 +33,30 @@ void CombatAssigner(Game* const gptr)
 	playr = game->playr;
 }
 
+Weapon::~Weapon()
+{
+	Z_Free(this);
+}
+
+collider_t P_GetHitEntity(coord_t collided)
+{
+	collider_t hit;
+	for (auto* const i : game->m_Active) {
+		if (i->mpos.y == collided.y && i->mpos.x == collided.x) {
+			hit.where.y = collided.y;
+			hit.where.x = collided.x;
+			hit.what = ET_MOB;
+			return hit;
+		}
+	}
+	for (auto* const i : game->b_Active) {
+		if (i->pos.y == collided.y && i->pos.x == collided.x) {
+			hit.where.y = collided.y;
+			hit.where.x = collided.x;
+		}
+	}
+}
+
 void P_ShootShotty(Weapon* const wpn)
 {
 	weapon_t* w = &wpn->c_wpn;
@@ -45,7 +69,6 @@ void P_ShootShotty(Weapon* const wpn)
 	case D_NORTH:
 		spos = playr->pos.x;
 		farthest.y = playr->pos.y - w->range;
-		d = -1;
 		break;
 	case D_WEST:
 		spos = playr->pos.y;
@@ -78,16 +101,23 @@ void P_ShootShotty(Weapon* const wpn)
 		// TODO: THIS
 		for (nomadshort_t y = playr->pos.y; y != farthest.y; y += d.y) {
 			for (nomadshort_t x = playr->pos.x; x != farthest.x; x += d.x) {
+				nomadbool_t wall = false;
 				switch (game->c_map[y][x]) {
 				case '#':
+					wall = true;
 					break;
 				case '_':
 				case '.':
 				case ' ':
 					break;
 				default: // hit an entity
+					collider_t hit = P_GetHitEntity({y, x});
+					
 					break;
 				};
+				if (wall) {
+					break; // cuz we hit a wall
+				}
 			}
 		}
 	}

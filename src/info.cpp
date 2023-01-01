@@ -86,13 +86,12 @@ const mobj_t mobinfo[NUMMOBS] = {
 * for anything shooting bursts (besides the burst shotgun),
 * the damage is for all the bullets, not per bullet
 */
-std::vector<weapon_t> wpninfo = {
+const weapon_t wpninfo[NUMWEAPONS] = {
 	{W_SHOTTY_SFP,  29,  12,  15,  10,  14},
 	{W_SHOTTY_SFA,  25,  12,  15,   8,  12},
 	{W_SHOTTY_FA,   21,  10,  15,  12,  20}
 };
-/*
-std::vector<item_t> iteminfo = {
-	{},
-};
-*/
+
+//const item_t iteminfo[NUMITEMS] = {
+//	{},
+//};

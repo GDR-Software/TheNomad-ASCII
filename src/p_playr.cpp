@@ -37,7 +37,8 @@ void Playr::P_Init()
 	coin = 0;
 	pos = {0, 0};
 	sector_id = 0;
-	memset(&P_wpns, -1, sizeof(P_wpns));
+	for (auto* i : P_wpns)
+		i = (Weapon *)Z_Malloc(sizeof(Weapon), TAG_STATIC, &i);
 	memset(&body_health, 100, sizeof(body_health));
 	pstate &= stateinfo[S_PLAYR_NULL].id;
 }
