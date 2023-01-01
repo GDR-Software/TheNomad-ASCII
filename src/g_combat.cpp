@@ -37,19 +37,27 @@ void P_ShootShotty(Weapon* const wpn)
 {
 	weapon_t* w = &wpn->c_wpn;
 	coord_t origin;
+	coord_t farthest;
+	coord_t d = game->E_GetDir(playr->pdir);
+	farthest.y = farthest.x = 0;
 	nomadshort_t spos;
 	switch (playr->pdir) {
 	case D_NORTH:
 		spos = playr->pos.x;
+		farthest.y = playr->pos.y - w->range;
+		d = -1;
 		break;
 	case D_WEST:
 		spos = playr->pos.y;
+		farthest.x = playr->pos.x - w->range;
 		break;
 	case D_SOUTH:
 		spos = playr->pos.x;
+		farthest.y = playr->pos.y + w->range;
 		break;
 	case D_EAST:
 		spos = playr->pos.y;
+		farthest.x = playr->pos.x + w->range;
 		break;
 	default: /*
 #ifdef _NOMAD_DEBUG
@@ -68,5 +76,19 @@ void P_ShootShotty(Weapon* const wpn)
 		
 		// first, cast a straight line ray whence the player is facing
 		// TODO: THIS
+		for (nomadshort_t y = playr->pos.y; y != farthest.y; y += d.y) {
+			for (nomadshort_t x = playr->pos.x; x != farthest.x; x += d.x) {
+				switch (game->c_map[y][x]) {
+				case '#':
+					break;
+				case '_':
+				case '.':
+				case ' ':
+					break;
+				default: // hit an entity
+					break;
+				};
+			}
+		}
 	}
 }
