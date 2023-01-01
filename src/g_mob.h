@@ -25,11 +25,11 @@
 #include "g_playr.h"
 #include "g_obj.h"
 
-#ifdef MAX_MOBS_ACTIVE
-#undef MAX_MOBS_ACTIVE
+#ifdef INITIAL_MOBS_ACTIVE
+#undef INITIAL_MOBS_ACTIVE
 #endif
 
-#define MAX_MOBS_ACTIVE 400
+#define INITIAL_MOBS_ACTIVE 400
 
 // used for locating vars in the stateinfo array
 enum
@@ -58,7 +58,9 @@ enum
 	MT_NOMAD_LEADER,
 	MT_NOMAD_WARRIOR,
 	
-	NUMMOBS
+	NUMMOBS,
+
+	MT_NULL
 };
 
 typedef struct mobj_s

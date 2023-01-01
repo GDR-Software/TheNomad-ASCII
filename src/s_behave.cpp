@@ -113,7 +113,7 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 void Game::I_InitNPCs(void)
 {
 	game = this;
-	b_Active.reserve(npcinfo.size());
+	b_Active.reserve(npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
 	NomadAssigner(this);
 	B_SpawnShopBots();
 	B_GenNomadTribe();

@@ -47,9 +47,9 @@ OBJS= \
 	$(O)/g_math.o \
 	$(O)/s_mthink.o \
 	$(O)/s_nomads.o \
-	$(O)/g_sound.o \
 	$(O)/g_combat.o \
 	$(O)/g_items.o \
+	$(O)/s_mission.o \
 #	$(O)/c_dungen.o \
 #	$(O)/c_nemsis.o \
 #	$(O)/c_sao.o \

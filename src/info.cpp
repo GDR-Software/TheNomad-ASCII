@@ -23,6 +23,7 @@
 #include "scf.h"
 #include "g_game.h"
 #include "g_obj.h"
+#include "s_mission.h"
 
 
 std::vector<npc_t> npcinfo = {
@@ -78,6 +79,21 @@ const mobj_t mobinfo[NUMMOBS] = {
 {"Nomadic Warrior\0",'n', 389, 79, MT_NOMAD_WARRIOR, ET_MOB, 17,  9,  SND_LOW,  10, SMELL_LOW,  10, 40},
 {"Nomadic Leader\0", 'l', 644, 96, MT_NOMAD_LEADER,  ET_MOB, 8}
 
+};
+
+/*
+* mission type, rng, mob types, difficulty (min, max), bounty (min, max)
+*
+* the lower the rng, the easier the mission will be to complete, and the higher the harder
+*/
+const missionseed_t missionseeds[NUMMISSIONTYPES] = {
+	{M_ASSASSINATION, 48, {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, {DIF_RECRUIT, DIF_MINORINCONVENIENCE}, {241, 3042}},
+/*	{M_KIDNAPPING,    11, {MT_PISTOL, MT_SHOTTY, MT_GUNNER},            {DIF_NOOB, DIF_NOMAD},                 {13,   543}},
+	{M_EXTORTION,     24, {MT_PISTOL, MT_SHOTTY, MT_GUNNER, }},
+	{M_EXTRACTION,    },
+	{M_BODYGUARDING,  },
+	{M_CONTRACT,      },
+	{M_INFILTRATION,  }, */
 };
 
 // id, dmg, range, rng, spread, magsize

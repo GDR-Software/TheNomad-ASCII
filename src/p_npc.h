@@ -24,11 +24,11 @@
 #include "n_shared.h"
 #include "g_obj.h"
 
-#ifdef MAX_NPC_ACTIVE
-#undef MAX_NPC_ACTIVE
+#ifdef INITIAL_NPC_ACTIVE
+#undef INITIAL_NPC_ACTIVE
 #endif
 
-#define MAX_NPC_ACTIVE 200
+#define INITIAL_NPC_ACTIVE 200
 
 typedef enum : nomadenum_t
 {

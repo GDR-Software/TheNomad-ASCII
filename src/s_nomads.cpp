@@ -28,8 +28,8 @@ class Tribe;
 
 typedef struct nomad_s
 {
-	NPC* npc;
-	Mob* mob; // the ptr to the mob class it belongs to, nullptr if it's not a warrior/leader
+	npc_t npc;
+	mobj_t mob;
 	std::string name;
 	Tribe* tribe; // ptr to the tribe it belongs to
 } nomad_t;
@@ -45,28 +45,23 @@ public:
 	nomad_t* leader; // called "Tarsin" in the common nomadic tongue, the tribe's commander/leader
 	nomaduint_t size; // number of members in the tribe
 	nomadenum_t alignment; // the average alignment of the tribe
+	nomadenum_t direction; // the direction the tribe is facing in, used for setting a route and moving the entirety of the tribe as one
+	coord_t area; // to keep collision faster and easier
 public:
 	Tribe(){}
 	~Tribe()
 	{
-		for (auto* const i : bots) {
-			Z_Free(i->npc);
+		for (auto* const i : bots)
 			Z_Free(i);
-		}
-		for (auto* const i : warriors) {
-			Z_Free(i->mob);
+		for (auto* const i : warriors)
 			Z_Free(i);
-		}
-		for (auto* const i : traders) {
-			Z_Free(i->npc);
+		for (auto* const i : traders)
 			Z_Free(i);
-		}
-		Z_Free(leader->npc);
-		Z_Free(leader->mob);
 		Z_Free(leader);
 		Z_Free(this);
 	}
 	void T_SetRoute();
+	void T_FollowRoute();
 };
 
 static std::vector<Tribe*> tribes; // a list of all the tribes active in the game at a time
@@ -87,33 +82,43 @@ void B_GenNomadTribe()
 	nomadenum_t numwarriors = (P_Random() & 4)+1;
 	nomadenum_t numbots = (P_Random() & 10)+3;
 	nomadenum_t i;
+	std::vector<Mob*>& m_Active = game->m_Active;
+	std::vector<NPC*>& b_Active = game->b_Active;
 	Tribe* tribe = (Tribe *)Z_Malloc(sizeof(Tribe), TAG_STATIC, &tribe);
 	std::vector<nomad_t*>& warriors = tribe->warriors;
 	std::vector<nomad_t*>& bots = tribe->bots;
 	tribe->leader = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &tribe->leader);
 	nomad_t& leader = *tribe->leader;
+	m_Active.emplace_back();
+	m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
+	b_Active.emplace_back();
+	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 	// nomadic leaders are the only ones in a tribe who can be both diplomats as well as soldiers
-	leader.npc = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &leader.npc);
-	leader.mob = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &leader.mob);
+	leader.npc = npcinfo[BOT_NOMAD_CIVILIAN];
+	leader.mob = mobinfo[MT_NOMAD_LEADER];
+	m_Active.back()->c_mob = leader.mob;
+	b_Active.back()->c_npc = leader.npc;
 
 	warriors.reserve(numwarriors);
 	bots.reserve(numbots);
 
 	for (i = 0; i < numbots; ++i) {
 		bots.emplace_back();
+		b_Active.emplace_back();
+		b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 		bots.back() = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &bots.back());
 		nomad_t* bot = bots.back();
-		bot->mob = nullptr;
-		bot->npc = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &bot->npc);
-	//	bot->npc->c_npc = npcinfo[BOT_NOMAD_CIVILIAN]; // TODO: finish this up
+		bot->npc = npcinfo[BOT_NOMAD_CIVILIAN];
+		b_Active.back()->c_npc = bot->npc;
 	}
 	for (i = 0; i < numwarriors; ++i) {
 		warriors.emplace_back();
+		m_Active.emplace_back();
+		m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
 		warriors.back() = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &warriors.back());
 		nomad_t* n = warriors.back();
-		n->mob = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &n->mob);
-		n->npc = nullptr;
-		n->mob->c_mob = mobinfo[MT_NOMAD_WARRIOR];
+		n->mob = mobinfo[MT_NOMAD_WARRIOR];
+		m_Active.back()->c_mob = n->mob;
 	}
 	tribes.push_back(tribe);
 
@@ -121,5 +126,14 @@ void B_GenNomadTribe()
 
 void Tribe::T_SetRoute()
 {
-	
+	direction = P_Random() & 3;
+	for (nomadshort_t i = 0; i < bots.size(); ++i) {
+		nomad_t* b = bots[i];
+	//	b->pos
+	}
+}
+
+void Tribe::T_FollowRoute()
+{
+
 }

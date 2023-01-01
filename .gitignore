@@ -9,6 +9,7 @@ replit.nix
 ncurses-6.3/
 .ccls-cache/
 .vscode/
+n_shared.h.gch
 
 # the resources (this is the literals money's worth)
 Files/gamedata/MAP/*.txt

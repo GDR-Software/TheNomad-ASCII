@@ -190,6 +190,8 @@ typedef struct
 #endif
 } coord_t;
 
+typedef coord_t area_t[4];
+
 typedef struct
 {
 	nomadenum_t height, width;

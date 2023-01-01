@@ -29,6 +29,22 @@ static Game* game;
 static void M_GenMercSquad();
 static void M_GenZurgutLegion();
 
+/*
+static inline std::vector<area_t>& M_GenGroupAreas(nomadenum_t numgroups)
+{
+	std::vector<area_t> areas;
+	for (nomadenum_t i = 0; i < numgroups; ++i) {
+		area_t area;
+		area[0].y = (rand() % 300)+90;
+		area[0].x = (rand() % 300)+90;
+		area[1].y = area[0].y;
+		area[1].x = area[0].x + (rand() % 20+15);
+		area[2].y = area[0].y + (rand() % 20+15);
+		area[2].x = area[0].x;
+		area[3].y = area[1]
+	}
+	return areas;
+} */
 
 static void M_GenGroup()
 {
@@ -58,14 +74,14 @@ static void M_GenGroup()
 		minions[i] = game->m_Active.back();
 		Mob* const m = minions[i];
 		if ((rand() % 99) >= 49) {
-			m->mpos.y = origin.y + (rand() % 10);
+			m->mpos.y = origin.y + ((rand() % 10)+15);
 		} else {
-			m->mpos.y = origin.y - (rand() % 10);
+			m->mpos.y = origin.y - ((rand() % 10)+15);
 		}
 		if ((rand() % 99) >= 49) { 
-			m->mpos.x = origin.x + (rand() % 10);
+			m->mpos.x = origin.x + ((rand() % 10)+15);
 		} else {
-			m->mpos.x = origin.x - (rand() % 10);
+			m->mpos.x = origin.x - ((rand() % 10)+15);
 		}
 		m->is_boss = false;
 		m->c_mob = mob;
@@ -81,15 +97,13 @@ void Game::M_GenMobs(void)
 	game = this;
 	Assigner(this);
 	NomadAssigner(this);
-	m_Active.reserve(MAX_MOBS_ACTIVE);
-	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
-		if (m_Active.size() >= MAX_MOBS_ACTIVE) {
-			break;
-		}
-		else {
-			M_GenGroup();
-		}
-	} /*
+	m_Active.reserve(INITIAL_MOBS_ACTIVE * 2);
+	nomadenum_t numgroups = P_Random() & 15;
+//	std::vector<area_t>& areaas = M_GenGroupAreas(numgroups);
+	for (nomadenum_t i = 0; i < numgroups; ++i) {
+		M_GenGroup();
+	}
+	/*
 	while (m_Active.size() > MAX_MOBS_ACTIVE) {	
 		Z_Free(m_Active.back());
 		m_Active.pop_back();

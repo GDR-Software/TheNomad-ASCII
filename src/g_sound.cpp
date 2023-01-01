@@ -21,6 +21,27 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_audio.h>
 #include <alsa/asoundlib.h>
+#include "g_game.h"
+
+class Sound
+{
+private:
+    SDL_AudioDeviceID device;
+    SDL_AudioSpec want;
+public:
+    Music* current_song;
+    std::vector<Audio*> sfx_list;
+public:
+    Sound() = default;
+    ~Sound() = delete;
+};
+
+static Game* game;
+
+void SoundAssigner(Game* const gptr)
+{
+    game = gptr;
+}
 
 void G_AdaptiveSound()
 {
