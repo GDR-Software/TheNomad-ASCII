@@ -40,6 +40,10 @@ enum
 	W_PISTOL_AUP,
 	W_PISTOL_PLASMA,
 
+	// the dude actually forged this himself, if you're wondering why there's still
+	// the AR-15 platform in existence in the 91st millennium. Some other models still exist,
+	// but they're rare, if the player picks this up, well, they've got one hell of a
+	// rifle
 	W_RIFLE_M23C5,
 	// credits to Ben Pavlovic (milotus) for this one
 	W_RIFLE_AK77,
@@ -75,6 +79,12 @@ enum
 	I_COIN,
 	I_SHOTGUN_SFP,
 	I_SHOTGUN_SFA,
+	I_SHOTGUN_FA,
+	I_SHOTGUN_BF4P,
+	I_SHOTGUN_BF3A,
+	I_PISTOL_AUP,
+	I_PISTOL_PLASMA,
+	I_RIFLE_M23C5,
 
 	NUMITEMS,
 

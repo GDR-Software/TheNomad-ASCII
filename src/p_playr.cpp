@@ -37,8 +37,15 @@ void Playr::P_Init()
 	coin = 0;
 	pos = {0, 0};
 	sector_id = 0;
+#ifndef _NOMAD_DEBUG
 	for (auto* i : P_wpns)
 		i = (Weapon *)Z_Malloc(sizeof(Weapon), TAG_STATIC, &i);
+#else
+	for (auto* i : P_wpns) {
+		i = (Weapon *)Z_Malloc(sizeof(Weapon), TAG_STATIC, &i);
+		assert(i);
+	}
+#endif
 	memset(&body_health, 100, sizeof(body_health));
 	pstate &= stateinfo[S_PLAYR_NULL].id;
 }
@@ -49,6 +56,9 @@ Playr::~Playr()
 
 static nomadbool_t P_MoveTicker(Playr* playr)
 {
+#ifdef _NOMAD_DEBUG
+	assert(playr);
+#endif
 	if (playr->pstate == stateinfo[S_PLAYR_NULL].id) {
 		playr->pstate = stateinfo[S_PLAYR_SPAWN].id;
 		playr->pticker = stateinfo[S_PLAYR_SPAWN].numticks;
@@ -72,8 +82,20 @@ static nomadbool_t P_MoveTicker(Playr* playr)
 
 void Game::P_Ticker(nomadint_t input)
 {
+#ifdef _NOMAD_DEBUG
+	LOG("gamestate = %hu", gamestate);
+	LOG("gamescreen = %hu", gamescreen);
+#endif
 	playr->pticker--;
 	switch (input) {
+	case KEY_EP:
+		break;
+	case KEY_AT:
+		break;
+	case KEY_HASH:
+		break;
+	case KEY_DOLLAR:
+		break;
 	case KEY_q: {
 		if (!P_MoveTicker(playr)) {
 			playr->P_ChangeDirL();
@@ -146,11 +168,16 @@ void Game::P_Ticker(nomadint_t input)
 	case ctrl('x'):
 		pthread_cancel(mthread);
 		pthread_cancel(nthread);
+		pthread_join(mthread, NULL);
+		pthread_join(nthread, NULL);
+		pthread_cancel(pthread_self());
+		pthread_join(pthread_self(), NULL);
 		gamestate = GS_PAUSE;
 		break;
 	case ctrl('z'):
 		pthread_cancel(mthread);
 		pthread_cancel(nthread);
+		pthread_cancel(pthread_self());
 		this->~Game();
 		exit(1);
 		break;
@@ -215,6 +242,9 @@ void Playr::P_ChangeDirL()
 
 void Playr::P_ChangeDirR()
 {
+#ifdef _NOMAD_DEBUG
+	LOG("pdir = %hu", pdir);
+#endif
 	if (pdir == D_NORTH) {
 		pdir = D_EAST;
 	}

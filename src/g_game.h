@@ -22,10 +22,10 @@
 #define _G_GAME_
 
 #include "n_shared.h"
+#include "g_zone.h"
 #include "p_npc.h"
 #include "g_playr.h"
 #include "g_mob.h"
-#include "g_zone.h"
 #include "g_map.h"
 
 #ifndef _NOMAD_MAIN_
@@ -68,7 +68,7 @@ constexpr auto MENU_PAUSE     = 0x09;
 class Game
 {
 public:
-	nomaduint_t ticcount;
+	nomadulong_t ticcount;
 	gamestate_t gamestate;
 	nomadenum_t gamescreen;
 	char bffname[80];
@@ -88,7 +88,6 @@ public: // *** multithreading! ***
 	pthread_mutex_t playr_mutex;
 	pthread_t mthread;
 	pthread_t nthread;
-	pthread_t pthread;
 	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:
 	Game();
@@ -129,6 +128,7 @@ public:
 void I_NomadInit(int argc, char* argv[], Game* game);
 void mainLoop(int argc, char* argv[]);
 void N_Error(const char* err, ...);
+void Snd_Init(Game* const gptr);
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);
 std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
 	nomadshort_t range, Game* const game);

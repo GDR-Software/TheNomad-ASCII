@@ -10,6 +10,11 @@ ncurses-6.3/
 .ccls-cache/
 .vscode/
 n_shared.h.gch
+src/threadpool.h
+src/threadpool.cpp
+
+# until i figure out how to do it with alsa without segging
+src/g_sound.cpp
 
 # the resources (this is the literals money's worth)
 Files/gamedata/MAP/*.txt

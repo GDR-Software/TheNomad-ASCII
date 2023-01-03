@@ -58,36 +58,59 @@
 
 class Game;
 
-#include <fstream>
-#include <vector>
-#include <pthread.h>
-#include <iostream>
-#include <stdlib.h>
+#ifdef __unix__
+#   include <unistd.h>
+#   include <fcntl.h>
+#   include <sys/stat.h>
+#   include <termios.h>
+#   include <signal.h>
+#endif
+
+// c standard includes
 #include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <time.h>
+#include <math.h>
+#include <assert.h>
+
+// c++ standard includes
+#include <string>
+#include <iostream>
+#include <vector>
+#include <fstream>
 #include <exception>
+
+// multithreading
+#include <algorithm>
+#include <pthread.h>
 #include <thread>
 #include <chrono>
 #include <atomic>
-#include <string.h>
-#include <assert.h>
-#include <math.h>
-#include <algorithm>
-#include <string>
-#include <stdarg.h>
+#include <mutex>
+#include <future>
 
-// OS-specific headers
-#if defined(__unix__)
-#   include <unistd.h>
-#   include <sys/stat.h>
-#   include <termios.h>
-#   include <fcntl.h>
-#   include <signal.h>
-#elif defined(_WIN32)
-#   include <conio.h>
-#   include <windows.h>
-#   include <dos.h>
-#   include <bios.h>
+#ifdef _NOMAD_DEBUG
+
+extern FILE* dbgfile;
+
+#define LOG(...) \
+{ \
+	FILE* dbgfile = fopen("debuglog.txt", "a"); \
+	fprintf(dbgfile, "%s: ", __func__); \
+	fprintf(dbgfile, __VA_ARGS__); \
+	fprintf(dbgfile, "\n"); \
+	fclose(dbgfile);                              \
+}
+
+
 #endif
+
+#define byte uint_fast8_t
+
+void N_Error(const char* err, ...);
 
 #ifndef _N_TYPES_
 #define _N_TYPES_

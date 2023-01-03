@@ -52,7 +52,7 @@ void signal_unnatural_demise(int signum)
 	exit(EXIT_FAILURE);
 }
 
-void signal_somethins_corrupt(int signum)
+void signal_somethins_corrupt(int signufdm)
 {
 	werase(stdscr);
 	endwin();
@@ -90,8 +90,15 @@ int main(int argc, char* argv[])
 	signal(SIGABRT, signal_unnatural_demise);
 	signal(SIGILL, signal_somethins_corrupt);
 	signal(SIGQUIT, signal_interrupt);
-#endif
 	set_nonblock();
+#endif
+#ifdef _NOMAD_DEBUG
+	FILE* dbgfile = fopen("debuglog.txt", "w");
+	if (!dbgfile)
+		N_Error("Could Not Create Debug Log File!");
+	assert(dbgfile);
+	fclose(dbgfile);
+#endif
 	mainLoop(argc, argv);
 	return 0;
 }

@@ -156,15 +156,6 @@ void mainLoop(int argc, char* argv[])
 
 static void* N_Looper(void* arg);
 static void* M_Looper(void *arg);
-static void* P_Loop(void *arg)
-{
-	pthread_mutex_lock(&game->playr_mutex);
-	nomadenum_t c;
-	if ((c = kbhit()) != 0)
-		game->P_Ticker(c);
-	pthread_mutex_unlock(&game->playr_mutex);
-	return NULL;
-}
 
 static void levelLoop(void)
 {
@@ -179,14 +170,18 @@ static void levelLoop(void)
 		// custom key-binds will be implemented in the future
 		pthread_create(&game->mthread, NULL, M_Looper, NULL);
 		pthread_create(&game->nthread, NULL, N_Looper, NULL);
-		pthread_create(&game->pthread, NULL, P_Loop, NULL);
+		pthread_mutex_lock(&game->playr_mutex);
+		nomadenum_t c;
+		if ((c = kbhit()) != 0)
+			game->P_Ticker(c);
+		pthread_mutex_unlock(&game->playr_mutex);
 		pthread_join(game->mthread, NULL);
 		pthread_join(game->nthread, NULL);
-		pthread_join(game->pthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(scf::ticrate_mil));
 		game->ticcount++;
 		wrefresh(game->screen);
 	};
+	Z_Free(pool);
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
 }
