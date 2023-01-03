@@ -128,7 +128,6 @@ public:
 void I_NomadInit(int argc, char* argv[], Game* game);
 void mainLoop(int argc, char* argv[]);
 void N_Error(const char* err, ...);
-void Snd_Init(Game* const gptr);
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);
 std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
 	nomadshort_t range, Game* const game);

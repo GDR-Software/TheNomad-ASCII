@@ -170,14 +170,11 @@ void Game::P_Ticker(nomadint_t input)
 		pthread_cancel(nthread);
 		pthread_join(mthread, NULL);
 		pthread_join(nthread, NULL);
-		pthread_cancel(pthread_self());
-		pthread_join(pthread_self(), NULL);
 		gamestate = GS_PAUSE;
 		break;
 	case ctrl('z'):
 		pthread_cancel(mthread);
 		pthread_cancel(nthread);
-		pthread_cancel(pthread_self());
 		this->~Game();
 		exit(1);
 		break;

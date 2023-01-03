@@ -181,7 +181,6 @@ static void levelLoop(void)
 		game->ticcount++;
 		wrefresh(game->screen);
 	};
-	Z_Free(pool);
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
 }

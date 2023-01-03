@@ -85,11 +85,6 @@ OBJS= \
 #	$(O)/c_nemsis.o \
 #	$(O)/c_sao.o \
 
-ifndef replit
-OBJS += $(O)/g_sound.o
-DEBUG += $(O)/g_sound.debug.o
-endif
-
 ifndef debug
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE) $(LDLIBS)

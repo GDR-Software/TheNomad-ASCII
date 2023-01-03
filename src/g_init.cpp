@@ -84,7 +84,6 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	M_Init(game);
-	Snd_Init(game);
 	TUI_Init(game);
 }
 

@@ -24,6 +24,17 @@ static FILE* fp;
 static constexpr uint64_t HEADER = 0x5f3759df;
 static constexpr auto svfile = "nomadsv.ngd";
 
+static void wrByte(int64_t out);
+static void wrByte(int32_t out);
+static void wrByte(int16_t out);
+static void wrByte(int8_t out);
+static void wrByte(uint64_t out);
+static void wrByte(uint32_t out);
+static void wrByte(uint16_t out);
+static void wrByte(uint8_t out);
+static void wrByte(bool out);
+static void wrString(const std::string& out);
+
 static void G_ArchivePlayr(const Playr* playr);
 static void G_UnArchivePlayr(Playr* const playr);
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active);
@@ -75,46 +86,45 @@ bool Game::G_LoadGame(void)
 static void G_ArchivePlayr(const Playr* playr)
 {
 	short size = (short)playr->name.size();
-	fwrite(&size, 1, sizeof(short), fp);
-	fwrite((char*)&playr->name, playr->name.size(), sizeof(char), fp);
-	fwrite(&playr->health, 1, sizeof(playr->health), fp);
-	fwrite(&playr->armor, 1, sizeof(playr->armor), fp);
-	fwrite(&playr->pos.y, 1, sizeof(playr->pos.y), fp);
-	fwrite(&playr->pos.x, 1, sizeof(playr->pos.x), fp);
-	fwrite(&playr->coin, 1, sizeof(playr->coin), fp);
-	fwrite(&playr->lvl, 1, sizeof(playr->lvl), fp);
-	fwrite(&playr->vmatrix, sizeof(playr->vmatrix), sizeof(char), fp);
-	fwrite(&playr->P_wpns, sizeof(playr->P_wpns), sizeof(Weapon*), fp);
+	fwrite(&size, sizeof(short), 1, fp);
+	fwrite((char*)&playr->name, sizeof(char), size, fp);
+	fwrite(&playr->health, sizeof(playr->health), 1, fp);
+	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
+	fwrite(&playr->pos.y, sizeof(playr->pos.y), 1, fp);
+	fwrite(&playr->pos.x, sizeof(playr->pos.x), 1, fp);
+	fwrite(&playr->coin, sizeof(playr->coin), 1, fp);
+	fwrite(&playr->lvl, sizeof(playr->lvl), 1, fp);
+	fwrite(&playr->vmatrix, sizeof(char), sizeof(playr->vmatrix), fp);
+	fwrite(&playr->P_wpns, sizeof(Weapon*), sizeof(playr->P_wpns), fp);
 }
 static void G_UnArchivePlayr(Playr* const playr)
 {
 	short size;
-	nomadulong_t read;
-	assert((read=fread(&size, 1, sizeof(short), fp)));
-	assert((read=fread((char*)&playr->name, size, sizeof(char), fp)));
-	assert((read=fread(&playr->health, 1, sizeof(playr->health), fp)));
-	assert((read=fread(&playr->armor, 1, sizeof(playr->armor), fp)));
-	fread(&playr->pos.y, 1, sizeof(playr->pos.y), fp);
-	fread(&playr->pos.x, 1, sizeof(playr->pos.x), fp);
-	fread(&playr->coin, 1, sizeof(playr->coin), fp);
-	fread(&playr->lvl, 1, sizeof(playr->lvl), fp);
-	fread(&playr->vmatrix, sizeof(playr->vmatrix), sizeof(char), fp);
-	fwrite(&playr->P_wpns, sizeof(playr->P_wpns), sizeof(Weapon*), fp);
+	fread(&size, sizeof(short), 1, fp);
+	fread((char*)&playr->name, sizeof(char), size, fp);
+	fread(&playr->health, sizeof(playr->health), 1, fp);
+	fread(&playr->armor, sizeof(playr->armor), 1, fp);
+	fread(&playr->pos.y, sizeof(playr->pos.y), 1, fp);
+	fread(&playr->pos.x, sizeof(playr->pos.x), 1, fp);
+	fread(&playr->coin, sizeof(playr->coin), 1, fp);
+	fread(&playr->lvl, sizeof(playr->lvl), 1, fp);
+	fread(&playr->vmatrix, sizeof(char), sizeof(playr->vmatrix), fp);
+	fread(&playr->P_wpns, sizeof(Weapon*), sizeof(playr->P_wpns), fp);
 }
 
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active)
 {
 	short size = (short)m_Active.size();
-	fwrite(&size, 1, sizeof(short), fp);
+	fwrite(&size, sizeof(short), 1, fp);
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		Mob* mob = m_Active[i];
-		fwrite(&mob->c_mob.mtype, 1, sizeof(mob->c_mob.mtype), fp);
-		fwrite(&mob->health, 1, sizeof(mob->health), fp);
-		fwrite(&mob->armor, 1, sizeof(mob->armor), fp);
-		fwrite(&mob->mpos.y, 1, sizeof(mob->mpos.y), fp);
-		fwrite(&mob->mpos.x, 1, sizeof(mob->mpos.x), fp);
-		fwrite(&mob->mstate.id, 1, sizeof(mob->mstate.id), fp);
-		fwrite(&mob->mticker, 1, sizeof(mob->mticker), fp);
+		fwrite(&mob->c_mob.mtype, sizeof(mob->c_mob.mtype), 1, fp);
+		fwrite(&mob->health, sizeof(mob->health), 1, fp);
+		fwrite(&mob->armor, sizeof(mob->armor), 1, fp);
+		fwrite(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
+		fwrite(&mob->mpos.x, sizeof(mob->mpos.x), 1, fp);
+		fwrite(&mob->mstate.id, sizeof(mob->mstate.id), 1, fp);
+		fwrite(&mob->mticker, sizeof(mob->mticker), 1, fp);
 	}
 }
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active)
@@ -125,36 +135,36 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active)
 	}
 	m_Active.clear();
 	short size;
-	fread(&size, 1, sizeof(short), fp);
+	fread(&size, sizeof(short), 1, fp);
 	m_Active.reserve(size);
 	for (i = 0; i < size; ++i) {
 		m_Active.emplace_back();
 		m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
 		Mob* mob = m_Active.back();
-		fread(&mob->c_mob.mtype, 1, sizeof(mob->c_mob.mtype), fp);
-		fread(&mob->health, 1, sizeof(mob->health), fp);
-		fread(&mob->armor, 1, sizeof(mob->armor), fp);
-		fread(&mob->mpos.y, 1, sizeof(mob->mpos.y), fp);
-		fread(&mob->mpos.x, 1, sizeof(mob->mpos.x), fp);
-		fread(&mob->mstate.id, 1, sizeof(mob->mstate.id), fp);
-		fread(&mob->mticker, 1, sizeof(mob->mticker), fp);
+		fread(&mob->c_mob.mtype, sizeof(mob->c_mob.mtype), 1, fp);
+		fread(&mob->health, sizeof(mob->health), 1, fp);
+		fread(&mob->armor, sizeof(mob->armor), 1, fp);
+		fread(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
+		fread(&mob->mpos.x, sizeof(mob->mpos.x), 1, fp);
+		fread(&mob->mstate.id, sizeof(mob->mstate.id), 1, fp);
+		fread(&mob->mticker, sizeof(mob->mticker), 1, fp);
 	}
 }
 
 static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active)
 {
 	short size = (short)b_Active.size();
-	fwrite(&size, 1, sizeof(short), fp);
+	fwrite(&size, sizeof(short), 1, fp);
 	for (nomadshort_t i = 0; i < b_Active.size(); i++) {
 		NPC* npc = b_Active[i];
-		fwrite(&npc->c_npc.sprite, 1, sizeof(npc->c_npc.sprite), fp);
-		fwrite(&npc->ndir, 1, sizeof(npc->ndir), fp);
-		fwrite(&npc->pos.y, 1, sizeof(npc->pos.y), fp);
-		fwrite(&npc->pos.x, 1, sizeof(npc->pos.x), fp);
-		fwrite(&npc->health, 1, sizeof(npc->health), fp);
-		fwrite(&npc->armor, 1, sizeof(npc->armor), fp);
-		fwrite(&npc->nstate.id, 1, sizeof(npc->nstate.id), fp);
-		fwrite(&npc->nticker, 1, sizeof(npc->nticker), fp);
+		fwrite(&npc->c_npc.sprite, sizeof(npc->c_npc.sprite), 1, fp);
+		fwrite(&npc->ndir, sizeof(npc->ndir), 1, fp);
+		fwrite(&npc->pos.y, sizeof(npc->pos.y), 1, fp);
+		fwrite(&npc->pos.x, sizeof(npc->pos.x), 1, fp);
+		fwrite(&npc->health, sizeof(npc->health), 1, fp);
+		fwrite(&npc->armor, sizeof(npc->armor), 1, fp);
+		fwrite(&npc->nstate.id, sizeof(npc->nstate.id), 1, fp);
+		fwrite(&npc->nticker, sizeof(npc->nticker), 1, fp);
 	}
 }
 static void G_UnArchiveNPCs(std::vector<NPC*>& b_Active)
@@ -165,19 +175,19 @@ static void G_UnArchiveNPCs(std::vector<NPC*>& b_Active)
 	}
 	b_Active.clear();
 	short size;
-	fread(&size, 1, sizeof(short), fp);
+	fread(&size, sizeof(short), 1, fp);
 	b_Active.reserve(size);
 	for (i = 0; i < size; i++) {
 		b_Active.emplace_back();
 		b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 		NPC* npc = b_Active.back();
-		fread(&npc->c_npc.sprite, 1, sizeof(npc->c_npc.sprite), fp);
-		fread(&npc->ndir, 1, sizeof(npc->ndir), fp);
-		fread(&npc->pos.y, 1, sizeof(npc->pos.y), fp);
-		fread(&npc->pos.x, 1, sizeof(npc->pos.x), fp);
-		fread(&npc->health, 1, sizeof(npc->health), fp);
-		fread(&npc->armor, 1, sizeof(npc->armor), fp);
-		fread(&npc->nstate.id, 1, sizeof(npc->nstate.id), fp);
-		fread(&npc->nticker, 1, sizeof(npc->nticker), fp);
+		fread(&npc->c_npc.sprite, sizeof(npc->c_npc.sprite), 1, fp);
+		fread(&npc->ndir, sizeof(npc->ndir), 1, fp);
+		fread(&npc->pos.y, sizeof(npc->pos.y), 1, fp);
+		fread(&npc->pos.x, sizeof(npc->pos.x), 1, fp);
+		fread(&npc->health, sizeof(npc->health), 1, fp);
+		fread(&npc->armor, sizeof(npc->armor), 1, fp);
+		fread(&npc->nstate.id, sizeof(npc->nstate.id), 1, fp);
+		fread(&npc->nticker, sizeof(npc->nticker), 1, fp);
 	}
 }
