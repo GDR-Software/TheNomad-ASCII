@@ -86,5 +86,6 @@ public:
 
 __CFUNC__ void B_CivilianThink(NPC* const npc);
 void B_GenNomadTribe();
+void B_MercMasterInteract();
 
 #endif

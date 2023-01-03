@@ -28,6 +28,13 @@
 
 #define MAX_PLAYR_WPNS 11
 
+enum : nomadenum_t
+{
+	P_MODE_ROAMING,
+	P_MODE_MERCMASTER,
+	P_MODE_SHOPPING
+};
+
 class Playr {
 public:
 	std::string name;
@@ -43,9 +50,9 @@ public:
 	std::vector<Item*> inv;
 	nomadint_t body_health[4];
 	nomaduint_t pstate;
+	nomadenum_t pmode;
 	nomadulong_t pticker;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
-	// anything within this perimeter is an active entity, anything not is a static entity
 public:
 	Playr();
 	~Playr();
@@ -63,13 +70,6 @@ public:
 
 	void P_ChangeDirL();
 	void P_ChangeDirR();
-
-	void P_Ticker(void);
-	/*
-		void ShootShotty(const Map& map);
-		void ShootSingle(const Map& map);
-		void ShootBF3(const Map& map);
-		void ShootBF4(const Map& map); */
 };
 
 #endif

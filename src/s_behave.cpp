@@ -165,3 +165,16 @@ void B_KillBot(NPC* const npc)
 {
 	npc->~NPC();
 }
+
+void B_MercMasterInteract()
+{
+	Playr* const playr = game->playr;
+	if (playr->pmode != P_MODE_MERCMASTER) {
+#ifdef _NOMAD_DEBUG
+		LOG("called merc master interaction without player mode being merc master interaction"); // whoopsy
+#endif
+		return;
+	}
+	else {
+	}
+}

@@ -87,7 +87,7 @@ const mobj_t mobinfo[NUMMOBS] = {
 * the lower the rng, the easier the mission will be to complete, and the higher the harder
 */
 const missionseed_t missionseeds[NUMMISSIONTYPES] = {
-	{M_ASSASSINATION, 48, {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, {DIF_RECRUIT, DIF_MINORINCONVENIENCE}, {241, 3042}},
+	{M_ASSASSINATION, 48, {MT_PISTOL, MT_SHOTTY, MT_GUNNER, MT_MERC}, {DIF_RECRUIT, DIF_MINORINCONVENIENCE}, {241, 3042}},
 /*	{M_KIDNAPPING,    11, {MT_PISTOL, MT_SHOTTY, MT_GUNNER},            {DIF_NOOB, DIF_NOMAD},                 {13,   543}},
 	{M_EXTORTION,     24, {MT_PISTOL, MT_SHOTTY, MT_GUNNER, }},
 	{M_EXTRACTION,    },

@@ -37,6 +37,7 @@ void Playr::P_Init()
 	coin = 0;
 	pos = {0, 0};
 	sector_id = 0;
+	pmode = P_MODE_ROAMING;
 #ifndef _NOMAD_DEBUG
 	for (auto* i : P_wpns)
 		i = (Weapon *)Z_Malloc(sizeof(Weapon), TAG_STATIC, &i);
@@ -180,11 +181,6 @@ void Game::P_Ticker(nomadint_t input)
 		break;
 	default: break;
 	};
-}
-
-void Playr::P_Ticker(void)
-{
-	
 }
 
 void Playr::P_MoveN()

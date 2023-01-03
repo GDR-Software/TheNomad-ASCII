@@ -19,21 +19,11 @@
 //  src/s_saveg.cpp
 //----------------------------------------------------------
 #include "g_game.h"
+#include <limits.h>
 
 static FILE* fp;
 static constexpr uint64_t HEADER = 0x5f3759df;
 static constexpr auto svfile = "nomadsv.ngd";
-
-static void wrByte(int64_t out);
-static void wrByte(int32_t out);
-static void wrByte(int16_t out);
-static void wrByte(int8_t out);
-static void wrByte(uint64_t out);
-static void wrByte(uint32_t out);
-static void wrByte(uint16_t out);
-static void wrByte(uint8_t out);
-static void wrByte(bool out);
-static void wrString(const std::string& out);
 
 static void G_ArchivePlayr(const Playr* playr);
 static void G_UnArchivePlayr(Playr* const playr);
