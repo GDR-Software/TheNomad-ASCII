@@ -32,7 +32,8 @@ enum : nomadenum_t
 {
 	P_MODE_ROAMING,
 	P_MODE_MERCMASTER,
-	P_MODE_SHOPPING
+	P_MODE_SHOPPING,
+	P_MODE_MISSION
 };
 
 class Playr {

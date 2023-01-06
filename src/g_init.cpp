@@ -23,11 +23,11 @@
 static nomadbool_t ncurses_on;
 
 static char bffname[81];
-
-static inline void M_Init(Game* const game);
 static inline void E_Init(Game* const game);
 static inline void TUI_Init(Game* const game);
 static inline void I_ProcessArgs(const std::vector<char*>& myargv);
+
+static Game* gptr;
 
 void N_Error(const char* err, ...)
 {
@@ -44,14 +44,18 @@ void N_Error(const char* err, ...)
 	va_end(argptr);
 	fflush(stderr);
 
+	gptr->~Game();
+
 	exit(-1);
 }
 
-void I_NomadInit(int argc, char* argv[], Game* game)
+void I_NomadInit(int argc, char* argv[], Game* const game)
 {
 #ifdef _NOMAD_DEBUG
 	assert(game);
 #endif
+	gptr = game;
+	MainAssigner(game);
 	ncurses_on = false;
 	pthread_mutex_init(&game->mob_mutex, NULL);
 	pthread_mutex_init(&game->npc_mutex, NULL);
@@ -83,125 +87,8 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	}
 	I_ProcessArgs(myargv);
 	E_Init(game);
-	M_Init(game);
+	W_Init(game);
 	TUI_Init(game);
-}
-
-static inline void M_Init(Game* const game)
-{
-	puts("M_Init(): Initializing Map Data...");
-	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
-	nomaduint_t y, x;
-	for (nomadenum_t i = 0; i < NUM_SECTORS; ++i) {
-		char path[180];
-		y = x = 0;
-		snprintf(path, sizeof(path), "Files/gamedata/MAP/mapsector_%hu.txt", i);
-		std::ifstream file(path, std::ios::in);
-		if (file.fail()) {
-			N_Error("M_Init: Could Not Open Mapsector File %hu!", i);
-		}
-#ifdef _NOMAD_DEBUG
-		assert(file.is_open());
-		LOG("Successfully opened file map file");
-#endif
-		std::string line;
-		std::vector<std::string> buffer;
-		while (std::getline(file, line)) {
-			buffer.push_back(line);
-		};
-		for (y = 0; y < SECTOR_MAX_Y; ++y) {
-			for (x = 0; x < SECTOR_MAX_X; ++x) {
-				secbuffer[i][y][x] = buffer[y][x];
-			}
-		}
-		file.close();
-	}
-	FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
-	/*
-	076
-	185
-	234
-	*/
-	if (!fp) {
-		N_Error("Could Not Create RUNTIME/mapfile.txt!");
-	}
-#ifdef _NOMAD_DEBUG
-	assert(fp);
-	LOG("Successfully created RUNTIME/mapfile.txt");
-#endif
-	for (y = 0; y < 80; ++y) {
-		for (x = 0; x < MAP_MAX_X; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; x++) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[0][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[7][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[6][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; x++) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[1][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[8][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[5][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[2][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[3][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[4][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < 80; ++y) {
-		for (x = 0; x < MAP_MAX_X; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	fclose(fp);
-#ifdef _NOMAD_DEBUG
-	LOG("Successfully Closed RUNTIME/mapfile.txt");
-#endif
-//	G_CopyBufferToMap();
-//	I_InitBiomes();
-	game->I_InitHUD();
 }
 
 static inline void TUI_Init(Game* const game)
@@ -223,13 +110,12 @@ static inline void TUI_Init(Game* const game)
 #endif
 	keypad(game->screen, TRUE);
 	
-	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45) {
+	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45)
 		N_Error("Screen Too Small For nomadascii!");
-	}
 	// change this in the future, this game doesn't "require" colors
-	if (!has_colors()) {
+	if (!has_colors())
 		N_Error("Must Support 256 Terminal Colors!");
-	}
+	
 #ifdef _NOMAD_DEBUG
 	assert(has_colors());
 	LOG("has_colors() = true");

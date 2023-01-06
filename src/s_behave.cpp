@@ -19,6 +19,7 @@
 //  src/s_behave.cpp
 //----------------------------------------------------------
 #include "g_game.h"
+#include "s_mission.h"
 #include "g_rng.h"
 #include "p_npc.h"
 #include "g_obj.h"
@@ -114,7 +115,11 @@ void Game::I_InitNPCs(void)
 {
 	game = this;
 	b_Active.reserve(npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
+#ifdef _NOMAD_DEBUG
+	LOG("reserving %li NPC* for b_Active", npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
+#endif
 	NomadAssigner(this);
+	MissionAssigner(this);
 	B_SpawnShopBots();
 	B_GenNomadTribe();
 }
@@ -175,6 +180,6 @@ void B_MercMasterInteract()
 #endif
 		return;
 	}
-	else {
-	}
+	
+	Mission* mission = G_GenMission();
 }

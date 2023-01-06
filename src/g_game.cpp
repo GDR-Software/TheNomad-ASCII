@@ -31,7 +31,6 @@ static void set_block(void)
 	
 	// get the terminal state
 	tcgetattr(STDIN_FILENO, &ttystate);
-	
 	//turn on canonical mode
 	ttystate.c_lflag |= ICANON;
 
@@ -47,8 +46,15 @@ Game::~Game()
 	endwin();
 	set_block();
 
-	pthread_mutex_destroy(&mob_mutex);
-	pthread_mutex_destroy(&npc_mutex);
+	/*pthread_cancel(mthread);
+	pthread_cancel(nthread);
+	pthread_cancel(wthread);
+	pthread_join(mthread, NULL);
+	pthread_join(nthread, NULL);
+	pthread_join(wthread, NULL); */
+
 	// now we delete any of the runtime-only resources
 	system("rm Files/gamedata/RUNTIME/*.txt");
+	world->~World();
+	playr->~Playr();
 }

@@ -49,17 +49,27 @@ typedef struct
     nomaduint_t bounty[2]; // min, max (how much money can be awarded as a bounty of the mission)
 } missionseed_t;
 
+class Target
+{
+public:
+    nomadint_t health;
+    nomadushort_t armor;
+    std::string name;
+};
+
 class Mission
 {
 public:
+    area_t area;
     missiontype_t type;
     nomadenum_t rng;
-    const nomadenum_t* maxdif, *mindif;
-    const nomaduint_t* maxbounty, *minbounty;
+    nomadenum_t maxdif, mindif;
+    nomaduint_t maxbounty, minbounty;
     std::vector<nomadenum_t> mobtypes;
 public: // during the mission stuff
     std::vector<Mob*> m_Active;
     std::vector<NPC*> b_Active;
+    
 public: // bounty/rewards after completion of the mission
     std::vector<nomaduint_t> m_coins; // bounty of said mission
     std::vector<Item*> m_itemloot; // item-specific loot gained after completion
@@ -68,6 +78,9 @@ public:
     Mission() = default;
     ~Mission();
 };
+
+void MissionAssigner(Game* const gptr);
+Mission* G_GenMission();
 
 extern const missionseed_t missionseeds[NUMMISSIONTYPES];
 

@@ -20,25 +20,73 @@
 //----------------------------------------------------------
 #include "n_shared.h"
 
+#include <bit>
+#include <limits.h>
+
 /*
 * this algorithm was improved over the many months of this game's development.
 * originally, it didn't compute distance between diagonal objects, only vertical and horizontal
 * but now, thanks to my friend Catazat, it does, using the pythagorean theorem.
+*
+* note: I thought up this algo in math class, freshmen year, when i should have been doing algebra, but i have zero regrets
 */
-nomaduint_t disBetweenOBJ(const coord_t src, const coord_t tar)
+nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
-		if (src.x > tar.x) { return (src.x - tar.x);}
-		else if (src.x < tar.x) { return (tar.x - src.x); }
-		else { return 0; }
+#ifdef _NOMAD_DEBUG
+		if (src.x > tar.x) {
+			LOG("distance is horizontal, src.x is greater than tar.x, distance between objects is %i", src.x - tar.x);
+			return (src.x - tar.x);
+		}
+		else if (src.x < tar.x) {
+			LOG("distance is horizontal, src.x is less than tar.x, distance between objects is %i", tar.x - src.x);
+			return (tar.x - src.x);
+		}
+		else {
+			LOG("distance is horziontal, src.x is equal to tar.x, returning 0");
+			return 0;
+		}
+#else
+		if (src.x > tar.x)
+			return (src.x - tar.x);
+		else if (src.x < tar.x)
+			return (tar.x - src.x);
+		else
+			return 0;
+#endif
 	}
 	else if (src.x == tar.x) { // vertical
-		if (src.y > tar.y) { return (src.y - tar.y); }
-		else if (src.y < tar.y) { return (tar.y - src.y); }
-		else { return 0; }
+#ifdef _NOMAD_DEBUG
+		if (src.y > tar.y) {
+			LOG("distance is vertical, src.y is greater than tar.y, distance between objects is %i", src.y - tar.y);
+			return (src.y - tar.y);
+		}
+		else if (src.y < tar.y) {
+			LOG("distance is vertical, src.y is less than tar.y, distance between objects is %i", tar.y - src.y);
+			return (tar.y - src.y);
+		}
+		else {
+			LOG("distance is vertical, src.y is equal to tar.y, returning 0");
+			return 0;
+		}
+#else
+		if (src.y > tar.y)
+			return (src.y - tar.y);
+		else if (src.y < tar.y)
+			return (tar.y - src.y);
+		else
+			return 0;
+#endif
 	}
 	else { // diagonal
+#ifdef _NOMAD_DEBUG
+		// don't want to be do the calculations twice, assign it to a variable
+		nomadint_t r = abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+		LOG("distance is diagonal, returning pythagorian theorem, result: %i", r);
+		return r;
+#else
 		return abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+#endif
 	}
 }
 
@@ -68,12 +116,19 @@ nomadfloat_t Q_root(nomadfloat_t x)
 	nomadlong_t        i;								// The integer interpretation of x
 	nomadfloat_t       x_half = x * 0.5f;
 	nomadfloat_t       r_sqrt = x;
-
+#ifdef _NOMAD_DEBUG
+	if (!(x > 0) || std::isnan(x) || std::isinf(x))
+		return std::numeric_limits<nomadfloat_t>::quiet_NaN();
+	
+	i = *reinterpret_cast<int64_t*>(&r_sqrt);
+	i = 0x5f375a86 - (i >> 1);
+	r_sqrt = *reinterpret_cast<nomadfloat_t*>(&i);
+#else
 	// trick c/c++, bit hack
 	i = *(nomadlong_t *)&r_sqrt;					    // oh yes, undefined behaviour, who gives a fuck?
 	i = 0x5f375a86 - (i >> 1);				            // weird magic base-16 nums
 	r_sqrt = *(nomadfloat_t *) &i;
-
+#endif
 	r_sqrt = r_sqrt * (threehalfs - (x_half * r_sqrt * r_sqrt)); // 1st Newton iteration
 	r_sqrt = r_sqrt * (threehalfs - (x_half * r_sqrt * r_sqrt)); // 2nd Newton iteration
 

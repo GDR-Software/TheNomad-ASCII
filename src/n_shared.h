@@ -93,19 +93,7 @@ class Game;
 #include <future>
 
 #ifdef _NOMAD_DEBUG
-
-extern FILE* dbgfile;
-
-#define LOG(...) \
-{ \
-	FILE* dbgfile = fopen("debuglog.txt", "a"); \
-	fprintf(dbgfile, "%s: ", __func__); \
-	fprintf(dbgfile, __VA_ARGS__); \
-	fprintf(dbgfile, "\n"); \
-	fclose(dbgfile);                              \
-}
-
-
+#include "n_debug.h"
 #endif
 
 #define byte uint_fast8_t
@@ -161,6 +149,7 @@ constexpr uint8_t DIF_MERC               = 2;
 constexpr uint8_t DIF_NOMAD              = 3;
 constexpr uint8_t DIF_BLACKDEATH         = 4;
 constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
+constexpr uint8_t NUMDIFS                = 6;
 
 inline nomadenum_t kbhit()
 {
@@ -204,6 +193,19 @@ enum : nomadenum_t
 	D_NULL
 };
 
+enum : nomadenum_t
+{
+	A_TN, // true neutral
+	A_LG, // lawful good
+	A_LE, // lawful evil
+	A_CG, // chaotic good
+	A_CE, // chaotic evil
+	A_LN, // lawful neutral
+	A_CN, // chaotic neutral
+
+	NUMALIGNMENTS
+};
+
 typedef struct
 {
 #ifdef _NOMAD_64
@@ -220,7 +222,7 @@ typedef struct
 	nomadenum_t height, width;
 } dim_t;
 
-nomaduint_t disBetweenOBJ(const coord_t src, const coord_t tar);
+nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
 nomadfloat_t Q_root(nomadfloat_t x);
 

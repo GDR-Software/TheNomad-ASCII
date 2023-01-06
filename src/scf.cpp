@@ -28,9 +28,6 @@ namespace scf {
 	nomadushort_t sfx_vol = 0;
 	nomadushort_t mobspeed = MOB_SPEED_STD;
 	nomadushort_t fov[2] = {MAX_VERT_FOV, MAX_HORZ_FOV};
-	nomaduint_t ticrate_mil  = 28;
-	nomaduint_t ticrate_base = 35;
-
 	namespace launch {
 		nomadbool_t fastmobs1 = false;
 		nomadbool_t fastmobs2 = false;

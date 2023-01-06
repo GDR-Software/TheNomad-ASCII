@@ -71,6 +71,7 @@ static std::vector<Tribe*> tribes; // a list of all the tribes active in the gam
 
 void NomadAssigner(Game* const gptr)
 {
+	assert(gptr);
 	game = gptr;
 }
 

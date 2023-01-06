@@ -27,6 +27,8 @@ static constexpr auto svfile = "nomadsv.ngd";
 
 static void G_ArchivePlayr(const Playr* playr);
 static void G_UnArchivePlayr(Playr* const playr);
+static void G_ArchiveWorld(const World* world);
+static void G_UnArchiveWorld(World* const world);
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active);
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active);
 static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active);
@@ -43,6 +45,7 @@ void Game::G_SaveGame(void)
 	}
 	fwrite(&HEADER, 1, sizeof(HEADER), fp);
 	G_ArchivePlayr(playr);
+	G_ArchiveWorld(world);
 	G_ArchiveMobs(m_Active);
 	G_ArchiveNPCs(b_Active);
 	fclose(fp);
@@ -51,21 +54,28 @@ void Game::G_SaveGame(void)
 bool Game::G_LoadGame(void)
 {
 	struct stat fdata;
-	if (stat(svfile, &fdata) == -1) {
+	if (stat(svfile, &fdata) == -1)
 		return false;
-	}
 	fp = fopen(svfile, "rb");
-	if (!fp) {
+	if (!fp)
 		return false;
-	}
+#ifdef _NOMAD_DEBUG
+	assert(fp && fdata.st_size > 0);
+	LOG("Successfully Opened Save File, and Size is Greater Than 0");
+#endif
 	uint64_t header;
 	fread(&header, 1, sizeof(uint64_t), fp);
 	
 	// not a valid save file
-	if (!(header & HEADER)) {
+	if (!(header & HEADER))
 		return false;
-	}
+#ifdef _NOMAD_DEBUG
+	assert(header & HEADER);
+	LOG("Save File is of The Correct Format (.NGD), Header is Correct Magic Number");
+#endif
+
 	G_UnArchivePlayr(playr);
+	G_UnArchiveWorld(world);
 	G_UnArchiveMobs(m_Active);
 	G_UnArchiveNPCs(b_Active);
 	fclose(fp);
@@ -75,6 +85,10 @@ bool Game::G_LoadGame(void)
 
 static void G_ArchivePlayr(const Playr* playr)
 {
+#ifdef _NOMAD_DEBUG
+	assert(playr);
+	LOG("Archiving Player Data");
+#endif
 	short size = (short)playr->name.size();
 	fwrite(&size, sizeof(short), 1, fp);
 	fwrite((char*)&playr->name, sizeof(char), size, fp);
@@ -89,6 +103,10 @@ static void G_ArchivePlayr(const Playr* playr)
 }
 static void G_UnArchivePlayr(Playr* const playr)
 {
+#ifdef _NOMAD_DEBUG
+	assert(playr);
+	LOG("Unarchiving Player Data");
+#endif
 	short size;
 	fread(&size, sizeof(short), 1, fp);
 	fread((char*)&playr->name, sizeof(char), size, fp);
@@ -102,12 +120,40 @@ static void G_UnArchivePlayr(Playr* const playr)
 	fread(&playr->P_wpns, sizeof(Weapon*), sizeof(playr->P_wpns), fp);
 }
 
+static void G_ArchiveWorld(const World* world)
+{
+#ifdef _NOMAD_DEBUG
+	assert(world);
+#endif
+	fwrite(&world->time.month, sizeof(world->time.month), 1, fp);
+	fwrite(&world->time.year, sizeof(world->time.year), 1, fp);
+	fwrite(&world->time.day, sizeof(world->time.day), 1, fp);
+	fwrite(&world->day, sizeof(world->day), 1, fp);
+}
+static void G_UnArchiveWorld(World* const world)
+{
+#ifdef _NOMAD_DEBUG
+	assert(world);
+#endif
+	fread(&world->time.month, sizeof(world->time.month), 1, fp);
+	fread(&world->time.year, sizeof(world->time.year), 1, fp);
+	fread(&world->time.day, sizeof(world->time.day), 1, fp);
+	fread(&world->day, sizeof(world->day), 1, fp);
+}
+
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active)
 {
+#ifdef _NOMAD_DEBUG
+	assert(m_Active.size() > 0); // there will always be active mobs whilst the player is in the campaign mode
+	LOG("Archiving Mob Data");
+#endif
 	short size = (short)m_Active.size();
 	fwrite(&size, sizeof(short), 1, fp);
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		Mob* mob = m_Active[i];
+#ifdef _NOMAD_DEBUG
+		assert(mob);
+#endif
 		fwrite(&mob->c_mob.mtype, sizeof(mob->c_mob.mtype), 1, fp);
 		fwrite(&mob->health, sizeof(mob->health), 1, fp);
 		fwrite(&mob->armor, sizeof(mob->armor), 1, fp);
@@ -119,11 +165,21 @@ static void G_ArchiveMobs(const std::vector<Mob*>& m_Active)
 }
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active)
 {
+#ifdef _NOMAD_DEBUG
+	assert(m_Active.size() > 0);
+	LOG("Unarchiving Mob Data");
+#endif
 	nomadshort_t i;
 	for (i = 0; i < m_Active.size(); ++i) {
 		Z_Free(m_Active[i]);
+#ifdef _NOMAD_DEBUG
+		assert(!m_Active[i]);
+#endif
 	}
 	m_Active.clear();
+#ifdef _NOMAD_DEBUG
+	assert(m_Active.size());
+#endif
 	short size;
 	fread(&size, sizeof(short), 1, fp);
 	m_Active.reserve(size);
@@ -131,6 +187,9 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active)
 		m_Active.emplace_back();
 		m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
 		Mob* mob = m_Active.back();
+#ifdef _NOMAD_DEBUG
+		assert(mob);
+#endif
 		fread(&mob->c_mob.mtype, sizeof(mob->c_mob.mtype), 1, fp);
 		fread(&mob->health, sizeof(mob->health), 1, fp);
 		fread(&mob->armor, sizeof(mob->armor), 1, fp);
@@ -143,10 +202,17 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active)
 
 static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active)
 {
+#ifdef _NOMAD_DEBUG
+	assert(b_Active.size() > 0);
+	LOG("Archiving NPC Data");
+#endif
 	short size = (short)b_Active.size();
 	fwrite(&size, sizeof(short), 1, fp);
 	for (nomadshort_t i = 0; i < b_Active.size(); i++) {
 		NPC* npc = b_Active[i];
+#ifdef _NOMAD_DEBUG
+		assert(npc);
+#endif
 		fwrite(&npc->c_npc.sprite, sizeof(npc->c_npc.sprite), 1, fp);
 		fwrite(&npc->ndir, sizeof(npc->ndir), 1, fp);
 		fwrite(&npc->pos.y, sizeof(npc->pos.y), 1, fp);
@@ -159,11 +225,17 @@ static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active)
 }
 static void G_UnArchiveNPCs(std::vector<NPC*>& b_Active)
 {
+#ifdef _NOMAD_DEBUG
+	assert(b_Active.size() > 0);
+#endif
 	nomaduint_t i;
 	for (i = 0; i < b_Active.size(); i++) {
 		Z_Free(b_Active[i]);
 	}
 	b_Active.clear();
+#ifdef _NOMAD_DEBUG
+	assert(b_Active.size() == 0);
+#endif
 	short size;
 	fread(&size, sizeof(short), 1, fp);
 	b_Active.reserve(size);
@@ -171,6 +243,9 @@ static void G_UnArchiveNPCs(std::vector<NPC*>& b_Active)
 		b_Active.emplace_back();
 		b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 		NPC* npc = b_Active.back();
+#ifdef _NOMAD_DEBUG
+		assert(npc);
+#endif
 		fread(&npc->c_npc.sprite, sizeof(npc->c_npc.sprite), 1, fp);
 		fread(&npc->ndir, sizeof(npc->ndir), 1, fp);
 		fread(&npc->pos.y, sizeof(npc->pos.y), 1, fp);

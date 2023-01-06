@@ -41,20 +41,20 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_MELEE,     8},
 	{S_PLAYR_INTERACT,  10},
 	{S_PLAYR_LOWHEALTH, 24},
-	{S_PLAYR_DEAD,      scf::ticrate_base},
+	{S_PLAYR_DEAD,      ticrate_base},
 	{S_MOB_NULL,        0},
 	{S_MOB_SPAWN,       15},
 	{S_MOB_WANDER,      16},
-	{S_MOB_IDLE,        scf::ticrate_base*2},
-	{S_MOB_CHASEPLAYR,  scf::ticrate_base*25},
-	{S_MOB_FIGHT,       scf::ticrate_base*15},
+	{S_MOB_IDLE,        ticrate_base*2},
+	{S_MOB_CHASEPLAYR,  ticrate_base*25},
+	{S_MOB_FIGHT,       ticrate_base*15},
 	{S_MOB_FLEE,        15},
 	{S_MOB_DEAD,        65},
 	{S_BOT_NULL,        0},
 	{S_BOT_SPAWN,       10},
-	{S_BOT_WANDER,      scf::ticrate_base*2},
-	{S_BOT_IDLE,        scf::ticrate_base*3},
-	{S_BOT_INTERACTING, scf::ticrate_base*6},
+	{S_BOT_WANDER,      ticrate_base*2},
+	{S_BOT_IDLE,        ticrate_base*3},
+	{S_BOT_INTERACTING, ticrate_base*6},
 	{S_BOT_DEAD,        10},
 };
 
@@ -85,6 +85,8 @@ const mobj_t mobinfo[NUMMOBS] = {
 * mission type, rng, mob types, difficulty (min, max), bounty (min, max)
 *
 * the lower the rng, the easier the mission will be to complete, and the higher the harder
+*
+* the higher the mission is on the table, the more beginner-friendly the mission'll be, just so that we don't get an RNG lock
 */
 const missionseed_t missionseeds[NUMMISSIONTYPES] = {
 	{M_ASSASSINATION, 48, {MT_PISTOL, MT_SHOTTY, MT_GUNNER, MT_MERC}, {DIF_RECRUIT, DIF_MINORINCONVENIENCE}, {241, 3042}},

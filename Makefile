@@ -2,12 +2,12 @@ VERSION        = 0
 VERSION_UPDATE = 0
 VERSION_PATCH  = 1
 CC             = g++
-CFLAGS         = -g -std=c++17
+CFLAGS         = -std=c++17
 O              = obj
 SDIR           = src
-INCLUDE        = -IFiles/gamedata/DEPS/include -I/usr/include
-LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a -L/usr/lib/x86_64-linux-gnu
-LDLIBS         = -lpthread -lasound
+INCLUDE        = -IFiles/gamedata/DEPS/include
+LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a /usr/lib/x86_64-linux-gnu/libpthread.a
+#LDLIBS         = -lpthread
 ifndef debug
 EXE            = nomadascii
 else
@@ -51,9 +51,14 @@ DEBUG= \
 	$(O)/g_combat.debug.o \
 	$(O)/g_items.debug.o \
 	$(O)/s_mission.debug.o \
+	$(O)/s_world.debug.o \
 #	$(O)/c_dungen.debug.o \
 #	$(O)/c_nemsis.debug.o \
 #	$(O)/c_sao.debug.o \
+
+ifdef debug
+DEBUG += $(O)/n_debug.debug.o
+endif
 
 OBJS= \
 	$(O)/n_shared.o \
@@ -81,6 +86,7 @@ OBJS= \
 	$(O)/g_combat.o \
 	$(O)/g_items.o \
 	$(O)/s_mission.o \
+	$(O)/s_world.o \
 #	$(O)/c_dungen.o \
 #	$(O)/c_nemsis.o \
 #	$(O)/c_sao.o \
@@ -96,7 +102,7 @@ endif
 $(O)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -Wno-unused-result -Ofast -o $@ -c $<
 $(O)/%.debug.o: $(SDIR)/%.cpp
-	$(CC) $(CFLAGS) -Wall -D_NOMAD_DEBUG -Og -o $@ -c $<
+	$(CC) -g $(CFLAGS) -Wall -D_NOMAD_DEBUG -Og -o $@ -c $<
 
 clean:
 	rm -rf $(O)/*

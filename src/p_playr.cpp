@@ -166,16 +166,13 @@ void Game::P_Ticker(nomadint_t input)
 	case KEY_TILDA:
 		
 		break;
-	case ctrl('x'):
-		pthread_cancel(mthread);
-		pthread_cancel(nthread);
+	case ctrl('X'):
 		pthread_join(mthread, NULL);
 		pthread_join(nthread, NULL);
+		pthread_join(wthread, NULL);
 		gamestate = GS_PAUSE;
 		break;
-	case ctrl('z'):
-		pthread_cancel(mthread);
-		pthread_cancel(nthread);
+	case ctrl('Z'):
 		this->~Game();
 		exit(1);
 		break;

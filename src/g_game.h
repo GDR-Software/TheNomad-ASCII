@@ -27,6 +27,7 @@
 #include "g_playr.h"
 #include "g_mob.h"
 #include "g_map.h"
+#include "s_world.h"
 
 #ifndef _NOMAD_MAIN_
 #define _NOMAD_MAIN_
@@ -68,11 +69,13 @@ constexpr auto MENU_PAUSE     = 0x09;
 class Game
 {
 public:
-	nomadulong_t ticcount;
+	std::atomic<nomadulong_t> ticcount;
 	gamestate_t gamestate;
 	nomadenum_t gamescreen;
 	char bffname[80];
+	nomadenum_t difficulty;
 	Playr* playr;
+	World* world;
 	std::vector<Mob*> m_Active;
 	std::vector<NPC*> b_Active;
 public: // map stuff
@@ -88,6 +91,7 @@ public: // *** multithreading! ***
 	pthread_mutex_t playr_mutex;
 	pthread_t mthread;
 	pthread_t nthread;
+	pthread_t wthread;
 	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:
 	Game();
@@ -125,8 +129,11 @@ public:
 	nomadbool_t E_Move(coord_t* epos, nomadenum_t* edir);
 };
 
-void I_NomadInit(int argc, char* argv[], Game* game);
+void I_NomadInit(int argc, char* argv[], Game* const game);
+void W_Init(Game* const gptr);
+void* W_Loop(void *arg);
 void mainLoop(int argc, char* argv[]);
+void MainAssigner(Game* const gptr);
 void N_Error(const char* err, ...);
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);
 std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,

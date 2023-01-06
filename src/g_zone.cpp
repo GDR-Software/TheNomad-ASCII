@@ -91,6 +91,9 @@ __CFUNC__ void Z_Free(void *ptr)
 	assert(ptr);
 	memblock_t* block;
 	memblock_t* other;
+#ifdef _NOMAD_DEBUG
+	LOG("freeing zone-allocated pointer at %p", ptr);
+#endif
 	
 	block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 	
@@ -217,9 +220,10 @@ __CFUNC__ void Z_Init(void)
 	puts("Z_Init(): Allocating Zone Memory...");
 	
 	mainzone = (memzone_t *)((byte *)calloc(heapsize, sizeof(byte)));
-	if (!mainzone) {
+	if (!mainzone)
 		N_Error("Z_Init: malloc failed!\n");
-	}
+	
+	assert(mainzone);
 	atexit(Z_KillHeap);
 	mainzone->size = heapsize;
 	
@@ -235,11 +239,17 @@ __CFUNC__ void Z_Init(void)
 	base->user = nullptr;
 	base->size = mainzone->size - sizeof(memzone_t);
 	printf("Allocated Zone From %p -> %p\n", mainzone, (mainzone+mainzone->size));
+#ifdef _NOMAD_DEBUG
+	LOG("allocated zone memory from %p -> %p of size %i", mainzone, (mainzone+mainzone->size), mainzone->size);
+#endif
 }
 #endif
 
 __CFUNC__ void Z_ClearZone(void)
 {
+#ifdef _NOMAD_DEBUG
+	LOG("clearing zone");
+#endif
 	memblock_t*		block;
 	
 	// set the entire zone to one free block
@@ -314,12 +324,16 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 	
 	if (space > 64) {
 		userblock = (memblock_t *)((byte *)base+size);
+		assert(userblock);
 		userblock->size = space;
 		userblock->user = nullptr;
 		userblock->tag = TAG_FREE;
 		userblock->prev = base;
 		userblock->next = base->next;
 		userblock->next->prev = userblock;
+#ifdef _NOMAD_DEBUG
+		LOG("allocating memory block from %p -> %p of size %i", userblock, (userblock+userblock->size), size);
+#endif
 	
 		base->next = userblock;
 		base->size = size;
@@ -336,6 +350,9 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 		}
 		// mark as in used, but unowned
 		base->user = UNOWNED;
+#ifdef _NOMAD_DEBUG
+		LOG("block at %p is used, but currently unowned", base);
+#endif
 	}
 	base->tag = tag;
 
@@ -348,6 +365,9 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 
 __CFUNC__ void Z_FreeTags(int lowtag, int hightag)
 {
+#ifdef _NOMAD_DEBUG
+	LOG("freeing zone-allocated blocks with tags from %i -> %i", lowtag, hightag);
+#endif
 	memblock_t*	block;
     memblock_t*	next;
 	
@@ -385,15 +405,16 @@ __CFUNC__ void Z_CheckHeap(void)
 			N_Error("Z_CheckHeap: two consecutive free blocks!\n");
 		}
 	}
+#ifdef _NOMAD_DEBUG
+	LOG("heap check successful, no corruption within zone-allocated memory");
+#endif
 }
 
 __CFUNC__ void Z_ChangeTag2(void *ptr, int tag, const char *file, int line)
 {
 	assert(file && ptr);
     memblock_t*	block;
-	
     block = (memblock_t *) ((byte *)ptr - sizeof(memblock_t));
-
     if (block->id != ZONEID)
         N_Error("%s:%i: Z_ChangeTag: block without a ZONEID!",
                 file, line);
@@ -402,6 +423,9 @@ __CFUNC__ void Z_ChangeTag2(void *ptr, int tag, const char *file, int line)
         N_Error("%s: %i: Z_ChangeTag: an owner is required "
                 "for purgable blocks", file, line);
 
+#ifdef _NOMAD_DEBUG
+	LOG("changing tag of ptr %p to %i, old tag was %i", ptr, tag, block->tag);
+#endif
     block->tag = tag;
 }
 
@@ -415,6 +439,9 @@ __CFUNC__ void Z_ChangeUser(void *ptr, void *user)
 		N_Error("Z_ChangeUser: tried to change user for invalid block!\n");
 		return;
 	}
+#ifdef _NOMAD_DEBUG
+	LOG("changing user of ptr %p to %p, old user was %p", ptr, user, block->user);
+#endif
 	block->user = user;
 	user = ptr;
 }

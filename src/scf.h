@@ -116,6 +116,12 @@
 #define KEY_PLUS	'+'
 #define KEY_OR      '|'
 #define NUMBUTTONS 85
+
+constexpr uint8_t ticrate_mil = 28;
+constexpr uint8_t ticrate_base = 35;
+constexpr uint16_t ticrate_minute = ticrate_base*30; // an in-game "minute"
+constexpr uint16_t ticrate_hour = ticrate_minute*48;
+
 namespace scf {
 	extern nomadbool_t music_on;
 	extern nomadbool_t sfx_on;
@@ -124,8 +130,6 @@ namespace scf {
 
 	extern nomadushort_t fov[2];
 	extern nomadushort_t mobspeed;
-	extern nomaduint_t ticrate_base;
-	extern nomaduint_t ticrate_mil;
 	
 	enum : nomaduint_t
 	{

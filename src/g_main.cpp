@@ -20,11 +20,24 @@
 //----------------------------------------------------------
 #include "g_game.h"
 
+static Game* game;
+
+void MainAssigner(Game* const gptr)
+{
+	game = gptr;
+}
+
 void signal_interrupt(int signum)
 {
 	werase(stdscr);
 	endwin();
 	puts("Killing Proccess, Exit Success!");
+	pthread_join(game->mthread, NULL);
+	pthread_join(game->nthread, NULL);
+	pthread_join(game->wthread, NULL);
+	pthread_mutex_destroy(&game->mob_mutex);
+	pthread_mutex_destroy(&game->npc_mutex);
+	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_SUCCESS);
 }
 
@@ -37,6 +50,12 @@ void signal_seggy(int signum)
 #else
 	puts("Caught A Seggy! Goddamn It!");
 #endif
+	pthread_join(game->mthread, NULL);
+	pthread_join(game->nthread, NULL);
+	pthread_join(game->wthread, NULL);
+	pthread_mutex_destroy(&game->mob_mutex);
+	pthread_mutex_destroy(&game->npc_mutex);
+	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_FAILURE);
 }
 
@@ -49,10 +68,16 @@ void signal_unnatural_demise(int signum)
 #else
 	puts("The Game Object Was KIA'd By Strange & Mysterious Forces Beyond Our Knowledege...");
 #endif
+	pthread_join(game->mthread, NULL);
+	pthread_join(game->nthread, NULL);
+	pthread_join(game->wthread, NULL);
+	pthread_mutex_destroy(&game->mob_mutex);
+	pthread_mutex_destroy(&game->npc_mutex);
+	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_FAILURE);
 }
 
-void signal_somethins_corrupt(int signufdm)
+void signal_somethins_corrupt(int signum)
 {
 	werase(stdscr);
 	endwin();
@@ -61,6 +86,12 @@ void signal_somethins_corrupt(int signufdm)
 #else
 	puts("Somethin's Gotten Corrupt... I Don't Know What, But This Thing is Corrupt, Your Fault, Perhaps?");
 #endif
+	pthread_join(game->mthread, NULL);
+	pthread_join(game->nthread, NULL);
+	pthread_join(game->wthread, NULL);
+	pthread_mutex_destroy(&game->mob_mutex);
+	pthread_mutex_destroy(&game->npc_mutex);
+	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_FAILURE);
 }
 
@@ -93,6 +124,7 @@ int main(int argc, char* argv[])
 	set_nonblock();
 #endif
 #ifdef _NOMAD_DEBUG
+	remove("Files/debug/debuglog.txt");
 	FILE* dbgfile = fopen("debuglog.txt", "w");
 	if (!dbgfile)
 		N_Error("Could Not Create Debug Log File!");
