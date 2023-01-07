@@ -159,10 +159,14 @@ __CFUNC__ void Z_DumpHeap(void)
 }
 */
 
+#ifdef _NOMAD_DEBUG
 __CFUNC__ void Z_FileDumpHeap(void)
 {
 	memblock_t* block;
-	FILE* fp = fopen("heaplog.txt", "w");
+	FILE* fp = fopen("Files/debug/heaplog.txt", "w");
+	assert(fp);
+	if (!fp)
+		return;
 	fprintf(fp, "zone size:%i   location:%p\n", mainzone->size, mainzone);
 	for (block = mainzone->blocklist.next;; block = block->next) {
 		fprintf (fp, "block:%p     size:%7i     user:%p      tag:%3i\n",
@@ -183,6 +187,7 @@ __CFUNC__ void Z_FileDumpHeap(void)
 	}
 	fclose(fp);
 }
+#endif
 
 #ifdef _TESTING
 __CFUNC__ void Z_Init(int size)
@@ -273,7 +278,13 @@ __CFUNC__ void Z_ClearZone(void)
 // from within the zone without calling malloc
 __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 {
+#ifdef _NOMAD_DEBUG
 	assert(user);
+	assert(size > 0);
+	assert(tag > -1);
+#endif
+	if (!user)
+		return NULL;
 	memblock_t* rover;
 	memblock_t* userblock;
 	memblock_t* base;

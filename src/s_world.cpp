@@ -20,6 +20,7 @@
 //----------------------------------------------------------
 #include "g_game.h"
 #include "s_world.h"
+#include "s_mission.h"
 
 static pthread_mutex_t world_mutex;
 static Game* game;
@@ -97,6 +98,8 @@ static void W_RoamingLoop(void);
 void* W_Loop(void *arg)
 {
     pthread_mutex_lock(&world_mutex);
+	
+	// time still passes by even if the player isn't actively 
     if ((*gametics % ticrate_lightoff) == 0) { // a single day has passed
         if (!world->day) {
             world->day = true;
@@ -144,17 +147,69 @@ void* W_Loop(void *arg)
     return NULL;
 }
 
+static inline void* N_Looper(void* arg);
+static inline void* M_Looper(void *arg);
+
 static void W_RoamingLoop(void)
 {
-    
+#ifdef _NOMAD_DEBUG
+	assert(game);
+#endif
+	pthread_create(&game->nthread, NULL, N_Looper, NULL);
+	pthread_create(&game->mthread, NULL, M_Looper, NULL);
+
+	pthread_join(game->nthread, NULL);
+	pthread_join(game->mthread, NULL);
 }
 
 static void W_MissionLoop(void)
 {
-
+	
 }
 
+static inline void* N_Looper(void* arg)
+{
+#ifdef _NOMAD_DEBUG
+	assert(!arg && game);
+#endif
+	pthread_mutex_lock(&game->npc_mutex);
+	for (auto* const b : game->b_Active) {
+		if (b->nticker > 0) {
+			--b->nticker;
+		}
+		else { /*
+			if (b->c_npc.btype == BOT_MERCMASTER) {
+				B_MercMasterLoop(b);
+			}
+			//else if (b->c_npc.btype == BOT_CIVILIAN) {
+			//	B_CivilianThink(b);
+			//} */
+			b->nticker = b->nstate.numticks;
+		}
+	}
+	pthread_mutex_unlock(&game->npc_mutex);
+	return NULL;
+}
 
+static inline void* M_Looper(void *arg)
+{
+#ifdef _NOMAD_DEBUG
+	assert(!arg && game);
+#endif
+	pthread_mutex_lock(&game->mob_mutex);
+	M_GetLeaders(game);
+	for (auto* const m : game->m_Active) {
+		if (m->mticker > 0) {
+			--m->mticker;
+		}
+		else {
+			m->M_WanderThink();
+			m->mticker = m->mstate.numticks;
+		}
+	}
+	pthread_mutex_unlock(&game->mob_mutex);
+	return NULL;
+}
 
 
 static inline void M_Init(void)

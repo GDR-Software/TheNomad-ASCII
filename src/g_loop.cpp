@@ -32,7 +32,9 @@ void mainLoop(int argc, char* argv[])
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
 	I_NomadInit(argc, argv, game);
 	Z_CheckHeap();
+#ifdef _NOMAD_DEBUG
 	Z_FileDumpHeap();
+#endif
 	nomadushort_t c{};
 	start_color();
 	init_pair(0, COLOR_WHITE, COLOR_WHITE);
@@ -169,15 +171,11 @@ static void levelLoop(void)
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
 		pthread_create(&game->wthread, NULL, W_Loop, NULL);
-		pthread_create(&game->mthread, NULL, M_Looper, NULL);
-		pthread_create(&game->nthread, NULL, N_Looper, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		nomadenum_t c;
 		if ((c = kbhit()) != 0)
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
-		pthread_join(game->mthread, NULL);
-		pthread_join(game->nthread, NULL);
 		pthread_join(game->wthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		game->ticcount++;
@@ -185,39 +183,4 @@ static void levelLoop(void)
 	};
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
-}
-
-static void* N_Looper(void* arg)
-{
-	pthread_mutex_lock(&game->npc_mutex);
-/*	for (auto* const b : game->b_Active) {
-		if (b->nticker > 0) {
-			--b->nticker;
-		}
-		else {
-		//	if (b->c_npc.btype == BOT_CIVILIAN) {
-		//		B_CivilianThink(b);
-		//	}
-			b->nticker = b->nstate.numticks;
-		}
-	}*/
-	pthread_mutex_unlock(&game->npc_mutex);
-	return NULL;
-}
-
-static void* M_Looper(void *arg)
-{
-	pthread_mutex_lock(&game->mob_mutex);
-	M_GetLeaders(game);
-	for (auto* const m : game->m_Active) {
-		if (m->mticker > 0) {
-			--m->mticker;
-		}
-		else {
-			m->M_WanderThink();
-			m->mticker = m->mstate.numticks;
-		}
-	}
-	pthread_mutex_unlock(&game->mob_mutex);
-	return NULL;
 }

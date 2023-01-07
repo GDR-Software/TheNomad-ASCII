@@ -51,11 +51,11 @@ public:
 	std::vector<Item*> inv;
 	nomadint_t body_health[4];
 	nomaduint_t pstate;
-	nomadenum_t pmode;
+	std::atomic<nomadenum_t> pmode;
 	nomadulong_t pticker;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
 public:
-	Playr();
+	Playr() = default;
 	~Playr();
 	void P_Init();
 	// TODO: add in collision checks

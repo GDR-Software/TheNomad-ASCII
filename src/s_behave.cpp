@@ -24,17 +24,13 @@
 #include "p_npc.h"
 #include "g_obj.h"
 
-Game* game;
-
-static constexpr coord_t botpos[] = {
-	{263, 283},
-	{265, 252},
-	{255, 256},
-	{259, 283},
-};
+static Game* game;
 
 __CFUNC__ void B_SpawnShopBots(void)
 {
+#ifdef _NOMAD_DEBUG
+	assert(game);
+#endif
 	// hardcoded until the BFFs roll around
 	std::vector<NPC*>& b_Active = game->b_Active;
 	NPC* npc;
@@ -95,24 +91,12 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 		B_GenerateCivilian(npc);
 	}
 } */
-/*__CFUNC__ void B_CivilianThink(NPC* const npc)
-{
-	// move at random
-	if (P_Random() > 75) {
-		coord_t pos = game->E_GetDir(npc->ndir);
-		if (E_CloseCollider(npc->ndir, npc->pos, game)) {
-		//	npc->pos.y += pos.y;
-		//	npc->pos.x += pos.x;
-		}
-		else {
-			npc->ndir = P_Random() & 3;
-		}
-	}
-	// TODO: you know what to do
-} */
 
 void Game::I_InitNPCs(void)
 {
+#ifdef _NOMAD_DEBUG
+	assert(!game);
+#endif
 	game = this;
 	b_Active.reserve(npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
 #ifdef _NOMAD_DEBUG
@@ -131,6 +115,9 @@ NPC::~NPC()
 
 static nomadbool_t B_IsScared(NPC* const npc)
 {
+#ifdef _NOMAD_DEBUG
+	assert(npc);
+#endif
 	if (npc->c_npc.btype == BOT_CIVILIAN) {
 		return true; // auto-true if its a civilian
 	}
@@ -148,13 +135,15 @@ static nomadbool_t B_IsScared(NPC* const npc)
 
 void B_FleeArea(NPC* const npc)
 {
+#ifdef _NOMAD_DEBUG
+	assert(npc);
+#endif
 	if (!B_IsScared(npc)) {
 		return;
 	}
 
 	// extra-scared flag
-	nomadbool_t panic =
-	(P_Random()&100)>75||npc->c_npc.btype==BOT_CIVILIAN ? true : false;
+	nomadbool_t panic = (P_Random() & 100) > 75 || npc->c_npc.btype == BOT_CIVILIAN;
 	
 	if (panic) {
 		// run in wild circles
@@ -168,11 +157,36 @@ void B_FleeArea(NPC* const npc)
 
 void B_KillBot(NPC* const npc)
 {
+#ifdef _NOMAD_DEBUG
+	assert(npc);
+#endif
 	npc->~NPC();
 }
 
-void B_MercMasterInteract()
+static void B_MercMasterInteract(NPC* const npc);
+
+inline void B_MercMasterThink(NPC* const npc)
 {
+#ifdef _NOMAD_DEBUG
+	assert(npc);
+#endif
+	coord_t mercpos = botpos[0];
+	if ((game->playr->pos.y == (mercpos.y - 1) && game->playr->pos.x == mercpos.x)
+	|| (game->playr->pos.y == mercpos.y && game->playr->pos.x == (mercpos.x + 1))) {
+		game->playr->pmode = P_MODE_MERCMASTER;
+		B_MercMasterInteract(npc);
+	}
+}
+//inline void B_BartenderLoop(NPC* const npc);
+//inline void B_WeaponSmithLoop(NPC* const npc);
+//inline void B_BlackSmithLoop(NPC* const npc);
+//inline void B_CivilianLoop(NPC* const npc);
+
+static void B_MercMasterInteract(NPC* const npc)
+{
+#ifdef _NOMAD_DEBUG
+	assert(npc && game->playr);
+#endif
 	Playr* const playr = game->playr;
 	if (playr->pmode != P_MODE_MERCMASTER) {
 #ifdef _NOMAD_DEBUG

@@ -110,6 +110,13 @@ const weapon_t wpninfo[NUMWEAPONS] = {
 	{W_SHOTTY_FA,   21,  10,  15,  12,  20}
 };
 
+coord_t botpos[] = {
+	{263, 283},
+	{265, 252},
+	{255, 256},
+	{259, 283},
+};
+
 //const item_t iteminfo[NUMITEMS] = {
 //	{},
 //};

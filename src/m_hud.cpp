@@ -28,6 +28,27 @@ static constexpr coord_t origin = {260, 260};
 static inline void P_GetMapBuffer();
 static inline void Hud_GetVMatrix();
 static inline void Hud_InsertSprites();
+static inline void Hud_FlushBuffer();
+
+typedef struct
+{
+	std::string str;
+	char from[256];
+} buffer_t;
+static std::vector<buffer_t> hudbuffer;
+
+inline void Hud_Printf(const char* from, const char* msg)
+{
+#ifdef _NOMAD_DEBUG
+	assert(msg);
+#endif
+	buffer_t buf;
+	buf.str = msg;
+	strncpy(buf.from, from, strlen(from));
+	hudbuffer.push_back(buf);
+	if (hudbuffer.size() > 5) // print out a messages within the buffer
+		Hud_FlushBuffer();
+}
 
 static inline void Hud_DisplayConsole();
 static inline void Hud_DisplayBarVitals();
@@ -223,6 +244,13 @@ static inline void Hud_DisplayBodyVitals()
 		}
 		mvwaddch(game->screen, i, 123, ']');
 	}
+}
+
+// doesn't actually "flush" the printing buffer, just prints out one message to the HUD
+static inline void Hud_FlushBuffer()
+{
+	const buffer_t buf = hudbuffer[0];
+	mvwprintw(game->screen, 30, 31, "[%s] %s", buf.from, buf.str.c_str());
 }
 
 static inline void Hud_DisplayBarVitals()

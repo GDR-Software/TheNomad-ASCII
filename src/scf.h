@@ -80,6 +80,7 @@
 #define KEY_N		'N'
 #define KEY_M		'M'
 #define KEY_TILDA	'~'
+#define KEY_GRAVE   '`'
 #ifdef KEY_ENTER
 #undef KEY_ENTER
 #endif

@@ -22,12 +22,14 @@
 #include "g_obj.h"
 #include "g_game.h"
 
-Playr::Playr()
-{
-}
+static Playr* playr;
+
+// pauses all the other threads
+static void CommandConsole(Game* const game);
 
 void Playr::P_Init()
 {
+	playr = this;
 	name = "Test";
 	sprite = '@';
 	health = 100;
@@ -53,6 +55,7 @@ void Playr::P_Init()
 
 Playr::~Playr()
 {
+	Z_Free(this);
 }
 
 static nomadbool_t P_MoveTicker(Playr* playr)
@@ -166,6 +169,9 @@ void Game::P_Ticker(nomadint_t input)
 	case KEY_TILDA:
 		
 		break;
+	case KEY_GRAVE:
+		CommandConsole(this);
+		break;
 	case ctrl('X'):
 		pthread_join(mthread, NULL);
 		pthread_join(nthread, NULL);
@@ -222,23 +228,84 @@ void Playr::P_DashE()
 
 void Playr::P_ChangeDirL()
 {
+#ifdef _NOMAD_DEBUG
+	assert(pdir < NUMDIRS);
+	LOG("pdir = %hu", pdir);
+#endif
 	if (pdir == D_EAST) {
 		pdir = D_NORTH;
 	}
 	else {
-		pdir++;
+		++pdir;
 	}
 }
 
 void Playr::P_ChangeDirR()
 {
 #ifdef _NOMAD_DEBUG
+	assert(pdir < NUMDIRS);
 	LOG("pdir = %hu", pdir);
 #endif
 	if (pdir == D_NORTH) {
 		pdir = D_EAST;
 	}
 	else {
-		pdir--;
+		--pdir;
+	}
+}
+
+static void CommandConsole(Game* const game)
+{
+	char buf[1024];
+//	mvwscanw(game->screen, , , "%s", buf);
+	if (strstr(buf, "fyia") != NULL) {
+		if (scf::launch::infinite_ammo)
+			scf::launch::infinite_ammo = false;
+		else
+			scf::launch::infinite_ammo = true;
+	}
+	else if (strstr(buf, "iwtbag") != NULL) {
+		if (scf::launch::godmode)
+			scf::launch::godmode = false;
+		else
+			scf::launch::godmode = true;
+	}
+	else if (strstr(buf, "tgdnec") != NULL) {
+		if (scf::launch::bottomless_clip)
+			scf::launch::bottomless_clip = false;
+		else
+			scf::launch::bottomless_clip = true;
+	}
+	else if (strstr(buf, "blindmobs") != NULL) {
+		if (scf::launch::blindmobs)
+			scf::launch::blindmobs = false;
+		else
+			scf::launch::blindmobs = true;
+	}
+	else if (strstr(buf, "deafmobs") != NULL) {
+		if (scf::launch::deafmobs)
+			scf::launch::deafmobs = false;
+		else
+			scf::launch::deafmobs = true;
+	}
+	else if (strstr(buf, "fastmobs=1") != NULL) {
+		if (scf::launch::fastmobs3)
+			scf::launch::fastmobs3 = false;
+		if (scf::launch::fastmobs2)
+			scf::launch::fastmobs2 = false;
+		if (scf::launch::fastmobs1)
+			scf::launch::fastmobs1 = false;
+		else
+			scf::launch::fastmobs1 = true;
+	}
+	else if (strstr(buf, "fastmobs=2") != NULL) {
+		if (scf::launch::fastmobs1)
+			scf::launch::fastmobs1 = false;
+		if (scf::launch::fastmobs3)
+			scf::launch::fastmobs3 = false;
+		if (scf::launch::fastmobs2)
+			scf::launch::fastmobs2 = false;
+		else
+			scf::launch::fastmobs2 = true;
 	}
 }
