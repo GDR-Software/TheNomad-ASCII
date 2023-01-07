@@ -99,13 +99,13 @@ void* W_Loop(void *arg)
 {
     pthread_mutex_lock(&world_mutex);
 	
-	// time still passes by even if the player isn't actively 
+	// time still passes by even if the player isn't actively
     if ((*gametics % ticrate_lightoff) == 0) { // a single day has passed
         if (!world->day) {
             world->day = true;
             ++world->time.day;
-        }
-    }
+		}
+	}
     // check if the month has changed
     switch (*gametics) {
     case ticrate_month_1:
@@ -116,13 +116,7 @@ void* W_Loop(void *arg)
         break;
     case ticrate_month_3:
         world->time.month = MONTH_LONGSUMMER;
-        break;
-    default:
-        break;
-    };
-    switch (*gametics) {
-    case ticrate_year:
-        ++world->time.year;
+		++world->time.year;
         *gametics = 0; // reset the ticcount/timer
         break;
     default:
@@ -181,9 +175,9 @@ static inline void* N_Looper(void* arg)
 			if (b->c_npc.btype == BOT_MERCMASTER) {
 				B_MercMasterLoop(b);
 			}
-			//else if (b->c_npc.btype == BOT_CIVILIAN) {
-			//	B_CivilianThink(b);
-			//} */
+			else if (b->c_npc.btype == BOT_CIVILIAN) {
+				B_CivilianThink(b);
+			} */
 			b->nticker = b->nstate.numticks;
 		}
 	}

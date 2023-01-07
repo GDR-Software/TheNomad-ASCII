@@ -72,7 +72,25 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 		break;
-	default:
+	case 1;
+		snprintf(buf, sizeof(buf),
+			"+==============================+\n"
+			"  The Nomad Alpha (v%d.%d.%d)  \n"
+			"+==============================+\n",
+		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
+	case 2:
+		snprintf(buf, sizeof(buf),
+			"+==============================+\n"
+			"  The Nomad Beta (v%d.%d.%d)  \n"
+			"+==============================+\n",
+		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
+	case 3:
+		snprintf(buf, sizeof(buf),
+			"+==============================+\n"
+			"  The Nomad (v%d.%d.%d)  \n"
+			"+==============================+\n",
+		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
+	default: // should theoretically never happen
 		printf("(ERROR: Fatal) Invalid Version!\n");
 		exit(EXIT_FAILURE);
 		break;
