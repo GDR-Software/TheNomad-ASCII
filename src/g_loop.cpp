@@ -31,6 +31,7 @@ void mainLoop(int argc, char* argv[])
 	
 	// allocating 1 mb to the chunkiest class of them all
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
+
 #ifdef _NOMAD_DEBUG
 	assert(game);
 #endif
@@ -57,7 +58,11 @@ void mainLoop(int argc, char* argv[])
 					game->~Game();
 					exit(1);
 				}
-					else {
+				else if (c == 'q') {
+					game->~Game();
+					exit(1);
+				}
+				else {
 					continue;
 				}
 			}

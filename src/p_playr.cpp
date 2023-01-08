@@ -28,6 +28,38 @@ static Game* game;
 // pauses all the other threads
 static void CommandConsole(Game* const game);
 
+// random interaction code/functions
+static void P_ChairInteract(nomadint_t input)
+{
+	Hud_Printf("System", "There is a chair there, would you like to sit down? [y/n]");
+	nomadshort_t in = wgetch(game->screen);
+	if (in != 'y') {
+		Hud_Printf("System", "Well, that's a shame, see you later");
+		return;
+	}
+	Hud_Printf("System", "You are now sitting");
+	switch (input) {
+	case KEY_w:
+		--playr->pos.y;
+		break;
+	case KEY_a:
+		--playr->pos.x;
+		break;
+	case KEY_s:
+		++playr->pos.y;
+		break;
+	case KEY_d:
+		++playr->pos.x;
+		break;
+	default:
+		N_Error("Player-To-Chair Interaction Called, But Movement Vector Is Invalid");
+		break;
+	};
+}
+static void P_DoorInteract();
+static void P_NPCInteract();
+static void P_ItemInteract();
+
 void PlayrAssigner(Game* const gptr)
 {
 	game = gptr;
@@ -57,11 +89,6 @@ void Playr::P_Init()
 #endif
 	memset(&body_health, 100, sizeof(body_health));
 	pstate &= stateinfo[S_PLAYR_NULL].id;
-}
-
-Playr::~Playr()
-{
-	Z_Free(this);
 }
 
 static nomadbool_t P_MoveTicker(Playr* playr)
@@ -136,6 +163,13 @@ void Playr::P_RunTicker(nomadint_t input)
 			case '(':
 				B_BartenderInteract();
 				break;
+			case ':': { // a chair/seat sprite
+				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+				else { P_MoveW(); }
+				break; }
+			case '=': // weapons smith table
+				B_WeaponSmithInteract();
+				break;
 			default:
 				break;
 			};
@@ -149,11 +183,18 @@ void Playr::P_RunTicker(nomadint_t input)
 			case '.':
 				P_MoveW();
 				break;
-			case 'M':
+			case 'M': // the merc master's custom sprite
 				B_MercMasterInteract();
 				break;
-			case '(':
+			case '(': // a bar sprite
 				B_BartenderInteract();
+				break;
+			case ':': { // a chair/seat sprite
+				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+				else { P_MoveW(); }
+				break; }
+			case '=': // weapons smith table
+				B_WeaponSmithInteract();
 				break;
 			default:
 				break;
@@ -174,6 +215,13 @@ void Playr::P_RunTicker(nomadint_t input)
 			case '(':
 				B_BartenderInteract();
 				break;
+			case ':': { // a chair/seat sprite
+				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+				else { P_MoveW(); }
+				break; }
+			case '=': // weapons smith table
+				B_WeaponSmithInteract();
+				break;
 			default:
 				break;
 			};
@@ -192,6 +240,13 @@ void Playr::P_RunTicker(nomadint_t input)
 				break;
 			case '(':
 				B_BartenderInteract();
+				break;
+			case ':': { // a chair/seat sprite
+				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+				else { P_MoveW(); }
+				break; }
+			case '=': // weapons smith table
+				B_WeaponSmithInteract();
 				break;
 			default:
 				break;
@@ -297,6 +352,11 @@ void Playr::P_ChangeDirR()
 	else {
 		--pdir;
 	}
+}
+
+void P_KillPlayr()
+{
+	Z_Free(playr);
 }
 
 static void CommandConsole(Game* const game)

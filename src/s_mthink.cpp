@@ -49,77 +49,71 @@ nomadbool_t Mob::M_HearImmediate()
 nomadbool_t Mob::M_HearPlayr()
 {
 	Game* const map = game;
-	if (scf::launch::deafmobs) {
+	if (scf::launch::deafmobs && game->difficulty < DIF_BLACKDEATH) {
 		return false;
 	}
-	else {
-		if (M_HearImmediate()) {
-			return true;
-		}
-		else {
-			bool found = false;
-			coord_t area;
-			area.y = mpos.y - (c_mob.snd_area >> 1);
-			area.x = mpos.x - (c_mob.snd_area >> 1);
-			for (nomadushort_t y = mpos.y; y < area.y; ++y) {
-				for (nomadushort_t x = mpos.x; x < area.x; ++x) {
-					if (map->sndmap[y][x] >= c_mob.snd_tol) {
-						found = true;
-					}
-				}
+	if (M_HearImmediate()) {
+		return true;
+	}
+	bool found = false;
+	coord_t area;
+	area.y = mpos.y - (c_mob.snd_area >> 1);
+	area.x = mpos.x - (c_mob.snd_area >> 1);
+	for (nomadushort_t y = mpos.y; y < area.y; ++y) {
+		for (nomadushort_t x = mpos.x; x < area.x; ++x) {
+			if (map->sndmap[y][x] >= c_mob.snd_tol) {
+				found = true;
 			}
-			return found;
 		}
 	}
+	return found;
 }
 
 nomadbool_t Mob::M_SeePlayr()
 {
 	Game* const map = game;
-	if (scf::launch::blindmobs) {
+	if (scf::launch::blindmobs && game->difficulty < DIF_BLACKDEATH) {
 		return false;
 	}
-	else {
-		nomadbool_t found = false;
-		switch (mdir) {
-		case D_NORTH: {
-			for (nomadushort_t i = mpos.y; 
-			i < (mpos.y - c_mob.sight_range); --i) {
+	nomadbool_t found = false;
+	switch (mdir) {
+	case D_NORTH: {
+		for (nomadushort_t i = mpos.y; 
+		i < (mpos.y - c_mob.sight_range); --i) {
+		if (map->c_map[i][mpos.x] == map->playr->sprite) {
+				found = true;
+			}
+		}
+		break; }
+	case D_WEST: {
+		for (nomadushort_t i = mpos.x;
+		i < (mpos.x - c_mob.sight_range); --i) {
+			if (map->c_map[mpos.y][i] == map->playr->sprite) {
+				found = true;
+			}
+		}
+		break; }
+	case D_SOUTH: {
+		for (nomadushort_t i = mpos.y;
+		i < (mpos.y + c_mob.sight_range); ++i) {
 			if (map->c_map[i][mpos.x] == map->playr->sprite) {
-					found = true;
-				}
+				found = true;
 			}
-			break; }
-		case D_WEST: {
-			for (nomadushort_t i = mpos.x;
-			i < (mpos.x - c_mob.sight_range); --i) {
-				if (map->c_map[mpos.y][i] == map->playr->sprite) {
-					found = true;
-				}
+		}
+		break; }
+	case D_EAST: {
+		for (nomadushort_t i = mpos.x;
+		i < (mpos.x + c_mob.sight_range); ++i) {
+			if (map->c_map[mpos.y][i] == map->playr->sprite) {
+				found = true;
 			}
-			break; }
-		case D_SOUTH: {
-			for (nomadushort_t i = mpos.y;
-			i < (mpos.y + c_mob.sight_range); ++i) {
-				if (map->c_map[i][mpos.x] == map->playr->sprite) {
-					found = true;
-				}
-			}
-			break; }
-		case D_EAST: {
-			for (nomadushort_t i = mpos.x;
-			i < (mpos.x + c_mob.sight_range); ++i) {
-				if (map->c_map[mpos.y][i] == map->playr->sprite) {
-					found = true;
-				}
-			}
-			break; }
-		default:
-			N_Error("Unknown/Invalid Direction For Mob: %s", c_mob.name);
-			break;
-		};
-		return found;
-	}
+		}
+		break; }
+	default:
+		N_Error("Unknown/Invalid Direction For Mob: %s", c_mob.name);
+		break;
+	};
+	return found;
 }
 
 nomadbool_t Mob::M_SmellImmediate()
@@ -143,27 +137,23 @@ nomadbool_t Mob::M_SmellImmediate()
 nomadbool_t Mob::M_SmellPlayr()
 {
 	Game* const map = game;
-	if (scf::launch::nosmell) {
+	if (scf::launch::nosmell && game->difficulty < DIF_BLACKDEATH) {
 		return false;
 	}
-	else {
-		if (M_SmellImmediate()) {
-			return true;
-		}
-		else {
-			bool found = false;
-			for (nomadushort_t y = mpos.y;
-			y < (mpos.y - (c_mob.snd_area >> 1)); ++y) {
-				for (nomadushort_t x = mpos.x;
-				x < (mpos.x + (c_mob.snd_area >> 1)); ++x) {
-					if (map->smellmap[y][x] >= c_mob.smell_tol) {
-						found = true;
-					}
-				}
+	if (M_SmellImmediate()) {
+		return true;
+	}
+	bool found = false;
+	for (nomadushort_t y = mpos.y;
+	y < (mpos.y - (c_mob.snd_area >> 1)); ++y) {
+		for (nomadushort_t x = mpos.x;
+		x < (mpos.x + (c_mob.snd_area >> 1)); ++x) {
+			if (map->smellmap[y][x] >= c_mob.smell_tol) {
+				found = true;
 			}
-			return found;
 		}
 	}
+	return found;
 }
 
 void Mob::M_SpawnThink()

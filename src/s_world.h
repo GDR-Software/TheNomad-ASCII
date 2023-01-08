@@ -39,7 +39,9 @@ public:
     nomadint_t temperature; // the average temperature of the world
 public:
     World() = default;
-    ~World();
+    ~World() = delete;
 };
+
+void W_KillWorld();
 
 #endif

@@ -54,6 +54,6 @@ Game::~Game()
 	set_block();
 	// now we delete any of the runtime-only resources
 	system("rm Files/gamedata/RUNTIME/*.txt");
-	world->~World();
-	playr->~Playr();
+	W_KillWorld();
+	P_KillPlayr();
 }

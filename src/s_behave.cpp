@@ -158,6 +158,18 @@ void B_KillBot(NPC* const npc)
 	Z_Free(npc);
 }
 
+void B_WeaponSmithInteract()
+{
+	Hud_Printf("Weapon Smith", "Greetings, anything I can help you with? [y/n]");
+	nomadint_t i = wgetch(game->screen);
+	if (i == 'y') {
+		Hud_Printf("Weapon Smith", "Splendid, now tell me, what would you like?");
+	}
+	else {
+		Hud_Printf("Weapon Smith", "Whelp then, see you when you need some metal");
+	}
+}
+
 void B_BartenderInteract()
 {
 	Hud_Printf("Bartender", "Hello there, anything I can get you today? [y/n]");
@@ -183,27 +195,17 @@ void B_MercMasterInteract()
 		Hud_Printf("Mercernary Master", "Oh well, I'll be waiting for you");
 		return;
 	}
-	std::vector<Mission*> m_ls;
-	nomadenum_t nummissions = (P_Random() & 10)+5;
-	m_ls.reserve(nummissions);
-	for (nomadenum_t a = 0; a < nummissions; ++a) {
-		m_ls.emplace_back();
-		m_ls.back() = G_GenMission();
-#ifdef _NOMAD_DEBUG
-		assert(m_ls.back());
-#endif
-	}
-#ifdef _NOMAD_DEBUG
-	assert(m_ls.size() == nummissions);
-#endif
-	
+
+//	std::vector<Mission>& m_ls = G_GenMissionLs();
+
 	// display the missions
-	B_MercDisplayMissions(m_ls);
+//	B_MercDisplayMissions(m_ls);
 }
 
 static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls)
 {
 	werase(game->screen);
+	wrefresh(game->screen); /*
 	nomadshort_t s = 0;
 	while (1) {
 		nomadshort_t c = wgetch(game->screen);
@@ -226,5 +228,5 @@ static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls)
 		}
 		wrefresh(game->screen);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
-	};
+	};*/
 }

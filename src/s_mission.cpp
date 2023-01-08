@@ -33,6 +33,75 @@ void MissionAssigner(Game* const gptr)
 {
     game = gptr;
 }
+/*
+static Mission& B_GenMercMission(Mission* const m)
+{
+    nomadbool_t usingseed = (P_random() & 99)+1 > 24;
+    if (usingseed) {
+        nomadenum_t mission = rand() % NUMMISSIONTYPES;
+        const missonseed_t *seed = &missionseeds[mission];
+        while (seed->difficulty[0] > game->difficulty) {
+            ++mission;
+            seed = &missionseeds[mission];
+        }
+        m->type = seed->type;
+    }
+    else {
+        return *m;
+    }
+
+    // variables that don't require a seed to be generated
+    m->sector = 8; // for now, the only place where missions are allowed to take place is in galakas, the actual city
+    
+    // area is the variable that is used when spawning bots, movable bots may only spawn within the mission's contained area
+    coord_t& tl = m->area[0];
+    coord_t& tr = m->area[2];
+    coord_t& bl = m->area[1];
+    coord_t& br = m->area[3];
+
+    std::vector<Mob*>& m_Active = m->m_Active;
+    std::vector<NPC*>& b_Active = m->b_Active;
+
+    if (m->sector)
+
+    switch (m->sector) {
+    case SECTOR_DOD:
+		break;
+	case SECTOR_AW:
+		break;
+	case SECTOR_SW:
+		break;
+	case SECTOR_AP:
+		break;
+	case SECTOR_BH:
+		break;
+	case SECTOR_SOS:
+		break;
+	case SECTOR_DC:
+		break;
+	case SECTOR_FN:
+		break;
+	case SECTOR_TECOG:
+		break;
+	default:
+		N_Error("Mission taking place in unknown sector: %hu", m->sector);
+		break;
+    };
+
+    return *m;
+}
+
+std::vector<Mission>& G_GenMissionLs()
+{
+    srand(time(NULL));
+    std::vector<Mission> m_ls;
+    nomadenum_t nummissions = (P_Random()&15)+5;
+    m_ls.reserve(nummissions);
+    for (nomadenum_t i = 0; i < nummissions; ++i) {
+        m_ls.emplace_back();
+        m_ls.back() = B_GenMercMission(&m_ls.back());
+    }
+}
 
 Mission* G_GenMission()
 {
@@ -160,3 +229,4 @@ Mission* G_GenMission()
     
     return m;
 }
+*/

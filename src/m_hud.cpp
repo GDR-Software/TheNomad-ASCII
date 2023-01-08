@@ -49,7 +49,9 @@ void Hud_Printf(const char* from, const char* msg)
 #endif
 	wmove(game->screen, 30, 31);
 	wclrtoeol(game->screen);
+	wrefresh(game->screen);
 	mvwprintw(game->screen, 30, 32, "[%s] %s", from, msg);
+	mvwaddch(game->screen, 30, 128, '#');
 }
 
 static inline void Hud_DisplayConsole()
@@ -61,6 +63,8 @@ static inline void Hud_DisplayConsole()
 		hudtics = ticrate_base*5;
 		wmove(game->screen, 30, 31);
 		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 30, 128, '#');
 		// TODO: there's a small bug where a bit of the border is cleared as well, fix
 	}
 }
@@ -84,9 +88,9 @@ void Game::I_InitHUD(void)
 void Game::G_DisplayHUD(void)
 {
 	nomadenum_t i, a;
+	Hud_DisplayConsole();
 	Hud_DisplayBarVitals();
 	Hud_DisplayBodyVitals();
-	Hud_DisplayConsole();
 	Hud_DisplayCompass();
 	Hud_DisplayLocation();
 	Hud_DisplayWeapons();
@@ -331,6 +335,78 @@ static inline void P_GetMapBuffer()
 
 static inline void G_ResetMap();
 
+static inline nomadbool_t inbuilding(nomadshort_t y, nomadshort_t x)
+{
+	nomadenum_t counter = 0;
+	// check up
+	for (nomadshort_t u = y; u > -1; --u) {
+		switch (playr->vmatrix[u][x]) {
+		case '#':
+			u = -1;
+			++counter;
+			break;
+		case '.':
+			u = -1;
+			break;
+		default: break;
+		};
+	}
+	// check down
+	for (nomadshort_t u = y; u < MAX_VERT_FOV; ++u) {
+		switch (playr->vmatrix[u][x]) {
+		case '#':
+			u = MAX_VERT_FOV;
+			++counter;
+			break;
+		case '.':
+			u = MAX_VERT_FOV;
+			break;
+		default: break;
+		};
+	}
+	// check left
+	for (nomadshort_t c = x; c > -1; --c) {
+		switch (playr->vmatrix[y][c]) {
+		case '#':
+			c = -1;
+			++counter;
+			break;
+		case '.':
+			c = -1;
+			break;
+		default: break;
+		};
+	}
+	// check right
+	for (nomadshort_t c = x; c < MAX_HORZ_FOV; ++c) {
+		switch (playr->vmatrix[y][c]) {
+		case '#':
+			c = MAX_HORZ_FOV;
+			++counter;
+			break;
+		case '.':
+			c = -1;
+			break;
+		default: break;
+		};
+	}
+	return counter >= 3 ? true : false;
+}
+
+static inline void Hud_FilterVMatrix()
+{
+	for (nomadshort_t y = MAX_VERT_FOV - 1; y > -1; --y) {
+		for (nomadshort_t x = MAX_HORZ_FOV - 1; x > -1; --x) {
+			switch (playr->vmatrix[y][x]) {
+			case ' ': {
+				if (!inbuilding(y, x)) { playr->vmatrix[y][x] = '#'; }
+				break; }
+			default: break;
+			};
+		}
+	}
+}
+
 static inline void Hud_GetVMatrix()
 {
 	P_GetMapBuffer();
@@ -353,6 +429,7 @@ static inline void Hud_GetVMatrix()
 		}
 		u++;
 	}
+//	Hud_FilterVMatrix();
 }
 
 static inline void G_SetSndPerim(nomadenum_t by, sndlvl_t num, coord_t from)

@@ -22,9 +22,10 @@
 #define _S_MISSION_
 
 #include "n_shared.h"
-#include "g_items.h"
-#include "g_zone.h"
 #include "g_mob.h"
+#include "p_npc.h"
+
+class Mob;
 
 typedef enum : nomadenum_t
 {
@@ -59,8 +60,9 @@ public:
 
 class Mission
 {
-public:
+public: // stuff determined before/during the mission
     area_t area;
+    nomadenum_t sector;
     missiontype_t type;
     nomadenum_t rng;
     nomadenum_t maxdif, mindif;
@@ -81,6 +83,7 @@ public:
 
 void MissionAssigner(Game* const gptr);
 Mission* G_GenMission();
+std::vector<Mission>& G_GenMissionLs();
 
 extern const missionseed_t missionseeds[NUMMISSIONTYPES];
 

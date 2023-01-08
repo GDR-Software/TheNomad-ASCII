@@ -73,7 +73,7 @@ typedef struct
 } memzone_t;
 
 #ifndef _TESTING
-static constexpr int heapsize = 2000000; // allocating 2 mb
+static constexpr int heapsize = 3000000; // allocating 2 mb
 #endif
 
 memzone_t* mainzone;

@@ -23,11 +23,23 @@
 
 #include "n_shared.h"
 
-constexpr uint16_t MAP_MAX_Y =       360;
-constexpr uint16_t MAP_MAX_X =       360;
-constexpr uint8_t SECTOR_MAX_Y =     120;
-constexpr uint8_t SECTOR_MAX_X =     120;
-constexpr uint8_t NUM_SECTORS =        9;
+// these vars will most likely change with the version
+#if _NOMAD_VERSION == 0
+constexpr uint16_t MAP_MAX_Y          = 360;
+constexpr uint16_t MAP_MAX_X          = 360;
+constexpr uint_fast8_t SECTOR_MAX_Y   = 120;
+constexpr uint_fast8_t SECTOR_MAX_X   = 120;
+constexpr uint_fast8_t NUM_SECTORS    = 9;
+constexpr uint_fast8_t SECTOR_DOD     = 0; // dunes of desolation
+constexpr uint_fast8_t SECTOR_AW      = 1; // ancient wastes
+constexpr uint_fast8_t SECTOR_SW      = 2; // salt wastes
+constexpr uint_fast8_t SECTOR_AP      = 3; // ashen plains
+constexpr uint_fast8_t SECTOR_BH      = 4; // burnt hills
+constexpr uint_fast8_t SECTOR_SOS     = 5; // sea of sands
+constexpr uint_fast8_t SECTOR_DC      = 6; // demagel canyons
+constexpr uint_fast8_t SECTOR_FN      = 7; // frozen north
+constexpr uint_fast8_t SECTOR_TECOG   = 8; // the eternal city of galakas
+#endif
 
 typedef struct
 {

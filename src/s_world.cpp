@@ -24,15 +24,11 @@
 #include "p_npc.h"
 
 static pthread_mutex_t world_mutex;
-World::~World()
-{
-    Z_Free(this);
-    pthread_mutex_destroy(&world_mutex);
-}
 
 #ifndef TESTING
 
 static Game* game;
+static Playr* playr;
 static World* world;
 static std::atomic<nomadulong_t>* gametics;
 
@@ -75,6 +71,7 @@ void W_Init(Game* const gptr)
     world->time.month = MONTH_LONGSUMMER; // start the player off at the beginning of longsummer
     world->time.year = start_year;
     world->time.day = 0;
+	playr = game->playr;
 
     M_Init();
 
@@ -155,14 +152,43 @@ static void W_RoamingLoop(void)
 #endif
 	pthread_create(&game->nthread, NULL, N_Looper, NULL);
 	pthread_create(&game->mthread, NULL, M_Looper, NULL);
-
 	pthread_join(game->nthread, NULL);
 	pthread_join(game->mthread, NULL);
 }
 
 static void W_MissionLoop(void)
 {
-	
+#ifdef _NOMAD_DEBUG
+	assert(game && playr->c_mission);
+#endif
+	Mission* m = playr->c_mission;
+#ifdef _NOMAD_DEBUG
+	assert(m);
+#endif
+	// checking what we should load, where to load, and how, all from the variables determined at merc master selection stage
+	switch (m->sector) {
+	case SECTOR_DOD:
+		break;
+	case SECTOR_AW:
+		break;
+	case SECTOR_SW:
+		break;
+	case SECTOR_AP:
+		break;
+	case SECTOR_BH:
+		break;
+	case SECTOR_SOS:
+		break;
+	case SECTOR_DC:
+		break;
+	case SECTOR_FN:
+		break;
+	case SECTOR_TECOG:
+		break;
+	default:
+		N_Error("Mission taking place in unknown sector: %hu", m->sector);
+		break;
+	};
 }
 
 static inline void* N_Looper(void* arg)
@@ -325,4 +351,11 @@ static inline void M_Init(void)
 //	I_InitBiomes();
 	game->I_InitHUD();
 }
+
+void W_KillWorld()
+{
+	Z_Free(world);
+	pthread_mutex_destroy(&world_mutex);
+}
+
 #endif

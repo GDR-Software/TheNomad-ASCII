@@ -28,12 +28,15 @@
 
 #define MAX_PLAYR_WPNS 11
 
+class Mission;
+
 enum : nomadenum_t
 {
 	P_MODE_ROAMING,
 	P_MODE_MERCMASTER,
 	P_MODE_SHOPPING,
-	P_MODE_MISSION
+	P_MODE_MISSION,
+	P_MODE_SITTING
 };
 
 class Playr {
@@ -55,9 +58,10 @@ public:
 	nomadenum_t lastmoved;
 	nomadulong_t pticker;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
+	Mission* c_mission;
 public:
 	Playr() = default;
-	~Playr();
+	~Playr() = delete;
 	void P_Init();
 	// TODO: add in collision checks
 	void P_MoveN();
@@ -79,5 +83,6 @@ public:
 };
 
 void PlayrAssigner(Game* const gptr);
+void P_KillPlayr();
 
 #endif
