@@ -61,6 +61,7 @@ static inline void Hud_DisplayConsole()
 		hudtics = ticrate_base*5;
 		wmove(game->screen, 30, 31);
 		wclrtoeol(game->screen);
+		// TODO: there's a small bug where a bit of the border is cleared as well, fix
 	}
 }
 

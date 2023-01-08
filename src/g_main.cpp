@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 #endif
 #ifdef _NOMAD_DEBUG
 	remove("Files/debug/debuglog.txt");
-	FILE* dbgfile = fopen("debuglog.txt", "w");
+	FILE* dbgfile = fopen("Files/debug/debuglog.txt", "w");
 	if (!dbgfile)
 		N_Error("Could Not Create Debug Log File!");
 	assert(dbgfile);
