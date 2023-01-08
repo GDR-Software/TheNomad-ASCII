@@ -38,6 +38,7 @@ static void P_ChairInteract(nomadint_t input)
 		return;
 	}
 	Hud_Printf("System", "You are now sitting");
+	playr->pmode = P_MODE_SITTING;
 	switch (input) {
 	case KEY_w:
 		--playr->pos.y;
@@ -56,7 +57,34 @@ static void P_ChairInteract(nomadint_t input)
 		break;
 	};
 }
-static void P_DoorInteract();
+static void P_DoorInteract(nomadint_t input)
+{
+	Hud_Printf("System", "There's a door in your way, would you like to open it? [y/n]");
+	nomadshort_t in = wgetch(game->screen);
+	if (in != 'y') {
+		Hud_Printf("System", "Ok then, how're you going to get into that building?");
+		return;
+	}
+	// TODO: add in locked doors
+	Hud_Printf("System", "You successfully opened the door, bravo");
+	switch (input) {
+	case KEY_w:
+		--playr->pos.y;
+		break;
+	case KEY_a:
+		--playr->pos.x;
+		break;
+	case KEY_s:
+		++playr->pos.y;
+		break;
+	case KEY_d:
+		++playr->pos.x;
+		break;
+	default:
+		N_Error("Player-To-Door Interaction Called, But Movement Vector Is Invalid");
+		break;
+	};
+}
 static void P_NPCInteract();
 static void P_ItemInteract();
 
@@ -152,9 +180,11 @@ void Playr::P_RunTicker(nomadint_t input)
 	case KEY_w: {
 		if (!P_MoveTicker(this)) {
 			switch (game->c_map[pos.y - 1][pos.x]) {
-			case ' ':
 			case '_':
+				P_DoorInteract(input);
+				break;
 			case '.':
+			case ' ':
 				P_MoveN();
 				break;
 			case 'M':
@@ -165,7 +195,7 @@ void Playr::P_RunTicker(nomadint_t input)
 				break;
 			case ':': { // a chair/seat sprite
 				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveW(); }
+				else { P_MoveN(); playr->pmode = P_MODE_ROAMING; }
 				break; }
 			case '=': // weapons smith table
 				B_WeaponSmithInteract();
@@ -178,9 +208,11 @@ void Playr::P_RunTicker(nomadint_t input)
 	case KEY_a: {
 		if (!P_MoveTicker(this)) {
 			switch (game->c_map[pos.y][pos.x - 1]) {
-			case ' ':
 			case '_':
+				P_DoorInteract(input);
+				break;
 			case '.':
+			case ' ':
 				P_MoveW();
 				break;
 			case 'M': // the merc master's custom sprite
@@ -191,7 +223,7 @@ void Playr::P_RunTicker(nomadint_t input)
 				break;
 			case ':': { // a chair/seat sprite
 				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveW(); }
+				else { P_MoveW(); playr->pmode = P_MODE_ROAMING; }
 				break; }
 			case '=': // weapons smith table
 				B_WeaponSmithInteract();
@@ -204,9 +236,11 @@ void Playr::P_RunTicker(nomadint_t input)
 	case KEY_s: {
 		if (!P_MoveTicker(this)) {
 			switch (game->c_map[pos.y + 1][pos.x]) {
-			case ' ':
 			case '_':
+				P_DoorInteract(input);
+				break;
 			case '.':
+			case ' ':
 				P_MoveS();
 				break;
 			case 'M':
@@ -217,7 +251,7 @@ void Playr::P_RunTicker(nomadint_t input)
 				break;
 			case ':': { // a chair/seat sprite
 				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveW(); }
+				else { P_MoveS(); playr->pmode = P_MODE_ROAMING; }
 				break; }
 			case '=': // weapons smith table
 				B_WeaponSmithInteract();
@@ -230,9 +264,11 @@ void Playr::P_RunTicker(nomadint_t input)
 	case KEY_d: {
 		if (!P_MoveTicker(this)) {
 			switch (game->c_map[pos.y][pos.x + 1]) {
-			case ' ':
 			case '_':
+				P_DoorInteract(input);
+				break;
 			case '.':
+			case ' ':
 				P_MoveE();
 				break;
 			case 'M':
@@ -243,7 +279,7 @@ void Playr::P_RunTicker(nomadint_t input)
 				break;
 			case ':': { // a chair/seat sprite
 				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveW(); }
+				else { P_MoveE(); playr->pmode = P_MODE_ROAMING; }
 				break; }
 			case '=': // weapons smith table
 				B_WeaponSmithInteract();
