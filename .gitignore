@@ -1,7 +1,8 @@
 gamesizes
 gamesizes.cpp
 obj/*
-nomadascii # its x86_64 built
+nomadascii
+nomadascii_debug
 *.tar.gz
 nomadsv.ngd
 replit.nix

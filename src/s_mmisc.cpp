@@ -96,10 +96,10 @@ void Game::M_GenMobs(void)
 	}
 }
 
-Mob::Mob()
+void M_KillMob(Mob* const mob)
 {
-}
-
-Mob::~Mob()
-{
+#ifdef _NOMAD_DEBUG
+	assert(mob);
+#endif
+	Z_Free(mob);
 }

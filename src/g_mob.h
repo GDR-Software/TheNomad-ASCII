@@ -114,8 +114,8 @@ public:
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
 public:
-	Mob();
-	~Mob();
+	Mob() = default;
+	~Mob() = delete;
 
 	nomadbool_t M_SmellImmediate();
 	nomadbool_t M_SmellPlayr();
@@ -138,6 +138,8 @@ extern void M_FollowLeader(Mob* const mob, Game* const game);
 
 void Assigner(Game* const gptr);
 void NomadAssigner(Game* const gptr);
+
+void M_KillMob(Mob* const mob);
 
 //extern const mstate_t mstates[NUMMOBSTATES];
 

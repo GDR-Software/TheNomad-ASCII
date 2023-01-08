@@ -108,11 +108,6 @@ void Game::I_InitNPCs(void)
 	B_GenNomadTribe();
 }
 
-NPC::~NPC()
-{
-	Z_Free(this);
-}
-
 static nomadbool_t B_IsScared(NPC* const npc)
 {
 #ifdef _NOMAD_DEBUG
@@ -160,15 +155,76 @@ void B_KillBot(NPC* const npc)
 #ifdef _NOMAD_DEBUG
 	assert(npc);
 #endif
-	npc->~NPC();
+	Z_Free(npc);
 }
 
+void B_BartenderInteract()
+{
+	Hud_Printf("Bartender", "Hello there, anything I can get you today? [y/n]");
+	nomadint_t i = wgetch(game->screen);
+	if (i == 'y') {
+		Hud_Printf("Bartender", "Amazing!, what would ya like?");
+	}
+	else {
+		Hud_Printf("Bartender", "Aight, well, seeya later");
+	}
+}
+
+static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls);
+
 void B_MercMasterInteract()
-{	
-//	Mission* mission = G_GenMission();
-	Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today?");
-//	werase(game->screen);
-//	refresh();
-	//Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today?");
-//	mission->~Mission();
+{
+	Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today? [y/n]");
+	nomadint_t i = wgetch(game->screen);
+	if (i == 'y') {
+		Hud_Printf("Mercenary Master", "Excellent, here's a list of missions");
+	}
+	else {
+		Hud_Printf("Mercernary Master", "Oh well, I'll be waiting for you");
+		return;
+	}
+	std::vector<Mission*> m_ls;
+	nomadenum_t nummissions = (P_Random() & 10)+5;
+	m_ls.reserve(nummissions);
+	for (nomadenum_t a = 0; a < nummissions; ++a) {
+		m_ls.emplace_back();
+		m_ls.back() = G_GenMission();
+#ifdef _NOMAD_DEBUG
+		assert(m_ls.back());
+#endif
+	}
+#ifdef _NOMAD_DEBUG
+	assert(m_ls.size() == nummissions);
+#endif
+	
+	// display the missions
+	B_MercDisplayMissions(m_ls);
+}
+
+static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls)
+{
+	werase(game->screen);
+	nomadshort_t s = 0;
+	while (1) {
+		nomadshort_t c = wgetch(game->screen);
+		if (c != 'q') {
+			if (c == 'w') {
+				--s;
+				if (s < 0) {
+					s = m_ls.size();
+				}
+			}
+			else if (c == 's') {
+				++s;
+				if (s > m_ls.size()) {
+					s = 0;
+				}
+			}
+		}
+		else {
+			break;
+		}
+		wrefresh(game->screen);
+		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+	};
 }

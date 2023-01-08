@@ -24,9 +24,6 @@
 static Game* game;
 
 static void levelLoop(void);
-static void titleLoop(void);
-static void menuMLoop(void);
-static void menuPLoop(void);
 
 void mainLoop(int argc, char* argv[])
 {
@@ -47,157 +44,133 @@ void mainLoop(int argc, char* argv[])
 	init_pair(0, COLOR_WHITE, COLOR_WHITE);
 	attron(COLOR_PAIR(0));
 	while (1) {
-		switch (game->gamestate) {
-		case GS_TITLE:
-			titleLoop();
-			break;
-		case GS_MENU:
-			menuMLoop();
-			break;
-		case GS_LEVEL:
-			levelLoop();
-			break;
-		case GS_PAUSE:
-			menuPLoop();
-			break;
-		default:
-			N_Error("Unknown/Invalid Gamestate: %hu", game->gamestate);
-			break;
-		};
 		if (game->gamestate == GS_TITLE) {
-			
+			game->ClearMainWin();
+			game->DrawTitleScreen();
+			nomadshort_t c;
+			c = wgetch(game->screen);
+			while (game->gamestate == GS_TITLE) {
+				if (c == '\n') {
+					game->gamestate = GS_MENU;
+				}
+				else if (c == ctrl('x')) {
+					game->~Game();
+					exit(1);
+				}
+					else {
+					continue;
+				}
+			}
 		}
 		else if (game->gamestate == GS_MENU) {
-			
+			int16_t s = 0; // this thing breaks if its a nomadshort_t, don't know why
+			while (game->gamestate == GS_MENU) {
+				game->ClearMainWin();
+				game->DrawMenuScreen(s);
+				char f = wgetch(game->screen);
+				if (f != ctrl('x')) {
+					if (f == 'w') {
+						// s behaves in strange and mysterious ways
+						s--;
+						if (s < 0) {
+							s = 5;
+						}
+					}
+					else if (f == 's') {
+						s++;
+						if (s > 5) {
+							s = 0;
+						}
+					}
+					else if (f == '\n') {
+						switch (s) {
+						case 0:
+							game->gamestate = GS_LEVEL;
+							break;
+						case 5:
+							game->~Game();
+							exit(1);
+							break;
+						default:
+							break;
+						};
+					}
+				}
+				else {
+					game->gamestate = GS_TITLE;
+				}
+				std::this_thread::sleep_for(100ms);
+			}
 		}
 		else if (game->gamestate == GS_LEVEL) {
 			levelLoop();
 		}
 		else if (game->gamestate == GS_PAUSE) {
-		}
-	}
-}
-
-static void titleLoop(void)
-{
-	game->ClearMainWin();
-	game->DrawTitleScreen();
-	c = wgetch(game->screen);
-	if (c == '\n') {
-		game->gamestate = GS_MENU;
-	}
-	else if (c == ctrl('x')) {
-		game->~Game();
-		break;
-	}
-	else {
-		continue;
-	}
-}
-static void menuMLoop(void)
-{
-	int16_t s = 0; // this thing breaks if its a nomadshort_t, don't know why
-	while (game->gamestate == GS_MENU) {
-		game->ClearMainWin();
-		game->DrawMenuScreen(s);
-		char f = wgetch(game->screen);
-		if (f != ctrl('x')) {
-			if (f == 'w') {
-				// s behaves in strange and mysterious ways
-				s--;
-				if (s < 0) {
-					s = 5;
-				}
-			}
-			else if (f == 's') {
-				s++;
-				if (s > 5) {
-					s = 0;
-				}
-			}
-			else if (f == '\n') {
-				switch (s) {
-				case 0:
-					game->gamestate = GS_LEVEL;
-					break;
-				case 5:
-					game->~Game();
-					exit(1);
-					break;
-				default:
-					break;
-				};
-			}
-		}
-		else {
-			game->gamestate = GS_TITLE;
-		}
-		std::this_thread::sleep_for(100ms);
-	};
-}
-static void menuPLoop(void)
-{
-	nomadshort_t s = 0;
-	while (game->gamestate == GS_PAUSE) {
-		s = s;
-		game->ClearMainWin();
-		game->DrawPauseMenu(s);
-		char f = wgetch(game->screen);
-		if (f != ctrl('x')) {
-			if (f == 'w') {
-				// s behaves in strange and mysterious ways
-				s--;
-				if (s < 0) {
-					s = 5;
-				}
-			}
-			else if (f == 's') {
-				s++;
-				if (s > 5) {
-					s = 0;
-				}
-			}
-			else if (f == '\n') {
-				switch (s) {
-				case 0:
-					game->gamestate = GS_LEVEL;
-					break;
-				case 1:
-					game->G_SaveGame();
-					break;
-				case 2: {
-					bool real = game->G_LoadGame();
-					if (!real) {
-						mvwprintw(game->screen, getmaxy(game->screen), 0, "(ERROR) Invalid Save File");
-						wrefresh(game->screen);
-						wgetch(game->screen);
+			nomadshort_t s = 0;
+			while (game->gamestate == GS_PAUSE) {
+				s = s;
+				game->ClearMainWin();
+				game->DrawPauseMenu(s);
+				char f = wgetch(game->screen);
+				if (f != ctrl('x')) {
+					if (f == 'w') {
+						// s behaves in strange and mysterious ways
+						s--;
+						if (s < 0) {
+							s = 5;
+						}
 					}
-					break; }
-				case 4:
-					game->G_SaveGame();
-					game->~Game();
-					exit(1);
-					break;
-				case 5:
-					game->gamestate = GS_MENU;
-				default:
-					break;
-				};
+					else if (f == 's') {
+						s++;
+						if (s > 5) {
+							s = 0;
+						}
+					}
+					else if (f == '\n') {
+						switch (s) {
+						case 0:
+							game->gamestate = GS_LEVEL;
+							break;
+						case 1:
+							game->G_SaveGame();
+							break;
+						case 2: {
+							bool real = game->G_LoadGame();
+							if (!real) {
+								mvwprintw(game->screen, getmaxy(game->screen), 0, "(ERROR) Invalid Save File");
+								wrefresh(game->screen);
+								wgetch(game->screen);
+							}
+							break; }
+						case 4:
+							game->G_SaveGame();
+							game->~Game();
+							exit(1);
+							break;
+						case 5:
+							game->gamestate = GS_MENU;
+						default:
+							break;
+						};
+					}
+					std::this_thread::sleep_for(77ms);
+				}
+				else {
+					game->gamestate = GS_LEVEL;
+				}
 			}
-			std::this_thread::sleep_for(77ms);
 		}
 		else {
-			game->gamestate = GS_LEVEL;
+			N_Error("Unknown/Invalid Gamestate: %hu", game->gamestate);
 		}
-	};
-		
+	}
 }
-
 static void levelLoop(void)
 {
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
-//	game->hudwin[HL_PROMPT] = subwin(game->screen, 4, 50, 28, 125);
-	//game->ClearMainWin();
+#ifdef _NOMAD_DEBUG
+	assert(game->hudwin[HL_VMATRIX]);
+#endif
 	game->G_DisplayHUD();
 	werase(game->screen);
 	wrefresh(game->hudwin[HL_VMATRIX]);
@@ -208,7 +181,7 @@ static void levelLoop(void)
 		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		nomadenum_t c;
-		if ((c = kbhit()) != 0)
+		if ((c = kbhit()))
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
 		pthread_join(game->wthread, NULL);
@@ -216,7 +189,6 @@ static void levelLoop(void)
 		++game->ticcount;
 		wrefresh(game->screen);
 	};
-//	delwin(game->hudwin[HL_PROMPT]);
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
 }

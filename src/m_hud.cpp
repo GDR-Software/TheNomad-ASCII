@@ -32,14 +32,6 @@ static inline void Hud_InsertSprites();
 static Game* game;
 static Playr* playr;
 
-void Hud_Printf(const char* from, const char* msg)
-{
-#ifdef _NOMAD_DEBUG
-	assert(msg);
-#endif
-	mvwprintw(game->screen, 30, 32, "[%s] %s", from, msg);
-}
-
 static inline void Hud_DisplayConsole();
 static inline void Hud_DisplayBarVitals();
 static inline void Hud_DisplayBodyVitals();
@@ -48,13 +40,35 @@ static inline void Hud_DisplayVMatrix();
 static inline void Hud_DisplayWeapons();
 static inline void Hud_DisplayLocation();
 
+static nomadlong_t hudtics;
+static std::string hudbuf;
+void Hud_Printf(const char* from, const char* msg)
+{
+#ifdef _NOMAD_DEBUG
+	assert(msg && from);
+#endif
+	wmove(game->screen, 30, 31);
+	wclrtoeol(game->screen);
+	mvwprintw(game->screen, 30, 32, "[%s] %s", from, msg);
+}
+
+static inline void Hud_DisplayConsole()
+{
+	if (hudtics > -1) {
+		--hudtics;
+	}
+	else {
+		hudtics = ticrate_base*5;
+		wmove(game->screen, 30, 31);
+		wclrtoeol(game->screen);
+	}
+}
+
 static void HudAssigner(Game* const gptr)
 {
 	game = gptr;
 	playr = game->playr;
 }
-
-static nomadlong_t hudtics;
 
 void Game::I_InitHUD(void)
 {
@@ -194,18 +208,6 @@ static inline void Hud_DisplayCompass()
 		mvwaddch(game->screen, 2, 4, '-');
 		break;
 	};
-}
-
-void Hud_DisplayConsole()
-{
-	if (hudtics > -1) {
-		--hudtics;
-	}
-	else {
-		hudtics = ticrate_base*5;
-		wmove(game->screen, 30, 31);
-		wclrtoeol(game->screen);
-	}
 }
 
 static inline void Hud_DisplayBodyVitals()

@@ -129,12 +129,12 @@ void Playr::P_RunTicker(nomadint_t input)
 			case '_':
 			case '.':
 				P_MoveN();
-//				playr->lastmoved = D_NORTH;
-//				wrefresh(hudwin[HL_VMATRIX]);
 				break;
 			case 'M':
-//				pmode = P_MODE_MERCMASTER;
 				B_MercMasterInteract();
+				break;
+			case '(':
+				B_BartenderInteract();
 				break;
 			default:
 				break;
@@ -151,7 +151,9 @@ void Playr::P_RunTicker(nomadint_t input)
 				break;
 			case 'M':
 				B_MercMasterInteract();
-				//pmode = P_MODE_MERCMASTER;
+				break;
+			case '(':
+				B_BartenderInteract();
 				break;
 			default:
 				break;
@@ -165,12 +167,12 @@ void Playr::P_RunTicker(nomadint_t input)
 			case '_':
 			case '.':
 				P_MoveS();
-//				playr->lastmoved = D_SOUTH;
-//				wrefresh(hudwin[HL_VMATRIX]);
 				break;
 			case 'M':
 				B_MercMasterInteract();
-//				pmode = P_MODE_MERCMASTER;
+				break;
+			case '(':
+				B_BartenderInteract();
 				break;
 			default:
 				break;
@@ -184,12 +186,12 @@ void Playr::P_RunTicker(nomadint_t input)
 			case '_':
 			case '.':
 				P_MoveE();
-//				playr->lastmoved = D_EAST;
-//				wrefresh(hudwin[HL_VMATRIX]);
 				break;
 			case 'M':
 				B_MercMasterInteract();
-//				pmode = P_MODE_MERCMASTER;
+				break;
+			case '(':
+				B_BartenderInteract();
 				break;
 			default:
 				break;

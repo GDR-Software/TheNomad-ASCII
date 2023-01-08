@@ -83,7 +83,7 @@ public:
 	nomadushort_t armor;
 public:
 	NPC() = default;
-	~NPC();
+	~NPC() = delete;
 };
 
 void B_GenNomadTribe();;
@@ -94,9 +94,9 @@ void B_LatanGuardThink(NPC* const npc);
 void B_LatanSmithThink(NPC* const npc);
 
 void B_MercMasterInteract();
-void B_BartenderThink(NPC* const npc);
-void B_WeaponSmithThink(NPC* const npc);
-void B_BlackSmithThink(NPC* const npc);
+void B_BartenderInteract();
+void B_WeaponSmithInteract();
+void B_BlackSmithInteract();
 
 // for all civilians
 void B_CivilianThink(NPC* const npc);
