@@ -21,12 +21,6 @@
 #include "g_game.h"
 
 static nomadbool_t ncurses_on;
-
-static char bffname[81];
-static inline void E_Init(Game* const game);
-static inline void TUI_Init(Game* const game);
-static inline void I_ProcessArgs(const std::vector<char*>& myargv);
-
 static Game* gptr;
 
 void N_Error(const char* err, ...)
@@ -49,6 +43,13 @@ void N_Error(const char* err, ...)
 	exit(-1);
 }
 
+#ifndef TESTING
+
+static char bffname[81];
+static inline void E_Init(Game* const game);
+static inline void TUI_Init(Game* const game);
+static inline void I_ProcessArgs(const std::vector<char*>& myargv);
+
 void I_NomadInit(int argc, char* argv[], Game* const game)
 {
 #ifdef _NOMAD_DEBUG
@@ -56,6 +57,7 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 #endif
 	gptr = game;
 	MainAssigner(game);
+	PlayrAssigner(game);
 	ncurses_on = false;
 	pthread_mutex_init(&game->mob_mutex, NULL);
 	pthread_mutex_init(&game->npc_mutex, NULL);
@@ -72,7 +74,7 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 		break;
-	case 1;
+	case 1:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
 			"  The Nomad Alpha (v%d.%d.%d)  \n"
@@ -242,3 +244,4 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 		scf::mobspeed <<= 5;
 	}
 }
+#endif

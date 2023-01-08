@@ -24,27 +24,18 @@
 #include "g_rng.h"
 #include "g_obj.h"
 
+typedef struct mobgroup_s
+{
+	std::vector<Mob*> m_Active;
+	Mob* leader;
+	area_t area[4];
+	nomadenum_t sector;
+} mobgroup_t;
+
 static Game* game;
 
 static void M_GenMercSquad();
 static void M_GenZurgutLegion();
-
-/*
-static inline std::vector<area_t>& M_GenGroupAreas(nomadenum_t numgroups)
-{
-	std::vector<area_t> areas;
-	for (nomadenum_t i = 0; i < numgroups; ++i) {
-		area_t area;
-		area[0].y = (rand() % 300)+90;
-		area[0].x = (rand() % 300)+90;
-		area[1].y = area[0].y;
-		area[1].x = area[0].x + (rand() % 20+15);
-		area[2].y = area[0].y + (rand() % 20+15);
-		area[2].x = area[0].x;
-		area[3].y = area[1]
-	}
-	return areas;
-} */
 
 static void M_GenGroup()
 {
@@ -97,17 +88,12 @@ void Game::M_GenMobs(void)
 	game = this;
 	Assigner(this);
 	NomadAssigner(this);
+	
 	m_Active.reserve(INITIAL_MOBS_ACTIVE * 2);
 	nomadenum_t numgroups = P_Random() & 15;
-//	std::vector<area_t>& areaas = M_GenGroupAreas(numgroups);
 	for (nomadenum_t i = 0; i < numgroups; ++i) {
 		M_GenGroup();
 	}
-	/*
-	while (m_Active.size() > MAX_MOBS_ACTIVE) {	
-		Z_Free(m_Active.back());
-		m_Active.pop_back();
-	}; */
 }
 
 Mob::Mob()

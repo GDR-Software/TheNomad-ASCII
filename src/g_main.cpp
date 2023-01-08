@@ -29,69 +29,49 @@ void MainAssigner(Game* const gptr)
 
 void signal_interrupt(int signum)
 {
-	werase(stdscr);
-	endwin();
+	if (game->gamestate != GS_TITLE && GS_MENU)
+		delwin(game->hudwin[HL_VMATRIX]);
+	game->~Game();
 	puts("Killing Proccess, Exit Success!");
-	pthread_join(game->mthread, NULL);
-	pthread_join(game->nthread, NULL);
-	pthread_join(game->wthread, NULL);
-	pthread_mutex_destroy(&game->mob_mutex);
-	pthread_mutex_destroy(&game->npc_mutex);
-	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_SUCCESS);
 }
 
 void signal_seggy(int signum)
 {
-	werase(stdscr);
-	endwin();
+	if (game->gamestate != GS_TITLE && GS_MENU)
+		delwin(game->hudwin[HL_VMATRIX]);
+	game->~Game();
 #ifndef _RELEASE
 	printf("Signal Segmentation Fault Received\n");
 #else
 	puts("Caught A Seggy! Goddamn It!");
 #endif
-	pthread_join(game->mthread, NULL);
-	pthread_join(game->nthread, NULL);
-	pthread_join(game->wthread, NULL);
-	pthread_mutex_destroy(&game->mob_mutex);
-	pthread_mutex_destroy(&game->npc_mutex);
-	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_FAILURE);
 }
 
 void signal_unnatural_demise(int signum)
 {
-	werase(stdscr);
-	endwin();
+	if (game->gamestate != GS_TITLE && GS_MENU)
+		delwin(game->hudwin[HL_VMATRIX]);
+	game->~Game();
 #ifndef _RELEASE
 	puts("Received Signal Abort");
 #else
 	puts("The Game Object Was KIA'd By Strange & Mysterious Forces Beyond Our Knowledege...");
 #endif
-	pthread_join(game->mthread, NULL);
-	pthread_join(game->nthread, NULL);
-	pthread_join(game->wthread, NULL);
-	pthread_mutex_destroy(&game->mob_mutex);
-	pthread_mutex_destroy(&game->npc_mutex);
-	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_FAILURE);
 }
 
 void signal_somethins_corrupt(int signum)
 {
-	werase(stdscr);
-	endwin();
+	if (game->gamestate != GS_TITLE && GS_MENU)
+		delwin(game->hudwin[HL_VMATRIX]);
+	game->~Game();
 #ifndef _RELEASE
 	printf("Received Signal Corruption\n");
 #else
 	puts("Somethin's Gotten Corrupt... I Don't Know What, But This Thing is Corrupt, Your Fault, Perhaps?");
 #endif
-	pthread_join(game->mthread, NULL);
-	pthread_join(game->nthread, NULL);
-	pthread_join(game->wthread, NULL);
-	pthread_mutex_destroy(&game->mob_mutex);
-	pthread_mutex_destroy(&game->npc_mutex);
-	pthread_mutex_destroy(&game->playr_mutex);
 	exit(EXIT_FAILURE);
 }
 

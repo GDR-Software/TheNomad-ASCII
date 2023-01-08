@@ -21,8 +21,17 @@
 #include "g_game.h"
 #include "s_world.h"
 #include "s_mission.h"
+#include "p_npc.h"
 
 static pthread_mutex_t world_mutex;
+World::~World()
+{
+    Z_Free(this);
+    pthread_mutex_destroy(&world_mutex);
+}
+
+#ifndef TESTING
+
 static Game* game;
 static World* world;
 static std::atomic<nomadulong_t>* gametics;
@@ -38,11 +47,6 @@ enum : nomadenum_t
 
 static constexpr nomadulong_t start_year = 91025; // the first year whence the game takes place
 
-World::~World()
-{
-    Z_Free(this);
-    pthread_mutex_destroy(&world_mutex);
-}
 
 static inline void M_Init(void);
 
@@ -166,18 +170,13 @@ static inline void* N_Looper(void* arg)
 #ifdef _NOMAD_DEBUG
 	assert(!arg && game);
 #endif
+	game->npcid = getpid();
 	pthread_mutex_lock(&game->npc_mutex);
 	for (auto* const b : game->b_Active) {
 		if (b->nticker > 0) {
 			--b->nticker;
 		}
-		else { /*
-			if (b->c_npc.btype == BOT_MERCMASTER) {
-				B_MercMasterLoop(b);
-			}
-			else if (b->c_npc.btype == BOT_CIVILIAN) {
-				B_CivilianThink(b);
-			} */
+		else {
 			b->nticker = b->nstate.numticks;
 		}
 	}
@@ -190,6 +189,7 @@ static inline void* M_Looper(void *arg)
 #ifdef _NOMAD_DEBUG
 	assert(!arg && game);
 #endif
+	game->mobid = getpid();
 	pthread_mutex_lock(&game->mob_mutex);
 	M_GetLeaders(game);
 	for (auto* const m : game->m_Active) {
@@ -325,3 +325,4 @@ static inline void M_Init(void)
 //	I_InitBiomes();
 	game->I_InitHUD();
 }
+#endif

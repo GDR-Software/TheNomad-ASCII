@@ -52,6 +52,7 @@ public:
 	nomadint_t body_health[4];
 	nomaduint_t pstate;
 	std::atomic<nomadenum_t> pmode;
+	nomadenum_t lastmoved;
 	nomadulong_t pticker;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
 public:
@@ -71,6 +72,12 @@ public:
 
 	void P_ChangeDirL();
 	void P_ChangeDirR();
+
+	void P_GetMode();
+
+	void P_RunTicker(nomadint_t input);
 };
+
+void PlayrAssigner(Game* const gptr);
 
 #endif

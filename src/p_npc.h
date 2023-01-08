@@ -87,20 +87,21 @@ public:
 };
 
 void B_GenNomadTribe();;
-inline void B_GalakasGuardThink(NPC* const npc);
-inline void B_SortiorGuardThink(NPC* const npc);
-inline void B_LatanGuardThink(NPC* const npc);
-inline void B_LatanSmithThink(NPC* const npc);
 
-inline void B_MercMasterThink(NPC* const npc);
-inline void B_BartenderThink(NPC* const npc);
-inline void B_WeaponSmithThink(NPC* const npc);
-inline void B_BlackSmithThink(NPC* const npc);
+void B_GalakasGuardThink(NPC* const npc);
+void B_SortiorGuardThink(NPC* const npc);
+void B_LatanGuardThink(NPC* const npc);
+void B_LatanSmithThink(NPC* const npc);
+
+void B_MercMasterInteract();
+void B_BartenderThink(NPC* const npc);
+void B_WeaponSmithThink(NPC* const npc);
+void B_BlackSmithThink(NPC* const npc);
 
 // for all civilians
-inline void B_CivilianThink(NPC* const npc);
-inline void B_JunkyThink(NPC* const npc);
-inline void B_MerchantThink(NPC* const npc);
-inline void B_NomadThink(NPC* const npc);
+void B_CivilianThink(NPC* const npc);
+void B_JunkyThink(NPC* const npc);
+void B_MerchantThink(NPC* const npc);
+void B_NomadThink(NPC* const npc);
 
 #endif

@@ -36,7 +36,7 @@
 #endif
 
 // dependencies
-#include "ncurses/ncurses.h"
+#include <ncurses.h>
 
 #ifdef __GNUG__
 #   if defined(__x86_64__) || (__amd64)

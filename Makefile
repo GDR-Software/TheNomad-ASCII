@@ -5,8 +5,8 @@ CC             = g++
 CFLAGS         = -std=c++17
 O              = obj
 SDIR           = src
-INCLUDE        = -IFiles/gamedata/DEPS/include
-LDFLAGS        = Files/gamedata/DEPS/lib/libncurses.a -L/usr/lib/x86_64-linux-gnu
+INCLUDE        = -I/usr/include
+LDFLAGS        = /usr/lib/libncurses.a -L/usr/lib/x86_64-linux-gnu
 LDLIBS         = -lpthread
 ifndef debug
 EXE            = nomadascii

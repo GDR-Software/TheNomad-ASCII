@@ -28,26 +28,16 @@ static constexpr coord_t origin = {260, 260};
 static inline void P_GetMapBuffer();
 static inline void Hud_GetVMatrix();
 static inline void Hud_InsertSprites();
-static inline void Hud_FlushBuffer();
 
-typedef struct
-{
-	std::string str;
-	char from[256];
-} buffer_t;
-static std::vector<buffer_t> hudbuffer;
+static Game* game;
+static Playr* playr;
 
-inline void Hud_Printf(const char* from, const char* msg)
+void Hud_Printf(const char* from, const char* msg)
 {
 #ifdef _NOMAD_DEBUG
 	assert(msg);
 #endif
-	buffer_t buf;
-	buf.str = msg;
-	strncpy(buf.from, from, strlen(from));
-	hudbuffer.push_back(buf);
-	if (hudbuffer.size() > 5) // print out a messages within the buffer
-		Hud_FlushBuffer();
+	mvwprintw(game->screen, 30, 32, "[%s] %s", from, msg);
 }
 
 static inline void Hud_DisplayConsole();
@@ -58,20 +48,20 @@ static inline void Hud_DisplayVMatrix();
 static inline void Hud_DisplayWeapons();
 static inline void Hud_DisplayLocation();
 
-static Game* game;
-static Playr* playr;
-
 static void HudAssigner(Game* const gptr)
 {
 	game = gptr;
 	playr = game->playr;
 }
 
+static nomadlong_t hudtics;
+
 void Game::I_InitHUD(void)
 {
 	printf("I_InitHUD(): Initializing HUD...\n");
 	HudAssigner(this);
 	playr->pos = origin;
+	hudtics = 0;
 
 	Hud_GetVMatrix();
 }
@@ -118,22 +108,22 @@ static inline void Hud_InsertSprites()
 static inline nomaduint_t B_GetSector(coord_t pos)
 {
 	// in sectors 0, 7, or 6
-	if (pos.y > 80 && pos.y < 199) {
-		if (pos.x > 80 && pos.x < 199) { return 0; }
-		else if (pos.x > 199 && pos.x < 319) { return 7; }
-		else if (pos.x > 319 && pos.x < 519) { return 6; }
+	if (pos.y > 79 && pos.y < 200) {
+		if (pos.x > 79 && pos.x < 200) { return 0; }
+		else if (pos.x > 200 && pos.x < 320) { return 7; }
+		else if (pos.x > 320 && pos.x < 520) { return 6; }
 	}
 	// in sectors 1, 8, or 5
-	else if (pos.y > 199 && pos.y < 319) {
-		if (pos.x > 80 && pos.x < 199) { return 1; }
-		else if (pos.x > 199 && pos.x < 319) { return 8; }
-		else if (pos.x > 319 && pos.x < 519) { return 5; }
+	else if (pos.y > 200 && pos.y < 320) {
+		if (pos.x > 79 && pos.x < 200) { return 1; }
+		else if (pos.x > 200 && pos.x < 320) { return 8; }
+		else if (pos.x > 320 && pos.x < 520) { return 5; }
 	}
 	// in sectors 2, 3, or 4
-	else if (pos.y > 319 && pos.y < 519) {
-		if (pos.x > 80 && pos.x < 199) { return 2; }
-		else if (pos.x > 199 && pos.x < 319) { return 3; }
-		else if (pos.x > 319 && pos.x < 519) { return 4; }
+	else if (pos.y > 320 && pos.y < 520) {
+		if (pos.x > 79 && pos.x < 200) { return 2; }
+		else if (pos.x > 200 && pos.x < 320) { return 3; }
+		else if (pos.x > 320 && pos.x < 520) { return 4; }
 	}
 	else { return 0; } // TODO: make errors
 	return 0; // compiler warning if this ain't here
@@ -206,10 +196,16 @@ static inline void Hud_DisplayCompass()
 	};
 }
 
-static inline void Hud_DisplayConsole()
+void Hud_DisplayConsole()
 {
-	mvwaddch(game->screen, 32, 33, '>');
-	mvwaddch(game->screen, 32, 32, '/');
+	if (hudtics > -1) {
+		--hudtics;
+	}
+	else {
+		hudtics = ticrate_base*5;
+		wmove(game->screen, 30, 31);
+		wclrtoeol(game->screen);
+	}
 }
 
 static inline void Hud_DisplayBodyVitals()
@@ -244,13 +240,6 @@ static inline void Hud_DisplayBodyVitals()
 		}
 		mvwaddch(game->screen, i, 123, ']');
 	}
-}
-
-// doesn't actually "flush" the printing buffer, just prints out one message to the HUD
-static inline void Hud_FlushBuffer()
-{
-	const buffer_t buf = hudbuffer[0];
-	mvwprintw(game->screen, 30, 31, "[%s] %s", buf.from, buf.str.c_str());
 }
 
 static inline void Hud_DisplayBarVitals()
@@ -303,6 +292,7 @@ static inline void Hud_DisplayVMatrix()
 {
 	Hud_GetVMatrix();
 	nomaduint_t u = 0, c = 0;
+	werase(game->hudwin[HL_VMATRIX]);
 	for (nomaduint_t y = 0; y < MAX_VERT_FOV; ++y) {
 		for (nomaduint_t x = 0; x < MAX_HORZ_FOV; ++x) {
 			if (y == 12 && x == 44) {
@@ -316,6 +306,7 @@ static inline void Hud_DisplayVMatrix()
 		}
 		u++;
 	}
+	wrefresh(game->hudwin[HL_VMATRIX]);
 }
 
 static inline void P_GetMapBuffer()

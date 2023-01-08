@@ -23,9 +23,15 @@
 #include "g_game.h"
 
 static Playr* playr;
+static Game* game;
 
 // pauses all the other threads
 static void CommandConsole(Game* const game);
+
+void PlayrAssigner(Game* const gptr)
+{
+	game = gptr;
+}
 
 void Playr::P_Init()
 {
@@ -90,7 +96,13 @@ void Game::P_Ticker(nomadint_t input)
 	LOG("gamestate = %hu", gamestate);
 	LOG("gamescreen = %hu", gamescreen);
 #endif
-	playr->pticker--;
+	--playr->pticker;
+//	playr->P_GetMode();
+	playr->P_RunTicker(input);
+}
+
+void Playr::P_RunTicker(nomadint_t input)
+{
 	switch (input) {
 	case KEY_EP:
 		break;
@@ -101,23 +113,28 @@ void Game::P_Ticker(nomadint_t input)
 	case KEY_DOLLAR:
 		break;
 	case KEY_q: {
-		if (!P_MoveTicker(playr)) {
-			playr->P_ChangeDirL();
+		if (!P_MoveTicker(this)) {
+			P_ChangeDirL();
 		}
 		break; }
 	case KEY_e: {
-		if (!P_MoveTicker(playr)) {
-			playr->P_ChangeDirR();
+		if (!P_MoveTicker(this)) {
+			P_ChangeDirR();
 		}
 		break; }
 	case KEY_w: {
-		if (!P_MoveTicker(playr)) {
-			switch (c_map[playr->pos.y - 1][playr->pos.x]) {
+		if (!P_MoveTicker(this)) {
+			switch (game->c_map[pos.y - 1][pos.x]) {
 			case ' ':
 			case '_':
 			case '.':
-				playr->P_MoveN();
-				wrefresh(hudwin[HL_VMATRIX]);
+				P_MoveN();
+//				playr->lastmoved = D_NORTH;
+//				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			case 'M':
+//				pmode = P_MODE_MERCMASTER;
+				B_MercMasterInteract();
 				break;
 			default:
 				break;
@@ -125,13 +142,16 @@ void Game::P_Ticker(nomadint_t input)
 		}
 		break; }
 	case KEY_a: {
-		if (!P_MoveTicker(playr)) {
-			switch (c_map[playr->pos.y][playr->pos.x - 1]) {
+		if (!P_MoveTicker(this)) {
+			switch (game->c_map[pos.y][pos.x - 1]) {
 			case ' ':
 			case '_':
 			case '.':
-				playr->P_MoveW();
-				wrefresh(hudwin[HL_VMATRIX]);
+				P_MoveW();
+				break;
+			case 'M':
+				B_MercMasterInteract();
+				//pmode = P_MODE_MERCMASTER;
 				break;
 			default:
 				break;
@@ -139,13 +159,18 @@ void Game::P_Ticker(nomadint_t input)
 		}
 		break; }
 	case KEY_s: {
-		if (!P_MoveTicker(playr)) {
-			switch (c_map[playr->pos.y + 1][playr->pos.x]) {
+		if (!P_MoveTicker(this)) {
+			switch (game->c_map[pos.y + 1][pos.x]) {
 			case ' ':
 			case '_':
 			case '.':
-				playr->P_MoveS();
-				wrefresh(hudwin[HL_VMATRIX]);
+				P_MoveS();
+//				playr->lastmoved = D_SOUTH;
+//				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			case 'M':
+				B_MercMasterInteract();
+//				pmode = P_MODE_MERCMASTER;
 				break;
 			default:
 				break;
@@ -153,13 +178,18 @@ void Game::P_Ticker(nomadint_t input)
 		}
 		break; }
 	case KEY_d: {
-		if (!P_MoveTicker(playr)) {
-			switch (c_map[playr->pos.y][playr->pos.x + 1]) {
+		if (!P_MoveTicker(this)) {
+			switch (game->c_map[pos.y][pos.x + 1]) {
 			case ' ':
 			case '_':
 			case '.':
-				playr->P_MoveE();
-				wrefresh(hudwin[HL_VMATRIX]);
+				P_MoveE();
+//				playr->lastmoved = D_EAST;
+//				wrefresh(hudwin[HL_VMATRIX]);
+				break;
+			case 'M':
+				B_MercMasterInteract();
+//				pmode = P_MODE_MERCMASTER;
 				break;
 			default:
 				break;
@@ -170,20 +200,33 @@ void Game::P_Ticker(nomadint_t input)
 		
 		break;
 	case KEY_GRAVE:
-		CommandConsole(this);
+		CommandConsole(game);
 		break;
-	case ctrl('X'):
-		pthread_join(mthread, NULL);
-		pthread_join(nthread, NULL);
-		pthread_join(wthread, NULL);
-		gamestate = GS_PAUSE;
+	case ctrl('x'):
+//		pthread_join(game->mthread, NULL);
+//		pthread_join(game->nthread, NULL);
+		pthread_join(game->wthread, NULL);
+		game->gamestate = GS_PAUSE;
 		break;
-	case ctrl('Z'):
-		this->~Game();
+	case ctrl('z'):
+		delwin(game->hudwin[HL_VMATRIX]);
+		game->~Game();
 		exit(1);
 		break;
 	default: break;
 	};
+}
+
+void Playr::P_GetMode()
+{
+	coord_t mercpos = botpos[0];
+	if ((pos.y == (mercpos.y - 1) && pos.x == mercpos.x)
+	|| (pos.x == (mercpos.x + 1) && pos.y == mercpos.y)) {
+		pmode = P_MODE_MERCMASTER;
+	}
+	else {
+		pmode = P_MODE_ROAMING;
+	}
 }
 
 void Playr::P_MoveN()

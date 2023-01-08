@@ -25,11 +25,7 @@
 #include "g_playr.h"
 #include "g_obj.h"
 
-#ifdef INITIAL_MOBS_ACTIVE
-#undef INITIAL_MOBS_ACTIVE
-#endif
-
-#define INITIAL_MOBS_ACTIVE 400
+#define INITIAL_MOBS_ACTIVE 100
 
 // used for locating vars in the stateinfo array
 enum

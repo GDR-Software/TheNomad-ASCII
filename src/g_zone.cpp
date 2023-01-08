@@ -49,7 +49,7 @@ typedef unsigned char byte;
 
 __CFUNC__ void Z_KillHeap();
 
-// size: 60 bytes
+// size: 40 bytes...?
 typedef struct memblock_s
 {
 	int size;
@@ -73,7 +73,7 @@ typedef struct
 } memzone_t;
 
 #ifndef _TESTING
-static constexpr int heapsize = 4000000; // allocating 5 mb
+static constexpr int heapsize = 2000000; // allocating 2 mb
 #endif
 
 memzone_t* mainzone;
@@ -134,7 +134,7 @@ __CFUNC__ void Z_Free(void *ptr)
 		}
 	}
 }
-/*
+#ifdef TESTING
 __CFUNC__ void Z_DumpHeap(void)
 {
 	memblock_t* block;
@@ -157,9 +157,9 @@ __CFUNC__ void Z_DumpHeap(void)
 		}
 	}
 }
-*/
+#endif
 
-#ifdef _NOMAD_DEBUG
+#if defined(_NOMAD_DEBUG) || defined(TESTING)
 __CFUNC__ void Z_FileDumpHeap(void)
 {
 	memblock_t* block;
@@ -189,7 +189,7 @@ __CFUNC__ void Z_FileDumpHeap(void)
 }
 #endif
 
-#ifdef _TESTING
+#ifdef TESTING
 __CFUNC__ void Z_Init(int size)
 {
 	memblock_t* base;
@@ -457,7 +457,7 @@ __CFUNC__ void Z_ChangeUser(void *ptr, void *user)
 	user = ptr;
 }
 
-#ifndef _TESTING
+#ifndef TESTING
 __CFUNC__ constexpr unsigned long Z_ZoneSize(void)
 {
 	return heapsize;

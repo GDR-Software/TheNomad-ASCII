@@ -163,37 +163,12 @@ void B_KillBot(NPC* const npc)
 	npc->~NPC();
 }
 
-static void B_MercMasterInteract(NPC* const npc);
-
-inline void B_MercMasterThink(NPC* const npc)
-{
-#ifdef _NOMAD_DEBUG
-	assert(npc);
-#endif
-	coord_t mercpos = botpos[0];
-	if ((game->playr->pos.y == (mercpos.y - 1) && game->playr->pos.x == mercpos.x)
-	|| (game->playr->pos.y == mercpos.y && game->playr->pos.x == (mercpos.x + 1))) {
-		game->playr->pmode = P_MODE_MERCMASTER;
-		B_MercMasterInteract(npc);
-	}
-}
-//inline void B_BartenderLoop(NPC* const npc);
-//inline void B_WeaponSmithLoop(NPC* const npc);
-//inline void B_BlackSmithLoop(NPC* const npc);
-//inline void B_CivilianLoop(NPC* const npc);
-
-static void B_MercMasterInteract(NPC* const npc)
-{
-#ifdef _NOMAD_DEBUG
-	assert(npc && game->playr);
-#endif
-	Playr* const playr = game->playr;
-	if (playr->pmode != P_MODE_MERCMASTER) {
-#ifdef _NOMAD_DEBUG
-		LOG("called merc master interaction without player mode being merc master interaction"); // whoopsy
-#endif
-		return;
-	}
-	
-	Mission* mission = G_GenMission();
+void B_MercMasterInteract()
+{	
+//	Mission* mission = G_GenMission();
+	Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today?");
+//	werase(game->screen);
+//	refresh();
+	//Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today?");
+//	mission->~Mission();
 }

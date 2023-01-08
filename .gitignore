@@ -1,7 +1,6 @@
 gamesizes
 gamesizes.cpp
 obj/*
-heaplog.txt
 nomadascii # its x86_64 built
 *.tar.gz
 nomadsv.ngd
@@ -16,10 +15,12 @@ src/threadpool.cpp
 # until i figure out how to do it with alsa without segging
 src/g_sound.cpp
 
+# random logs
+Files/debug/*
 # the resources (this is the literals money's worth)
 Files/gamedata/MAP/*.txt
-Files/gamedata/MUSIC/*
-Files/gamedata/SOUNDS/*
+Files/gamedata/MUSIC/
+Files/gamedata/SOUNDS/
 # ncurses-6.3 is required for the game, build it yourself or use the release ncurses build
 Files/gamedata/DEPS/bin/
 Files/gamedata/DEPS/include/
