@@ -87,6 +87,10 @@ static void P_DoorInteract(nomadint_t input)
 }
 static void P_NPCInteract();
 static void P_ItemInteract();
+static void P_RugInteract();
+static void P_BedInteract();
+static void P_ChestInteract();
+static void P_DeskInteract();
 
 void PlayrAssigner(Game* const gptr)
 {
