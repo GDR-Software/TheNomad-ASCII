@@ -103,7 +103,7 @@ void Playr::P_Init()
 	name = "Test";
 	sprite = '@';
 	health = 100;
-	armor = 12, 
+	armor = 12;
 	pdir = D_NORTH;
 	lvl = 0;
 	coin = 0;

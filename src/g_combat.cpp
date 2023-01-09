@@ -33,92 +33,47 @@ void CombatAssigner(Game* const gptr)
 	playr = game->playr;
 }
 
-Weapon::~Weapon()
-{
-	Z_Free(this);
-}
-
-collider_t P_GetHitEntity(coord_t collided)
-{
-	collider_t hit;
-	for (auto* const i : game->m_Active) {
-		if (i->mpos.y == collided.y && i->mpos.x == collided.x) {
-			hit.where.y = collided.y;
-			hit.where.x = collided.x;
-			hit.what = ET_MOB;
-			return hit;
-		}
-	}
-	for (auto* const i : game->b_Active) {
-		if (i->pos.y == collided.y && i->pos.x == collided.x) {
-			hit.where.y = collided.y;
-			hit.where.x = collided.x;
-		}
-	}
-}
-
 void P_ShootShotty(Weapon* const wpn)
 {
-	weapon_t* w = &wpn->c_wpn;
-	coord_t origin;
-	coord_t farthest;
-	coord_t d = game->E_GetDir(playr->pdir);
-	farthest.y = farthest.x = 0;
-	nomadshort_t spos;
+	nomadenum_t spread = wpn->c_wpn.spread;
+	nomadenum_t numpellets = wpn->c_wpn.numpellets;
+	nomadenum_t a{};
+
+	coord_t maxspread[2]; // 0 -> left, 1 -> right
 	switch (playr->pdir) {
 	case D_NORTH:
-		spos = playr->pos.x;
-		farthest.y = playr->pos.y - w->range;
+		maxspread[0].y = maxspread[1].y = playr->pos.y;
+		maxspread[0].x = playr->pos.x - (spread >> 1);
+		maxspread[1].x = playr->pos.x + (spread >> 1);
 		break;
 	case D_WEST:
-		spos = playr->pos.y;
-		farthest.x = playr->pos.x - w->range;
+		maxspread[0].x = maxspread[1].x = playr->pos.x;
+		maxspread[0].y = playr->pos.y + (spread >> 1);
+		maxspread[1].y = playr->pos.y - (spread >> 1);
 		break;
 	case D_SOUTH:
-		spos = playr->pos.x;
-		farthest.y = playr->pos.y + w->range;
+		maxspread[0].y = maxspread[1].y = playr->pos.y;
+		maxspread[0].x = playr->pos.x + (spread >> 1);
+		maxspread[1].x = playr->pos.x + (spread >> 1);
 		break;
 	case D_EAST:
-		spos = playr->pos.y;
-		farthest.x = playr->pos.x + w->range;
+		maxspread[0].x = maxspread[1].x = playr->pos.x;
+		maxspread[0].y = playr->pos.y - (spread >> 1);
+		maxspread[1].y = playr->pos.y + (spread >> 1);
 		break;
-	default: /*
-#ifdef _NOMAD_DEBUG
-// TODO: add in debug log
-#endif*/
-		N_Error("Unknown/Invalid Player Direction: %i", playr->pdir); // this should never happen
+	default:
+		N_Error("Unknown/Invalid Player Direction: %hu", playr->pdir);
 		break;
 	};
+
 	nomadshort_t offset;
-	nomadenum_t numpellets = w->numpellets;
-	for (nomadshort_t o = numpellets; o > -1; --o) {
-		nomadbool_t s = (rand() % 1) == 1 ? offset = -P_Random() & -2 : offset = P_Random() & 2;
-		nomadshort_t spread[2];
-		spread[0] = spos - ((w->spread >> 1) + offset);
-		spread[1] = spos + ((w->spread >> 1) + offset);
-		
-		// first, cast a straight line ray whence the player is facing
-		// TODO: THIS
-		for (nomadshort_t y = playr->pos.y; y != farthest.y; y += d.y) {
-			for (nomadshort_t x = playr->pos.x; x != farthest.x; x += d.x) {
-				nomadbool_t wall = false;
-				switch (game->c_map[y][x]) {
-				case '#':
-					wall = true;
-					break;
-				case '_':
-				case '.':
-				case ' ':
-					break;
-				default: // hit an entity
-					collider_t hit = P_GetHitEntity({y, x});
-					
-					break;
-				};
-				if (wall) {
-					break; // cuz we hit a wall
-				}
-			}
-		}
+	for (nomadushort_t o = 0; o < numpellets; ++o) {
+		a = P_Random() & 4;
+		if (a > 2)
+			offset = -P_Random() & -2;
+		else
+			offset = P_Random() & 2;
+
+
 	}
 }

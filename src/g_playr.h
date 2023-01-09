@@ -82,6 +82,11 @@ public:
 	void P_RunTicker(nomadint_t input);
 };
 
+void P_ShootShotty(Weapon* const wpn);
+void P_ShootSingle(Weapon* const wpn);
+void P_ShootBurst3(Weapon* const wpn);
+void P_ShootBurst4(Weapon* const wpn);
+
 void PlayrAssigner(Game* const gptr);
 void P_KillPlayr();
 
