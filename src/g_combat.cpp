@@ -33,6 +33,20 @@ void CombatAssigner(Game* const gptr)
 	playr = game->playr;
 }
 
+//
+// G_CastRay(): the general-use combat function that casts a "ray" from a line or slope,
+// and determines what it first collides with. This is really just a hitscan collider,
+// but I couldn't think of a better name for it.
+//
+// returns if it hit a wall, and another function (ideally the shooting function) will be
+// calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
+// that entity
+//
+static void G_CastRay(const coord_t slope, const coord_t d, nomaduint_t d)
+{
+	
+}
+
 void P_ShootShotty(Weapon* const wpn)
 {
 	nomadenum_t spread = wpn->c_wpn.spread;
@@ -41,7 +55,7 @@ void P_ShootShotty(Weapon* const wpn)
 	nomadshort_t a{}, y, x, i, p;
 	coord_t slope, d;
 
-	d = game->E_GetDir();
+	d = game->E_GetDir(playr->pdir);
 
 	coord_t maxspread[2]; // 0 -> left, 1 -> right
 	switch (playr->pdir) {
