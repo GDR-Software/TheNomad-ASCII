@@ -163,3 +163,9 @@ void P_ShootShotty(Weapon* const wpn)
 		G_CastRay(slope, range);
 	}
 }
+
+// gonna need a ticker for this one, y'know, for delays between shots
+void P_ShootSingle(Weapon* const wpn)
+{
+	nomadenum_t spread = wpn->c_wpn.spread;
+}
