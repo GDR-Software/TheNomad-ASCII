@@ -33,6 +33,22 @@ void CombatAssigner(Game* const gptr)
 	playr = game->playr;
 }
 
+static inline Mob* G_GetHitMob(nomadshort_t y, nomadshort_t x)
+{
+	for (auto* i : game->m_Active) {
+		if (i->mpos.y == y && i->mpos.x == x) { return i; }
+	}
+	return nullptr;
+}
+
+static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
+{
+	for (auto* i : game->b_Active) {
+		if (i->pos.y == y && i->pos.x == x) { return i; }
+	}
+	return nullptr;
+}
+
 //
 // G_CastRay(): the general-use combat function that casts a "ray" from a line or slope,
 // and determines what it first collides with. This is really just a hitscan collider,
@@ -42,9 +58,60 @@ void CombatAssigner(Game* const gptr)
 // calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
 // that entity
 //
-static void G_CastRay(const coord_t slope, const coord_t d, nomaduint_t d)
+static inline void G_CastRay(const coord_t slope, nomadshort_t range)
 {
-	
+	nomadshort_t y{}, x{};
+	nomadshort_t* rptr;
+	nomadshort_t mrange;
+	switch (playr->pdir) {
+	case D_NORTH:
+		mrange = range - playr->pos.y;
+		rptr = &y;
+		break;
+	case D_WEST:
+		mrange = range - playr->pos.x;
+		rptr = &x;
+		break;
+	case D_SOUTH:
+		mrange = range + playr->pos.y;
+		rptr = &y;
+		break;
+	case D_EAST:
+		mrange = range + playr->pos.x;
+		rptr = &x;
+		break;
+	default:
+		N_Error("Unknown/Invalid Player Direction: %hu", playr->pdir);
+		break;
+	};
+	for (y = playr->pos.y;; y += slope.y) {
+			for (x = playr->pos.x;; x += slope.x) {
+				// fixed
+				if (*rptr >= mrange)
+					break;
+				
+				switch (game->c_map[y][x]) {
+				case ' ':
+				case '.':
+					break;
+				case '#':
+				case '_':
+					return; // hit a wall, the ray is finished
+					break;
+				default:
+					Mob* const mob = G_GetHitMob(y, x);
+					NPC* npc;
+					if (!mob)
+						npc = G_GetHitNPC(y, x);
+					if (!mob && npc)
+						return; // placeholder
+						// do something
+					else if (!mob && !npc)
+						N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
+					break;
+				};
+			}
+		}
 }
 
 void P_ShootShotty(Weapon* const wpn)
@@ -52,10 +119,8 @@ void P_ShootShotty(Weapon* const wpn)
 	nomadenum_t spread = wpn->c_wpn.spread;
 	nomadenum_t numpellets = wpn->c_wpn.numpellets;
 	nomaduint_t range = wpn->c_wpn.range;
-	nomadshort_t a{}, y, x, i, p;
-	coord_t slope, d;
-
-	d = game->E_GetDir(playr->pdir);
+	nomadshort_t a{};
+	coord_t slope;
 
 	coord_t maxspread[2]; // 0 -> left, 1 -> right
 	switch (playr->pdir) {
@@ -63,25 +128,21 @@ void P_ShootShotty(Weapon* const wpn)
 		maxspread[0].y = maxspread[1].y = playr->pos.y;
 		maxspread[0].x = playr->pos.x - (spread >> 1);
 		maxspread[1].x = playr->pos.x + (spread >> 1);
-		p = playr->pos.y;
 		break;
 	case D_WEST:
 		maxspread[0].x = maxspread[1].x = playr->pos.x;
 		maxspread[0].y = playr->pos.y + (spread >> 1);
 		maxspread[1].y = playr->pos.y - (spread >> 1);
-		p = playr->pos.x;
 		break;
 	case D_SOUTH:
 		maxspread[0].y = maxspread[1].y = playr->pos.y;
 		maxspread[0].x = playr->pos.x + (spread >> 1);
 		maxspread[1].x = playr->pos.x + (spread >> 1);
-		p = playr->pos.y;
 		break;
 	case D_EAST:
 		maxspread[0].x = maxspread[1].x = playr->pos.x;
 		maxspread[0].y = playr->pos.y - (spread >> 1);
 		maxspread[1].y = playr->pos.y + (spread >> 1);
-		p = playr->pos.x;
 		break;
 	default:
 		N_Error("Unknown/Invalid Player Direction: %hu", playr->pdir);
@@ -99,30 +160,6 @@ void P_ShootShotty(Weapon* const wpn)
 		
 		slope.y = maxspread[(P_Random() & 1)].y + offset;
 		slope.x = maxspread[(P_Random() & 1)].x + offset;
-		for (y = playr->pos.y;; y += slope.y) {
-			for (x = playr->pos.x;; x += slope.x) {
-				// FIXME - i have ideas on how to optimize this
-				if (playr->pdir == D_NORTH && y < (range - playr->pos.y)) {
-					break;
-				}
-				else if (playr->pdir == D_WEST && x < (range - playr->pos.x)) {
-					break;
-				}
-				else if (playr->pdir == D_SOUTH && y > (range + playr->pos.y)) {
-					break;
-				}
-				else if (playr->pdir == D_EAST && x > (range + playr->pos.x)) {
-					break;
-				}
-				switch (game->c_map[y][x]) {
-				case ' ':
-				case '.':
-					break;
-				case '#':
-					// do something
-					break;
-				};
-			}
-		}
+		G_CastRay(slope, range);
 	}
 }
