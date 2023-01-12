@@ -79,8 +79,8 @@ public:
 	nomadenum_t ndir;
 	entitystate_t nstate;
 	nomaduint_t nticker;
-	nomadint_t health;
-	nomadushort_t armor;
+	std::atomic<nomadint_t> health;
+	std::atomic<nomadushort_t> armor;
 public:
 	NPC() = default;
 	~NPC() = delete;

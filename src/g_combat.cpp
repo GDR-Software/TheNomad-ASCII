@@ -58,7 +58,7 @@ static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
 // calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
 // that entity
 //
-static inline void G_CastRay(const coord_t slope, nomadshort_t range)
+static inline void G_CastRay(const coord_t slope, nomadshort_t range, Weapon* const wpn)
 {
 	nomadshort_t y{}, x{};
 	nomadshort_t* rptr;
@@ -98,17 +98,21 @@ static inline void G_CastRay(const coord_t slope, nomadshort_t range)
 				case '_':
 					return; // hit a wall, the ray is finished
 					break;
-				default:
-					Mob* const mob = G_GetHitMob(y, x);
-					NPC* npc;
-					if (!mob)
-						npc = G_GetHitNPC(y, x);
-					if (!mob && npc)
-						return; // placeholder
-						// do something
-					else if (!mob && !npc)
-						N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
-					break;
+				default: {
+					if (P_Random() > wpn->c_wpn.rng) {
+						Mob* const mob = G_GetHitMob(y, x);
+						NPC* npc;
+						if (!mob) {
+							npc = G_GetHitNPC(y, x);
+							npc->health -= wpn->c_wpn.dmg;
+						}
+						else {
+							mob->health -= wpn->c_wpn.dmg;
+						}
+						if (!mob && !npc)
+							N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
+					}
+					break; }
 				};
 			}
 		}

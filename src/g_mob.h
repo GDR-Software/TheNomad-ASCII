@@ -107,8 +107,8 @@ public:
 	
 	nomadenum_t sector_id;
 	nomadlong_t mticker;
-	nomadint_t health;
-	nomadint_t armor;
+	std::atomic<nomadint_t> health;
+	std::atomic<nomadint_t> armor;
 	nomadenum_t mdir;
 	coord_t mpos;
 	entitystate_t mstate;
