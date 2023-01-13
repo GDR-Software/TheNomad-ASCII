@@ -19,3 +19,20 @@
 //  src/m_inventory.cpp
 //----------------------------------------------------------
 #include "g_game.h"
+
+static Playr* playr;
+static Game* game;
+
+void InvAssigner(Game* const gptr)
+{
+    game = gptr;
+    playr = game->playr;
+}
+
+inline void Inv_DisplayMercMissions(const std::vector<Mission>& m_ls);
+inline void Inv_DisplayItems();
+
+void G_DisplayInventory(void)
+{
+
+}

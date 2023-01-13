@@ -164,7 +164,7 @@ void P_ShootShotty(Weapon* const wpn)
 		
 		slope.y = maxspread[(P_Random() & 1)].y + offset;
 		slope.x = maxspread[(P_Random() & 1)].x + offset;
-		G_CastRay(slope, range);
+		G_CastRay(slope, range, wpn);
 	}
 }
 

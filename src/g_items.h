@@ -36,9 +36,17 @@ enum
 	W_SHOTTY_BF4P,
 	// shotgun, 3-round burst, auto-loading
 	W_SHOTTY_BF3A,
+	// shotgun, Asturion 8-shot
+	W_SHOTTY_A8SHOT,
+	// shotgun, Asturion double-barreled
+	W_SHOTTY_ADB,
 
+	W_PISTOL_ION,
+	// All Use Pistol, overpowered as hell
 	W_PISTOL_AUP,
 	W_PISTOL_PLASMA,
+	// browning pistol, old-school
+	W_PISTOL_BOS,
 
 	// the dude actually forged this himself, if you're wondering why there's still
 	// the AR-15 platform in existence in the 91st millennium. Some other models still exist,
@@ -47,13 +55,30 @@ enum
 	W_RIFLE_M23C5,
 	// credits to Ben Pavlovic (milotus) for this one
 	W_RIFLE_AK77,
+	// Ranged Assault Gun model 15, the most notorius of the 3 models, horrible stats
+	W_RIFLE_RAG15,
+	// Ranged Assault Gun model 14, not as notorius as the 15
+	W_RIFLE_RAG14,
+	// fusion rifle, only use iron with this one
+	W_RIFLE_FUSION,
 
 	// desert rifle, lever-action 4 shot
 	W_DMR_DR,
 	// the slapper, y'know
 	W_DMR_HOSIG,
+	// Ranged Assault Gun model 13, the most notable and respected of the 3, the 13 hits the hardest, but the slowest
+	W_DMR_RAG13,
+	// the fusion cannon, fucking nuke in a sniper rifle
+	W_DMR_FUSION,
 
 	W_SMG_PLASMA,
+	W_SMG_MP69K,
+
+	W_ROCKET_LAUNCHER,
+	W_ROCKET_MGL,
+	W_ROCKET_ION,
+	// its. a. cannon. if you say otherwise, then you haven't seen it in action
+	W_ROCKET_FUSION,
 
 	NUMWEAPONS,
 	
