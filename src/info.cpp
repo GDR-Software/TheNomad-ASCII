@@ -90,12 +90,22 @@ const mobj_t mobinfo[NUMMOBS] = {
 */
 const missionseed_t missionseeds[NUMMISSIONTYPES] = {
 	{M_ASSASSINATION, 48, {MT_PISTOL, MT_SHOTTY, MT_GUNNER, MT_MERC}, {DIF_RECRUIT, DIF_MINORINCONVENIENCE}, {241, 3042}},
-/*	{M_KIDNAPPING,    11, {MT_PISTOL, MT_SHOTTY, MT_GUNNER},            {DIF_NOOB, DIF_NOMAD},                 {13,   543}},
-	{M_EXTORTION,     24, {MT_PISTOL, MT_SHOTTY, MT_GUNNER, }},
-	{M_EXTRACTION,    },
-	{M_BODYGUARDING,  },
-	{M_CONTRACT,      },
-	{M_INFILTRATION,  }, */
+	{M_KIDNAPPING,    11, {MT_PISTOL, MT_SHOTTY, MT_GUNNER},                          {DIF_NOOB, DIF_NOMAD}, {13,   543}},
+	{M_EXTORTION,     24, {MT_PISTOL, MT_SHOTTY, MT_GUNNER},                          {DIF_NOOB, DIF_NOMAD}, {153, 2424}},
+	{M_EXTRACTION,    10, {MT_PISTOL},                                                {DIF_NOOB, DIF_NOMAD}, {153, 2424}},
+	{M_BODYGUARDING,  10, {MT_PISTOL},                                                {DIF_NOOB, DIF_NOMAD}, {153, 2424}},
+	{M_CONTRACT,      10, {MT_PISTOL},                                                {DIF_NOOB, DIF_NOMAD}, {153, 2424}},
+	{M_INFILTRATION,  10, {MT_PISTOL},                                                {DIF_NOOB, DIF_NOMAD}, {153, 2424}},
+};
+
+const char* missionstrings[NUMMISSIONTYPES] = {
+	"Assassination",
+	"Kidnapping",
+	"Extortion",
+	"Extraction",
+	"Body Guarding",
+	"Contract",
+	"Infiltration",
 };
 
 // id, dmg, range, rng, spread, magsize

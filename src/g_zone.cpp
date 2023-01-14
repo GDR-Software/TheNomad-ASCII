@@ -73,7 +73,7 @@ typedef struct
 } memzone_t;
 
 #ifndef _TESTING
-static constexpr int heapsize = 3000000; // allocating 2 mb
+static constexpr int heapsize = 10000000; // allocating 3 mb
 #endif
 
 memzone_t* mainzone;
@@ -88,7 +88,9 @@ __CFUNC__ void Z_KillHeap(void)
 //
 __CFUNC__ void Z_Free(void *ptr)
 {
+#ifdef _NOMAD_DEBUG
 	assert(ptr);
+#endif
 	memblock_t* block;
 	memblock_t* other;
 #ifdef _NOMAD_DEBUG
@@ -299,9 +301,8 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 	base = mainzone->rover;
 	
 	// checking behind the rover
-	if (!base->prev->user) {
+	if (!base->prev->user)
 		base = base->prev;
-	}
 	
 	rover = base;
 	start = base->prev;

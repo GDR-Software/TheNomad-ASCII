@@ -105,7 +105,7 @@ void Game::I_InitNPCs(void)
 	NomadAssigner(this);
 	MissionAssigner(this);
 	B_SpawnShopBots();
-	B_GenNomadTribe();
+//	B_GenNomadTribe();
 }
 
 static nomadbool_t B_IsScared(NPC* const npc)
@@ -182,7 +182,7 @@ void B_BartenderInteract()
 	}
 }
 
-static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls);
+static void B_MercDisplayMissions(const std::vector<Mission>& m_ls);
 
 void B_MercMasterInteract()
 {
@@ -195,19 +195,31 @@ void B_MercMasterInteract()
 		Hud_Printf("Mercernary Master", "Oh well, I'll be waiting for you");
 		return;
 	}
-
-//	std::vector<Mission>& m_ls = G_GenMissionLs();
+	std::vector<Mission> m_ls;
+	G_GenMissionLs(m_ls);
 
 	// display the missions
-//	B_MercDisplayMissions(m_ls);
+	B_MercDisplayMissions(m_ls);
 }
 
-static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls)
+static void B_MercDisplayMissions(const std::vector<Mission>& m_ls)
 {
 	werase(game->screen);
-	wrefresh(game->screen); /*
+	wrefresh(game->screen);
 	nomadshort_t s = 0;
+	mvwaddstr(game->screen, 2, (getmaxx(game->screen) >> 1), "<Mission List>");
 	while (1) {
+		for (nomadenum_t i = 0; i < m_ls.size(); ++i) {
+			mvwprintw(game->screen, (i+4), 0, "%hu", i);
+			mvwaddstr(game->screen, (i+4), 3, "-> ");
+			if (i == s) {
+				mvwaddch(game->screen, (i+4), 6, '[');
+				wprintw(game->screen, "%s]", missionstrings[m_ls[i].type]);
+			}
+			else {
+				mvwprintw(game->screen, (i+4), 6, "%s", missionstrings[m_ls[i].type]);
+			}
+		}
 		nomadshort_t c = wgetch(game->screen);
 		if (c != 'q') {
 			if (c == 'w') {
@@ -228,5 +240,6 @@ static void B_MercDisplayMissions(const std::vector<Mission*>& m_ls)
 		}
 		wrefresh(game->screen);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
-	};*/
+	};
+	werase(game->screen);
 }

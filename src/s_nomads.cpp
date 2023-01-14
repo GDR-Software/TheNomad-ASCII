@@ -83,6 +83,7 @@ void T_Interact()
 
 void B_GenNomadTribe()
 {
+	Z_CheckHeap();
 	nomadenum_t numwarriors = P_Random() & 2;
 	nomadenum_t numbots = (P_Random() & 4)+3;
 	nomadushort_t i;

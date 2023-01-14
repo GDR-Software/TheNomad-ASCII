@@ -84,6 +84,7 @@ public:
 void MissionAssigner(Game* const gptr);
 void G_GenMissionLs(std::vector<Mission>& m_ls);
 
+extern const char* missionstrings[NUMMISSIONTYPES];
 extern const missionseed_t missionseeds[NUMMISSIONTYPES];
 
 #endif

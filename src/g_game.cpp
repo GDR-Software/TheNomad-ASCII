@@ -53,7 +53,7 @@ Game::~Game()
 	endwin();
 	set_block();
 	// now we delete any of the runtime-only resources
-	system("rm Files/gamedata/RUNTIME/*.txt");
+	remove("Files/gamedata/RUNTIME/mapfile.txt");
 	W_KillWorld();
 	P_KillPlayr();
 }
