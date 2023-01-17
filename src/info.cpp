@@ -127,6 +127,13 @@ coord_t botpos[] = {
 	{259, 283},
 };
 
-//const item_t iteminfo[NUMITEMS] = {
-//	{},
-//};
+const item_t iteminfo[NUMITEMS] = {
+	{"Small Health Pack",     },
+	{"Medium Health Pack",    },
+	{"Large Health Pack",     },
+	{"Bandage",               },
+	{"Street-Grade Armor",    },
+	{"Militarty-Grade Armor", },
+	{"Mercenary's Armor",     },
+	{""},
+};

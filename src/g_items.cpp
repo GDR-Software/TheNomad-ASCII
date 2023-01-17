@@ -61,6 +61,11 @@ void P_GiveDefault()
     launcher->c_wpn = wpninfo[W_LAUNCHER_MGL];
 }
 
+void P_GiveArmor(nomadenum_t armor)
+{
+    
+}
+
 // called during init stage, as this list'll be the rather permanent one
 std::vector<Weapon*> G_GenWeaponList()
 {
