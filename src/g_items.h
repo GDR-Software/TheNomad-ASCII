@@ -26,62 +26,40 @@
 
 enum
 {
-	// shotgun, semi-auto pump-action
-	W_SHOTTY_SFP,
-	// shotgun, semi-auto auto-loading
-	W_SHOTTY_SFA,
-	// shotgun, full-auto beast
-	W_SHOTTY_FA,
-	// shotgun, 4-round burst, pump-action
-	W_SHOTTY_BF4P,
-	// shotgun, 3-round burst, auto-loading
-	W_SHOTTY_BF3A,
-	// shotgun, Asturion 8-shot
-	W_SHOTTY_A8SHOT,
-	// shotgun, Asturion double-barreled
-	W_SHOTTY_ADB,
+	W_SHOTTY_ADB,     // Asturion Double-Barreled
+	W_SHOTTY_QS,      // quick loader, pump-action single-shot
+	W_SHOTTY_FAB,     // full-auto-b****, that's its name
 
-	W_PISTOL_ION,
-	// All Use Pistol, overpowered as hell
-	W_PISTOL_AUP,
-	W_PISTOL_PLASMA,
-	// browning pistol, old-school
-	W_PISTOL_BOS,
+	W_SIDE_AUP,       // all-use-pistol
+	W_SIDE_BOS,       // browning old-school
+	W_SIDE_FUSION,    // heavy-hitting pistol, slow firerate though
+	W_SIDE_ION,
+	W_SIDE_PLASMA,
 
-	// the dude actually forged this himself, if you're wondering why there's still
-	// the AR-15 platform in existence in the 91st millennium. Some other models still exist,
-	// but they're rare, if the player picks this up, well, they've got one hell of a
-	// rifle
-	W_RIFLE_M23C5,
-	// credits to Ben Pavlovic (milotus) for this one
-	W_RIFLE_AK77,
-	// Ranged Assault Gun model 15, the most notorius of the 3 models, horrible stats
-	W_RIFLE_RAG15,
-	// Ranged Assault Gun model 14, not as notorius as the 15
-	W_RIFLE_RAG14,
-	// fusion rifle, only use iron with this one
-	W_RIFLE_FUSION,
+	W_HSIDE_A8SHOT,   // Asturion 8-shot
+	W_HSIDE_SADB,     // sawed-off Asturion DB
 
-	// desert rifle, lever-action 4 shot
-	W_DMR_DR,
-	// the slapper, y'know
-	W_DMR_HOSIG,
-	// Ranged Assault Gun model 13, the most notable and respected of the 3, the 13 hits the hardest, but the slowest
-	W_DMR_RAG13,
-	// the fusion cannon, fucking nuke in a sniper rifle
-	W_DMR_FUSION,
+	W_PRIM_M23C5,     // yes, the AR-15 platform still exists in the 91st millennium
+	W_PRIM_AK77,      // thanks to Ben Pavlovic (Milotus) for this one
+	W_PRIM_RAG15,     // why did they even approve the manufacturing of this horrible thing people call a weapon?
+	W_PRIM_RAG14,     // better than the 13, but what isn't?
+	W_PRIM_PLASMASMG,
 
-	W_SMG_PLASMA,
-	W_SMG_MP69K,
+	W_HPRIM_FUSION,   // fusion-cannon
+	W_HPRIM_HOSIG,    // heavy optics sniper, forged by Ismalda Gurnovil
+	W_HPRIM_DR,       // desert rifle
+	W_HPRIM_RAG13,    // ranged assault rifle, heaviest but slowest of the three
 
-	W_ROCKET_LAUNCHER,
-	W_ROCKET_MGL,
-	W_ROCKET_ION,
-	// its. a. cannon. if you say otherwise, then you haven't seen it in action
-	W_ROCKET_FUSION,
+	W_LAUNCHER_MGL,   // magnetic grenade launcher
+
+	W_ARM_HB,         // hidden blade, assassin's creed but more brutal and actually pratical
+	W_ARM_GRAPPLE,    // grappling hook, nuff said
+	W_ARM_HC,         // hand-cannon, slightly less powerful 8-shot but you put it on your forearm, fucks the user up
+	W_ARM_SB,         // sound-blaster, nope, not the MS-DOS thing, but instead a hand cannon that make craters with sound waves
+	W_ARM_FT,         // people are crazy enough the actually attach a flame-thrower onto their arms in Bellatum Terrae, very effective croud control
 
 	NUMWEAPONS,
-	
+
 	W_NULL
 };
 
@@ -136,14 +114,13 @@ typedef struct
 	nomadenum_t rng;
 	nomadenum_t spread;
 	nomadenum_t magsize;
+	// only ever used for shotguns
+	nomadenum_t numpellets;
 	nomadenum_t tbs; // time between shots (in ticks)
 	// reloading time, emptied (in ticks)
 	nomadenum_t tfrf;
 	// reloading time, with still unfired bullets
 	nomadenum_t tfrs;
-
-	// only ever used for shotguns
-	nomadenum_t numpellets;
 } weapon_t;
 
 constexpr uint8_t MAXMATERIALS = 15;

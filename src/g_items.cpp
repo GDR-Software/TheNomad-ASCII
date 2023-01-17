@@ -29,10 +29,36 @@ Item::~Item()
 static Game* game;
 static Playr* playr;
 
+#define rightarm      playr->P_wpns[0]
+#define leftarm       playr->P_wpns[1]
+#define sidearm       playr->P_wpns[2]
+#define heavyside     playr->P_wpns[3]
+#define primary       playr->P_wpns[4]
+#define heavyprimary  playr->P_wpns[5]
+#define shotty        playr->P_wpns[6]
+#define launcher      playr->P_wpns[7]
+#define melee1        playr->P_wpns[8]
+#define meele2        playr->P_wpns[9]
+#define melee3        playr->P_wpns[10]
+
 void ItemAssigner(Game* const gptr)
 {
     game = gptr;
     playr = game->playr;
+}
+
+// called at init stage, but is only meant to give the player the starter weapons and items,
+// these will, however, be replaced when the player either loads a save file, or simply plays the game
+void P_GiveDefault()
+{
+    rightarm->c_wpn = wpninfo[W_ARM_HB];
+    leftarm->c_wpn = wpninfo[W_ARM_GRAPPLE];
+    sidearm->c_wpn = wpninfo[W_SIDE_PLASMA];
+    heavyside->c_wpn = wpninfo[W_HSIDE_SADB];
+    primary->c_wpn = wpninfo[W_PRIM_AK77];
+    heavyprimary->c_wpn = wpninfo[W_HPRIM_RAG13];
+    shotty->c_wpn = wpninfo[W_SHOTTY_QS];
+    launcher->c_wpn = wpninfo[W_LAUNCHER_MGL];
 }
 
 // called during init stage, as this list'll be the rather permanent one

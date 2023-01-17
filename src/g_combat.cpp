@@ -85,37 +85,66 @@ static inline void G_CastRay(const coord_t slope, nomadshort_t range, Weapon* co
 		break;
 	};
 	for (y = playr->pos.y;; y += slope.y) {
-			for (x = playr->pos.x;; x += slope.x) {
-				// fixed
-				if (*rptr >= mrange)
-					break;
-				
-				switch (game->c_map[y][x]) {
-				case ' ':
-				case '.':
-					break;
-				case '#':
-				case '_':
-					return; // hit a wall, the ray is finished
-					break;
-				default: {
-					if (P_Random() > wpn->c_wpn.rng) {
-						Mob* const mob = G_GetHitMob(y, x);
-						NPC* npc;
-						if (!mob) {
-							npc = G_GetHitNPC(y, x);
-							npc->health -= wpn->c_wpn.dmg;
-						}
-						else {
-							mob->health -= wpn->c_wpn.dmg;
-						}
-						if (!mob && !npc)
-							N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
+		for (x = playr->pos.x;; x += slope.x) {
+			// fixed
+			if (*rptr >= mrange)
+				break;
+			
+			switch (game->c_map[y][x]) {
+			case ' ':
+			case '.':
+				break;
+			case '#':
+			case '_':
+				return; // hit a wall, the ray is finished
+				break;
+			default: {
+				if (P_Random() > wpn->c_wpn.rng) {
+					Mob* const mob = G_GetHitMob(y, x);
+					NPC* npc;
+					if (!mob) {
+						npc = G_GetHitNPC(y, x);
+						npc->health -= wpn->c_wpn.dmg;
 					}
-					break; }
-				};
-			}
+					else {
+						mob->health -= wpn->c_wpn.dmg;
+					}
+					if (!mob && !npc)
+						N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
+				}
+				break; }
+			};
 		}
+	}
+}
+
+static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos, coord_t* maxspread)
+{
+	switch (dir) {
+	case D_NORTH:
+		maxspread[0].y = maxspread[1].y = pos.y;
+		maxspread[0].x = pos.x - (spread >> 1);
+		maxspread[1].x = pos.x + (spread >> 1);
+		break;
+	case D_WEST:
+		maxspread[0].x = maxspread[1].x = pos.x;
+		maxspread[0].y = pos.y + (spread >> 1);
+		maxspread[1].y = pos.y - (spread >> 1);
+		break;
+	case D_SOUTH:
+		maxspread[0].y = maxspread[1].y = pos.y;
+		maxspread[0].x = pos.x + (spread >> 1);
+		maxspread[1].x = pos.x + (spread >> 1);
+		break;
+	case D_EAST:
+		maxspread[0].x = maxspread[1].x = pos.x;
+		maxspread[0].y = pos.y - (spread >> 1);
+		maxspread[1].y = pos.y + (spread >> 1);
+		break;
+	default:
+		N_Error("Unknown/Invalid Entity Direction: %hu", dir);
+		break;
+	};
 }
 
 void P_ShootShotty(Weapon* const wpn)
@@ -127,31 +156,7 @@ void P_ShootShotty(Weapon* const wpn)
 	coord_t slope;
 
 	coord_t maxspread[2]; // 0 -> left, 1 -> right
-	switch (playr->pdir) {
-	case D_NORTH:
-		maxspread[0].y = maxspread[1].y = playr->pos.y;
-		maxspread[0].x = playr->pos.x - (spread >> 1);
-		maxspread[1].x = playr->pos.x + (spread >> 1);
-		break;
-	case D_WEST:
-		maxspread[0].x = maxspread[1].x = playr->pos.x;
-		maxspread[0].y = playr->pos.y + (spread >> 1);
-		maxspread[1].y = playr->pos.y - (spread >> 1);
-		break;
-	case D_SOUTH:
-		maxspread[0].y = maxspread[1].y = playr->pos.y;
-		maxspread[0].x = playr->pos.x + (spread >> 1);
-		maxspread[1].x = playr->pos.x + (spread >> 1);
-		break;
-	case D_EAST:
-		maxspread[0].x = maxspread[1].x = playr->pos.x;
-		maxspread[0].y = playr->pos.y - (spread >> 1);
-		maxspread[1].y = playr->pos.y + (spread >> 1);
-		break;
-	default:
-		N_Error("Unknown/Invalid Player Direction: %hu", playr->pdir);
-		break;
-	};
+	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
 
 	nomadshort_t offset;
 	nomadushort_t o;
@@ -172,4 +177,29 @@ void P_ShootShotty(Weapon* const wpn)
 void P_ShootSingle(Weapon* const wpn)
 {
 	nomadenum_t spread = wpn->c_wpn.spread;
+	nomaduint_t range = wpn->c_wpn.range;
+	nomadshort_t a{};
+	coord_t slope;
+	
+	coord_t maxspread[2];
+	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
+
+	nomadshort_t offset;
+	a = P_Random() & 4;
+	if (playr->pstate == S_PLAYR_SHOOT) {
+		if (a > 2)
+			offset = (-P_Random() & -2) + -2;
+		else
+			offset = (P_Random() & 2) + 2;
+	}
+	else {
+		if (a > 2)
+			offset = -P_Random() & -2;
+		else
+			offset = P_Random() & 2;
+		playr->pstate = S_PLAYR_SHOOT;
+	}
+	slope.y = maxspread[(P_Random() & 1)].y + offset;
+	slope.x = maxspread[(P_Random() & 1)].x + offset;
+	G_CastRay(slope, range, wpn);
 }

@@ -108,7 +108,7 @@ const char* missionstrings[NUMMISSIONTYPES] = {
 	"Infiltration",
 };
 
-// id, dmg, range, rng, spread, magsize
+// id, dmg, range, rng, spread, magsize, numpellets (shotguns only)
 /*
 * for shotguns, damage is damage per pellet maximum.
 * for anything shooting bursts (besides the burst shotgun),

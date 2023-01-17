@@ -71,7 +71,9 @@ static std::vector<Tribe*> tribes; // a list of all the tribes active in the gam
 
 void NomadAssigner(Game* const gptr)
 {
+#ifdef _NOMAD_DEBUG
 	assert(gptr);
+#endif
 	game = gptr;
 }
 
@@ -83,12 +85,11 @@ void T_Interact()
 
 void B_GenNomadTribe()
 {
-	Z_CheckHeap();
 	nomadenum_t numwarriors = P_Random() & 2;
 	nomadenum_t numbots = (P_Random() & 4)+3;
 	nomadushort_t i;
 	std::vector<Mob*>& m_Active = game->m_Active;
-	std::vector<NPC*>& b_Active = game->b_Active;
+//	std::vector<NPC*>& b_Active = game->b_Active;
 	Tribe* tribe = (Tribe *)Z_Malloc(sizeof(Tribe), TAG_STATIC, &tribe);
 	area_t& area = tribe->area;
 	coord_t& tl = area[0];
@@ -104,24 +105,24 @@ void B_GenNomadTribe()
 	br.y = bl.y;
 	br.x = tr.x;
 	std::vector<nomad_t*>& warriors = tribe->warriors;
-	std::vector<nomad_t*>& bots = tribe->bots;
+//	std::vector<nomad_t*>& bots = tribe->bots;
 	tribe->leader = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &tribe->leader);
 	nomad_t* leader = tribe->leader;
 	leader->pos.y = tl.y + ((rand() % 13));
 	leader->pos.x = tl.x + ((rand() % 13));
 	m_Active.emplace_back();
 	m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
-	b_Active.emplace_back();
-	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
+//	b_Active.emplace_back();
+//	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 	// nomadic leaders are the only ones in a tribe who can be both diplomats as well as soldiers
-	leader->npc = npcinfo[BOT_NOMAD_CIVILIAN];
+//	leader->npc = npcinfo[BOT_NOMAD_CIVILIAN]; // need data in this array or SEGGY
 	leader->mob = mobinfo[MT_NOMAD_LEADER];
 	m_Active.back()->c_mob = leader->mob;
-	b_Active.back()->c_npc = leader->npc;
+//	b_Active.back()->c_npc = leader->npc;
 
 	warriors.reserve(numwarriors);
-	bots.reserve(numbots);
-
+//	bots.reserve(numbots);
+/*
 	for (i = 0; i < numbots; ++i) {
 		bots.emplace_back();
 		b_Active.emplace_back();
@@ -132,7 +133,7 @@ void B_GenNomadTribe()
 		bot->pos.y = tl.y + ((rand() % 13));
 		bot->pos.x = tl.x + ((rand() % 13));
 		b_Active.back()->c_npc = bot->npc;
-	}
+	}*/
 	for (i = 0; i < numwarriors; ++i) {
 		warriors.emplace_back();
 		m_Active.emplace_back();

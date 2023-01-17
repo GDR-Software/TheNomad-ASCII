@@ -296,6 +296,9 @@ void Playr::P_RunTicker(nomadint_t input)
 	case KEY_TILDA:
 		
 		break;
+	case ctrl('v'):
+		P_ShootShotty(P_wpns[0]);
+		break;
 	case KEY_GRAVE:
 		CommandConsole(game);
 		break;

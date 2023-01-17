@@ -105,7 +105,7 @@ void Game::I_InitNPCs(void)
 	NomadAssigner(this);
 	MissionAssigner(this);
 	B_SpawnShopBots();
-//	B_GenNomadTribe();
+	B_GenNomadTribe();
 }
 
 static nomadbool_t B_IsScared(NPC* const npc)

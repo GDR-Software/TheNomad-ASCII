@@ -43,8 +43,8 @@ class Playr {
 public:
 	std::string name;
 	sprite_t sprite;
-	nomadint_t health;
-	nomadushort_t armor;
+	std::atomic<nomadint_t> health;
+	std::atomic<nomadushort_t> armor;
 	nomadenum_t pdir;
 	nomadushort_t lvl;
 	nomadint_t coin;
@@ -52,7 +52,7 @@ public:
 	nomadenum_t sector_id;
 	Weapon* P_wpns[MAX_PLAYR_WPNS];
 	std::vector<Item*> inv;
-	nomadint_t body_health[4];
+	std::atomic<nomadint_t> body_health[4];
 	nomaduint_t pstate;
 	std::atomic<nomadenum_t> pmode;
 	nomadenum_t lastmoved;
