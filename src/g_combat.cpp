@@ -176,30 +176,32 @@ void P_ShootShotty(Weapon* const wpn)
 // gonna need a ticker for this one, y'know, for delays between shots
 void P_ShootSingle(Weapon* const wpn)
 {
-	nomadenum_t spread = wpn->c_wpn.spread;
-	nomaduint_t range = wpn->c_wpn.range;
-	nomadshort_t a{};
-	coord_t slope;
+	if (playr->pticker != -1 && playr->pstate == S_PLAYR_SHOOT) {
+		nomadenum_t spread = wpn->c_wpn.spread;
+		nomaduint_t range = wpn->c_wpn.range;
+		nomadshort_t a{};
+		coord_t slope;
+		
+		coord_t maxspread[2];
+		G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
 	
-	coord_t maxspread[2];
-	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
-
-	nomadshort_t offset;
-	a = P_Random() & 4;
-	if (playr->pstate == S_PLAYR_SHOOT) {
-		if (a > 2)
-			offset = (-P_Random() & -2) + -2;
-		else
-			offset = (P_Random() & 2) + 2;
+		nomadshort_t offset;
+		a = P_Random() & 4;
+		if (playr->pstate == S_PLAYR_SHOOT) {
+			if (a > 2)
+				offset = (-P_Random() & -2) + -2;
+			else
+				offset = (P_Random() & 2) + 2;
+		}
+		else {
+			if (a > 2)
+				offset = -P_Random() & -2;
+			else
+				offset = P_Random() & 2;
+			playr->pstate = S_PLAYR_SHOOT;
+		}
+		slope.y = maxspread[(P_Random() & 1)].y + offset;
+		slope.x = maxspread[(P_Random() & 1)].x + offset;
+		G_CastRay(slope, range, wpn);
 	}
-	else {
-		if (a > 2)
-			offset = -P_Random() & -2;
-		else
-			offset = P_Random() & 2;
-		playr->pstate = S_PLAYR_SHOOT;
-	}
-	slope.y = maxspread[(P_Random() & 1)].y + offset;
-	slope.x = maxspread[(P_Random() & 1)].x + offset;
-	G_CastRay(slope, range, wpn);
 }
