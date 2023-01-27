@@ -46,9 +46,9 @@ void G_GenMissionLs(std::vector<Mission>& m_ls)
             const missionseed_t* seed = &missionseeds[(P_Random() & NUMMISSIONTYPES)];
             if (seed->difficulty[0] > game->difficulty)
                 m.mindif = game->difficulty;
-            while (seed->difficulty[1] > game->difficulty || seed->difficulty[0] < game->difficulty) {
+            while (seed->difficulty[1] > game->difficulty || seed->difficulty[0] < game->difficulty)
                 seed = &missionseeds[(rand() % NUMMISSIONTYPES)];
-            }
+            
             m.type = seed->type;
             m.mobtypes = seed->mobtypes;
             m.minbounty = seed->bounty[0];

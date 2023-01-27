@@ -70,7 +70,7 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	case 0:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"| The Nomad Pre-Alpha (v%d.%d.%d) |\n"
+			"  The Nomad Pre-Alpha (v%d.%d.%d)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 		break;
@@ -83,13 +83,13 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	case 2:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Beta (v%d.%d.%d)  \n"
+			"  The Nomad Beta (v%d.%d.%d)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	case 3:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad (v%d.%d.%d)  \n"
+			"  The Nomad (v%d.%d.%d)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	default: // should theoretically never happen
@@ -118,6 +118,7 @@ static inline void TUI_Init(Game* const game)
 #endif
 	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
 	setlocale(LC_ALL, "");
+
 	initscr();
 	raw();
 	cbreak();
