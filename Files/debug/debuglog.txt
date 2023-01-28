@@ -1,95 +1,69 @@
-Z_Init: allocated zone memory from 0x7f9439c1d010 -> 0x7f94406ecc10 of size 2000000
-Z_Malloc: allocating memory block from 0x7f9439ce32a8 -> 0x7f943ca37ee8 of size 811616
-Z_Malloc: allocating memory block from 0x7f9439ce54a0 -> 0x7f943c9e5220 of size 8696
+Z_Init: allocated zone memory from 0x7f7659ca5010 -> 0x7f767b2b3c10 of size 10000000
+Z_Malloc: allocating memory block from 0x7f7659d6b2a8 -> 0x7f766fbecee8 of size 811616
+Z_Malloc: allocating memory block from 0x7f7659d6d598 -> 0x7f766fb97c58 of size 8944
 E_Init: Successfully Allocated game->playr
-Z_Malloc: allocating memory block from 0x7f9439ce5510 -> 0x7f943c9e4110 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5580 -> 0x7f943c9e3000 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce55f0 -> 0x7f943c9e1ef0 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5660 -> 0x7f943c9e0de0 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce56d0 -> 0x7f943c9dfcd0 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5740 -> 0x7f943c9debc0 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce57b0 -> 0x7f943c9ddab0 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5820 -> 0x7f943c9dc9a0 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5890 -> 0x7f943c9db890 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5900 -> 0x7f943c9da780 of size 112
-Z_Malloc: allocating memory block from 0x7f9439ce5970 -> 0x7f943c9d9670 of size 112
 I_InitNPCs: reserving 403 NPC* for b_Active
-Z_Malloc: allocating memory block from 0x7f9439ce59f0 -> 0x7f943c9d82f0 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce5a70 -> 0x7f943c9d6f70 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce5af0 -> 0x7f943c9d5bf0 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce5ba8 -> 0x7f943c9d3fe8 of size 184
-Z_Malloc: allocating memory block from 0x7f9439ce5c80 -> 0x7f943c9d1f00 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce5d70 -> 0x7f943c9cfa70 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce5df0 -> 0x7f943c9ce6f0 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce5e70 -> 0x7f943c9cd370 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce5f48 -> 0x7f943c9cb288 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce5fc8 -> 0x7f943c9c9f08 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce60a0 -> 0x7f943c9c7e20 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce6120 -> 0x7f943c9c6aa0 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce61f8 -> 0x7f943c9c49b8 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce6278 -> 0x7f943c9c3638 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce6350 -> 0x7f943c9c1550 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce63d0 -> 0x7f943c9c01d0 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce64a8 -> 0x7f943c9be0e8 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce6528 -> 0x7f943c9bcd68 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce6600 -> 0x7f943c9bac80 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce6680 -> 0x7f943c9b9900 of size 128
-Z_Malloc: allocating memory block from 0x7f9439ce6758 -> 0x7f943c9b7818 of size 216
-Z_Malloc: allocating memory block from 0x7f9439ce6848 -> 0x7f943c9b5388 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6938 -> 0x7f943c9b2ef8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6a28 -> 0x7f943c9b0a68 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6b18 -> 0x7f943c9ae5d8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6c08 -> 0x7f943c9ac148 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6cf8 -> 0x7f943c9a9cb8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6de8 -> 0x7f943c9a7828 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6ed8 -> 0x7f943c9a5398 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce6fc8 -> 0x7f943c9a2f08 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce70b8 -> 0x7f943c9a0a78 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce71a8 -> 0x7f943c99e5e8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7298 -> 0x7f943c99c158 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7388 -> 0x7f943c999cc8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7478 -> 0x7f943c997838 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7568 -> 0x7f943c9953a8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7658 -> 0x7f943c992f18 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7748 -> 0x7f943c990a88 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7838 -> 0x7f943c98e5f8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7928 -> 0x7f943c98c168 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7a18 -> 0x7f943c989cd8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7b08 -> 0x7f943c987848 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7bf8 -> 0x7f943c9853b8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7ce8 -> 0x7f943c982f28 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7dd8 -> 0x7f943c980a98 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7ec8 -> 0x7f943c97e608 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce7fb8 -> 0x7f943c97c178 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce80a8 -> 0x7f943c979ce8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8198 -> 0x7f943c977858 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8288 -> 0x7f943c9753c8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8378 -> 0x7f943c972f38 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8468 -> 0x7f943c970aa8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8558 -> 0x7f943c96e618 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8648 -> 0x7f943c96c188 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8738 -> 0x7f943c969cf8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8828 -> 0x7f943c967868 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8918 -> 0x7f943c9653d8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8a08 -> 0x7f943c962f48 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8af8 -> 0x7f943c960ab8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8be8 -> 0x7f943c95e628 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8cd8 -> 0x7f943c95c198 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8dc8 -> 0x7f943c959d08 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8eb8 -> 0x7f943c957878 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce8fa8 -> 0x7f943c9553e8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9098 -> 0x7f943c952f58 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9188 -> 0x7f943c950ac8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9278 -> 0x7f943c94e638 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9368 -> 0x7f943c94c1a8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9458 -> 0x7f943c949d18 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9548 -> 0x7f943c947888 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9638 -> 0x7f943c9453f8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9728 -> 0x7f943c942f68 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9818 -> 0x7f943c940ad8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9908 -> 0x7f943c93e648 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce99f8 -> 0x7f943c93c1b8 of size 240
-Z_Malloc: allocating memory block from 0x7f9439ce9a48 -> 0x7f943c93b588 of size 80
+Z_Malloc: allocating memory block from 0x7f7659d6d618 -> 0x7f766fb968d8 of size 128
+Z_Malloc: allocating memory block from 0x7f7659d6d698 -> 0x7f766fb95558 of size 128
+Z_Malloc: allocating memory block from 0x7f7659d6d718 -> 0x7f766fb941d8 of size 128
+Z_Malloc: allocating memory block from 0x7f7659d6d7d0 -> 0x7f766fb925d0 of size 184
+Z_Malloc: allocating memory block from 0x7f7659d6d8a8 -> 0x7f766fb904e8 of size 216
+Z_Malloc: allocating memory block from 0x7f7659d6d998 -> 0x7f766fb8e058 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6da88 -> 0x7f766fb8bbc8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6db78 -> 0x7f766fb89738 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6dc68 -> 0x7f766fb872a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6dd58 -> 0x7f766fb84e18 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6de48 -> 0x7f766fb82988 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6df38 -> 0x7f766fb804f8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e028 -> 0x7f766fb7e068 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e118 -> 0x7f766fb7bbd8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e208 -> 0x7f766fb79748 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e2f8 -> 0x7f766fb772b8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e3e8 -> 0x7f766fb74e28 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e4d8 -> 0x7f766fb72998 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e5c8 -> 0x7f766fb70508 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e6b8 -> 0x7f766fb6e078 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e7a8 -> 0x7f766fb6bbe8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e898 -> 0x7f766fb69758 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e988 -> 0x7f766fb672c8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ea78 -> 0x7f766fb64e38 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6eb68 -> 0x7f766fb629a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ec58 -> 0x7f766fb60518 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ed48 -> 0x7f766fb5e088 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ee38 -> 0x7f766fb5bbf8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ef28 -> 0x7f766fb59768 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f018 -> 0x7f766fb572d8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f108 -> 0x7f766fb54e48 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f1f8 -> 0x7f766fb529b8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f2e8 -> 0x7f766fb50528 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f3d8 -> 0x7f766fb4e098 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f4c8 -> 0x7f766fb4bc08 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f5b8 -> 0x7f766fb49778 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f6a8 -> 0x7f766fb472e8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f798 -> 0x7f766fb44e58 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f888 -> 0x7f766fb429c8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f978 -> 0x7f766fb40538 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fa68 -> 0x7f766fb3e0a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fb58 -> 0x7f766fb3bc18 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fc48 -> 0x7f766fb39788 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fd38 -> 0x7f766fb372f8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fe28 -> 0x7f766fb34e68 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ff18 -> 0x7f766fb329d8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70008 -> 0x7f766fb30548 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d700f8 -> 0x7f766fb2e0b8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d701e8 -> 0x7f766fb2bc28 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d702d8 -> 0x7f766fb29798 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d703c8 -> 0x7f766fb27308 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d704b8 -> 0x7f766fb24e78 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d705a8 -> 0x7f766fb229e8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70698 -> 0x7f766fb20558 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70788 -> 0x7f766fb1e0c8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70878 -> 0x7f766fb1bc38 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70968 -> 0x7f766fb197a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70a58 -> 0x7f766fb17318 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70b48 -> 0x7f766fb14e88 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70c38 -> 0x7f766fb129f8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70c88 -> 0x7f766fb11dc8 of size 80
 W_Init: Successfully Allocted Memory To Game World
 W_Init: Successfully Assigned Game Class World* To World* Within This Function
 M_Init: Initializing Map Data
@@ -104,6 +78,7 @@ M_Init: Successfully opened file map file
 M_Init: Successfully opened file map file
 M_Init: Successfully created RUNTIME/mapfile.txt
 M_Init: Successfully Closed RUNTIME/mapfile.txt
+Z_Malloc: allocating memory block from 0x7f7659d70db0 -> 0x7f766fb0f0b0 of size 296
 TUI_Init: game->screen allocated successfully
 TUI_Init: has_colors() = true
 Z_CheckHeap: heap check successful, no corruption within zone-allocated memory
@@ -407,3 +382,83 @@ P_Ticker: gamestate = 2
 P_Ticker: gamescreen = 1
 P_Ticker: gamestate = 2
 P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+Z_Free: freeing zone-allocated pointer at 0x7f7659d70c60
+Z_Free: freeing zone-allocated pointer at 0x7f7659d6b2d0

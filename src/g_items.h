@@ -134,6 +134,7 @@ enum
 
 typedef struct
 {
+	const char* name;
 	nomaduint_t id;
 	nomaduint_t dmg;
 	nomaduint_t range;
@@ -191,6 +192,7 @@ public: // basic item statistics
 public:
 	Item() = default;
 	Item(Item* const) = delete;
+	Item(const Item&) = delete;
 	~Item();
 };
 
@@ -201,13 +203,17 @@ public:
 public:
 	Weapon() = default;
 	Weapon(Weapon* const) = delete;
+	Weapon(const Weapon &) = delete;
 	~Weapon();
 };
 
 std::vector<collider_t>& P_GetHitEntities(Weapon* const wpn);
+void CombatAssigner(Game* const gptr);
+void ItemAssigner(Game* const gptr);
 void P_ShootShotty(Weapon* const wpn);
-void P_ShootSingle(Weapon* const wpn);
-void P_ShootAuto(Weapon* const wpn);
+void P_ShootSingle(const Weapon& wpn);
+void P_ShootAuto(const Weapon& wpn);
+void P_GiveDefault(void);
 
 
 #endif

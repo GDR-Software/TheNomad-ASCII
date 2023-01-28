@@ -50,7 +50,8 @@ public:
 	nomadint_t coin;
 	coord_t pos;
 	nomadenum_t sector_id;
-	Weapon* P_wpns[MAX_PLAYR_WPNS];
+	Weapon P_wpns[MAX_PLAYR_WPNS];
+	Weapon* c_wpn;
 	std::vector<Item*> inv;
 	std::atomic<nomadint_t> body_health[4];
 	nomaduint_t pstate;

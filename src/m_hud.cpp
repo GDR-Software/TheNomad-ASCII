@@ -40,17 +40,24 @@ static inline void Hud_DisplayVMatrix();
 static inline void Hud_DisplayWeapons();
 static inline void Hud_DisplayLocation();
 
-static nomadlong_t hudtics;
+static nomadlong_t hudtics{};
 static std::string hudbuf;
-void Hud_Printf(const char* from, const char* msg)
+static constexpr uint16_t BUFFER_SIZE = 256;
+static char* hudbuffer;
+
+void Hud_Printf(const char* from, const char* msg, ...)
 {
 #ifdef _NOMAD_DEBUG
 	assert(msg && from);
 #endif
+	va_list argptr;
+	va_start(argptr, msg);
+	vsnprintf(hudbuffer, BUFFER_SIZE, msg, argptr);
+	va_end(argptr);
 	wmove(game->screen, 30, 31);
 	wclrtoeol(game->screen);
 	wrefresh(game->screen);
-	mvwprintw(game->screen, 30, 32, "[%s] %s", from, msg);
+	mvwprintw(game->screen, 30, 32, "[%s] %s", from, hudbuffer);
 	mvwaddch(game->screen, 30, 128, '#');
 }
 
@@ -81,6 +88,9 @@ void Game::I_InitHUD(void)
 	HudAssigner(this);
 	playr->pos = origin;
 	hudtics = 0;
+	hudbuffer =  (char *)Z_Malloc(BUFFER_SIZE, TAG_STATIC, &hudbuffer);
+	if (!hudbuffer)
+		N_Error("Failed to allocate memory to hudbuffer!");
 
 	Hud_GetVMatrix();
 }
@@ -287,7 +297,7 @@ static inline void Hud_DisplayBarVitals()
 static inline void Hud_DisplayWeapons()
 {
 	nomadenum_t num = 1;
-	for (nomadenum_t i = 97; num < 4; i += 4) {
+	for (nomadenum_t i = 97; num < 4; i += 6) {
 		mvwaddch(game->screen, 7, i, '[');
 		mvwaddch(game->screen, 7, i + 1, ((char)num + '0'));
 		mvwaddch(game->screen, 7, i + 2, ']');

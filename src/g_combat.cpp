@@ -61,8 +61,8 @@ static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
 static inline void G_CastRay(const coord_t slope, nomadshort_t range, Weapon* const wpn)
 {
 	nomadshort_t y{}, x{};
-	nomadshort_t* rptr;
-	nomadshort_t mrange;
+	const nomadshort_t* rptr = nullptr;
+	nomadshort_t mrange{};
 	switch (playr->pdir) {
 	case D_NORTH:
 		mrange = range - playr->pos.y;
@@ -90,30 +90,30 @@ static inline void G_CastRay(const coord_t slope, nomadshort_t range, Weapon* co
 			if (*rptr >= mrange)
 				break;
 			
-			switch (game->c_map[y][x]) {
-			case ' ':
-			case '.':
-				break;
-			case '#':
-			case '_':
-				return; // hit a wall, the ray is finished
-				break;
-			default: {
-				if (P_Random() > wpn->c_wpn.rng) {
-					Mob* const mob = G_GetHitMob(y, x);
-					NPC* npc;
-					if (!mob) {
-						npc = G_GetHitNPC(y, x);
-						npc->health -= wpn->c_wpn.dmg;
-					}
-					else {
-						mob->health -= wpn->c_wpn.dmg;
-					}
-					if (!mob && !npc)
-						N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
-				}
-				break; }
-			};
+//			switch (game->c_map[y][x]) {
+//			case ' ':
+//			case '.':
+//				break;
+//			case '#':
+//			case '_':
+//				return; // hit a wall, the ray is finished
+//				break;
+//			default: {
+//				if (P_Random() > wpn->c_wpn.rng) {
+//					Mob* const mob = G_GetHitMob(y, x);
+//					NPC* npc = nullptr;
+//					if (!mob) {
+//						npc = G_GetHitNPC(y, x);
+//						npc->health -= wpn.c_wpn.dmg;
+//					}
+//					else {
+//						mob->health -= wpn.c_wpn.dmg;
+//					}
+//					if (!mob && !npc)
+//						N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
+//				}
+//				break; }
+//			};
 		}
 	}
 }
@@ -122,22 +122,26 @@ static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos,
 {
 	switch (dir) {
 	case D_NORTH:
-		maxspread[0].y = maxspread[1].y = pos.y;
+		maxspread[0].y = pos.y;
+		maxspread[1].y = pos.y;
 		maxspread[0].x = pos.x - (spread >> 1);
 		maxspread[1].x = pos.x + (spread >> 1);
 		break;
 	case D_WEST:
-		maxspread[0].x = maxspread[1].x = pos.x;
+		maxspread[0].x = pos.x;
+		maxspread[1].x = pos.x;
 		maxspread[0].y = pos.y + (spread >> 1);
 		maxspread[1].y = pos.y - (spread >> 1);
 		break;
 	case D_SOUTH:
-		maxspread[0].y = maxspread[1].y = pos.y;
+		maxspread[0].y = pos.y;
+		maxspread[1].y = pos.y;
 		maxspread[0].x = pos.x + (spread >> 1);
 		maxspread[1].x = pos.x + (spread >> 1);
 		break;
 	case D_EAST:
-		maxspread[0].x = maxspread[1].x = pos.x;
+		maxspread[0].x = pos.x;
+		maxspread[1].x = pos.x;
 		maxspread[0].y = pos.y - (spread >> 1);
 		maxspread[1].y = pos.y + (spread >> 1);
 		break;
@@ -174,11 +178,12 @@ void P_ShootShotty(Weapon* const wpn)
 }
 
 // gonna need a ticker for this one, y'know, for delays between shots
-void P_ShootSingle(Weapon* const wpn)
+/*
+void P_ShootSingle(const Weapon& wpn)
 {
 	if (playr->pticker != -1 && playr->pstate == S_PLAYR_SHOOT) {
-		nomadenum_t spread = wpn->c_wpn.spread;
-		nomaduint_t range = wpn->c_wpn.range;
+		nomadenum_t spread = wpn.c_wpn.spread;
+		nomaduint_t range = wpn.c_wpn.range;
 		nomadshort_t a{};
 		coord_t slope;
 		
@@ -205,3 +210,4 @@ void P_ShootSingle(Weapon* const wpn)
 		G_CastRay(slope, range, wpn);
 	}
 }
+*/

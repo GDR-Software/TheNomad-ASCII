@@ -139,7 +139,7 @@ void I_NomadInit(int argc, char* argv[], Game* const game);
 void W_Init(Game* const gptr);
 void* W_Loop(void *arg);
 void mainLoop(int argc, char* argv[]);
-void Hud_Printf(const char* from, const char* msg);
+void Hud_Printf(const char* from, const char* msg, ...);
 void MainAssigner(Game* const gptr);
 void N_Error(const char* err, ...);
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);

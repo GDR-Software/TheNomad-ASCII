@@ -100,6 +100,8 @@ void PlayrAssigner(Game* const gptr)
 void Playr::P_Init()
 {
 	playr = this;
+	CombatAssigner(game);
+	ItemAssigner(game);
 	name = "Test";
 	sprite = '@';
 	health = 100;
@@ -110,15 +112,15 @@ void Playr::P_Init()
 	pos = {0, 0};
 	sector_id = 0;
 	pmode = P_MODE_ROAMING;
-#ifndef _NOMAD_DEBUG
-	for (auto* i : P_wpns)
-		i = (Weapon *)Z_Malloc(sizeof(Weapon), TAG_STATIC, &i);
-#else
-	for (auto* i : P_wpns) {
-		i = (Weapon *)Z_Malloc(sizeof(Weapon), TAG_STATIC, &i);
-		assert(i);
-	}
-#endif
+	p_rightarm.c_wpn = wpninfo[W_ARM_HB];
+    p_leftarm.c_wpn = wpninfo[W_ARM_GRAPPLE];
+    p_sidearm.c_wpn = wpninfo[W_SIDE_PLASMA];
+    p_heavyside.c_wpn = wpninfo[W_HSIDE_SADB];
+    p_primary.c_wpn = wpninfo[W_PRIM_AK77];
+    p_heavyprimary.c_wpn = wpninfo[W_HPRIM_RAG13];
+    p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
+	c_wpn = &p_shotty;
+
 	memset(&body_health, 100, sizeof(body_health));
 	pstate &= stateinfo[S_PLAYR_NULL].id;
 }
@@ -147,6 +149,26 @@ static nomadbool_t P_MoveTicker(Playr* playr)
 			return true;
 		}
 	}
+}
+
+static inline void P_UseWeapon(Weapon* const wpn)
+{
+	switch (wpn->c_wpn.id) {
+	case W_SHOTTY_ADB:
+	case W_SHOTTY_FAB:
+	case W_SHOTTY_QS:
+		P_ShootShotty(wpn);
+		break;
+	case W_HPRIM_FUSION:
+	case W_HPRIM_HOSIG:
+	case W_HPRIM_RAG13:
+	case W_HPRIM_DR:
+//		P_ShootSingle(*wpn);
+		break;
+	default:
+		N_Error("Unknown/Invalid Weapon ID! id: %iu", wpn->c_wpn.id);
+		break;
+	};
 }
 
 void Game::P_Ticker(nomadint_t input)
@@ -297,7 +319,8 @@ void Playr::P_RunTicker(nomadint_t input)
 		
 		break;
 	case ctrl('v'):
-		P_ShootShotty(P_wpns[0]);
+		Hud_Printf("System", "You use your current weapon: %s", c_wpn->c_wpn.name);
+		P_UseWeapon(c_wpn);
 		break;
 	case KEY_GRAVE:
 		CommandConsole(game);
