@@ -36,10 +36,10 @@ static Playr* playr;
 #define primary       playr->P_wpns[4]
 #define heavyprimary  playr->P_wpns[5]
 #define shotty        playr->P_wpns[6]
-#define launcher      playr->P_wpns[7]
-#define melee1        playr->P_wpns[8]
-#define meele2        playr->P_wpns[9]
-#define melee3        playr->P_wpns[10]
+//#define launcher      playr->P_wpns[7]
+#define melee1        playr->P_wpns[7]
+#define meele2        playr->P_wpns[8]
+#define melee3        playr->P_wpns[9]
 
 void ItemAssigner(Game* const gptr)
 {
@@ -73,7 +73,6 @@ void P_GiveDefault()
     primary->c_wpn = wpninfo[W_PRIM_AK77];
     heavyprimary->c_wpn = wpninfo[W_HPRIM_RAG13];
     shotty->c_wpn = wpninfo[W_SHOTTY_QS];
-    launcher->c_wpn = wpninfo[W_LAUNCHER_MGL];
 }
 
 void P_GiveArmor(nomadenum_t armor)

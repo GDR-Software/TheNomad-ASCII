@@ -287,7 +287,7 @@ static inline void Hud_DisplayBarVitals()
 static inline void Hud_DisplayWeapons()
 {
 	nomadenum_t num = 1;
-	for (nomadenum_t i = 97; num < 9; i += 4) {
+	for (nomadenum_t i = 97; num < 4; i += 4) {
 		mvwaddch(game->screen, 7, i, '[');
 		mvwaddch(game->screen, 7, i + 1, ((char)num + '0'));
 		mvwaddch(game->screen, 7, i + 2, ']');

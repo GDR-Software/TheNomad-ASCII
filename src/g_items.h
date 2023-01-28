@@ -50,7 +50,7 @@ enum
 	W_HPRIM_DR,       // desert rifle
 	W_HPRIM_RAG13,    // ranged assault rifle, heaviest but slowest of the three
 
-	W_LAUNCHER_MGL,   // magnetic grenade launcher
+//	W_LAUNCHER_MGL,   // magnetic grenade launcher
 
 	W_ARM_HB,         // hidden blade, assassin's creed but more brutal and actually pratical
 	W_ARM_GRAPPLE,    // grappling hook, nuff said
@@ -79,7 +79,41 @@ enum
 	I_BULLET,
 	I_ROCKET,
 
-	I_COIN,
+	I_COIN_EMERALD,
+	I_COIN_GOLD,
+	I_COIN_SILVER,
+	I_COIN_COPPER,
+	I_COIN_ZINC,
+
+	I_SHOTTY_ADB,
+	I_SHOTTY_QS,
+	I_SHOTTY_FAB,
+
+	I_SIDE_AUP,
+	I_SIDE_BOS,
+	I_SIDE_FUSION,
+	I_SIDE_ION,
+	I_SIDE_PLASMA,
+
+	I_HSIDE_A8SHOT,
+	I_HSIDE_SADB,
+
+	I_PRIM_M23C5,
+	I_PRIM_AK77,
+	I_PRIM_RAG15,
+	I_PRIM_RAG14,
+	I_PRIM_PLASMASMG,
+
+	I_HPRIM_FUSION,
+	I_HPRIM_HOSIG,
+	I_HPRIM_DR,
+	I_HPRIM_RAG13,
+
+	I_ARM_HB,
+	I_ARM_GRAPPLE,
+	I_ARM_HC,
+	I_ARM_SB,
+	I_ARM_FT,
 
 	NUMITEMS,
 

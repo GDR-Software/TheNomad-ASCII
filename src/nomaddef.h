@@ -30,11 +30,25 @@
 #define CURRENCY_ZINC          0
 
 #define PLAYR_MAX_WEIGHT       1000
-#define PLAYR_MAX_WPNS         11
+#define PLAYR_MAX_WPNS         10
 #define PLAYR_NAME_MAX_LEN     100
 #define PLAYR_MAX_LVL          100
 #define PLAYR_MAX_HEALTH       100
 #define PLAYR_MAX_ARMOR        48
+
+#define COIN_EMERALD_STRING    "Coin (emerald)"
+#define COIN_GOLD_STRING       "Coin (gold)"
+#define COIN_SILVER_STRING     "Coin (silver)"
+#define COIN_COPPER_STRING     "Coin (copper)"
+#define COIN_ZINC_STRING       "Coin (zinc)"
+
+#define SHELL_STRING           "shotgun shell"
+#define SHELLBOX_STRING        "box of shotgun shells"
+#define BULLET_STRING          "magazine of bullets"
+#define BULLETBOX_STRING       "box of bullets"
+
+#define PICKUP_AMMO(x)         "You picked up "#x"!"
+#define PICKUP_WEAPON(x)       "You got the "#x"!"
 
 #define SHOTTY_ADB_STRING      "Asturion Double-Barrel"
 #define SHOTTY_FAB_STRING      "Full-Auto Bitch"
