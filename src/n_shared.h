@@ -54,6 +54,8 @@
 #    error UNSUPPORTED COMPILER!
 #endif
 
+#include "nomaddef.h"
+
 #define __CFUNC__ extern "C"
 
 class Game;

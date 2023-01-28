@@ -26,7 +26,7 @@
 #include "g_items.h"
 #include "g_map.h"
 
-#define MAX_PLAYR_WPNS 11
+#define MAX_PLAYR_WPNS PLAYR_MAX_WPNS
 
 class Mission;
 

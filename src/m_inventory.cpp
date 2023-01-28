@@ -29,8 +29,46 @@ void InvAssigner(Game* const gptr)
     playr = game->playr;
 }
 
+#define SORT_ABC      0b0000000000 // sort the inventory alphabetically
+#define SORT_PRICEY   0b0000000001 // sort based on monetary value
+#define SORT_WEIGHT   0b0000000010 // sort based on high-to-low weight
+
 inline void Inv_DisplayMercMissions(const std::vector<Mission>& m_ls);
 inline void Inv_DisplayItems();
+
+static inline void Inv_SortItemsABC(void)
+{
+    std::sort(playr->inv.begin(), playr->inv.end(),
+        [](const Item* a, const Item* b){ return a->c_item.name < b->c_item.name; } );
+}
+static inline void Inv_SortItemPricey(void)
+{
+    std::sort(playr->inv.begin(), playr->inv.end(),
+        [](const Item* a, const Item* b){ return a->c_item.item_cost < b->c_item.item_cost; } );
+}
+static inline void Inv_SortItemsWeight(void)
+{
+    std::sort(playr->inv.begin(), playr->inv.end(),
+        [](const Item* a, const Item* b){ return a->c_item.item_weight < b->c_item.item_cost; });
+}
+inline void Inv_SortItems(nomadenum_t sorter)
+{
+    
+    switch (sorter) {
+    case SORT_ABC:
+        Inv_SortItemsABC();
+        break;
+    case SORT_PRICEY:
+        Inv_SortItemPricey();
+        break;
+    case SORT_WEIGHT:
+        Inv_SortItemsWeight();
+        break;
+    default:
+        N_Error("Unknown/Invalid sorter value for Inv_SortItems! sorter = %hu", sorter);
+        break;
+    };
+}
 
 void G_DisplayInventory(void)
 {

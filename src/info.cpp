@@ -115,9 +115,9 @@ const char* missionstrings[NUMMISSIONTYPES] = {
 * the damage is for all the bullets, not per bullet
 */
 const weapon_t wpninfo[NUMWEAPONS] = {
-	{W_SHOTTY_SFP,  29,  12,  15,  10,  14},
-	{W_SHOTTY_SFA,  25,  12,  15,   8,  12},
-	{W_SHOTTY_FA,   21,  10,  15,  12,  20}
+	{W_SHOTTY_ADB, SHOTTY_ADB_DAMAGE, SHOTTY_ADB_RANGE, SHOTTY_RNG, SHOTTY_ADB_SPREAD, SHOTTY_},
+	{W_SHOTTY_FAB, SHOTTY_FAB_DAMAGE, SHOTTY_FAB_RANGE, SHOTTY_RNG, SHOTTY_FAB_SPREAD, SHOTTY_},
+	{W_SHOTTY_QS,  SHOTTY_QS_DAMAGE,  SHOTTY_QS_RANGE,  SHOTTY_RNG, SHOTTY_QS_SPREAD,  SHOTTY_},
 };
 
 coord_t botpos[] = {

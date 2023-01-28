@@ -42,7 +42,7 @@ enum
 	W_PRIM_M23C5,     // yes, the AR-15 platform still exists in the 91st millennium
 	W_PRIM_AK77,      // thanks to Ben Pavlovic (Milotus) for this one
 	W_PRIM_RAG15,     // why did they even approve the manufacturing of this horrible thing people call a weapon?
-	W_PRIM_RAG14,     // better than the 13, but what isn't?
+	W_PRIM_RAG14,     // better than the 15, but what isn't?
 	W_PRIM_PLASMASMG,
 
 	W_HPRIM_FUSION,   // fusion-cannon
@@ -104,7 +104,10 @@ typedef struct
 	nomaduint_t dmg;
 	nomaduint_t range;
 	nomadenum_t rng;
+
+	// even numbers only (its easier on the CPU and faster as well for the slope equation)
 	nomadenum_t spread;
+
 	nomadenum_t magsize;
 	// only ever used for shotguns
 	nomadenum_t numpellets;
@@ -115,15 +118,33 @@ typedef struct
 	nomadenum_t tfrs;
 } weapon_t;
 
-constexpr uint8_t MAXMATERIALS = 15;
+//constexpr uint8_t MAXMATERIALS = 15;
+
+typedef struct
+{
+	nomadulong_t amount;
+	nomadenum_t type;
+} money_t;
+
+money_t currency_convert(money_t from, nomadenum_t to);
+
+typedef struct
+{
+	const char* name;
+	nomaduint_t id;
+} material_t;
 
 typedef struct
 {
 	const char* name;
 	nomaduint_t item_id;
+
+	// in lbs
 	nomaduint_t item_weight;
+
+	// in gold coins
 	nomaduint_t item_cost;
-	std::vector<nomadenum_t> mtl_ls;
+	std::vector<material_t> mtl_ls;
 } item_t;
 
 extern const weapon_t wpninfo[NUMWEAPONS];
@@ -135,15 +156,17 @@ public: // basic item statistics
 	item_t c_item;
 public:
 	Item() = default;
+	Item(Item* const) = delete;
 	~Item();
 };
 
-class Weapon : public Item
+class Weapon
 {
 public:
 	weapon_t c_wpn;
 public:
 	Weapon() = default;
+	Weapon(Weapon* const) = delete;
 	~Weapon();
 };
 

@@ -47,6 +47,21 @@ void ItemAssigner(Game* const gptr)
     playr = game->playr;
 }
 
+money_t currency_convert(money_t from, nomadenum_t to)
+{
+    if (from.type == to)
+        return from;
+    
+    money_t out;
+    nomaduint_t mult = 0;
+    for (nomadenum_t i = 0; i < to; ++i)
+        mult += 100;
+    
+    out.amount = from.amount / mult;
+    out.type = to;
+    return out;
+}
+
 // called at init stage, but is only meant to give the player the starter weapons and items,
 // these will, however, be replaced when the player either loads a save file, or simply plays the game
 void P_GiveDefault()
