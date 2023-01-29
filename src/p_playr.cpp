@@ -318,6 +318,76 @@ void Playr::P_RunTicker(nomadint_t input)
 	case KEY_TILDA:
 		
 		break;
+	case '1':
+		c_wpn = &p_leftarm;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '2':
+		c_wpn = &p_rightarm;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '3':
+		c_wpn = &p_sidearm;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '4':
+		c_wpn = &p_heavyside;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '5':
+		c_wpn = &p_primary;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '6':
+		c_wpn = &p_heavyprimary;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '7':
+		c_wpn = &p_shotty;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '8':
+		c_wpn = &p_melee1;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '9':
+		c_wpn = &p_melee2;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
+	case '0':
+		c_wpn = &p_melee3;
+		wmove(game->screen, 9, 97);
+		wclrtoeol(game->screen);
+		wrefresh(game->screen);
+		mvwaddch(game->screen, 9, 128, '#');
+		break;
 	case ctrl('v'):
 		Hud_Printf("System", "You use your current weapon: %s", c_wpn->c_wpn.name);
 		P_UseWeapon(c_wpn);

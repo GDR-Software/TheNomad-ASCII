@@ -58,63 +58,16 @@ static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
 // calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
 // that entity
 //
-static inline void G_CastRay(const coord_t slope, nomadshort_t range, Weapon* const wpn)
-{
-	nomadshort_t y{}, x{};
-	const nomadshort_t* rptr = nullptr;
-	nomadshort_t mrange{};
-	switch (playr->pdir) {
-	case D_NORTH:
-		mrange = range - playr->pos.y;
-		rptr = &y;
-		break;
-	case D_WEST:
-		mrange = range - playr->pos.x;
-		rptr = &x;
-		break;
-	case D_SOUTH:
-		mrange = range + playr->pos.y;
-		rptr = &y;
-		break;
-	case D_EAST:
-		mrange = range + playr->pos.x;
-		rptr = &x;
-		break;
-	default:
-		N_Error("Unknown/Invalid Player Direction: %hu", playr->pdir);
-		break;
-	};
-	for (y = playr->pos.y;; y += slope.y) {
-		for (x = playr->pos.x;; x += slope.x) {
-			// fixed
-			if (*rptr >= mrange)
-				break;
-			
-//			switch (game->c_map[y][x]) {
-//			case ' ':
-//			case '.':
-//				break;
-//			case '#':
-//			case '_':
-//				return; // hit a wall, the ray is finished
-//				break;
-//			default: {
-//				if (P_Random() > wpn->c_wpn.rng) {
-//					Mob* const mob = G_GetHitMob(y, x);
-//					NPC* npc = nullptr;
-//					if (!mob) {
-//						npc = G_GetHitNPC(y, x);
-//						npc->health -= wpn.c_wpn.dmg;
-//					}
-//					else {
-//						mob->health -= wpn.c_wpn.dmg;
-//					}
-//					if (!mob && !npc)
-//						N_Error("Hit An Invalid Entity (both pointers were NULL, but collided with a char not meant to be there), Corrupt Memory?");
-//				}
-//				break; }
-//			};
-		}
+static inline void G_CastRay(coord_t c1, coord_t c2, Weapon* const wpn) {
+	coord_t d, s;
+	d.x = abs(c2.x - c1.x), s.x = c1.x < c2.x ? 1 : -1;
+	d.y = abs(c2.y - c1.y), s.y = c1.y < c2.y ? 1 : -1;
+	nomadint_t err = (d.x > d.y ? d.x : -d.y) >> 1, e2;
+
+	while (c1.x != c2.x || c1.y != c2.y) {
+		e2 = err;
+		if (e2 > -d.x) { err -= d.y; c1.x += s.x; }
+		if (e2 < d.y) { err += d.x; c1.y += s.y; }
 	}
 }
 
@@ -157,7 +110,7 @@ void P_ShootShotty(Weapon* const wpn)
 	nomadenum_t numpellets = wpn->c_wpn.numpellets;
 	nomaduint_t range = wpn->c_wpn.range;
 	nomadshort_t a{};
-	coord_t slope;
+	coord_t slope, endpoint{};
 
 	coord_t maxspread[2]; // 0 -> left, 1 -> right
 	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
@@ -173,7 +126,25 @@ void P_ShootShotty(Weapon* const wpn)
 		
 		slope.y = maxspread[(P_Random() & 1)].y + offset;
 		slope.x = maxspread[(P_Random() & 1)].x + offset;
-		G_CastRay(slope, range, wpn);
+		switch (playr->pdir) {
+		case D_NORTH:
+			endpoint.y = slope.y - range;
+			endpoint.x = slope.x;
+			break;
+		case D_WEST:
+			endpoint.y = slope.y;
+			endpoint.x = slope.x - range;
+			break;
+		case D_SOUTH:
+			endpoint.y = slope.y + range;
+			endpoint.x = slope.x;
+			break;
+		case D_EAST:
+			endpoint.y = slope.y;
+			endpoint.x = slope.x + range;
+			break;
+		};
+		G_CastRay(playr->pos, endpoint, wpn);
 	}
 }
 

@@ -72,7 +72,7 @@ static inline void Hud_DisplayConsole()
 		wclrtoeol(game->screen);
 		wrefresh(game->screen);
 		mvwaddch(game->screen, 30, 128, '#');
-		// TODO: there's a small bug where a bit of the border is cleared as well, fix
+		// fixed the FIXME
 	}
 }
 
@@ -121,17 +121,6 @@ static inline void Hud_InsertSprites()
 		game->c_map[i->pos.y][i->pos.x] = i->c_npc.sprite;
 	for (const auto* i : game->m_Active)
 		game->c_map[i->mpos.y][i->mpos.x] = i->c_mob.sprite;
-	/*
-	nomadushort_t i;
-	for (i = 0; i < game->b_Active.size(); ++i) {
-		const NPC* npc = game->b_Active[i];
-		game->c_map[npc->pos.y][npc->pos.x] = npc->c_npc.sprite;
-	}
-	for (i = 0; i < game->m_Active.size(); ++i) {
-		const Mob* mob = game->m_Active[i];
-		game->c_map[mob->mpos.y][mob->mpos.x] = mob->c_mob.sprite;
-	}
-	*/
 }
 
 static inline nomaduint_t B_GetSector(coord_t pos)
@@ -297,12 +286,45 @@ static inline void Hud_DisplayBarVitals()
 static inline void Hud_DisplayWeapons()
 {
 	nomadenum_t num = 1;
-	for (nomadenum_t i = 97; num < 4; i += 6) {
+	for (nomadenum_t i = 97; num < 10; i += 3) {
 		mvwaddch(game->screen, 7, i, '[');
 		mvwaddch(game->screen, 7, i + 1, ((char)num + '0'));
 		mvwaddch(game->screen, 7, i + 2, ']');
 		++num;
 	}
+	mvwaddch(game->screen, 7, 124, '[');
+	mvwaddch(game->screen, 7, 125, '0');
+	mvwaddch(game->screen, 7, 126, ']');
+	mvwaddstr(game->screen, 8,  97, "[Weapon In Hand]:");
+	mvwaddstr(game->screen, 9,  97, playr->c_wpn->c_wpn.name);
+}
+
+void Hud_DisplayWpnSlot(nomadenum_t wpn_slot)
+{
+	switch (wpn_slot) {
+	case 0:
+		return;
+		break;
+	case 1:
+		mvwprintw(game->screen, 8,  97, "1) %s", leftarm.c_wpn.name);
+		mvwprintw(game->screen, 9,  97, "2) %s", rightarm.c_wpn.name);
+		mvwprintw(game->screen, 10, 97, "3) %s", melee1.c_wpn.name);
+		mvwprintw(game->screen, 11, 97, "4) %s", melee2.c_wpn.name);
+		mvwprintw(game->screen, 12, 97, "5) %s", melee3.c_wpn.name);
+		break;
+	case 2:
+		mvwprintw(game->screen, 8,  97, "1) %s", sidearm.c_wpn.name);
+		mvwprintw(game->screen, 9,  97, "2) %s", heavyside.c_wpn.name);
+		break;
+	case 3:
+		mvwprintw(game->screen, 8,  97, "1) %s", primary.c_wpn.name);
+		mvwprintw(game->screen, 9,  97, "2) %s", heavyprimary.c_wpn.name);
+		mvwprintw(game->screen, 10, 97, "3) %s", shotty.c_wpn.name);
+		break;
+	default:
+		N_Error("Invalid wpn_slot selected: %hu", wpn_slot);
+		break;
+	};
 }
 
 static inline void Hud_DisplayVMatrix()

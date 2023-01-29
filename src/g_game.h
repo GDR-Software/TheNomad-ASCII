@@ -93,6 +93,7 @@ public: // *** multithreading! ***
 	pthread_t mthread;
 	pthread_t nthread;
 	pthread_t wthread;
+	pthread_t pthread;
 #ifdef __unix__
 	pid_t mobid;
 	pid_t npcid;
@@ -140,6 +141,7 @@ void W_Init(Game* const gptr);
 void* W_Loop(void *arg);
 void mainLoop(int argc, char* argv[]);
 void Hud_Printf(const char* from, const char* msg, ...);
+void Hud_DisplayWpnSlot(nomadenum_t wpn_slot);
 void MainAssigner(Game* const gptr);
 void N_Error(const char* err, ...);
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);

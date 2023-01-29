@@ -37,7 +37,7 @@
 #define heavyprimary  playr->P_wpns[5]
 #define shotty        playr->P_wpns[6]
 #define melee1        playr->P_wpns[7]
-#define meele2        playr->P_wpns[8]
+#define melee2        playr->P_wpns[8]
 #define melee3        playr->P_wpns[9]
 
 #define p_rightarm      P_wpns[0]
@@ -48,7 +48,7 @@
 #define p_heavyprimary  P_wpns[5]
 #define p_shotty        P_wpns[6]
 #define p_melee1        P_wpns[7]
-#define p_meele2        P_wpns[8]
+#define p_melee2        P_wpns[8]
 #define p_melee3        P_wpns[9]
 
 #define PLAYR_MAX_WEIGHT       1000

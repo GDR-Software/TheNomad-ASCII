@@ -101,6 +101,7 @@ int main(int argc, char* argv[])
 	signal(SIGABRT, signal_unnatural_demise);
 	signal(SIGILL, signal_somethins_corrupt);
 	signal(SIGQUIT, signal_interrupt);
+	signal(SIGKILL, signal_interrupt);
 	set_nonblock();
 #endif
 #ifdef _NOMAD_DEBUG

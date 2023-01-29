@@ -47,6 +47,7 @@ Game::~Game()
 		pthread_kill(wthread, SIGTERM);
 		pthread_kill(mthread, SIGTERM);
 		pthread_kill(nthread, SIGTERM);
+		pthread_kill(pthread, SIGTERM);
 	}
 	delwin(screen);
 	attroff(COLOR_PAIR(0));
