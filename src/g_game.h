@@ -148,4 +148,7 @@ nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);
 std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
 	nomadshort_t range, Game* const game);
 
+extern const char* logosplash;
+extern const char* companysplash;
+
 #endif

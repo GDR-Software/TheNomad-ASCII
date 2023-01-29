@@ -109,6 +109,23 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	E_Init(game);
 	W_Init(game);
 	TUI_Init(game);
+	nomadenum_t counter = 0;
+	waddstr(game->screen, companysplash);
+	wrefresh(game->screen);
+	while (counter != 2) {
+		if (getc(stdin) == '\n' || ' ') { break; }
+		std::this_thread::sleep_for(1s);
+		++counter;
+	}
+	counter = 0;
+	werase(game->screen);
+	waddstr(game->screen, logosplash);
+	wrefresh(game->screen);
+	while (counter != 4) {
+		if (getc(stdin) == '\n' || ' ') { break; }
+		std::this_thread::sleep_for(1s);
+		++counter;
+	}
 }
 
 static inline void TUI_Init(Game* const game)
