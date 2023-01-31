@@ -40,8 +40,13 @@ public:
 public:
     World() = default;
     ~World() = delete;
+    void GenDungeon(void);
 };
 
+void P_Pickup(Weapon* wpn);
+void P_Pickup(Weapon& wpn);
+void P_Pickup(Item& item);
+void P_Pickup(Item* item);
 void W_KillWorld();
 
 #endif

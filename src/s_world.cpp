@@ -145,6 +145,26 @@ void* W_Loop(void *arg)
 static inline void* N_Looper(void* arg);
 static inline void* M_Looper(void *arg);
 
+void P_Pickup(Weapon& wpn)
+{
+	Hud_Printf("System", "You picked up an item: %s", wpn.c_wpn.name);
+}
+
+void P_Pickup(Weapon* wpn)
+{
+	Hud_Printf("System", "You picked up an item: %s", wpn->c_wpn.name);
+}
+
+void P_Pickup(Item& item)
+{
+	Hud_Printf("System", "You picked up an item: %s", item.c_item.name);
+}
+
+void P_Pickup(Item* item)
+{
+	Hud_Printf("System", "You picked up an item: %s", item->c_item.name);
+}
+
 static void W_RoamingLoop(void)
 {
 #ifdef _NOMAD_DEBUG

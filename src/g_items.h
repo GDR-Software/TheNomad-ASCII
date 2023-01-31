@@ -57,6 +57,17 @@ enum
 	W_ARM_HC,         // hand-cannon, slightly less powerful 8-shot but you put it on your forearm, fucks the user up
 	W_ARM_SB,         // sound-blaster, nope, not the MS-DOS thing, but instead a hand cannon that make craters with sound waves
 	W_ARM_FT,         // people are crazy enough the actually attach a flame-thrower onto their arms in Bellatum Terrae, very effective croud control
+	
+	W_MELEE_BASTARD,  // bastard sword
+	W_MELEE_DAGGER,   // dagger
+	W_MELEE_TANTO,    // tanto
+	W_MELEE_KANTANA,  // kantana
+	W_MELEE_LONG,     // long-sword
+	W_MELEE_SHORT,    // short-sword
+	W_MELEE_MORNING,  // morning-star
+	W_MELEE_MACE,     // mace
+	W_MELEE_CROSSBOW, // crossbow
+	W_MELEE_BALLISTA, // ballista
 
 	NUMWEAPONS,
 
