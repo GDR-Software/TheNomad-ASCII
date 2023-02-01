@@ -184,16 +184,17 @@ static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos,
 		down.x = pos.x;
 		break;
 	case D_SOUTH:
+		coord_t& left = maxspread[0];
+		coord_t& right = maxspread[1];
 		maxspread[0].y = pos.y;
 		maxspread[1].y = pos.y;
 		maxspread[0].x = pos.x + rspread;
 		maxspread[1].x = pos.x - rspread;
 		break;
 	case D_EAST:
-		maxspread[0].x = pos.x;
-		maxspread[1].x = pos.x;
-		maxspread[0].y = pos.y - rspread;
-		maxspread[1].y = pos.y + rspread;
+		coord_t& up = maxspread[0];
+		coord_t& down = maxspread[1];
+
 		break;
 	default:
 		N_Error("Unknown/Invalid Entity Direction: %hu", dir);
