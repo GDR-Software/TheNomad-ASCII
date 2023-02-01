@@ -27,7 +27,7 @@
 #define _N_SHARED_
 
 // if you got this, well then, port it
-#if !defined(__unix__) || (_WIN32)
+#if !defined(__unix__) && !defined(_WIN32)
 #   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
 #endif
 
@@ -223,6 +223,15 @@ typedef struct
 {
 	nomadenum_t height, width;
 } dim_t;
+
+// this stuff'll come in a full-on header library in the future
+#ifdef __unix__
+#define initscreen() initscr()
+#define endscreen() endwin()
+#elif defined(_WIN32)
+#define initscreen() AllocConsole()
+#define endscreen() FreeConsole()
+#endif
 
 nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
