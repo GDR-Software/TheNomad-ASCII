@@ -164,33 +164,73 @@ static inline void G_GetEndpoint(coord_t& end, coord_t start, Weapon* const wpn,
 
 static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos, coord_t* maxspread)
 {
+	// use bit-shifts if this gets too slow
+	rspread = spread / 2;
 	switch (dir) {
 	case D_NORTH:
-		maxspread[0].y = pos.y;
-		maxspread[1].y = pos.y;
-		maxspread[0].x = pos.x - (spread >> 1);
-		maxspread[1].x = pos.x + (spread >> 1);
+		coord_t& left = maxspread[0];
+		coord_t& right = maxspread[1];
+		left.y = pos.y;
+		left.x = pos.x - rspread;
+		right.y = pos.y;
+		right.x = pos.x + rspread;
 		break;
 	case D_WEST:
-		maxspread[0].x = pos.x;
-		maxspread[1].x = pos.x;
-		maxspread[0].y = pos.y + (spread >> 1);
-		maxspread[1].y = pos.y - (spread >> 1);
+		coord_t& up = maxspread[0];
+		coord_t& down = maxspread[1];
+		up.y = pos.y - rspread;
+		up.x = pos.x;
+		down.y = pos.y + rspread;
+		down.x = pos.x;
 		break;
 	case D_SOUTH:
 		maxspread[0].y = pos.y;
 		maxspread[1].y = pos.y;
-		maxspread[0].x = pos.x + (spread >> 1);
-		maxspread[1].x = pos.x + (spread >> 1);
+		maxspread[0].x = pos.x + rspread;
+		maxspread[1].x = pos.x - rspread;
 		break;
 	case D_EAST:
 		maxspread[0].x = pos.x;
 		maxspread[1].x = pos.x;
-		maxspread[0].y = pos.y - (spread >> 1);
-		maxspread[1].y = pos.y + (spread >> 1);
+		maxspread[0].y = pos.y - rspread;
+		maxspread[1].y = pos.y + rspread;
 		break;
 	default:
 		N_Error("Unknown/Invalid Entity Direction: %hu", dir);
+		break;
+	};
+}
+
+static inline area_t G_DoShottyCollider(nomaduint_t range, coord_t maxspread[2], nomadenum_t dir, coord_t start)
+{
+	area_t collider;
+	coord_t& tl = collider[0];
+	coord_t& tr = collider[1];
+	coord_t& br = collider[2];
+	coord_t& bl = collider[3];
+	switch (dir) {
+	case D_NORTH:
+		tl.y = pos.y - range;
+		tl.x = pos.x - maxspread[0].x;
+		tr.y = pos.y - range;
+		tr.x = pos.x + maxspread[1].x;
+		br.y = pos.y;
+		br.x = pos.x + maxspread[1].x;
+		bl.y = pos.y;
+		bl.x = pos.x - maxspread[0].x;
+		break;
+	case D_WEST:
+		tl.y = pos.y - maxspread[];
+		tl.x = pos.x - range;
+		tr.y = pos.y - maxspread[1];
+		tr.x = pos.x;
+		br.y = pos.y - maxspread[1].y;
+		br.x = pos.x + maxspread[1].x;
+		bl.y = pos.y - maxspread[0].y;
+		break;
+	case D_SOUTH:
+		break;
+	case D_EAST:
 		break;
 	};
 }
@@ -201,22 +241,32 @@ void P_ShootShotty(Weapon* const wpn)
 	nomadenum_t numpellets = wpn->c_wpn.numpellets;
 	nomaduint_t range = wpn->c_wpn.range;
 	nomadshort_t a{};
-	coord_t slope{}, end{};
+	coord_t slope{};
 
-	coord_t maxspread[2]; // 0 -> left, 1 -> right
+	coord_t maxspread[2]; // 0 -> left, 1 -> right, for east and west: 0 -> up, 1 -> down
 	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
 
 	nomadshort_t offset;
 	nomadushort_t o;
+	nomadbool_t left;
+	
+	area_t collider = G_DoShottyCollider(range, maxspread, playr->pdir, playr->pos);
 	for (o = 0; o < numpellets; ++o) {
 		a = P_Random() & 4;
-		if (a > 2)
+		if (a > 2) {
 			offset = -P_Random() & -2;
-		else
+		} else {
 			offset = P_Random() & 2;
-		
-		G_GetEndpoint(end, playr->pos, wpn, playr->pdir, maxspread);
-		G_CastRay(playr->pos, end, wpn);
+		}
+		left = P_Random() & 1;
+		if (left) {
+			slope.y = maxspread[0].y;
+			slope.x = maxspread[0].x + offset;
+		}
+		else {
+			slope.y = maxspread[1].y;
+			slope.x = maxspread[1].x + offset;
+		}
 	}
 }
 
