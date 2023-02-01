@@ -186,15 +186,18 @@ static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos,
 	case D_SOUTH:
 		coord_t& left = maxspread[0];
 		coord_t& right = maxspread[1];
-		maxspread[0].y = pos.y;
-		maxspread[1].y = pos.y;
-		maxspread[0].x = pos.x + rspread;
-		maxspread[1].x = pos.x - rspread;
+		left.y = pos.y;
+		left.x = pos.x - rspread;
+		right.y = pos.y;
+		right.x = pos.x + rspread;
 		break;
 	case D_EAST:
 		coord_t& up = maxspread[0];
 		coord_t& down = maxspread[1];
-
+		up.y = pos.y - rspread;
+		up.x = pos.x;
+		down.y = pos.y + rspread;
+		down.x = pos.x;
 		break;
 	default:
 		N_Error("Unknown/Invalid Entity Direction: %hu", dir);
@@ -221,19 +224,29 @@ static inline area_t G_DoShottyCollider(nomaduint_t range, coord_t maxspread[2],
 		bl.x = pos.x - maxspread[0].x;
 		break;
 	case D_WEST:
-		tl.y = pos.y - maxspread[];
+		tl.y = pos.y - maxspread[0].y;
 		tl.x = pos.x - range;
-		tr.y = pos.y - maxspread[1];
+		tr.y = pos.y - maxspread[0].y;
 		tr.x = pos.x;
-		br.y = pos.y - maxspread[1].y;
-		br.x = pos.x + maxspread[1].x;
-		bl.y = pos.y - maxspread[0].y;
+		br.y = pos.y + maxspread[1].y;
+		br.x = pos.x;
+		bl.y = pos.y - maxspread[1].y;
+		bl.x = pos.x - range;
 		break;
 	case D_SOUTH:
+		tl.y = pos.y;
+		tl.x = pos.x - maxspread[0].x;
+		tr.y = pos.y;
+		tr.x = pos.x + maxspread[1].x;
+		bl.y = pos.y + range;
+		bl.x = pos.x - maxspread[0].x;
+		br.y = pos.y + range;
+		br.x = pos.x + maxspread[1].x;
 		break;
 	case D_EAST:
 		break;
 	};
+	return collider
 }
 
 void P_ShootShotty(Weapon* const wpn)
@@ -242,31 +255,26 @@ void P_ShootShotty(Weapon* const wpn)
 	nomadenum_t numpellets = wpn->c_wpn.numpellets;
 	nomaduint_t range = wpn->c_wpn.range;
 	nomadshort_t a{};
-	coord_t slope{};
+	coord_t start{};
 
-	coord_t maxspread[2]; // 0 -> left, 1 -> right, for east and west: 0 -> up, 1 -> down
+	coord_t maxspread[2]; // for north and south: 0 -> left, 1 -> right. For east and west: 0 -> up, 1 -> down
 	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
 
 	nomadshort_t offset;
 	nomadushort_t o;
-	nomadbool_t left;
+	nomadbool_t left{};
+	left = P_Random() & 1;
+	nomadbool_t upper{};
+	upper = P_Random() & 1;
 	
 	area_t collider = G_DoShottyCollider(range, maxspread, playr->pdir, playr->pos);
 	for (o = 0; o < numpellets; ++o) {
-		a = P_Random() & 4;
-		if (a > 2) {
-			offset = -P_Random() & -2;
-		} else {
-			offset = P_Random() & 2;
-		}
-		left = P_Random() & 1;
-		if (left) {
-			slope.y = maxspread[0].y;
-			slope.x = maxspread[0].x + offset;
-		}
-		else {
-			slope.y = maxspread[1].y;
-			slope.x = maxspread[1].x + offset;
+		for (auto* i : game->m_Active) {
+			if ((i->mpos.y > collider[0].y && i->mpos.y < collider[3].y)
+			 && (i->mpos.x > collider[0].x && i->mpos.x < collider[3].x)) {
+				// hit a mob
+				break;
+			}
 		}
 	}
 }
