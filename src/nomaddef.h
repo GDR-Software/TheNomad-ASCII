@@ -69,8 +69,8 @@
 #define BULLET_STRING          "magazine of bullets"
 #define BULLETBOX_STRING       "box of bullets"
 
-#define PICKUP_AMMO(x)         "You picked up "#x"!"
-#define PICKUP_WEAPON(x)       "You got the "#x"!"
+#define PICKUP_AMMO(x)         "You picked up "x"!"
+#define PICKUP_WEAPON(x)       "You got the "x"!"
 
 #define SHOTTY_ADB_STRING      "Asturion Double-Barrel"
 #define SHOTTY_FAB_STRING      "Full-Auto Bitch"
@@ -150,16 +150,16 @@
 #define ARM_SB_WEIGHT          13
 #define ARM_FT_WEIGHT          18
 
-#define SHOTTY_ADB_NUMPELLETS  14
+#define SHOTTY_ADB_NUMPELLETS  10
 #define SHOTTY_FAB_NUMPELLETS  8
 #define SHOTTY_QS_NUMPELLETS   4
 
-#define SHOTTY_ADB_SPREAD      14
-#define SHOTTY_FAB_SPREAD      10
-#define SHOTTY_QS_SPREAD       8
+#define SHOTTY_ADB_SPREAD      9
+#define SHOTTY_FAB_SPREAD      7
+#define SHOTTY_QS_SPREAD       5
 #define BURST2_SPREAD          2
-#define BURST3_SPREAD          4
-#define BURST4_SPREAD          6
+#define BURST3_SPREAD          3
+#define BURST4_SPREAD          5
 #define SINGLE_SPREAD          1
 #define AUTO_SPREAD            6
 
@@ -191,10 +191,10 @@
 #define HPRIM_RAG13_MAGSIZE    24
 
 // always in pints
-#define SHOTTY_ADB_RANGE       34
-#define SHOTTY_FAB_RANGE       14
-#define SHOTTY_QS_RANGE        10
-#define SIDE_AUP_RANGE         89
+#define SHOTTY_ADB_RANGE       20
+#define SHOTTY_FAB_RANGE       12
+#define SHOTTY_QS_RANGE        8
+#define SIDE_AUP_RANGE         23
 #define SIDE_BOS_RANGE         39
 #define SIDE_FUSION_RANGE      43
 #define SIDE_ION_RANGE         14

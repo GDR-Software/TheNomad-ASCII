@@ -49,6 +49,54 @@ static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
 	return nullptr;
 }
 
+static inline void G_MarkWall(coord_t pos)
+{
+	for (nomadenum_t i = D_NORTH; i < 4; ++i) {
+		switch (i) {
+		case D_NORTH:
+			switch (game->c_map[pos.y - 1][pos.x]) {
+			case ' ':
+			case '.':
+				game->c_map[pos.y - 1][pos.x] = '~';
+				break;
+			default:
+				break;
+			};
+			break;
+		case D_WEST:
+			switch (game->c_map[pos.y][pos.x - 1]) {
+			case ' ':
+			case '.':
+				game->c_map[pos.y][pos.x - 1] = '~';
+				break;
+			default:
+				break;
+			};
+			break;
+		case D_SOUTH:
+			switch (game->c_map[pos.y + 1][pos.x]) {
+			case ' ':
+			case '.':
+				game->c_map[pos.y + 1][pos.x] = '~';
+				break;
+			default:
+				break;
+			};
+			break;
+		case D_EAST:
+			switch (game->c_map[pos.y][pos.x + 1]) {
+			case ' ':
+			case '.':
+				game->c_map[pos.y][pos.x + 1] = '~';
+				break;
+			default:
+				break;
+			};
+			break;
+		};
+	}
+}
+
 //
 // G_CastRay(): the general-use combat function that casts a "ray" from a line or slope,
 // and determines what it first collides with. This is really just a hitscan collider,
@@ -68,7 +116,50 @@ static inline void G_CastRay(coord_t c1, coord_t c2, Weapon* const wpn) {
 		e2 = err;
 		if (e2 > -d.x) { err -= d.y; c1.x += s.x; }
 		if (e2 < d.y) { err += d.x; c1.y += s.y; }
+		switch (game->c_map[c1.y][c1.x]) {
+		case ' ':
+		case '.':
+			break;
+//		case '_':
+		case '#':
+//		case ':':
+//		case '(':
+//		case '+':
+//		case '*':
+//		case '<':
+//		case '>':
+//		case '[':
+			G_MarkWall(c1);
+			Hud_Printf("System", "You hit a wall");
+			break;
+		};
 	}
+}
+
+static inline void G_GetEndpoint(coord_t& end, coord_t start, Weapon* const wpn, nomadenum_t dir, coord_t spread[2])
+{
+	if (dir == D_NORTH) {
+		nomadshort_t left = spread[0].x;
+		nomadshort_t right = spread[1].x;
+		for (nomadshort_t y = start.y; y > wpn->range; --y) {
+			nomadbool_t d = P_Random() & 1;
+			for (nomadshort_t )
+		}
+	}
+	/*
+	// Calculate the angle from the slope
+    nomadint_t angle = atan2(slope.y, slope.x) * 180 / M_PI;
+
+    // Calculate the endpoint considering the spread
+    angle += spread * (rand() / (RAND_MAX + 1.0) * 2 - 1);
+
+    // Convert angle to radians
+    angle = angle * M_PI / 180;
+
+    // Calculate the endpoint considering the offset
+    end.x = start.x + range * cos(angle) + offset;
+    end.y = start.y + range * sin(angle) + offset;
+	*/
 }
 
 static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos, coord_t* maxspread)
@@ -110,7 +201,7 @@ void P_ShootShotty(Weapon* const wpn)
 	nomadenum_t numpellets = wpn->c_wpn.numpellets;
 	nomaduint_t range = wpn->c_wpn.range;
 	nomadshort_t a{};
-	coord_t slope, endpoint{};
+	coord_t slope{}, end{};
 
 	coord_t maxspread[2]; // 0 -> left, 1 -> right
 	G_GetSpread(spread, playr->pdir, playr->pos, maxspread);
@@ -124,27 +215,8 @@ void P_ShootShotty(Weapon* const wpn)
 		else
 			offset = P_Random() & 2;
 		
-		slope.y = maxspread[(P_Random() & 1)].y + offset;
-		slope.x = maxspread[(P_Random() & 1)].x + offset;
-		switch (playr->pdir) {
-		case D_NORTH:
-			endpoint.y = slope.y - range;
-			endpoint.x = slope.x;
-			break;
-		case D_WEST:
-			endpoint.y = slope.y;
-			endpoint.x = slope.x - range;
-			break;
-		case D_SOUTH:
-			endpoint.y = slope.y + range;
-			endpoint.x = slope.x;
-			break;
-		case D_EAST:
-			endpoint.y = slope.y;
-			endpoint.x = slope.x + range;
-			break;
-		};
-		G_CastRay(playr->pos, endpoint, wpn);
+		G_GetEndpoint(end, playr->pos, wpn, playr->pdir, maxspread);
+		G_CastRay(playr->pos, end, wpn);
 	}
 }
 
