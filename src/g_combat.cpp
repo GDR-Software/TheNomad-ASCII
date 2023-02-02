@@ -124,53 +124,6 @@ nomadfixed_t divide_fixed_point(nomadfixed_t x, nomadfixed_t y) {
 // calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
 // that entity
 //
-static inline void G_CastRay(coord_t c1, coord_t c2) {
-	nomadshort_t dx = fixed_point_to_int(c2[1] - c1[1]);
-    nomadshort_t dy = fixed_point_to_int(c2[0] - c1[0]);
-    nomadshort_t d = 2 * dy - dx;
-    nomadshort_t incrE = 2 * dy;
-    nomadshort_t incrNE = 2 * (dy - dx);
-	nomadshort_t x = fixed_point_to_int(c1[1]);
-    nomadshort_t y = fixed_point_to_int(c1[0]);
-
-    while (x < fixed_point_to_int(c1[1])) {
-        x++;
-
-        if (d <= 0) {
-            d += incrE;
-        } else {
-            d += incrNE;
-            y++;
-		}
-    }
-}
-static inline void G_GetEndpoint(vec2_t& end, vec2_t start, Weapon* const wpn, nomadenum_t dir, nomadenum_t spread,
-	vec2_t slope)
-{
-
-	// Calculate the length of the line
-    nomadfixed_t length = to_fixed(Q_root(to_float(slope[1] * slope[1] + slope[0] * slope[0])));
-    
-    // Calculate the spread factor
-    nomadfixed_t spread_factor = (length * spread) / 100;
-    
-    // Calculate the endpoint coordinates
-    end[1] = start[1] + (slope[1] * spread_factor) / length;
-    end[0] = start[0] + (slope[0] * spread_factor) / length;
-	/*
-	// Calculate the angle from the slope
-    nomadint_t angle = atan2(slope.y, slope.x) * 180 / M_PI;
-
-    // Calculate the endpoint considering the spread
-    angle += spread * (rand() / (RAND_MAX + 1.0) * 2 - 1);
-
-    // Convert angle to radians
-    angle = angle * M_PI / 180;
-
-    // Calculate the endpoint considering the offset
-    end.x = start.x + range * cos(angle) + offset;
-    end.y = start.y + range * sin(angle) + offset; */
-}
 
 static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos, coord_t* maxspread)
 {
@@ -256,24 +209,6 @@ static inline area_t G_DoShottyCollider(nomaduint_t range, coord_t maxspread[2],
 	return collider;
 }
 
-static inline void G_DoShotty(coord_t maxspread[2], nomaduint_t range, coord_t pos, nomadbool_t left, nomadbool_t right,
-	nomadenum_t dir)
-{
-	nomadshort_t starty, endy;
-	nomadshort_t startx, endx;
-
-	if (dir == D_NORTH) {
-		starty = maxspread[0].y - range; // top-left
-	
-	} else if (dir == D_SOUTH) {
-		starty = maxspread[0].y; // also top-left
-	}
-	starty = maxspread[0].y; // always starts from left/up
-	startx = maxspread[0].x;
-	endy = maxspread[]
-	for (; y != )
-}
-
 void P_ShootShotty(Weapon* const wpn)
 {
 	nomadenum_t spread = wpn->c_wpn.spread;
@@ -287,18 +222,48 @@ void P_ShootShotty(Weapon* const wpn)
 
 	nomadshort_t offset{};
 	nomadenum_t o{};
-	nomadbool_t left{};
-	nomadbool_t upper{};
-	left = P_Random() & 1;
-	upper = P_Random() & 1;
-	area_t collider = G_DoShottyCollider(range, maxspread, playr->pdir, playr->pos);
+	nomadbool_t negative = P_Random() & 1;
+	nomadbool_t right{};
+	if (negative)
+		offset = (P_Random() & 2) * -1;
+	else
+		offset = P_Random() & 2;
+	start.y = playr->pos.y;
+	start.x = playr->pos.x;
+//	area_t collider = G_DoShottyCollider(range, maxspread, playr->pdir, playr->pos);
 	for (o = 0; o < numpellets; ++o) {
-		a = P_Random() & 4;
-		if (a > 2)
-			offset = -P_Random() & -2;
-		else
-			offset = P_Random() & 2;
-		G_DoShotty(maxspread, range, playr->pos, left, upper, playr->pdir);
+		right = P_Random() & 1;
+		switch (playr->pdir) {
+		case D_NORTH: {
+			endpoint.y = playr->pos.y - range;
+			if (right)
+				endpoint.x = playr->pos.x + (P_Random() & maxspread[right]);
+			else
+				endpoint.x = playr->pos.x - (P_Random() & maxspread[right]);
+			break; }
+		case D_SOUTH: {
+			endpoint.y = playr->pos.y + range;
+			if (right)
+				endpoint.x = playr->pos.x + (P_Random() & maxspread[right]);
+			else
+				endpoint.x = playr->pos.x - (P_Random() & maxspread[right]);
+			break; }
+		case D_WEST: {
+			endpoint.x = playr->pos.x - range;
+			if (right)
+				endpoint.y = playr->pos.y - (P_Random() & maxspread[right]);
+			else
+				endpoint.x = playr->pos.x + (P_Random() & maxspread[right]);
+			break; }
+		case D_EAST: {
+			endpoint.x = playr->pos.x + range;
+			if (right)
+				endpoint.y = playr->pos.y - (P_Random() & maxspread[right]);
+			else
+				endpoint.x = playr->pos.y + (P_Random() & maxspread[right]);
+			break; }
+		};
+		G_CastRay(endpoint, start);
 	}
 }
 
