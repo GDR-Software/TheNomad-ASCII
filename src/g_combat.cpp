@@ -108,22 +108,22 @@ static inline void G_MarkWall(coord_t pos)
 //
 static inline void G_CastRay(coord_t endpoint, coord_t startpoint)
 {
-	nomadshort_t dx = x2 > x1 ? x2 - x1 : x1 - x2;
-	nomadshort_t sx = x2 > x1 ? 1 : -1;
-	nomadshort_t dy = y2 > y1 ? y2 - y1 : y1 - y2; 
-	nomadshort_t sy = y2 > y1 ? 1 : -1;
+	nomadshort_t dx = endpoint.x > startpoint.x ? endpoint.x - startpoint.x : startpoint.x - endpoint.x;
+	nomadshort_t sx = endpoint.x > startpoint.x ? 1 : -1;
+	nomadshort_t dy = endpoint.y > startpoint.y ? endpoint.y - startpoint.y : startpoint.y - endpoint.y; 
+	nomadshort_t sy = endpoint.y > startpoint.y ? 1 : -1;
 	nomadshort_t err = (dx > dy ? dx : -dy) >> 1;
 	while (1) {
-		G_CheckCollider({y1, x1});
-		if (x1 == x2 && y1 == y2) break;
+		G_CheckCollider(startpoint);
+		if (startpoint.x == endpoint.x && startpoint.y == endpoint.y) break;
 		nomadshort_t e2 = err;
 		if (e2 > -dx) {
 			err -= dy;
-			x1 += sx;
+			startpoint.x += sx;
 		}
 		if (e2 < dy) {
 			err += dx;
-			y1 += sy;
+			startpoint.y += sy;
 		}
 	}
 }
