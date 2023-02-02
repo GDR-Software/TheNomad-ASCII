@@ -97,24 +97,6 @@ static inline void G_MarkWall(coord_t pos)
 	}
 }
 
-#define FIXED_POINT_SCALE 1000
-
-nomadfixed_t int_to_fixed_point(nomadint_t x) {
-    return x * FIXED_POINT_SCALE;
-}
-
-nomadint_t fixed_point_to_int(nomadfixed_t x) {
-    return x / FIXED_POINT_SCALE;
-}
-
-nomadfixed_t multiply_fixed_point(nomadfixed_t x, nomadfixed_t y) {
-    return ((int64_t) x) * y / FIXED_POINT_SCALE;
-}
-
-nomadfixed_t divide_fixed_point(nomadfixed_t x, nomadfixed_t y) {
-    return ((int64_t) x) * FIXED_POINT_SCALE / y;
-}
-
 //
 // G_CastRay(): the general-use combat function that casts a "ray" from a line or slope,
 // and determines what it first collides with. This is really just a hitscan collider,
@@ -124,6 +106,27 @@ nomadfixed_t divide_fixed_point(nomadfixed_t x, nomadfixed_t y) {
 // calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
 // that entity
 //
+static inline void G_CastRay(coord_t endpoint, coord_t startpoint)
+{
+	nomadshort_t dx = x2 > x1 ? x2 - x1 : x1 - x2;
+	nomadshort_t sx = x2 > x1 ? 1 : -1;
+	nomadshort_t dy = y2 > y1 ? y2 - y1 : y1 - y2; 
+	nomadshort_t sy = y2 > y1 ? 1 : -1;
+	nomadshort_t err = (dx > dy ? dx : -dy) >> 1;
+	while (1) {
+		G_CheckCollider({y1, x1});
+		if (x1 == x2 && y1 == y2) break;
+		nomadshort_t e2 = err;
+		if (e2 > -dx) {
+			err -= dy;
+			x1 += sx;
+		}
+		if (e2 < dy) {
+			err += dx;
+			y1 += sy;
+		}
+	}
+}
 
 static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos, coord_t* maxspread)
 {
