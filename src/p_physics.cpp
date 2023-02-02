@@ -20,13 +20,6 @@
 //----------------------------------------------------------
 #include "g_game.h"
 
-static Game* game;
-
-void PhysicsAssigner(Game* const gptr)
-{
-	game = gptr;
-}
-
 // false if entity can walk, true if cannot
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game)
 {
@@ -44,7 +37,23 @@ nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game)
 	return true;
 }
 
-void G_CheckCollider(coord_t point)
+void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomadenum_t dir)
+{
+	switch (dir) {
+	case D_NORTH: {
+		for (nomadshort_t y = start.y; y != (start.y - range); --y) {
+			switch (game->c_map[y][start.x]) {};
+		}
+		break; }
+	case D_WEST: {
+		for (nomadshort_t x = start.x; x != (start.x - range); --x) {
+			switch (game->c_map[start.y][x]) {};
+		}
+		break; }
+	};
+}
+
+void G_CheckCollider(coord_t point, Game* const game)
 {
 	switch (game->c_map[point.y][point.x]) {
 	case '#':
