@@ -256,13 +256,21 @@ static inline area_t G_DoShottyCollider(nomaduint_t range, coord_t maxspread[2],
 	return collider;
 }
 
-static inline void G_DoShotty(coord_t maxspread[2], nomaduint_t range, coord_t pos, nomadbool_t left, nomadbool_t right)
+static inline void G_DoShotty(coord_t maxspread[2], nomaduint_t range, coord_t pos, nomadbool_t left, nomadbool_t right,
+	nomadenum_t dir)
 {
-	nomadshort_t y;
-	nomadshort_t x;
+	nomadshort_t starty, endy;
+	nomadshort_t startx, endx;
 
-	y = maxspread[0].y; // always starts from left/up
-	x = maxspread[0].x; 
+	if (dir == D_NORTH) {
+		starty = maxspread[0].y - range; // top-left
+	
+	} else if (dir == D_SOUTH) {
+		starty = maxspread[0].y; // also top-left
+	}
+	starty = maxspread[0].y; // always starts from left/up
+	startx = maxspread[0].x;
+	endy = maxspread[]
 	for (; y != )
 }
 
@@ -290,7 +298,7 @@ void P_ShootShotty(Weapon* const wpn)
 			offset = -P_Random() & -2;
 		else
 			offset = P_Random() & 2;
-		G_DoShotty(maxspread, range, playr->pos, left, upper);
+		G_DoShotty(maxspread, range, playr->pos, left, upper, playr->pdir);
 	}
 }
 
