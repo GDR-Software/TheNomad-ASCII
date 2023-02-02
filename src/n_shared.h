@@ -49,7 +49,7 @@
 #endif
 
 #if defined(__GNUG__) || defined(__clang__)
-#   if defined(__x86_64__) || defined(__amd64)
+#   if defined(__x86_64__) || defined(__amd64) || defined(__i686__)
 #       define _NOMAD_64
 #   elif defined(__i586__) || defined(__i486__) || defined(__i386__)
 #       define _NOMAD_32
@@ -222,91 +222,56 @@ enum : nomadenum_t
 	NUMALIGNMENTS
 };
 
-typedef struct
+typedef struct coord_s
 {
 #ifdef _NOMAD_64
 	nomadshort_t y, x;
 #elif _NOMAD_32
 	nomadint_t y, x;
 #endif
-} coord_t;
+    auto& operator[](nomadenum_t i) {
+        switch (i) {
+        case 0: return y;
+        case 1: return x;
+        };
+    }
+    bool __attribute__((always_inline))operator==(struct coord_s& c1, struct coord_s& c2) const {
+        return (c1.y == c2.y && c1.x == c2.x);
+    }
+    bool operator>(struct coord_s& c1, struct coord_s& c2) const {
+        return (c1.y > c2.y && c1.x > c2.x);
+    }
+} coord_t, vec2_t;
 
-typedef coord_t area_t[4];
+typedef struct
+{
+    coord_t tl;
+    coord_t tr;
+    coord_t bl;
+    coord_t br;
+    coord_t& operator[](nomadenum_t i) {
+        switch (i) {
+        case 0: return tl;
+        case 1: return tr;
+        case 2: return bl;
+        case 3: return br;
+        };
+        assert(false);
+    }
+} area_t;
 
 typedef struct
 {
 	nomadenum_t height, width;
 } dim_t;
 
-// this stuff'll come in a full-on header library in the future
-#ifdef __unix__
-typedef WINDOW nomadwin;
-#define initscreen() initscr()
-#define endscreen() endwin()
-#define createwin(height, width, y, x) newwin(height, width, y, x)
-#define createsubwin(parent, height, width, y, x) subwin(parent, height, width, y, x)
-#elif defined(_WIN32)
-// a very weak attempt at porting ncurses to win32's api, which sucks shit, but its windows, so...
+typedef int32_t nomadfixed_t;
 
-typedef struct nomadwin_s
-{
-    HANDLE handle;
-    nomadbool_t issubwin = false;
-    CONSOLE_SCREEN_BUFFER_INFOEX info;
-    CONSOLE_CURSOR_INFO cur_info;
-} nomadwin;
-#define initscreen() AllocConsole()
-#define endscreen() FreeConsole()
-static nomadwin stdscr = GetStdHandle(STD_OUTPUT_HANDLE);
-static nomadwin* screen = nullptr;
-inline nomadwin* createwin(nomadshort_t height, nomadshort_t width, nomadshort_t y, nomadshort_t x)
-{
-    nomadwin* win = (nomadwin *)Z_Malloc(sizeof(nomadwin), TAG_STATIC, &win);
-    win->handle = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-    SetConsoleActiveScreenBuffer(win->handle);
-    DWORD dwMode = 0;
-    GetConsoleMode(win->handle, &dwMode);
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    SetConsoleMode(win->handle, dwMode);
-    screen = win;
-    GetConsoleScreenBufferInfoEx(win->handle, &win->info);
-    win->info.dwSize.Y = height;
-    win->info.dwSize.X = width;
-    win->info.srWindow.Left = x;
-    win->info.srWindow.Top = y;
-    win->info.srWindow.Bottom = y + height;
-    win->info.srWindow.Right = x + width;
-    SetConsoleScreenBufferInfoEx(win->handle, win->info);
-    GetConsoleCursorInfo(win->handle, &win->cur_info);
-    win->cur_info.bVisible = false;
-    return win;
-}
-inline nomadwin* createsubwin(nomadwin& parent, nomadshort_t width, nomadshort_t y, nomadshort_t x)
-{
-    nomadwin *subwin = (nomadwin *)Z_Malloc(sizeof(nomadwin), TAG_STATIC, &win);
-    subwin->handle = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-    subwin->issubwin = true;
-    SetConsoleActiveScreenBuffer(subwin->handle);
-    DWORD dwMode = 0;
-    GetConsoleMode(subwin->handle, &dwMode);
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    SetConsoleMode(subwin->handle, dwMode);
-    GetConsoleScreenBufferInfoEx(subwin->handle, &subwin->info);
-    subwin->info.dwSize.Y = height;
-    subwin->info.dwSize.X = width;
-    subwin->info.srWindow.Left = x;
-    subwin->info.srWindow.Top = y;
-    subwin->info.srWindow.Bottom = y + height;
-    subwin->info.srWindow.Right = x + width;
-    SetConsoleScreenBufferInfoEx(subwin->handle, &subwin->info);
-    SetConsoleActiveScreenBuffer(screen->handle);
-    return subwin;
-}
-#endif
-
+nomadfixed_t to_fixed(nomadfloat_t x);
+nomadfloat_t to_float(nomadfixed_t x);
+nomadfloat_t Q_root(nomadfloat_t x);
 nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
-nomadfloat_t Q_root(nomadfloat_t x);
 
 using namespace std::literals::chrono_literals;
 

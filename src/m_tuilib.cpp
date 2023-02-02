@@ -19,8 +19,8 @@
 //  src/m_tuilib.cpp
 //----------------------------------------------------------
 #include "g_game.h"
-#define OPENTL_IMPLEMENTATION
-#include "tl.h"
+//#define OPENTL_IMPLEMENTATION
+//#include "tl.h"
 
 void Game::DrawSpriteToMainWin(coord_t pos, sprite_t sprite)
 {

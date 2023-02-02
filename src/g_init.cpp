@@ -135,7 +135,6 @@ static inline void TUI_Init(Game* const game)
 #endif
 	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
 	setlocale(LC_ALL, "");
-
 	initscr();
 	raw();
 	cbreak();

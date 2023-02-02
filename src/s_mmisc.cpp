@@ -28,7 +28,7 @@ typedef struct mobgroup_s
 {
 	std::vector<Mob*> m_Active;
 	Mob* leader;
-	area_t area[4];
+	area_t area;
 	nomadenum_t sector;
 } mobgroup_t;
 
