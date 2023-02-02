@@ -45,7 +45,7 @@ void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomade
 	case D_NORTH: {
 		end = start.y - range;
 		for (nomadshort_t y = start.y; y != end; --y) {
-			switch (game->c_map[y][start.x]) {};
+			collider = G_CheckCollider({y, start.x}, game);
 		}
 		break; }
 	case D_WEST: {
@@ -69,8 +69,9 @@ void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomade
 	};
 }
 
-void G_CheckCollider(coord_t point, Game* const game)
+collider_t G_CheckCollider(coord_t point, Game* const game)
 {
+	collider_t c;
 	switch (game->c_map[point.y][point.x]) {
 	case '#':
 	case '_':
@@ -80,5 +81,19 @@ void G_CheckCollider(coord_t point, Game* const game)
 	case ' ':
 		return;
 		break;
+	default: {
+		for (auto* i : game->m_Active) {
+			if (i->mpos.y == point.y && i->mpos.x == point.x) {
+				c.ptr = (void *)&i;
+				c.what = ET_MOB;
+				c.where = point;
+			}
+		}
+		for (auto* i : game->b_Active) {
+			if (i->pos.y == point.y && i->pos.x == point.x) {
+				c.ptr = (void *)&i;
+			}
+		}
+		break; }
 	};
 }
