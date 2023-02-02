@@ -37,16 +37,32 @@ nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game)
 	return true;
 }
 
-void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomadenum_t dir)
+void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomadenum_t dir,
+	collider_t& collider)
 {
+	nomadshort_t end{};
 	switch (dir) {
 	case D_NORTH: {
-		for (nomadshort_t y = start.y; y != (start.y - range); --y) {
+		end = start.y - range;
+		for (nomadshort_t y = start.y; y != end; --y) {
 			switch (game->c_map[y][start.x]) {};
 		}
 		break; }
 	case D_WEST: {
-		for (nomadshort_t x = start.x; x != (start.x - range); --x) {
+		end = start.x - range;
+		for (nomadshort_t x = start.x; x != end; --x) {
+			switch (game->c_map[start.y][x]) {};
+		}
+		break; }
+	case D_SOUTH: {
+		end = start.y + range;
+		for (nomadshort_t y = start.y; y != end; ++x) {
+			switch (game->c_map[y][start.x]) {};
+		}
+		break; }
+	case D_EAST: {
+		end = start.x + range;
+		for (nomadshort_t x = start.x; x != end; ++x) {
 			switch (game->c_map[start.y][x]) {};
 		}
 		break; }
