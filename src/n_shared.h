@@ -143,6 +143,15 @@ typedef uint16_t nomaduint_t;
 typedef uint8_t nomadushort_t;
 #endif
 
+#define NOMAD_VERSION_MAJOR _NOMAD_VERSION
+#define NOMAD_VERSION_MINOR _NOMAD_VERSION_UPDATE
+#define NOMAD_VERSION_PATCH _NOMAD_VERSION_PATCH
+#define NOMAD_UPDATE_NUM _NOMAD_VERSION_UPDATE
+
+#define NOMAD_VERSION (NOMAD_VERSION_MAJOR * 10000 \
+                     + NOMAD_VERSION_MINOR * 100 \
+                     + NOMAD_VERSION_PATCH)
+
 // these types don't depend on the arch
 typedef uint_fast8_t nomadenum_t;
 typedef nomadenum_t sprite_t;
