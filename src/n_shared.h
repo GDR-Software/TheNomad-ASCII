@@ -26,10 +26,10 @@
 #ifndef _N_SHARED_
 #define _N_SHARED_
 
-// if you got this, well then, port it
-#if !defined(__unix__) && !defined(_WIN32)
+// if you got this, well then port it
+/*#if !defined(__unix__) && !defined(_WIN32)
 #   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
-#endif
+#endif */
 
 #ifndef __cplusplus
 #   error COMPILE WITH C++!
@@ -39,11 +39,12 @@
 #   error COMPILE WITH C++17 OR HIGHER!
 #endif
 
+#include <ncurses/ncurses.h>
 // dependencies
 #ifdef __unix__
-#include <ncurses.h>
 #elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
+//#include <conio.h>
 #include <windows.h>
 #pragma comment(lib, "kernel32")
 #endif
@@ -82,31 +83,23 @@ class Game;
 #   include <signal.h>
 #endif
 
-// c standard includes
 #include <stdio.h>
-#include <stdarg.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <stdarg.h>
 #include <string.h>
-#include <time.h>
 #include <math.h>
-#include <assert.h>
-
-// c++ standard includes
-#include <string>
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <exception>
-
-// multithreading
-#include <algorithm>
-#include <pthread.h>
-#include <thread>
+#include <time.h>
 #include <chrono>
-#include <atomic>
-#include <mutex>
+#include <thread>
 #include <future>
+#include <mutex>
+#include <atomic>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <assert.h>
+#include <fstream>
+#include <pthread.h>
 
 #ifdef _NOMAD_DEBUG
 #include "n_debug.h"
@@ -175,17 +168,17 @@ constexpr uint8_t DIF_NOMAD              = 3;
 constexpr uint8_t DIF_BLACKDEATH         = 4;
 constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
 constexpr uint8_t NUMDIFS                = 6;
-
+/*
 inline nomadenum_t kbhit()
 {
-/*#ifdef _WIN32 // broken - FIXME
-	if (_kbhit()) {
-		in = (nomadushort_t)_getch();
-		return true;
-	}
-	else {
-		return false;
-	} */
+//#ifdef _WIN32 // broken - FIXME
+//	if (_kbhit()) {
+//		in = (nomadushort_t)_getch();
+//		return true;
+//	}
+//	else {
+//		return false;
+//	}
 //#elif defined(__unix__)
 	struct timeval tv;
 	fd_set fds;
@@ -201,7 +194,8 @@ inline nomadenum_t kbhit()
 		return 0;
 	}
 //#endif
-}
+} */
+
 
 namespace std {
 	size_t filelength(const char* filename);
@@ -231,6 +225,12 @@ enum : nomadenum_t
 	NUMALIGNMENTS
 };
 
+#ifdef __unix__
+#define sleep_for(duration) usleep(duration)
+#elif defined(_WIN32)
+#define sleep_for(duration) Sleep(duration)
+#endif
+
 typedef struct coord_s
 {
 #ifdef _NOMAD_64
@@ -244,11 +244,11 @@ typedef struct coord_s
         case 1: return x;
         };
     }
-    bool __attribute__((always_inline))operator==(struct coord_s& c1, struct coord_s& c2) const {
-        return (c1.y == c2.y && c1.x == c2.x);
+    bool __attribute__((always_inline))operator==(struct coord_s& c2) const {
+        return  (y == c2.y && x == c2.x);
     }
-    bool operator>(struct coord_s& c1, struct coord_s& c2) const {
-        return (c1.y > c2.y && c1.x > c2.x);
+    bool operator>(struct coord_s& c2) const {
+        return (y > c2.y && x > c2.x);
     }
 } coord_t, vec2_t;
 

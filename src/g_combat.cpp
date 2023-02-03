@@ -114,7 +114,7 @@ static inline void G_CastRay(coord_t endpoint, coord_t startpoint)
 	nomadshort_t sy = endpoint.y > startpoint.y ? 1 : -1;
 	nomadshort_t err = (dx > dy ? dx : -dy) >> 1;
 	while (1) {
-		G_CheckCollider(startpoint);
+//		G_CheckCollider(startpoint);
 		if (startpoint.x == endpoint.x && startpoint.y == endpoint.y) break;
 		nomadshort_t e2 = err;
 		if (e2 > -dx) {
@@ -240,30 +240,30 @@ void P_ShootShotty(Weapon* const wpn)
 		case D_NORTH: {
 			endpoint.y = playr->pos.y - range;
 			if (right)
-				endpoint.x = playr->pos.x + (P_Random() & maxspread[right]);
+				endpoint.x = playr->pos.x + (P_Random() & maxspread[right].x);
 			else
-				endpoint.x = playr->pos.x - (P_Random() & maxspread[right]);
+				endpoint.x = playr->pos.x - (P_Random() & maxspread[right].x);
 			break; }
 		case D_SOUTH: {
 			endpoint.y = playr->pos.y + range;
 			if (right)
-				endpoint.x = playr->pos.x + (P_Random() & maxspread[right]);
+				endpoint.x = playr->pos.x + (P_Random() & maxspread[right].x);
 			else
-				endpoint.x = playr->pos.x - (P_Random() & maxspread[right]);
+				endpoint.x = playr->pos.x - (P_Random() & maxspread[right].x);
 			break; }
 		case D_WEST: {
 			endpoint.x = playr->pos.x - range;
 			if (right)
-				endpoint.y = playr->pos.y - (P_Random() & maxspread[right]);
+				endpoint.y = playr->pos.y - (P_Random() & maxspread[right].y);
 			else
-				endpoint.x = playr->pos.x + (P_Random() & maxspread[right]);
+				endpoint.x = playr->pos.x + (P_Random() & maxspread[right].y);
 			break; }
 		case D_EAST: {
 			endpoint.x = playr->pos.x + range;
 			if (right)
-				endpoint.y = playr->pos.y - (P_Random() & maxspread[right]);
+				endpoint.y = playr->pos.y - (P_Random() & maxspread[right].y);
 			else
-				endpoint.x = playr->pos.y + (P_Random() & maxspread[right]);
+				endpoint.x = playr->pos.y + (P_Random() & maxspread[right].y);
 			break; }
 		};
 		G_CastRay(endpoint, start);

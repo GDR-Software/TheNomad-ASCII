@@ -94,10 +94,6 @@ public: // *** multithreading! ***
 	pthread_t nthread;
 	pthread_t wthread;
 	pthread_t pthread;
-#ifdef __unix__
-	pid_t mobid;
-	pid_t npcid;
-#endif
 	nomadlong_t hudtics;
 	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:

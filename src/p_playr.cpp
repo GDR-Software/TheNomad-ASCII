@@ -182,8 +182,18 @@ void Game::P_Ticker(nomadint_t input)
 	playr->P_RunTicker(input);
 }
 
-void Playr::P_RunTicker(nomadint_t input)
+static nomadint_t input;
+
+void Playr::P_RunTicker(nomadint_t finput)
 {
+	input = finput;
+	for (const auto& i : scf::kb_binds) {
+		if (input == i.button) {
+			(*i.actionp)();
+			break;
+		}
+	}
+	/*
 	switch (input) {
 	case KEY_EP:
 		break;
@@ -203,118 +213,18 @@ void Playr::P_RunTicker(nomadint_t input)
 			P_ChangeDirR();
 		}
 		break; }
-	case KEY_w: {
-		if (!P_MoveTicker(this)) {
-			switch (game->c_map[pos.y - 1][pos.x]) {
-			case '_':
-				P_DoorInteract(input);
-				break;
-			case '.':
-			case ' ':
-				P_MoveN();
-				break;
-			case 'M':
-				B_MercMasterInteract();
-				break;
-			case '(':
-				B_BartenderInteract();
-				break;
-			case ':': { // a chair/seat sprite
-				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveN(); playr->pmode = P_MODE_ROAMING; }
-				break; }
-			case '=': // weapons smith table
-				B_WeaponSmithInteract();
-				break;
-			default:
-				break;
-			};
-		}
-		break; }
-	case KEY_a: {
-		if (!P_MoveTicker(this)) {
-			switch (game->c_map[pos.y][pos.x - 1]) {
-			case '_':
-				P_DoorInteract(input);
-				break;
-			case '.':
-			case ' ':
-				P_MoveW();
-				break;
-			case 'M': // the merc master's custom sprite
-				B_MercMasterInteract();
-				break;
-			case '(': // a bar sprite
-				B_BartenderInteract();
-				break;
-			case ':': { // a chair/seat sprite
-				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveW(); playr->pmode = P_MODE_ROAMING; }
-				break; }
-			case '=': // weapons smith table
-				B_WeaponSmithInteract();
-				break;
-			default:
-				break;
-			};
-		}
-		break; }
-	case KEY_s: {
-		if (!P_MoveTicker(this)) {
-			switch (game->c_map[pos.y + 1][pos.x]) {
-			case '_':
-				P_DoorInteract(input);
-				break;
-			case '.':
-			case ' ':
-				P_MoveS();
-				break;
-			case 'M':
-				B_MercMasterInteract();
-				break;
-			case '(':
-				B_BartenderInteract();
-				break;
-			case ':': { // a chair/seat sprite
-				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveS(); playr->pmode = P_MODE_ROAMING; }
-				break; }
-			case '=': // weapons smith table
-				B_WeaponSmithInteract();
-				break;
-			default:
-				break;
-			};
-		}
-		break; }
-	case KEY_d: {
-		if (!P_MoveTicker(this)) {
-			switch (game->c_map[pos.y][pos.x + 1]) {
-			case '_':
-				P_DoorInteract(input);
-				break;
-			case '.':
-			case ' ':
-				P_MoveE();
-				break;
-			case 'M':
-				B_MercMasterInteract();
-				break;
-			case '(':
-				B_BartenderInteract();
-				break;
-			case ':': { // a chair/seat sprite
-				if (pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-				else { P_MoveE(); playr->pmode = P_MODE_ROAMING; }
-				break; }
-			case '=': // weapons smith table
-				B_WeaponSmithInteract();
-				break;
-			default:
-				break;
-			};
-		}
-		break; }
+	case KEY_w:
+		P_MoveN();
+		break;
+	case KEY_a:
+		P_MoveW();
+		break;
+	case KEY_s:
+		P_MoveS();
+		break;
+	case KEY_d:
+		P_MoveE();
+		break;
 	case KEY_TILDA:
 		
 		break;
@@ -408,6 +318,88 @@ void Playr::P_RunTicker(nomadint_t input)
 		break;
 	default: break;
 	};
+	*/
+}
+
+void P_ChangeWeapon1()
+{
+	playr->c_wpn = &rightarm;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon2()
+{
+	playr->c_wpn = &leftarm;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon3()
+{
+	playr->c_wpn = &sidearm;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon4()
+{
+	playr->c_wpn = &heavyside;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon5()
+{
+	playr->c_wpn = &primary;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon6()
+{
+	playr->c_wpn = &heavyprimary;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon7()
+{
+	playr->c_wpn = &shotty;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon8()
+{
+	playr->c_wpn = &melee1;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon9()
+{
+	playr->c_wpn = &melee2;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
+}
+void P_ChangeWeapon10()
+{
+	playr->c_wpn = &melee3;
+	wmove(game->screen, 9, 97);
+	wclrtoeol(game->screen);
+	wrefresh(game->screen);
+	mvwaddch(game->screen, 9, 128, '#');
 }
 
 void Playr::P_GetMode()
@@ -422,71 +414,229 @@ void Playr::P_GetMode()
 	}
 }
 
-void Playr::P_MoveN()
+void P_MoveN()
 {
-	pos.y--;
+	if (!P_MoveTicker(playr)) {
+		switch (game->c_map[playr->pos.y - 1][playr->pos.x]) {
+		case '_':
+			P_DoorInteract(input);
+			break;
+		case '.':
+		case ' ':
+			playr->pos.y--;
+			break;
+		case 'M':
+			B_MercMasterInteract();
+			break;
+		case '(':
+			B_BartenderInteract();
+			break;
+		case ':': { // a chair/seat sprite
+			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+			else { playr->pos.y--; playr->pmode = P_MODE_ROAMING; }
+			break; }
+		case '=': // weapons smith table
+			B_WeaponSmithInteract();
+			break;
+		default:
+			break;
+		};
+	}
+}
+void P_MoveW()
+{
+	if (!P_MoveTicker(playr)) {
+		switch (game->c_map[playr->pos.y][playr->pos.x - 1]) {
+		case '_':
+			P_DoorInteract(input);
+			break;
+		case '.':
+		case ' ':
+			playr->pos.x--;
+			break;
+		case 'M': // the merc master's custom sprite
+			B_MercMasterInteract();
+			break;
+		case '(': // a bar sprite
+			B_BartenderInteract();
+			break;
+		case ':': { // a chair/seat sprite
+			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+			else { playr->pos.x--; playr->pmode = P_MODE_ROAMING; }
+			break; }
+		case '=': // weapons smith table
+			B_WeaponSmithInteract();
+			break;
+		default:
+			break;
+		};
+	}
+}
+void P_MoveS()
+{
+	if (!P_MoveTicker(playr)) {
+		switch (game->c_map[playr->pos.y + 1][playr->pos.x]) {
+		case '_':
+			P_DoorInteract(input);
+			break;
+		case '.':
+		case ' ':
+			playr->pos.y++;
+			break;
+		case 'M':
+			B_MercMasterInteract();
+			break;
+		case '(':
+			B_BartenderInteract();
+			break;
+		case ':': { // a chair/seat sprite
+			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+			else { playr->pos.y++; playr->pmode = P_MODE_ROAMING; }
+			break; }
+		case '=': // weapons smith table
+			B_WeaponSmithInteract();
+			break;
+		default:
+			break;
+		};
+	}
+}
+void P_MoveE()
+{
+	if (!P_MoveTicker(playr)) {
+		switch (game->c_map[playr->pos.y][playr->pos.x + 1]) {
+		case '_':
+			P_DoorInteract(input);
+			break;
+		case '.':
+		case ' ':
+			playr->pos.x++;
+			break;
+		case 'M':
+			B_MercMasterInteract();
+			break;
+		case '(':
+			B_BartenderInteract();
+			break;
+		case ':': { // a chair/seat sprite
+			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+			else { playr->pos.x++; playr->pmode = P_MODE_ROAMING; }
+			break; }
+		case '=': // weapons smith table
+			B_WeaponSmithInteract();
+			break;
+		default:
+			break;
+		};
+	}
 }
 
-void Playr::P_MoveW()
+void P_DashN()
 {
-	pos.x--;
+	nomadshort_t range = playr->pos.y - RDASH_SPEED;
+	nomadbool_t hit = false;
+	while (!hit) {
+		if (playr->pos.y == range) break;
+		switch (game->c_map[playr->pos.y][playr->pos.x]) {
+		case '#': // destructible environments will be added in the future
+		case '_':
+			hit = true;
+			break;
+		case ' ':
+		case '.':
+			break;
+		default:
+			break;
+		};
+		--playr->pos.y;
+	}
+}
+void P_DashW()
+{
+	nomadshort_t range = playr->pos.x - RDASH_SPEED;
+	nomadbool_t hit = false;
+	while (!hit) {
+		if (playr->pos.x == range) break;
+		switch (game->c_map[playr->pos.y][playr->pos.x]) {
+		case '#': // destructible environments will be added in the future
+		case '_':
+			hit = true;
+			break;
+		case ' ':
+		case '.':
+			break;
+		default:
+			break;
+		};
+		--playr->pos.x;
+	}
+}
+void P_DashS()
+{
+	nomadshort_t range = playr->pos.y + RDASH_SPEED;
+	nomadbool_t hit = false;
+	while (!hit) {
+		if (playr->pos.y == range) break;
+		switch (game->c_map[playr->pos.y][playr->pos.x]) {
+		case '#': // destructible environments will be added in the future
+		case '_':
+			hit = true;
+			break;
+		case ' ':
+		case '.':
+			break;
+		default:
+			break;
+		};
+		++playr->pos.y;
+	}
+}
+void P_DashE()
+{
+	nomadshort_t range = playr->pos.x + RDASH_SPEED;
+	nomadbool_t hit = false;
+	while (!hit) {
+		if (playr->pos.x == range) break;
+		switch (game->c_map[playr->pos.y][playr->pos.x]) {
+		case '#': // destructible environments will be added in the future
+		case '_':
+			hit = true;
+			break;
+		case ' ':
+		case '.':
+			break;
+		default:
+			break;
+		};
+		++playr->pos.x;
+	}
 }
 
-void Playr::P_MoveS()
-{
-	pos.y++;
-}
-
-void Playr::P_MoveE()
-{
-	pos.x++;
-}
-
-void Playr::P_DashN()
-{
-	pos.y -= 5;
-}
-
-void Playr::P_DashW()
-{
-	pos.x -= 5;
-}
-
-void Playr::P_DashS()
-{
-	pos.y += 5;
-}
-
-void Playr::P_DashE()
-{
-	pos.x += 5;
-}
-
-void Playr::P_ChangeDirL()
+void P_ChangeDirL()
 {
 #ifdef _NOMAD_DEBUG
-	assert(pdir < NUMDIRS);
-	LOG("pdir = %hu", pdir);
+	assert(playr->pdir < NUMDIRS);
+	LOG("pdir = %hu", playr->pdir);
 #endif
-	if (pdir == D_EAST) {
-		pdir = D_NORTH;
+	if (playr->pdir == D_EAST) {
+		playr->pdir = D_NORTH;
 	}
 	else {
-		++pdir;
+		++playr->pdir;
 	}
 }
 
-void Playr::P_ChangeDirR()
+void P_ChangeDirR()
 {
 #ifdef _NOMAD_DEBUG
-	assert(pdir < NUMDIRS);
-	LOG("pdir = %hu", pdir);
+	assert(playr->pdir < NUMDIRS);
+	LOG("pdir = %hu", playr->pdir);
 #endif
-	if (pdir == D_NORTH) {
-		pdir = D_EAST;
+	if (playr->pdir == D_NORTH) {
+		playr->pdir = D_EAST;
 	}
 	else {
-		--pdir;
+		--playr->pdir;
 	}
 }
 

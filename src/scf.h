@@ -123,6 +123,8 @@ constexpr uint8_t ticrate_base = 35;
 constexpr uint16_t ticrate_minute = ticrate_base*30; // an in-game "minute"
 constexpr uint16_t ticrate_hour = ticrate_minute*48;
 
+typedef void(*paction_t)();
+
 namespace scf {
 	extern nomadbool_t music_on;
 	extern nomadbool_t sfx_on;
@@ -148,6 +150,17 @@ namespace scf {
 		kbDash_e,
 		kbTurn_l,
 		kbTurn_r,
+
+		kbSwapWpn_1,
+		kbSwapWpn_2,
+		kbSwapWpn_3,
+		kbSwapWpn_4,
+		kbSwapWpn_5,
+		kbSwapWpn_6,
+		kbSwapWpn_7,
+		kbSwapWpn_8,
+		kbSwapWpn_9,
+		kbSwapWpn_10,
 		
 		kbCrouch,
 		kbShoot_n,
@@ -170,9 +183,10 @@ namespace scf {
 	
 	typedef struct
 	{
-		char name[20];
+		const char* name;
 		nomadenum_t button;
 		nomaduint_t bind;
+		paction_t actionp;
 	} keybind_t;
 	
 	extern keybind_t kb_binds[NUMBINDS];

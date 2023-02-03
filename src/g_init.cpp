@@ -98,7 +98,12 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 		break;
 	};
 	printf("%s", buf);
-	std::this_thread::sleep_for(std::chrono::milliseconds(750));
+#ifdef _WIN32
+	Sleep(750);
+#elif defined(__unix__)
+	nanosleep(750);
+#endif
+	//std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	printf("I_NomadInit(): Initializing Game...\n");
 	srand(time(NULL));
 	std::vector<char*> myargv;
@@ -114,7 +119,11 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	wrefresh(game->screen);
 	while (counter != 2) {
 		if (getc(stdin) == '\n' || ' ') { break; }
-		std::this_thread::sleep_for(1s);
+#ifdef _WIN32
+		Sleep(1000);
+#elif defined(__unix__)
+		nanosleep(1000);
+#endif
 		++counter;
 	}
 	counter = 0;
@@ -123,7 +132,11 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	wrefresh(game->screen);
 	while (counter != 4) {
 		if (getc(stdin) == '\n' || ' ') { break; }
-		std::this_thread::sleep_for(1s);
+#ifdef _WIN32
+		Sleep(1000);
+#elif defined(__unix__)
+		nanosleep(1000);
+#endif
 		++counter;
 	}
 }

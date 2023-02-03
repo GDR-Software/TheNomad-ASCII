@@ -27,6 +27,8 @@
 #include "g_map.h"
 
 #define MAX_PLAYR_WPNS PLAYR_MAX_WPNS
+#define DASH_SPEED 5
+#define RDASH_SPEED 6
 
 class Mission;
 
@@ -66,24 +68,30 @@ public:
 	Playr() = default;
 	~Playr() = delete;
 	void P_Init();
-	// TODO: add in collision checks
-	void P_MoveN();
-	void P_MoveW();
-	void P_MoveS();
-	void P_MoveE();
-
-	void P_DashN();
-	void P_DashW();
-	void P_DashS();
-	void P_DashE();
-
-	void P_ChangeDirL();
-	void P_ChangeDirR();
-
 	void P_GetMode();
-
-	void P_RunTicker(nomadint_t input);
+	void P_RunTicker(nomadint_t finput);
 };
+
+void P_MoveN();
+void P_MoveW();
+void P_MoveS();
+void P_MoveE();
+void P_DashN();
+void P_DashW();
+void P_DashS();
+void P_DashE();
+void P_ChangeDirL();
+void P_ChangeDirR();
+void P_ChangeWeapon1();
+void P_ChangeWeapon2();
+void P_ChangeWeapon3();
+void P_ChangeWeapon4();
+void P_ChangeWeapon5();
+void P_ChangeWeapon6();
+void P_ChangeWeapon7();
+void P_ChangeWeapon8();
+void P_ChangeWeapon9();
+void P_ChangeWeapon10();
 
 void P_ShootShotty(Weapon* const wpn);
 void P_ShootSingle(Weapon* const wpn);

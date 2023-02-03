@@ -104,7 +104,7 @@ void mainLoop(int argc, char* argv[])
 				else {
 					game->gamestate = GS_TITLE;
 				}
-				std::this_thread::sleep_for(100ms);
+				sleep_for(100);
 			}
 		}
 		else if (game->gamestate == GS_LEVEL) {
@@ -158,7 +158,7 @@ void mainLoop(int argc, char* argv[])
 							break;
 						};
 					}
-					std::this_thread::sleep_for(77ms);
+					sleep_for(77);
 				}
 				else {
 					game->gamestate = GS_LEVEL;
@@ -174,9 +174,8 @@ void mainLoop(int argc, char* argv[])
 static void* P_Loop(void *arg)
 {
 	pthread_mutex_lock(&game->playr_mutex);
-	nomadenum_t c;
-	if ((c = kbhit()))
-		game->P_Ticker(c);
+	nomadenum_t c = getc(stdin);
+	game->P_Ticker(c);
 	pthread_mutex_unlock(&game->playr_mutex);
 	return NULL;
 }
@@ -199,7 +198,7 @@ static void levelLoop(void)
 		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_join(game->pthread, NULL);
 		pthread_join(game->wthread, NULL);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		sleep_for(ticrate_mil);
 		++game->ticcount;
 		wrefresh(game->screen);
 	};

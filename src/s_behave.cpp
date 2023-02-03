@@ -239,7 +239,7 @@ static void B_MercDisplayMissions(const std::vector<Mission>& m_ls)
 			break;
 		}
 		wrefresh(game->screen);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		sleep_for(ticrate_mil);
 	};
 	werase(game->screen);
 }

@@ -53,9 +53,6 @@ void Game::G_SaveGame(void)
 
 bool Game::G_LoadGame(void)
 {
-	struct stat fdata;
-	if (stat(svfile, &fdata) == -1)
-		return false;
 	fp = fopen(svfile, "rb");
 	if (!fp)
 		return false;

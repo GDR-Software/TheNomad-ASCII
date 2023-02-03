@@ -22,7 +22,7 @@
 
 static constexpr uint8_t vert_fov = MAX_VERT_FOV >> 1;
 static constexpr uint8_t horz_fov = MAX_HORZ_FOV >> 1;
-static constexpr auto mapfile = "Files/gamedata/RUNTIME/mapfile.txt";
+#define mapfile "Files/gamedata/RUNTIME/mapfile.txt"
 static constexpr coord_t origin = {260, 260};
 
 static inline void P_GetMapBuffer();

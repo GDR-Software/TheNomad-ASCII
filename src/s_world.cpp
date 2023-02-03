@@ -216,7 +216,6 @@ static inline void* N_Looper(void* arg)
 #ifdef _NOMAD_DEBUG
 	assert(!arg && game);
 #endif
-	game->npcid = getpid();
 	pthread_mutex_lock(&game->npc_mutex);
 	for (auto* const b : game->b_Active) {
 		if (b->nticker > 0) {
@@ -235,7 +234,6 @@ static inline void* M_Looper(void *arg)
 #ifdef _NOMAD_DEBUG
 	assert(!arg && game);
 #endif
-	game->mobid = getpid();
 	pthread_mutex_lock(&game->mob_mutex);
 	M_GetLeaders(game);
 	for (auto* const m : game->m_Active) {
