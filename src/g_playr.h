@@ -72,6 +72,13 @@ public:
 	void P_RunTicker(nomadint_t finput);
 };
 
+void P_PauseMenu();
+void P_UseWeapon();
+void P_UseMelee();
+void P_QuickShot();
+void P_UseLeftArm();
+void P_UseRightArm();
+void P_ShowWeapons();
 void P_MoveN();
 void P_MoveW();
 void P_MoveS();
@@ -80,6 +87,10 @@ void P_DashN();
 void P_DashW();
 void P_DashS();
 void P_DashE();
+void P_SlideN();
+void P_SlideW();
+void P_SlideS();
+void P_SlideE();
 void P_ChangeDirL();
 void P_ChangeDirR();
 void P_ChangeWeapon1();
@@ -92,6 +103,7 @@ void P_ChangeWeapon7();
 void P_ChangeWeapon8();
 void P_ChangeWeapon9();
 void P_ChangeWeapon10();
+void CommandConsole();
 
 void P_ShootShotty(Weapon* const wpn);
 void P_ShootSingle(Weapon* const wpn);

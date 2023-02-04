@@ -69,6 +69,7 @@ class Game;
 #   include <unistd.h>
 #   include <fcntl.h>
 #   include <sys/stat.h>
+#   include <sys/mman.h>
 #   include <termios.h>
 #   include <signal.h>
 #   include <dlfcn.h>
@@ -91,6 +92,7 @@ class Game;
 #include <thread>
 #include <future>
 #include <mutex>
+#include <sstream>
 #include <atomic>
 #include <vector>
 #include <algorithm>
@@ -183,6 +185,8 @@ inline char kbhit()
 		return -1;
 	}
 }
+
+inline const char* booltostr(bool b) { return b ? "true" : "false"; }
 
 
 namespace std {

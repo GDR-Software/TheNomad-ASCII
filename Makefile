@@ -5,8 +5,8 @@ CC             = g++
 CFLAGS         = -g -std=c++17 -I/usr/include
 O              = obj
 SDIR           = src
-LDFLAGS        = /usr/lib/libncurses.a
-LDLIBS         = -lpthread -lopenal -lmpg123
+LDFLAGS        = /usr/lib/libncurses.a /usr/lib/x86_64-linux-gnu/libpthread.a
+LDLIBS         = -lmpg123
 EXE            = nomadascii
 
 .PHONY: all clean clean.exe clean.objs
@@ -26,6 +26,7 @@ OBJS= \
 	$(O)/g_game.o \
 	$(O)/g_init.o \
 	$(O)/scf.o \
+	$(O)/scf_lexer.o \
 	$(O)/s_saveg.o \
 	$(O)/g_zone.o \
 	$(O)/p_playr.o \

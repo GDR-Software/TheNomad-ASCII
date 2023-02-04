@@ -43,6 +43,7 @@ typedef enum : nomadenum_t
 	GS_TITLE,
 	GS_MENU,
 	GS_LEVEL,
+	GS_SETTINGS,
 	GS_PAUSE
 } gamestate_t;
 

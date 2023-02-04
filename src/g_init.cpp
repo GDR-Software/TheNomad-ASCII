@@ -106,6 +106,7 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 		myargv.push_back(argv[i]);
 	}
 	I_ProcessArgs(myargv);
+	scf::G_LoadSCF("default.scf");
 	E_Init(game);
 	W_Init(game);
 	TUI_Init(game);

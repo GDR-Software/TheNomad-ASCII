@@ -24,6 +24,7 @@
 static Game* game;
 
 static void levelLoop(void);
+static void settingsLoop(void);
 
 void mainLoop(int argc, char* argv[])
 {
@@ -110,6 +111,9 @@ void mainLoop(int argc, char* argv[])
 		else if (game->gamestate == GS_LEVEL) {
 			levelLoop();
 		}
+		else if (game->gamestate == GS_SETTINGS) {
+			settingsLoop();
+		}
 		else if (game->gamestate == GS_PAUSE) {
 			nomadshort_t s = 0;
 			while (game->gamestate == GS_PAUSE) {
@@ -171,14 +175,11 @@ void mainLoop(int argc, char* argv[])
 	}
 }
 
-static void* P_Loop(void *arg)
-{
-	
-	return NULL;
-}
-
 static void levelLoop(void)
 {
+#ifdef _NOMAD_DEBUG
+	assert(game && game->playr);
+#endif
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
 #ifdef _NOMAD_DEBUG
 	assert(game->hudwin[HL_VMATRIX]);
@@ -205,4 +206,52 @@ static void levelLoop(void)
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;
 }
+
+//#define VAR_TO_STR(x) #x
+
+// currently, the only way to customize controls is to go into the .scf file and edit it yourself,
+// instructions on how to do that are in nomadascii_blackbook.txt
+static void settingsLoop(void)
+{
+	std::ifstream file("Files/gamedata/GS/settingsmenu.txt", std::ios::in);
+	if (file.fail())
+		N_Error("Failed to load settingsmenu resource!");
+#ifdef _NOMAD_DEBUG
+	assert(!file.fail());
+	LOG("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
+#endif
+	std::vector<std::string> filebuf;
+	std::string line;
+	while (std::getline(file, line)) { filebuf.push_back(line); };
+	nomaduint_t i;
+	while (game->gamestate == GS_SETTINGS) {
+		werase(game->screen);
+		for (i = 0; i < filebuf.size(); ++i)
+			mvwaddstr(game->screen, i, 0, filebuf[i].c_str());
+		mvwaddstr(game->screen, i+1, 0, "[Keyboard/Mouse Bindings]");
+		nomaduint_t bind = 0;
+		for (; i < scf::NUMBINDS / 2; ++i) {
+			mvwprintw(game->screen, i, 0,  "%s: ", scf::kb_binds[bind].name);
+			mvwprintw(game->screen, i, 40, "%s", scf::GetSCFButton(scf::kb_binds[bind].button));
+			mvwprintw(game->screen, i, 50, "%s: ", scf::kb_binds[bind+1].name);
+			mvwprintw(game->screen, i, 90, "%s", scf::GetSCFButton(scf::kb_binds[bind+1].button));
+			bind += 2;
+		}
+		mvwaddstr(game->screen, i+1,  0, "[Launch Parameters]");
+		mvwprintw(game->screen, i+2,  0, "fastmobs1: %s", booltostr(scf::launch::fastmobs1));
+		mvwprintw(game->screen, i+3,  0, "fastmobs2: %s", booltostr(scf::launch::fastmobs2));
+		mvwprintw(game->screen, i+4,  0, "fastmobs3: %s", booltostr(scf::launch::fastmobs3));
+		mvwprintw(game->screen, i+5,  0, "blindmobs: %s", booltostr(scf::launch::blindmobs));
+		mvwprintw(game->screen, i+6,  0, "deafmobs: %s", booltostr(scf::launch::deafmobs));
+		mvwprintw(game->screen, i+7,  0, "nosmell: %s", booltostr(scf::launch::nosmell));
+		mvwprintw(game->screen, i+8,  0, "godmode: %s", booltostr(scf::launch::godmode));
+		mvwprintw(game->screen, i+9,  0, "ext_bff: %s", booltostr(scf::launch::ext_bff));
+		mvwprintw(game->screen, i+10, 0, "bottomless_clip: %s", booltostr(scf::launch::bottomless_clip));
+		mvwprintw(game->screen, i+11, 0, "devmode: %s", booltostr(scf::launch::devmode));
+		mvwprintw(game->screen, i+12, 0, "infinite_ammo: %s", booltostr(scf::launch::infinite_ammo));
+		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		wrefresh(game->screen);
+	};
+}
+
 #endif

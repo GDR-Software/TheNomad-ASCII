@@ -151,13 +151,33 @@ static nomadbool_t P_MoveTicker(Playr* playr)
 	}
 }
 
-static inline void P_UseWeapon(Weapon* const wpn)
+void P_UseLeftArm()
 {
-	switch (wpn->c_wpn.id) {
+
+}
+void P_UseRightArm()
+{
+	
+}
+void P_ShowWeapons()
+{
+
+}
+
+void P_PauseMenu()
+{
+	pthread_join(game->wthread, NULL);
+	game->gamestate = GS_PAUSE;
+	game->gamescreen = MENU_PAUSE;
+}
+
+void P_UseWeapon()
+{
+	switch (playr->c_wpn->c_wpn.id) {
 	case W_SHOTTY_ADB:
 	case W_SHOTTY_FAB:
 	case W_SHOTTY_QS:
-		P_ShootShotty(wpn);
+		P_ShootShotty(playr->c_wpn);
 		break;
 	case W_HPRIM_FUSION:
 	case W_HPRIM_HOSIG:
@@ -166,7 +186,7 @@ static inline void P_UseWeapon(Weapon* const wpn)
 //		P_ShootSingle(*wpn);
 		break;
 	default:
-		N_Error("Unknown/Invalid Weapon ID! id: %iu", wpn->c_wpn.id);
+		N_Error("Unknown/Invalid Weapon ID! id: %iu", playr->c_wpn->c_wpn.id);
 		break;
 	};
 }
@@ -193,132 +213,23 @@ void Playr::P_RunTicker(nomadint_t finput)
 			break;
 		}
 	}
-	/*
-	switch (input) {
-	case KEY_EP:
-		break;
-	case KEY_AT:
-		break;
-	case KEY_HASH:
-		break;
-	case KEY_DOLLAR:
-		break;
-	case KEY_q: {
-		if (!P_MoveTicker(this)) {
-			P_ChangeDirL();
-		}
-		break; }
-	case KEY_e: {
-		if (!P_MoveTicker(this)) {
-			P_ChangeDirR();
-		}
-		break; }
-	case KEY_w:
-		P_MoveN();
-		break;
-	case KEY_a:
-		P_MoveW();
-		break;
-	case KEY_s:
-		P_MoveS();
-		break;
-	case KEY_d:
-		P_MoveE();
-		break;
-	case KEY_TILDA:
-		
-		break;
-	case '1':
-		c_wpn = &p_leftarm;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '2':
-		c_wpn = &p_rightarm;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '3':
-		c_wpn = &p_sidearm;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '4':
-		c_wpn = &p_heavyside;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '5':
-		c_wpn = &p_primary;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '6':
-		c_wpn = &p_heavyprimary;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '7':
-		c_wpn = &p_shotty;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '8':
-		c_wpn = &p_melee1;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '9':
-		c_wpn = &p_melee2;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case '0':
-		c_wpn = &p_melee3;
-		wmove(game->screen, 9, 97);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 9, 128, '#');
-		break;
-	case ctrl('v'):
-		Hud_Printf("System", "You use your current weapon: %s", c_wpn->c_wpn.name);
-		P_UseWeapon(c_wpn);
-		break;
-	case KEY_GRAVE:
-		CommandConsole(game);
-		break;
-	case ctrl('x'):
-//		pthread_join(game->mthread, NULL);
-//		pthread_join(game->nthread, NULL);
-		pthread_join(game->wthread, NULL);
-		game->gamestate = GS_PAUSE;
-		break;
-	case ctrl('z'):
-		delwin(game->hudwin[HL_VMATRIX]);
-		game->~Game();
-		exit(1);
-		break;
-	default: break;
-	};
-	*/
+}
+
+void P_SlideN()
+{
+	P_DashN();
+}
+void P_SlideW()
+{
+	P_DashW();
+}
+void P_SlideS()
+{
+	P_DashS();
+}
+void P_SlideE()
+{
+	P_DashE();
 }
 
 void P_ChangeWeapon1()
@@ -640,12 +551,22 @@ void P_ChangeDirR()
 	}
 }
 
+void P_UseMelee()
+{
+
+}
+
+void P_QuickShot()
+{
+
+}
+
 void P_KillPlayr()
 {
 	Z_Free(playr);
 }
 
-static void CommandConsole(Game* const game)
+void CommandConsole()
 {
 	char buf[1024];
 //	mvwscanw(game->screen, , , "%s", buf);
