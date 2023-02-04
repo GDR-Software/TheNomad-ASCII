@@ -74,7 +74,7 @@ void signal_somethins_corrupt(int signum)
 #endif
 	exit(EXIT_FAILURE);
 }
-/*
+
 #ifdef __unix__
 static void set_nonblock(void)
 {
@@ -92,20 +92,20 @@ static void set_nonblock(void)
 	// set the terminal attributes.
 	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
 }
-#endif */
+#endif
 
 int main(int argc, char* argv[])
 {
-//#ifdef __unix__
-//	signal(SIGINT, signal_interrupt);
-//	signal(SIGSEGV, signal_seggy);
-//	signal(SIGTERM, signal_interrupt);
-//	signal(SIGABRT, signal_unnatural_demise);
-//	signal(SIGILL, signal_somethins_corrupt);
-//	signal(SIGQUIT, signal_interrupt);
-//	signal(SIGKILL, signal_interrupt);
-//	set_nonblock();
-//#endif
+#ifdef __unix__
+	signal(SIGINT, signal_interrupt);
+	signal(SIGSEGV, signal_seggy);
+	signal(SIGTERM, signal_interrupt);
+	signal(SIGABRT, signal_unnatural_demise);
+	signal(SIGILL, signal_somethins_corrupt);
+	signal(SIGQUIT, signal_interrupt);
+	signal(SIGKILL, signal_interrupt);
+	set_nonblock();
+#endif
 #ifdef _NOMAD_DEBUG
 	remove("Files/debug/debuglog.txt");
 	FILE* dbgfile = fopen("Files/debug/debuglog.txt", "w");

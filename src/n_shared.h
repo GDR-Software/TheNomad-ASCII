@@ -27,9 +27,9 @@
 #define _N_SHARED_
 
 // if you got this, well then port it
-/*#if !defined(__unix__) && !defined(_WIN32)
+#if !defined(__unix__)
 #   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
-#endif */
+#endif
 
 #ifndef __cplusplus
 #   error COMPILE WITH C++!
@@ -37,16 +37,6 @@
 
 #if __cplusplus < 201703L
 #   error COMPILE WITH C++17 OR HIGHER!
-#endif
-
-#include <ncurses/ncurses.h>
-// dependencies
-#ifdef __unix__
-#elif defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-//#include <conio.h>
-#include <windows.h>
-#pragma comment(lib, "kernel32")
 #endif
 
 #if defined(__GNUG__) || defined(__clang__)
@@ -81,7 +71,15 @@ class Game;
 #   include <sys/stat.h>
 #   include <termios.h>
 #   include <signal.h>
+#   include <dlfcn.h>
 #endif
+
+#include <ncurses.h>
+#include <mpg123.h>
+#include <out123.h>
+#include <syn123.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -168,18 +166,9 @@ constexpr uint8_t DIF_NOMAD              = 3;
 constexpr uint8_t DIF_BLACKDEATH         = 4;
 constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
 constexpr uint8_t NUMDIFS                = 6;
-/*
-inline nomadenum_t kbhit()
+
+inline char kbhit()
 {
-//#ifdef _WIN32 // broken - FIXME
-//	if (_kbhit()) {
-//		in = (nomadushort_t)_getch();
-//		return true;
-//	}
-//	else {
-//		return false;
-//	}
-//#elif defined(__unix__)
 	struct timeval tv;
 	fd_set fds;
 	tv.tv_sec = 0;
@@ -191,10 +180,9 @@ inline nomadenum_t kbhit()
 		return getc(stdin);
 	}
 	else {
-		return 0;
+		return -1;
 	}
-//#endif
-} */
+}
 
 
 namespace std {
@@ -225,12 +213,6 @@ enum : nomadenum_t
 	NUMALIGNMENTS
 };
 
-#ifdef __unix__
-#define sleep_for(duration) usleep(duration)
-#elif defined(_WIN32)
-#define sleep_for(duration) Sleep(duration)
-#endif
-
 typedef struct coord_s
 {
 #ifdef _NOMAD_64
@@ -244,12 +226,12 @@ typedef struct coord_s
         case 1: return x;
         };
     }
-    bool __attribute__((always_inline))operator==(struct coord_s& c2) const {
-        return  (y == c2.y && x == c2.x);
-    }
-    bool operator>(struct coord_s& c2) const {
-        return (y > c2.y && x > c2.x);
-    }
+    inline bool operator==(struct coord_s c) const;
+    inline bool operator>(struct coord_s c) const;
+	inline bool operator<(struct coord_s c) const;
+	inline bool operator>=(struct coord_s c) const;
+	inline bool operator<=(struct coord_s c) const;
+	inline bool operator!=(struct coord_s c) const;
 } coord_t, vec2_t;
 
 typedef struct
@@ -276,8 +258,6 @@ typedef struct
 
 typedef int32_t nomadfixed_t;
 
-nomadfixed_t to_fixed(nomadfloat_t x);
-nomadfloat_t to_float(nomadfixed_t x);
 nomadfloat_t Q_root(nomadfloat_t x);
 nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);

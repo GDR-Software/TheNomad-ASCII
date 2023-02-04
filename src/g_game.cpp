@@ -25,20 +25,20 @@ Game::Game()
 {
 }
 
-//#ifdef __unix__
-//static void set_block(void)
-//{
-//	struct termios ttystate;
-//	
-//	// get the terminal state
-//	tcgetattr(STDIN_FILENO, &ttystate);
-//	//turn on canonical mode
-//	ttystate.c_lflag |= ICANON;
-//
-//	// set the terminal attributes.
-//	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-//}
-//#endif
+#ifdef __unix__
+static void set_block(void)
+{
+	struct termios ttystate;
+	
+	// get the terminal state
+	tcgetattr(STDIN_FILENO, &ttystate);
+	//turn on canonical mode
+	ttystate.c_lflag |= ICANON;
+
+	// set the terminal attributes.
+	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+}
+#endif
 
 Game::~Game()
 {
@@ -49,12 +49,11 @@ Game::~Game()
 		pthread_kill(wthread, SIGTERM);
 		pthread_kill(mthread, SIGTERM);
 		pthread_kill(nthread, SIGTERM);
-		pthread_kill(pthread, SIGTERM);
 	}
 	delwin(screen);
 	attroff(COLOR_PAIR(0));
 	endwin();
-//	set_block();
+	set_block();
 	// now we delete any of the runtime-only resources
 	remove("Files/gamedata/RUNTIME/mapfile.txt");
 	W_KillWorld();

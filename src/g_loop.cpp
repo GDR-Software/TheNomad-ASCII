@@ -104,7 +104,7 @@ void mainLoop(int argc, char* argv[])
 				else {
 					game->gamestate = GS_TITLE;
 				}
-				sleep_for(100);
+				std::this_thread::sleep_for(100ms);
 			}
 		}
 		else if (game->gamestate == GS_LEVEL) {
@@ -158,7 +158,7 @@ void mainLoop(int argc, char* argv[])
 							break;
 						};
 					}
-					sleep_for(77);
+					std::this_thread::sleep_for(77ms);
 				}
 				else {
 					game->gamestate = GS_LEVEL;
@@ -173,10 +173,7 @@ void mainLoop(int argc, char* argv[])
 
 static void* P_Loop(void *arg)
 {
-	pthread_mutex_lock(&game->playr_mutex);
-	nomadenum_t c = getc(stdin);
-	game->P_Ticker(c);
-	pthread_mutex_unlock(&game->playr_mutex);
+	
 	return NULL;
 }
 
@@ -194,11 +191,14 @@ static void levelLoop(void)
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
-		pthread_create(&game->pthread, NULL, P_Loop, NULL);
 		pthread_create(&game->wthread, NULL, W_Loop, NULL);
-		pthread_join(game->pthread, NULL);
+		pthread_mutex_lock(&game->playr_mutex);
+		char c;
+		if ((c = kbhit()) != -1)
+			game->P_Ticker(c);
+		pthread_mutex_unlock(&game->playr_mutex);
 		pthread_join(game->wthread, NULL);
-		sleep_for(ticrate_mil);
+		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
 	};

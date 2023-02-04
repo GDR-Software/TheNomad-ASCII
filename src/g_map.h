@@ -45,7 +45,7 @@ typedef struct
 {
 	coord_t where;
 	nomaduint_t what;
-	void *ptr;
+	void *ptr = nullptr;
 } collider_t;
 
 // sound level is only ever checked by non-player entities

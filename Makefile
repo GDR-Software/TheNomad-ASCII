@@ -1,12 +1,12 @@
 VERSION        = 0
 VERSION_UPDATE = 0
 VERSION_PATCH  = 1
-CC             = x86_64-w64-mingw32-g++
-CFLAGS         = -g -std=c++17 -Iinclude
+CC             = g++
+CFLAGS         = -g -std=c++17 -I/usr/include
 O              = obj
 SDIR           = src
-LDFLAGS        = lib/libncurses.a
-LDLIBS         = -lpthread
+LDFLAGS        = /usr/lib/libncurses.a
+LDLIBS         = -lpthread -lopenal -lmpg123
 EXE            = nomadascii
 
 .PHONY: all clean clean.exe clean.objs
