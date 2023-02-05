@@ -49,33 +49,6 @@ typedef unsigned char byte;
 
 __CFUNC__ void Z_KillHeap();
 
-// size: 40 bytes...?
-typedef struct memblock_s
-{
-	int size;
-	int tag;
-	int id;
-	void* user;
-	
-	struct memblock_s* next;
-	struct memblock_s* prev;
-} memblock_t;
-
-typedef struct
-{
-	// total bytes allocated, including the sizeof memzone_t
-	int size;
-
-	// start/end cap for the linked list of blocks
-	memblock_t blocklist;
-	// the block pointer
-	memblock_t* rover;
-} memzone_t;
-
-#ifndef _TESTING
-static constexpr int heapsize = 10000000; // allocating 3 mb
-#endif
-
 memzone_t* mainzone;
 
 __CFUNC__ void Z_KillHeap(void)
@@ -198,7 +171,6 @@ __CFUNC__ void Z_Init(int size)
 
 	// account for header size
 	size += sizeof(memzone_t);
-	puts("Z_Init(): Allocating Zone Memory...");
 	mainzone = (memzone_t *)((byte *)calloc(size, sizeof(byte)));
 	if (!mainzone) {
 		fprintf(stderr, "Z_Init: malloc failed!\n");
@@ -221,11 +193,9 @@ __CFUNC__ void Z_Init(int size)
 	printf("Allocated Zone From %p -> %p\n", mainzone, (mainzone+mainzone->size));
 }
 #else
-__CFUNC__ void Z_Init(void)
+__CFUNC__ void Z_Init(uint64_t& start, uint64_t& end)
 {
 	memblock_t* base;
-	puts("Z_Init(): Allocating Zone Memory...");
-	
 	mainzone = (memzone_t *)((byte *)calloc(heapsize, sizeof(byte)));
 	if (!mainzone)
 		N_Error("Z_Init: malloc failed!\n");
@@ -245,7 +215,8 @@ __CFUNC__ void Z_Init(void)
 	base->prev = base->next = &mainzone->blocklist;
 	base->user = nullptr;
 	base->size = mainzone->size - sizeof(memzone_t);
-	printf("Allocated Zone From %p -> %p\n", mainzone, (mainzone+mainzone->size));
+	start = (uint64_t)mainzone;
+	end = (uint64_t)(mainzone+mainzone->size);
 #ifdef _NOMAD_DEBUG
 	LOG("allocated zone memory from %p -> %p of size %i", mainzone, (mainzone+mainzone->size), mainzone->size);
 #endif
@@ -459,8 +430,5 @@ __CFUNC__ void Z_ChangeUser(void *ptr, void *user)
 }
 
 #ifndef TESTING
-__CFUNC__ constexpr unsigned long Z_ZoneSize(void)
-{
-	return heapsize;
-}
+__CFUNC__ constexpr unsigned long Z_ZoneSize(void) { return heapsize; }
 #endif

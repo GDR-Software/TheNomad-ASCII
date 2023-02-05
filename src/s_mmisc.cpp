@@ -103,3 +103,28 @@ void M_KillMob(Mob* const mob)
 #endif
 	Z_Free(mob);
 }
+
+const char* MobTypeToStr(nomaduint_t mtype)
+{
+	switch (mtype) {
+	case MT_BEGGAR: return VAR_TO_STR(MT_BEGGAR);
+	case MT_DRUID: return VAR_TO_STR(MT_DRUID);
+	case MT_SANDWURM: return VAR_TO_STR(MT_SANDWURM);
+	case MT_RAVAGER: return VAR_TO_STR(MT_RAVAGER);
+	case MT_PISTOL: return VAR_TO_STR(MT_PISTOL);
+	case MT_SHOTTY: return VAR_TO_STR(MT_SHOTTY);
+	case MT_GUNNER: return VAR_TO_STR(MT_GUNNER);
+	case MT_GRUNT: return VAR_TO_STR(MT_GRUNT);
+	case MT_GUARD: return VAR_TO_STR(MT_GUARD);
+	case MT_HULK: return VAR_TO_STR(MT_HULK);
+	case MT_MERC: return VAR_TO_STR(MT_MERC);
+	case MT_MERC_LEADER: return VAR_TO_STR(MT_MERC_LEADER);
+	case MT_NOMAD_LEADER: return VAR_TO_STR(MT_NOMAD_LEADER);
+	case MT_NOMAD_WARRIOR: return VAR_TO_STR(MT_NOMAD_WARRIOR);
+	case MT_SNIPER: return VAR_TO_STR(MT_SNIPER);
+	case MT_SOLDIER: return VAR_TO_STR(MT_SOLDIER);
+	case MT_THUG: return VAR_TO_STR(MT_THUG);
+	};
+	if (!false)
+		N_Error("Unknown/Invalid Mob Type %iu!", mtype);
+}

@@ -49,7 +49,7 @@ static inline void E_Init(Game* const game);
 static inline void TUI_Init(Game* const game);
 static inline void I_ProcessArgs(const std::vector<char*>& myargv);
 
-void I_NomadInit(int argc, char* argv[], Game* const game)
+void I_NomadInit(int argc, char* argv[], Game* game)
 {
 #ifdef _NOMAD_DEBUG
 	assert(game);
@@ -70,26 +70,26 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	case 0:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Pre-Alpha (v%d.%d.%d)\n"
+			"  The Nomad Pre-Alpha (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 		break;
 	case 1:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Alpha (v%d.%d.%d)  \n"
+			"  The Nomad Alpha (v%i.%i.%i)  \n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	case 2:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Beta (v%d.%d.%d)\n"
+			"  The Nomad Beta (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	case 3:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad (v%d.%d.%d)\n"
+			"  The Nomad (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	default: // should theoretically never happen

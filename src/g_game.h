@@ -120,7 +120,7 @@ public:
 	void M_GenMobs(void);
 	
 	void G_SaveGame(void);
-	bool G_LoadGame(void);
+	bool G_LoadGame(const char* svfile);
 
 	npc_t N_MakeNPC(void);
 	void I_InitNPCs(void);
@@ -130,10 +130,12 @@ public:
 	void E_MoveImmediate(coord_t* epos, nomadenum_t edir); // the checks have already been performed by said entity
 	coord_t E_GetDir(nomadenum_t dir);
 	nomadbool_t E_Move(coord_t* epos, nomadenum_t* edir);
+	void G_SaveState(void);
+	void G_SaveRecentSlot(void);
 };
 
 void G_LoadBFF(const char* bffname, Game* const game);
-void I_NomadInit(int argc, char* argv[], Game* const game);
+void I_NomadInit(int argc, char* argv[], Game* game);
 void W_Init(Game* const gptr);
 void* W_Loop(void *arg);
 void mainLoop(int argc, char* argv[]);

@@ -28,14 +28,11 @@ static void settingsLoop(void);
 
 void mainLoop(int argc, char* argv[])
 {
-	Z_Init();
-	
-	// allocating 1 mb to the chunkiest class of them all
+	uint64_t start, end;
+	puts("Z_Init(): initializing zone memory allocation daemon...");
+	Z_Init(start, end);
+	printf("Allocated zone from %p -> %p, %i bytes allocated to zone\n", mainzone, (mainzone+mainzone->size), heapsize);
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
-
-#ifdef _NOMAD_DEBUG
-	assert(game);
-#endif
 	I_NomadInit(argc, argv, game);
 	Z_CheckHeap();
 #ifdef _NOMAD_DEBUG
@@ -126,12 +123,12 @@ void mainLoop(int argc, char* argv[])
 						// s behaves in strange and mysterious ways
 						s--;
 						if (s < 0) {
-							s = 5;
+							s = 4;
 						}
 					}
 					else if (f == 's') {
 						s++;
-						if (s > 5) {
+						if (s > 4) {
 							s = 0;
 						}
 					}
@@ -141,26 +138,18 @@ void mainLoop(int argc, char* argv[])
 							game->gamestate = GS_LEVEL;
 							break;
 						case 1:
-							game->G_SaveGame();
+							game->G_SaveState();
 							break;
-						case 2: {
-							bool real = game->G_LoadGame();
-							if (!real) {
-								mvwprintw(game->screen, getmaxy(game->screen), 0, "(ERROR) Invalid Save File");
-								wrefresh(game->screen);
-								wgetch(game->screen);
-							}
-							break; }
-						case 3:
+						case 2:
 							game->gamestate = GS_SETTINGS;
 							game->gamescreen = MENU_SETTINGS;
 							break;
-						case 4:
-							game->G_SaveGame();
+						case 3:
+							game->G_SaveRecentSlot();
 							game->~Game();
 							exit(1);
 							break;
-						case 5:
+						case 4:
 							game->gamestate = GS_MENU;
 						default:
 							break;

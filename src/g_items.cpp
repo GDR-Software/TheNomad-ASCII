@@ -38,17 +38,43 @@ void ItemAssigner(Game* const gptr)
 const char* GetWeaponNameFromId(nomaduint_t id)
 {
     switch (id) {
-    case W_SHOTTY_ADB: return SHOTTY_ADB_STRING;
-    case W_SHOTTY_FAB: return SHOTTY_FAB_STRING;
-    case W_SHOTTY_QS: return SHOTTY_QS_STRING;
-    case W_SIDE_AUP: return SIDE_AUP_STRING;
-    case W_SIDE_BOS: return SIDE_BOS_STRING;
-    case W_SIDE_FUSION: return SIDE_FUSION_STRING;
-    case W_SIDE_ION: return SIDE_ION_STRING;
-    case W_SIDE_PLASMA: return SIDE_PLASMA_STRING;
-    case W_HSIDE_A8SHOT: return HSIDE_A8SHOT_STRING;
-    case W_HSIDE_SADB: return HSIDE_SADB_STRING;
+    case W_SHOTTY_ADB: return VAR_TO_STR(W_SHOTTY_ADB);
+    case W_SHOTTY_FAB: return VAR_TO_STR(W_SHOTTY_FAB);
+    case W_SHOTTY_QS: return VAR_TO_STR(W_SHOTTY_QS);
+    case W_SIDE_AUP: return VAR_TO_STR(W_SIDE_AUP);
+    case W_SIDE_BOS: return VAR_TO_STR(W_SIDE_BOS);
+    case W_SIDE_FUSION: return VAR_TO_STR(W_SIDE_FUSION);
+    case W_SIDE_ION: return VAR_TO_STR(W_SIDE_ION);
+    case W_SIDE_PLASMA: return VAR_TO_STR(W_SIDE_PLASMA);
+    case W_HSIDE_A8SHOT: return VAR_TO_STR(W_HSIDE_A8SHOT);
+    case W_HSIDE_SADB: return VAR_TO_STR(W_HSIDE_SADB);
+    case W_PRIM_AK77: return VAR_TO_STR(W_PRIM_AK77);
+    case W_PRIM_M23C5: return VAR_TO_STR(W_PRIM_M23C5);
+    case W_PRIM_PLASMASMG: return VAR_TO_STR(W_PRIM_PLASMASMG);
+    case W_PRIM_RAG14: return VAR_TO_STR(W_PRIM_RAG14);
+    case W_PRIM_RAG15: return VAR_TO_STR(W_PRIM_RAG15);
+    case W_HPRIM_RAG13: return VAR_TO_STR(W_HPRIM_RAG13);
+    case W_HPRIM_DR: return VAR_TO_STR(W_HPRIM_DR);
+    case W_HPRIM_FUSION: return VAR_TO_STR(W_HPRIM_FUSION);
+    case W_HPRIM_HOSIG: return VAR_TO_STR(W_HPRIM_HOSIG);
+    case W_ARM_FT: return VAR_TO_STR(W_ARM_FT);
+    case W_ARM_GRAPPLE: return VAR_TO_STR(W_ARM_GRAPPLE);
+    case W_ARM_HB: return VAR_TO_STR(W_ARM_HB);
+    case W_ARM_HC: return VAR_TO_STR(W_ARM_HC);
+    case W_ARM_SB: return VAR_TO_STR(W_ARM_SB);
+    case W_MELEE_BALLISTA: return VAR_TO_STR(W_MELEE_BALLISTA);
+    case W_MELEE_BASTARD: return VAR_TO_STR(W_MELEE_BASTARD);
+    case W_MELEE_CROSSBOW: return VAR_TO_STR(W_MELEE_CROSSBOW);
+    case W_MELEE_DAGGER: return VAR_TO_STR(W_MELEE_DAGGER);
+    case W_MELEE_KANTANA: return VAR_TO_STR(W_MELEE_KANTANA);
+    case W_MELEE_LONG: return VAR_TO_STR(W_MELEE_LONG);
+    case W_MELEE_MACE: return VAR_TO_STR(W_MELEE_MACE);
+    case W_MELEE_MORNING: return VAR_TO_STR(W_MELEE_MORNING);
+    case W_MELEE_SHORT: return VAR_TO_STR(W_MELEE_SHORT);
+    case W_MELEE_TANTO: return VAR_TO_STR(W_MELEE_TANTO);
     };
+    if (!false)
+        N_Error("Invalid weapon id %iu!", id);
 }
 
 money_t currency_convert(money_t from, nomadenum_t to)

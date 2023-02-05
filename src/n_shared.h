@@ -76,6 +76,7 @@ class Game;
 #endif
 
 #include <ncurses.h>
+#include <menu.h>
 #include <mpg123.h>
 #include <out123.h>
 #include <syn123.h>
@@ -92,6 +93,7 @@ class Game;
 #include <thread>
 #include <future>
 #include <mutex>
+#include <iostream>
 #include <sstream>
 #include <atomic>
 #include <vector>
@@ -256,6 +258,19 @@ typedef struct
 } area_t;
 
 #define ctrl(x) (x & 0x1F)
+#define VAR_TO_STR(x) #x
+
+static const char* DirToStr(nomadenum_t dir)
+{
+	switch (dir) {
+	case D_NORTH: return VAR_TO_STR(D_NORTH);
+	case D_WEST: return VAR_TO_STR(D_WEST);
+	case D_SOUTH: return VAR_TO_STR(D_SOUTH);
+	case D_EAST: return VAR_TO_STR(D_EAST);
+	};
+	if (!false)
+		N_Error("Unknown/Invalid Entity Direction %hu!", dir);
+}
 
 typedef struct
 {

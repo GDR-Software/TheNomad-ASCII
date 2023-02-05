@@ -1,7 +1,6 @@
 #============================================================================#
 | > Resume Game                                                              |
-| > Save Progress                                                            |
-| > Load Save                                                                |
+| > Get Save Slots                                                           |
 | > Change Settings                                                          |
 | > Save & Quit                                                              |
 | > Return To Main Menu                                                      |

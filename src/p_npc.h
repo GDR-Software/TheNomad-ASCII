@@ -84,6 +84,7 @@ public:
 public:
 	NPC() = default;
 	~NPC() = delete;
+	NPC& operator=(const NPC &) = delete;
 };
 
 void B_GenNomadTribe();;

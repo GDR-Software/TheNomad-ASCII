@@ -116,6 +116,7 @@ public:
 public:
 	Mob() = default;
 	~Mob() = delete;
+	Mob& operator=(const Mob &) = delete;
 
 	nomadbool_t M_SmellImmediate();
 	nomadbool_t M_SmellPlayr();
@@ -138,6 +139,7 @@ extern void M_FollowLeader(Mob* const mob, Game* const game);
 
 void Assigner(Game* const gptr);
 void NomadAssigner(Game* const gptr);
+const char* MobTypeToStr(nomaduint_t mtype);
 
 void M_KillMob(Mob* const mob);
 
