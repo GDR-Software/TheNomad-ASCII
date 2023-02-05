@@ -256,6 +256,7 @@ static inline void M_Init(void)
     assert(game);
     LOG("Initializing Map Data");
 #endif
+#if 0 // no longer needed because of BFF files
 	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
 	nomaduint_t y, x;
 	for (nomadenum_t i = 0; i < NUM_SECTORS; ++i) {
@@ -365,9 +366,10 @@ static inline void M_Init(void)
 #ifdef _NOMAD_DEBUG
 	LOG("Successfully Closed RUNTIME/mapfile.txt");
 #endif
+#endif
 //	G_CopyBufferToMap();
 //	I_InitBiomes();
-	game->I_InitHUD();
+    game->I_InitHUD();
 }
 
 void W_KillWorld()

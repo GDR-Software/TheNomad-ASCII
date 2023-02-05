@@ -175,7 +175,10 @@
 #define CTRL_B      ctrl('B') // 140
 #define CTRL_N      ctrl('N') // 141
 #define CTRL_M      ctrl('M') // 142
-#define NUMBUTTONS 142
+#define KEY_k       'k' // 143
+#define KEY_W       'W' // 144
+#define KEY_A       'A' // 145
+#define NUMBUTTONS 143
 
 constexpr uint8_t ticrate_mil = 28;
 constexpr uint8_t ticrate_base = 35;
@@ -250,6 +253,7 @@ namespace scf {
 		extern nomadbool_t fastmobs2;
 		extern nomadbool_t fastmobs3;
 		extern nomadbool_t ext_bff;
+		extern nomadbool_t ext_scf;
 		extern nomadbool_t deafmobs;
 		extern nomadbool_t blindmobs;
 		extern nomadbool_t nosmell;
@@ -258,47 +262,25 @@ namespace scf {
 		extern nomadbool_t infinite_ammo;
 		extern nomadbool_t bottomless_clip;
 		extern nomadbool_t devmode;
-		static constexpr numlaunchparams = 11;
+		static constexpr uint16_t numlaunchparams = 11;
 	};
-	
+	struct scfbind
+    {
+        const std::string_view str;
+        paction_t actionp;
+    };
+	struct scfbutton
+    {
+        const std::string_view str;
+        const nomaduint_t button;
+    };
+	extern scfbind kbStrings[NUMBINDS];
+	extern scfbutton buttonStrings[NUMBUTTONS];
+
 	void G_LoadSCF(const char* filepath);
 
-	const char* GetSCFBind(nomaduint_t bind)
-	{
-		switch (bind) {
-		case kbMove_n: return "Move Forward";
-		case kbStrafe_l: return "Strafe Left";
-		case kbMove_s: return "Move Backwards";
-		case kbStrafe_r: return "Strafe Right";
-		case kbDash_n: return "Dash North";
-		case kbDash_w: return "Dash West";
-		case kbDash_s: return "Dash South";
-		case kbDash_e: return "Dash East";
-		case kbMelee: return "Use Melee";
-		case kbExitToPause: return "Exit to Pause Menu";
-		case kbSlide_n: return "Slide North";
-		case kbSlide_w: return "Slide West";
-		case kbSlide_s: return "Slide South";
-		case kbSlide_e: return "Slide East";
-		case kbUseWeapon: return "Use Current Weapon";
-		case kbTurn_l: return "Turn Left";
-		case kbTurn_r: return "Turn Right";
-		case kbSwapWpn_1: return "Swap To Right Arm";
-		case kbSwapWpn_2: return "Swap To Left Arm";
-		case kbSwapWpn_3: return "Swap To Sidearm";
-		case kbSwapWpn_4: return "Swap To Heavy Sidearm";
-		case kbSwapWpn_5: return "Swap To Primary";
-		case kbSwapWpn_6: return "Swap To Heavy Primary";
-		case kbSwapWpn_7: return "Swap To Shotgun";
-		case kbSwapWpn_8: return "Swap To Melee 1";
-		case kbSwapWpn_9: return "Swap To Melee 2";
-		case kbSwapWpn_10: return "Swap To Melee 3";
-		case kbShowWpns: return "Show All Weapons";
-		case kbQuickShot: return "Quick-Shot w/ Current Weapon";
-		case kbOpenConsole: return "Open Text/Command Console";
-		};
-		assert(false);
-	}
+	const char* GetSCFBind(nomaduint_t bind);
+	/*
 	const char* GetSCFButton(nomaduint_t button)
 	{
 		switch (button) {
@@ -352,55 +334,55 @@ namespace scf {
 		case KEY_P: return "P";
 		case KEY_S: return "S";
 		case KEY_D: return "D";
-		case CTRL_q: return "ctrl-q";
-		case CTRL_w: return "ctrl-w";
-		case CTRL_e: return "ctrl-e";
-		case CTRL_r: return "ctrl-r";
-		case CTRL_t: return "ctrl-t";
-		case CTRL_y: return "ctrl-y";
-		case CTRL_u: return "ctrl-u";
-		case CTRL_i: return "ctrl-i";
-		case CTRL_o: return "ctrl-o";
-		case CTRL_p: return "ctrl-p";
-		case CTRL_a: return "ctrl-a";
-		case CTRL_s: return "ctrl-s";
-		case CTRL_d: return "ctrl-d";
-		case CTRL_f: return "ctrl-f";
-		case CTRL_g: return "ctrl-g";
-		case CTRL_h: return "ctrl-h";
-		case CTRL_j: return "ctrl-j";
-		case CTRL_l: return "ctrl-l";
-		case CTRL_z: return "ctrl-z";
-		case CTRL_x: return "ctrl-x";
-		case CTRL_c: return "ctrl-c";
-		case CTRL_v: return "ctrl-v";
-		case CTRL_b: return "ctrl-b";
-		case CTRL_n: return "ctrl-n";
-		case CTRL_m: return "ctrl-m";
-		case CTRL_Q: return "ctrl-Q";
-		case CTRL_E: return "ctrl-E";
-		case CTRL_R: return "ctrl-R";
-		case CTRL_T: return "ctrl-T";
-		case CTRL_Y: return "ctrl-Y";
-		case CTRL_U: return "ctrl-U";
-		case CTRL_I: return "ctrl-I";
-		case CTRL_O: return "ctrl-O";
-		case CTRL_P: return "ctrl-P";
-		case CTRL_S: return "ctrl-S";
-		case CTRL_D: return "ctrl-D";
-		case CTRL_F: return "ctrl-F";
-		case CTRL_G: return "ctrl-G";
-		case CTRL_H: return "ctrl-H";
-		case CTRL_J: return "ctrl-J";
-		case CTRL_K: return "ctrl-K";
-		case CTRL_L: return "ctrl-L";
-		case CTRL_Z: return "ctrl-Z";
-		case CTRL_X: return "ctrl-X";
-		case CTRL_C: return "ctrl-C";
-		case CTRL_V: return "ctrl-V";
-		case CTRL_B: return "ctrl-B";
-		case CTRL_N: return "ctrl-N";
-		case CTRL_M: return "ctrl-M";
+		case ctrl_q: return "ctrl-q";
+		case ctrl_w: return "ctrl-w";
+		case ctrl_e: return "ctrl-e";
+		case ctrl_r: return "ctrl-r";
+		case ctrl_t: return "ctrl-t";
+		case ctrl_y: return "ctrl-y";
+		case ctrl_u: return "ctrl-u";
+		case ctrl_i: return "ctrl-i";
+		case ctrl_o: return "ctrl-o";
+		case ctrl_p: return "ctrl-p";
+		case ctrl_a: return "ctrl-a";
+		case ctrl_s: return "ctrl-s";
+		case ctrl_d: return "ctrl-d";
+		case ctrl_f: return "ctrl-f";
+		case ctrl_g: return "ctrl-g";
+		case ctrl_h: return "ctrl-h";
+		case ctrl_j: return "ctrl-j";
+		case ctrl_l: return "ctrl-l";
+		case ctrl_z: return "ctrl-z";
+		case ctrl_x: return "ctrl-x";
+		case ctrl_c: return "ctrl-c";
+		case ctrl_v: return "ctrl-v";
+		case ctrl_b: return "ctrl-b";
+		case ctrl_n: return "ctrl-n";
+		case ctrl_m: return "ctrl-m";
+		case ctrl_Q: return "ctrl-Q";
+		case ctrl_E: return "ctrl-E";
+		case ctrl_R: return "ctrl-R";
+		case ctrl_T: return "ctrl-T";
+		case ctrl_Y: return "ctrl-Y";
+		case ctrl_U: return "ctrl-U";
+		case ctrl_I: return "ctrl-I";
+		case ctrl_O: return "ctrl-O";
+		case ctrl_P: return "ctrl-P";
+		case ctrl_S: return "ctrl-S";
+		case ctrl_D: return "ctrl-D";
+		case ctrl_F: return "ctrl-F";
+		case ctrl_G: return "ctrl-G";
+		case ctrl_H: return "ctrl-H";
+		case ctrl_J: return "ctrl-J";
+		case ctrl_K: return "ctrl-K";
+		case ctrl_L: return "ctrl-L";
+		case ctrl_Z: return "ctrl-Z";
+		case ctrl_X: return "ctrl-X";
+		case ctrl_C: return "ctrl-C";
+		case ctrl_V: return "ctrl-V";
+		case ctrl_B: return "ctrl-B";
+		case ctrl_N: return "ctrl-N";
+		case ctrl_M: return "ctrl-M";
 		case KEY_1: return "1";
 		case KEY_2: return "2";
 		case KEY_3: return "3";
@@ -445,6 +427,7 @@ namespace scf {
 		};
 		assert(false);
 	}
+	*/	
 };
 
 #define SCF_STR(x, action) { #x, action }

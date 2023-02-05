@@ -143,6 +143,8 @@ enum
 	M_NULL
 };
 
+const char* GetWeaponNameFromId(nomaduint_t id);
+
 typedef struct
 {
 	const char* name;
@@ -162,6 +164,12 @@ typedef struct
 	nomadenum_t tfrf;
 	// reloading time, with still unfired bullets
 	nomadenum_t tfrs;
+
+	friend std::ofstream& operator<<(std::ofstream& os) const {
+		const char* name = GetWeaponNameFromId(id);
+		os << name;
+		return os;
+	}
 } weapon_t;
 
 //constexpr uint8_t MAXMATERIALS = 15;

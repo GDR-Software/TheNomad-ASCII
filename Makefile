@@ -48,6 +48,7 @@ OBJS= \
 	$(O)/g_items.o \
 	$(O)/s_mission.o \
 	$(O)/s_world.o \
+	$(O)/g_loadbff.o \
 
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE) $(LDLIBS)

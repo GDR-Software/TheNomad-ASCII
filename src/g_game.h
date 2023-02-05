@@ -34,8 +34,6 @@
 #endif
 
 // used for loading the bff, tracking the progress // nope, not anymore
-
-#define ctrl(x) (x & 0x1F)
 constexpr auto NotFound = std::string::npos;
 
 typedef enum : nomadenum_t
@@ -74,13 +72,14 @@ public:
 	std::atomic<nomadulong_t> ticcount;
 	gamestate_t gamestate;
 	nomadenum_t gamescreen;
-	char bffname[80];
+	char bffname[256];
+	char scfname[256];
 	nomadenum_t difficulty;
 	Playr* playr;
 	World* world;
 	std::vector<Mob*> m_Active;
 	std::vector<NPC*> b_Active;
-public: // map stuff
+public: // map stuffw
 	sndlvl_t sndmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	smelllvl_t smellmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	char c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
@@ -133,6 +132,7 @@ public:
 	nomadbool_t E_Move(coord_t* epos, nomadenum_t* edir);
 };
 
+void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* const game);
 void W_Init(Game* const gptr);
 void* W_Loop(void *arg);

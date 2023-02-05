@@ -255,6 +255,8 @@ typedef struct
     }
 } area_t;
 
+#define ctrl(x) (x & 0x1F)
+
 typedef struct
 {
 	nomadenum_t height, width;

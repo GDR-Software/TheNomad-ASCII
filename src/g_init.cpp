@@ -45,7 +45,6 @@ void N_Error(const char* err, ...)
 
 #ifndef TESTING
 
-static char bffname[81];
 static inline void E_Init(Game* const game);
 static inline void TUI_Init(Game* const game);
 static inline void I_ProcessArgs(const std::vector<char*>& myargv);
@@ -61,11 +60,12 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 	ncurses_on = false;
 	pthread_mutex_init(&game->mob_mutex, NULL);
 	pthread_mutex_init(&game->npc_mutex, NULL);
-	bffname[80] = '\0';
 	game->gamestate = GS_TITLE;
 	game->gamescreen = MENU_TITLE;
 	game->ticcount = 0;
 	char buf[256];
+	strncpy(game->bffname, "nomadmain.bffl", sizeof(game->bffname));
+	strncpy(game->scfname, "default.scf", sizeof(game->scfname));
 	switch (_NOMAD_VERSION) {
 	case 0:
 		snprintf(buf, sizeof(buf),
@@ -97,7 +97,7 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 		exit(EXIT_FAILURE);
 		break;
 	};
-	printf("%s", buf);
+	puts(buf);
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	printf("I_NomadInit(): Initializing Game...\n");
 	srand(time(NULL));
@@ -106,7 +106,8 @@ void I_NomadInit(int argc, char* argv[], Game* const game)
 		myargv.push_back(argv[i]);
 	}
 	I_ProcessArgs(myargv);
-	scf::G_LoadSCF("default.scf");
+	G_LoadBFF(game->bffname, game);
+	scf::G_LoadSCF(game->scfname);
 	E_Init(game);
 	W_Init(game);
 	TUI_Init(game);
@@ -200,8 +201,18 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 			}
 		}
 		else if (strstr(myargv[i], "-bff") != NULL) {
-				scf::launch::ext_bff = true;
-				strcpy(bffname, myargv[i+1]);
+			scf::launch::ext_bff = true;
+			strncpy(gptr->bffname, myargv[i+1], sizeof(gptr->bffname));
+			if (!strncmp(gptr->bffname, "nomadmain.bffl", sizeof(gptr->bffname))) {
+				fprintf(stdout, "Using non-default BFFL file: %s\n", gptr->bffname);
+			}
+		}
+		else if (strstr(myargv[i], "-scf") != NULL) {
+			scf::launch::ext_scf = true;
+			strncpy(gptr->scfname, myargv[i+1], sizeof(gptr->scfname));
+			if (!strncmp(gptr->scfname, "default.scf", sizeof(gptr->scfname))) {
+				fprintf(stdout, "Using non-default SACE Configuration File: %s\n", gptr->scfname);
+			}
 		}
 		else if (strstr(myargv[i], "-deafmobs") != NULL) {
 			scf::launch::deafmobs = true;

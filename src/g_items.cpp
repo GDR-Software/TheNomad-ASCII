@@ -35,6 +35,22 @@ void ItemAssigner(Game* const gptr)
     playr = game->playr;
 }
 
+const char* GetWeaponNameFromId(nomaduint_t id)
+{
+    switch (id) {
+    case W_SHOTTY_ADB: return SHOTTY_ADB_STRING;
+    case W_SHOTTY_FAB: return SHOTTY_FAB_STRING;
+    case W_SHOTTY_QS: return SHOTTY_QS_STRING;
+    case W_SIDE_AUP: return SIDE_AUP_STRING;
+    case W_SIDE_BOS: return SIDE_BOS_STRING;
+    case W_SIDE_FUSION: return SIDE_FUSION_STRING;
+    case W_SIDE_ION: return SIDE_ION_STRING;
+    case W_SIDE_PLASMA: return SIDE_PLASMA_STRING;
+    case W_HSIDE_A8SHOT: return HSIDE_A8SHOT_STRING;
+    case W_HSIDE_SADB: return HSIDE_SADB_STRING;
+    };
+}
+
 money_t currency_convert(money_t from, nomadenum_t to)
 {
     if (from.type == to)

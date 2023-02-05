@@ -38,6 +38,7 @@ namespace scf {
 		nomadbool_t fastmobs2 = false;
 		nomadbool_t fastmobs3 = false;
 		nomadbool_t ext_bff = false;
+        nomadbool_t ext_scf = false;
 		nomadbool_t deafmobs = false;
 		nomadbool_t blindmobs = false;
 		nomadbool_t nosmell = false;
@@ -47,19 +48,45 @@ namespace scf {
 		nomadbool_t bottomless_clip = false;
 		nomadbool_t devmode = false;
 	};
-    struct scfbind
-    {
-        const std::string_view str;
-        paction_t actionp;
-    };
-    static scfbind kbStrings[NUMBINDS] = { SCF_KB_STRINGS };
-    struct scfbutton
-    {
-        const std::string_view str;
-        const nomaduint_t button;
-    };
+    const char* GetSCFBind(nomaduint_t bind)
+	{
+		switch (bind) {
+		case kbMove_n: return "Move Forward";
+		case kbStrafe_l: return "Strafe Left";
+		case kbMove_s: return "Move Backwards";
+		case kbStrafe_r: return "Strafe Right";
+		case kbDash_n: return "Dash North";
+		case kbDash_w: return "Dash West";
+		case kbDash_s: return "Dash South";
+		case kbDash_e: return "Dash East";
+		case kbMelee: return "Use Melee";
+		case kbExitToPause: return "Exit to Pause Menu";
+		case kbSlide_n: return "Slide North";
+		case kbSlide_w: return "Slide West";
+		case kbSlide_s: return "Slide South";
+		case kbSlide_e: return "Slide East";
+		case kbUseWeapon: return "Use Current Weapon";
+		case kbTurn_l: return "Turn Left";
+		case kbTurn_r: return "Turn Right";
+		case kbSwapWpn_1: return "Swap To Right Arm";
+		case kbSwapWpn_2: return "Swap To Left Arm";
+		case kbSwapWpn_3: return "Swap To Sidearm";
+		case kbSwapWpn_4: return "Swap To Heavy Sidearm";
+		case kbSwapWpn_5: return "Swap To Primary";
+		case kbSwapWpn_6: return "Swap To Heavy Primary";
+		case kbSwapWpn_7: return "Swap To Shotgun";
+		case kbSwapWpn_8: return "Swap To Melee 1";
+		case kbSwapWpn_9: return "Swap To Melee 2";
+		case kbSwapWpn_10: return "Swap To Melee 3";
+		case kbShowWpns: return "Show All Weapons";
+		case kbQuickShot: return "Quick-Shot w/ Current Weapon";
+		case kbOpenConsole: return "Open Text/Command Console";
+		};
+		assert(false);
+	}
 
-    static scfbutton buttonStrings[NUMBUTTONS] = {
+    scfbind kbStrings[NUMBINDS] = { SCF_KB_STRINGS };
+    scfbutton buttonStrings[NUMBUTTONS] = {
         	SCF_BUTTON(KEY_q),
 	        SCF_BUTTON(KEY_w),
 	        SCF_BUTTON(KEY_e),
@@ -202,6 +229,7 @@ namespace scf {
             SCF_BUTTON(CTRL_B),
             SCF_BUTTON(CTRL_N),
             SCF_BUTTON(CTRL_M),
+            SCF_BUTTON(KEY_k),
     };
 
     void G_LoadSCF(const char* filepath)

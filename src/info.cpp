@@ -46,10 +46,10 @@ scf::keybind_t scf::kb_binds[scf::NUMBINDS] = {
 	{"Dash West",      KEY_EP,      scf::kbDash_w,     P_DashW},
 	{"Dash South",     KEY_HASH,    scf::kbDash_s,     P_DashS},
 	{"Dash East",      KEY_DOLLAR,  scf::kbDash_e,     P_DashE},
-	{"Slide North",    KEY_W,       scf::Slide_n,      P_SlideN},
-	{"Slide West",     KEY_A,       scf::Slide_w,      P_SlideW},
-	{"Slide South",    KEY_S,       scf::Slide_s,      P_SlideS},
-	{"Slide East",     KEY_D,       scf::Slide_e,      P_SlideE},
+	{"Slide North",    KEY_W,       scf::kbSlide_n,    P_SlideN},
+	{"Slide West",     KEY_A,       scf::kbSlide_w,    P_SlideW},
+	{"Slide South",    KEY_S,       scf::kbSlide_s,    P_SlideS},
+	{"Slide East",     KEY_D,       scf::kbSlide_e,    P_SlideE},
 };
 
 std::vector<npc_t> npcinfo = {

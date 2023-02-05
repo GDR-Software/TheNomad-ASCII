@@ -151,6 +151,10 @@ void mainLoop(int argc, char* argv[])
 								wgetch(game->screen);
 							}
 							break; }
+						case 3:
+							game->gamestate = GS_SETTINGS;
+							game->gamescreen = MENU_SETTINGS;
+							break;
 						case 4:
 							game->G_SaveGame();
 							game->~Game();
@@ -188,7 +192,7 @@ static void levelLoop(void)
 	werase(game->screen);
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	while (game->gamestate == GS_LEVEL) {
-		werase(game->screen);
+//		werase(game->screen);
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
@@ -207,8 +211,6 @@ static void levelLoop(void)
 	return;
 }
 
-//#define VAR_TO_STR(x) #x
-
 // currently, the only way to customize controls is to go into the .scf file and edit it yourself,
 // instructions on how to do that are in nomadascii_blackbook.txt
 static void settingsLoop(void)
@@ -223,20 +225,12 @@ static void settingsLoop(void)
 	std::vector<std::string> filebuf;
 	std::string line;
 	while (std::getline(file, line)) { filebuf.push_back(line); };
+	file.close();
 	nomaduint_t i;
 	while (game->gamestate == GS_SETTINGS) {
 		werase(game->screen);
 		for (i = 0; i < filebuf.size(); ++i)
 			mvwaddstr(game->screen, i, 0, filebuf[i].c_str());
-		mvwaddstr(game->screen, i+1, 0, "[Keyboard/Mouse Bindings]");
-		nomaduint_t bind = 0;
-		for (; i < scf::NUMBINDS / 2; ++i) {
-			mvwprintw(game->screen, i, 0,  "%s: ", scf::kb_binds[bind].name);
-			mvwprintw(game->screen, i, 40, "%s", scf::GetSCFButton(scf::kb_binds[bind].button));
-			mvwprintw(game->screen, i, 50, "%s: ", scf::kb_binds[bind+1].name);
-			mvwprintw(game->screen, i, 90, "%s", scf::GetSCFButton(scf::kb_binds[bind+1].button));
-			bind += 2;
-		}
 		mvwaddstr(game->screen, i+1,  0, "[Launch Parameters]");
 		mvwprintw(game->screen, i+2,  0, "fastmobs1: %s", booltostr(scf::launch::fastmobs1));
 		mvwprintw(game->screen, i+3,  0, "fastmobs2: %s", booltostr(scf::launch::fastmobs2));
@@ -249,6 +243,20 @@ static void settingsLoop(void)
 		mvwprintw(game->screen, i+10, 0, "bottomless_clip: %s", booltostr(scf::launch::bottomless_clip));
 		mvwprintw(game->screen, i+11, 0, "devmode: %s", booltostr(scf::launch::devmode));
 		mvwprintw(game->screen, i+12, 0, "infinite_ammo: %s", booltostr(scf::launch::infinite_ammo));
+		char c;
+		if ((c = kbhit()) != -1) {
+			switch (c) {
+			case KEY_BSPACE:
+			case CTRL_x:
+				game->gamestate = GS_PAUSE;
+				game->gamescreen = MENU_PAUSE;
+				break;
+			case CTRL_c:
+				game->~Game();
+				break;
+			default: break;
+			};
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		wrefresh(game->screen);
 	};

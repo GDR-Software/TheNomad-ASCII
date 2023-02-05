@@ -529,6 +529,11 @@ void P_ChangeDirL()
 	assert(playr->pdir < NUMDIRS);
 	LOG("pdir = %hu", playr->pdir);
 #endif
+	for (nomadshort_t y = 1; y < 4; ++y) {
+		for (nomadshort_t x = 1; x < 6; ++x) {
+			mvwaddch(game->screen, y, x, ' ');
+		}
+	}
 	if (playr->pdir == D_EAST) {
 		playr->pdir = D_NORTH;
 	}
@@ -543,6 +548,11 @@ void P_ChangeDirR()
 	assert(playr->pdir < NUMDIRS);
 	LOG("pdir = %hu", playr->pdir);
 #endif
+	for (nomadshort_t y = 1; y < 4; ++y) {
+		for (nomadshort_t x = 1; x < 6; ++x) {
+			mvwaddch(game->screen, y, x, ' ');
+		}
+	}
 	if (playr->pdir == D_NORTH) {
 		playr->pdir = D_EAST;
 	}
