@@ -30,7 +30,7 @@ constexpr auto TAG_MISSION    = 2;
 constexpr auto TAG_PURGELEVEL = 100;
 constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
-#ifndef _TESTING
+#ifndef TESTING
 static constexpr int heapsize = 10000000; // allocating 3 mb
 #endif
 
