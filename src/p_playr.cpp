@@ -207,6 +207,7 @@ static nomadint_t input;
 void Playr::P_RunTicker(nomadint_t finput)
 {
 	input = finput;
+	if (input == 10) return;
 	for (const auto& i : scf::kb_binds) {
 		if (input == i.button) {
 			(*i.actionp)();

@@ -103,7 +103,7 @@ void Game::I_InitNPCs(void)
 	assert(!game);
 #endif
 	game = this;
-	b_Active.reserve(npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
+	b_Active = (NPC **)Z_Malloc(sizeof(NPC*) * (INITIAL_NPC_ACTIVE * 2), TAG_STATIC, &b_Active);
 #ifdef _NOMAD_DEBUG
 	LOG("reserving %li NPC* for b_Active", npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
 #endif

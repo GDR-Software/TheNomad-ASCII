@@ -62,7 +62,7 @@ public:
 	nomaduint_t pstate;
 	std::atomic<nomadenum_t> pmode;
 	nomadenum_t lastmoved;
-	nomadulong_t pticker = 0;
+	nomadlong_t pticker = 0;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
 	Mission* c_mission = nullptr;
 public:

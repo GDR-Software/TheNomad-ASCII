@@ -26,7 +26,7 @@
 
 typedef struct mobgroup_s
 {
-	std::vector<Mob*> m_Active;
+	Mob** m_Active;
 	Mob* leader;
 	area_t area;
 	nomadenum_t sector;
@@ -45,9 +45,9 @@ static void M_GenGroup()
 	origin.x = (rand() % 300)+190;
 	Mob* leader;
 	mobj_t mob = mobinfo[rand() % (NUMMOBS - 2)];
-	game->m_Active.emplace_back();
-	game->m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
-	leader = game->m_Active.back();
+	game->current_m_active++;
+	game->m_Active[game->current_m_active] = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
+	leader = game->m_Active[game->current_m_active];
 	leader->is_boss = false;
 	leader->c_mob = mob;
 	leader->mpos.y = origin.y;
@@ -60,9 +60,8 @@ static void M_GenGroup()
 	Mob* minions[count];
 	for (nomadenum_t i = 0; i < count; ++i) {
 		mob = mobinfo[rand() % (NUMMOBS - 2)];
-		game->m_Active.emplace_back();
-		game->m_Active.back() = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
-		minions[i] = game->m_Active.back();
+		game->m_Active[game->current_m_active] = (Mob*)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
+		minions[i] = game->m_Active[game->current_m_active];
 		Mob* const m = minions[i];
 		if ((rand() % 99) >= 49) {
 			m->mpos.y = origin.y + ((rand() % 10)+15);
@@ -89,7 +88,7 @@ void Game::M_GenMobs(void)
 	MobAssigner(this);
 	NomadAssigner(this);
 	
-	m_Active.reserve(INITIAL_MOBS_ACTIVE * 2);
+	m_Active = (Mob **)Z_Malloc(sizeof(Mob*) * (INITIAL_MOBS_ACTIVE * 2), TAG_STATIC, &m_Active);
 	nomadenum_t numgroups = P_Random() & 15;
 	for (nomadenum_t i = 0; i < numgroups; ++i) {
 		M_GenGroup();
@@ -101,6 +100,7 @@ void M_KillMob(Mob* const mob)
 #ifdef _NOMAD_DEBUG
 	assert(mob);
 #endif
+	game->current_m_active--;
 	Z_Free(mob);
 }
 
