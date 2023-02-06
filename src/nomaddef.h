@@ -72,6 +72,9 @@
 #define PICKUP_AMMO(x)         "You picked up "x"!"
 #define PICKUP_WEAPON(x)       "You got the "x"!"
 
+#define ID_SHOTTY_ADB
+#define ID
+
 #define SHOTTY_ADB_STRING      "Asturion Double-Barrel"
 #define SHOTTY_FAB_STRING      "Full-Auto Bitch"
 #define SHOTTY_QS_STRING       "Quick-Shotter"

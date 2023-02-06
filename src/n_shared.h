@@ -280,8 +280,8 @@ typedef struct
 
 typedef int32_t nomadfixed_t;
 
-nomadfloat_t Q_root(nomadfloat_t x);
-nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar);
+inline nomadfloat_t Q_root(nomadfloat_t x);
+inline nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
 
 using namespace std::literals::chrono_literals;

@@ -28,9 +28,12 @@
 * originally, it didn't compute distance between diagonal objects, only vertical and horizontal
 * but now, thanks to my friend Catazat, it does, using the pythagorean theorem.
 *
-* note: I thought up this algo in math class, freshmen year, when i should have been doing algebra, but i have zero regrets
+* note: some small optimizations have been made to the release mode
+*
+* another note: I thought up this algo in math class, freshmen year, when i should have been doing algebra,
+* but i have zero regrets
 */
-nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
+inline nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
 #ifdef _NOMAD_DEBUG
@@ -47,12 +50,7 @@ nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 			return 0;
 		}
 #else
-		if (src.x > tar.x)
-			return (src.x - tar.x);
-		else if (src.x < tar.x)
-			return (tar.x - src.x);
-		else
-			return 0;
+		return src.x > tar.x ? (src.x - tar.x) : (tar.x - src.x);
 #endif
 	}
 	else if (src.x == tar.x) { // vertical
@@ -70,22 +68,17 @@ nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 			return 0;
 		}
 #else
-		if (src.y > tar.y)
-			return (src.y - tar.y);
-		else if (src.y < tar.y)
-			return (tar.y - src.y);
-		else
-			return 0;
+		return src.y > tar.y ? (src.y - tar.y) : (tar.y - src.y);
 #endif
 	}
 	else { // diagonal
 #ifdef _NOMAD_DEBUG
 		// don't want to be do the calculations twice, assign it to a variable
-		nomadint_t r = abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+		nomadint_t r = abs(Q_root((pow((src.x - tar.x), 2) + pow((src.y - tar.y), 2))));
 		LOG("distance is diagonal, returning pythagorian theorem, result: %i", r);
 		return r;
 #else
-		return abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+		return abs(Q_root((pow((src.x - tar.x), 2) + pow((src.y - tar.y), 2))));
 #endif
 	}
 }
@@ -130,7 +123,7 @@ static constexpr float threehalfs = 1.5f;
 
 // inspired heavly from Q3 Fast Inverse Square Root algorithm
 // quick square root, because normal sqrts are too slow for me
-nomadfloat_t Q_root(nomadfloat_t x)
+inline nomadfloat_t Q_root(nomadfloat_t x)
 {
 	nomadlong_t        i;								// The integer interpretation of x
 	nomadfloat_t       x_half = x * 0.5f;

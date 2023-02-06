@@ -30,7 +30,7 @@ constexpr auto TAG_MISSION    = 2;
 constexpr auto TAG_PURGELEVEL = 100;
 constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
-#ifndef _TESTING
+#ifndef TESTING
 static constexpr int heapsize = 10000000; // allocating 3 mb
 #endif
 
@@ -69,6 +69,8 @@ typedef struct
 extern memzone_t* mainzone;
 
 __CFUNC__ void* Z_Malloc(int size, int tag, void* user);
+__CFUNC__ void* Z_Realloc(void *user, int nsize);
+__CFUNC__ void* Z_Calloc(void *user, int nelem, int esize);
 __CFUNC__ void Z_Free(void *ptr);
 __CFUNC__ void Z_ClearZone(void);
 #ifndef TESTING
