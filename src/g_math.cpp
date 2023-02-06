@@ -33,7 +33,7 @@
 * another note: I thought up this algo in math class, freshmen year, when i should have been doing algebra,
 * but i have zero regrets
 */
-nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
+inline nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
 #ifdef _NOMAD_DEBUG
@@ -74,11 +74,11 @@ nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
 	else { // diagonal
 #ifdef _NOMAD_DEBUG
 		// don't want to be do the calculations twice, assign it to a variable
-		nomadint_t r = abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+		nomadint_t r = abs(Q_root((pow((src.x - tar.x), 2) + pow((src.y - tar.y), 2))));
 		LOG("distance is diagonal, returning pythagorian theorem, result: %i", r);
 		return r;
 #else
-		return abs(sqrt(pow((src.x - tar.x), 2) - pow((src.y - tar.y), 2)));
+		return abs(Q_root((pow((src.x - tar.x), 2) + pow((src.y - tar.y), 2))));
 #endif
 	}
 }
@@ -123,7 +123,7 @@ static constexpr float threehalfs = 1.5f;
 
 // inspired heavly from Q3 Fast Inverse Square Root algorithm
 // quick square root, because normal sqrts are too slow for me
-nomadfloat_t Q_root(nomadfloat_t x)
+inline nomadfloat_t Q_root(nomadfloat_t x)
 {
 	nomadlong_t        i;								// The integer interpretation of x
 	nomadfloat_t       x_half = x * 0.5f;
