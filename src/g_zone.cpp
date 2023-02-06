@@ -344,6 +344,26 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 	return (void *)((byte *)base+sizeof(memblock_t));
 }
 
+__CFUNC__ void* Z_Realloc(void *user, int nsize, int tag)
+{
+#ifdef _NOMAD_DEBUG
+	assert(user);
+#endif
+	void *ptr = Z_Malloc(nsize, ntag, ptr);
+	memblock_t* block = (memblock_t *)((byte *)user - sizeof(memblock_t));
+	memcpy(ptr, user, nsize <= block->size ? nsize : block->size);
+	Z_Free(user);
+	return ptr;
+}
+
+__CFUNC__ void* Z_Calloc(void *user, int nelem, int elemsize)
+{
+#ifdef _NOMAD_DEBUG
+	assert(user);
+#endif
+	return (nelem*=elemsize) ? memset((Z_Malloc(nelem)), 0, nelem) : NULL;
+}
+
 __CFUNC__ void Z_FreeTags(int lowtag, int hightag)
 {
 #ifdef _NOMAD_DEBUG
