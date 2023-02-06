@@ -23,7 +23,6 @@
 
 Item::~Item()
 {
-    Z_Free(this);
 }
 
 static Game* game;

@@ -29,6 +29,26 @@ Mission::~Mission()
 
 static Game* game;
 
+Mission& Mission::operator=(const Mission& m)
+{
+    Mission& m1 = *this;
+    m1.area = m.area;
+    std::copy(m.b_Active.begin(), m.b_Active.end(), std::back_inserter(m1.b_Active));
+    std::copy(m.m_Active.begin(), m.m_Active.end(), std::back_inserter(m1.m_Active));
+    std::copy(m.m_coins.begin(), m.m_coins.end(), std::back_inserter(m1.m_coins));
+    std::copy(m.m_itemloot.begin(), m.m_itemloot.end(), std::back_inserter(m1.m_itemloot));
+    std::copy(m.m_wpnloot.begin(), m.m_wpnloot.end(), std::back_inserter(m1.m_wpnloot));
+    std::copy(m.mobtypes.begin(), m.mobtypes.end(), std::back_inserter(m1.mobtypes));
+    m1.maxbounty = m.maxbounty;
+    m1.maxdif = m.maxdif;
+    m1.minbounty = m.minbounty;
+    m1.mindif = m.mindif;
+    m1.type = m.type;
+    m1.rng = m.rng;
+    m1.sector = m.sector;
+    return m1;
+}
+
 void MissionAssigner(Game* const gptr)
 {
     game = gptr;
@@ -40,14 +60,16 @@ void G_GenMissionLs(std::vector<Mission>& m_ls)
     nomadenum_t nummissions = (rand() % 15)+5;
     m_ls.reserve(nummissions);
     for (nomadenum_t i = 0; i < nummissions; ++i) {
-        if (((P_Random() & 99)+1) > 24) {
+//        if (((P_Random() & 99)+1) > 24) {
             m_ls.emplace_back();
             Mission& m = m_ls.back();
             const missionseed_t* seed = &missionseeds[(P_Random() & NUMMISSIONTYPES)];
-            if (seed->difficulty[0] > game->difficulty)
+            if (seed->difficulty[0] > game->difficulty) {
                 m.mindif = game->difficulty;
-            while (seed->difficulty[1] > game->difficulty || seed->difficulty[0] < game->difficulty)
+            }
+            while (seed->difficulty[1] > game->difficulty || seed->difficulty[0] < game->difficulty) {
                 seed = &missionseeds[(rand() % NUMMISSIONTYPES)];
+            }
             
             m.type = seed->type;
             m.mobtypes = seed->mobtypes;
@@ -55,6 +77,6 @@ void G_GenMissionLs(std::vector<Mission>& m_ls)
             m.maxbounty = seed->bounty[1];
             m.mindif = seed->difficulty[0];
             m.maxdif = seed->difficulty[1];
-        }
+//        }
     }
 }

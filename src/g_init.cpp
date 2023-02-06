@@ -109,6 +109,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	G_LoadBFF(game->bffname, game);
 	scf::G_LoadSCF(game->scfname);
 	E_Init(game);
+	puts("W_Init(): Initializing World Data...");
 	W_Init(game);
 	TUI_Init(game);
 	nomadenum_t counter = 0;

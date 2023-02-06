@@ -123,12 +123,12 @@ void mainLoop(int argc, char* argv[])
 						// s behaves in strange and mysterious ways
 						s--;
 						if (s < 0) {
-							s = 4;
+							s = 5;
 						}
 					}
 					else if (f == 's') {
 						s++;
-						if (s > 4) {
+						if (s > 5) {
 							s = 0;
 						}
 					}
@@ -138,19 +138,23 @@ void mainLoop(int argc, char* argv[])
 							game->gamestate = GS_LEVEL;
 							break;
 						case 1:
-							game->G_SaveState();
+							game->G_SaveGame();
 							break;
 						case 2:
 							game->gamestate = GS_SETTINGS;
 							game->gamescreen = MENU_SETTINGS;
 							break;
 						case 3:
-							game->G_SaveRecentSlot();
+							game->G_LoadGame("Files/gamedata/SVFILES/nomadsv.ngd");
+							break;
+						case 4:
+							game->G_SaveGame();
 							game->~Game();
 							exit(1);
 							break;
-						case 4:
+						case 5:
 							game->gamestate = GS_MENU;
+							break;
 						default:
 							break;
 						};

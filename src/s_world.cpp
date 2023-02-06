@@ -51,7 +51,6 @@ void W_Init(Game* const gptr)
 #ifdef _NOMAD_DEBUG
     assert(gptr);
 #endif
-    puts("W_Init(): Initializing World Data...");
     game = gptr;
     gametics = &game->ticcount;
     world = (World *)Z_Malloc(sizeof(World), TAG_STATIC, &world); // this'll stay static until the player quits or changes the gamemode

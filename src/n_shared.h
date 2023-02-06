@@ -259,6 +259,7 @@ typedef struct
 
 #define ctrl(x) (x & 0x1F)
 #define VAR_TO_STR(x) #x
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 static const char* DirToStr(nomadenum_t dir)
 {

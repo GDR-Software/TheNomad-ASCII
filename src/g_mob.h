@@ -137,7 +137,7 @@ extern void M_FollowPlayr(Mob* const mob, Game* const game);
 extern void M_GetLeaders(Game* const game);
 extern void M_FollowLeader(Mob* const mob, Game* const game);
 
-void Assigner(Game* const gptr);
+void MobAssigner(Game* const gptr);
 void NomadAssigner(Game* const gptr);
 const char* MobTypeToStr(nomaduint_t mtype);
 

@@ -118,9 +118,9 @@ public:
 	void P_Ticker(nomadint_t input);
 
 	void M_GenMobs(void);
-	
-	void G_SaveGame(void);
+
 	bool G_LoadGame(const char* svfile);
+	void G_SaveGame();
 
 	npc_t N_MakeNPC(void);
 	void I_InitNPCs(void);
@@ -134,6 +134,7 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+void NPCAssigner(Game* const gptr);
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
 void W_Init(Game* const gptr);

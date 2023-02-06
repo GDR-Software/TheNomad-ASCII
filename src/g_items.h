@@ -204,9 +204,10 @@ public: // basic item statistics
 	item_t c_item;
 public:
 	Item() = default;
-	Item(Item* const) = delete;
-	Item(const Item&) = delete;
+	Item(Item* const i) { this->c_item = i->c_item; }
+	Item(const Item& i) { this->c_item = i.c_item; };
 	~Item();
+	Item& operator=(const Item& i) { *this = i; return *this; }
 };
 
 class Weapon
@@ -215,9 +216,10 @@ public:
 	weapon_t c_wpn;
 public:
 	Weapon() = default;
-	Weapon(Weapon* const) = delete;
-	Weapon(const Weapon &) = delete;
-	~Weapon();
+	Weapon(Weapon* const i) { this->c_wpn = i->c_wpn; }
+	Weapon(const Weapon & i) { this->c_wpn = i.c_wpn; }
+	~Weapon(){}
+	Weapon& operator=(const Weapon& i) { *this = i; return *this; }
 };
 
 std::vector<collider_t>& P_GetHitEntities(Weapon* const wpn);

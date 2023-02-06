@@ -42,8 +42,6 @@
 // the system
 //
 
-#define UNOWNED    ((void*)666)
-#define ZONEID     0xa21d49
 #define MEM_ALIGN  (sizeof(void *))
 typedef unsigned char byte;
 

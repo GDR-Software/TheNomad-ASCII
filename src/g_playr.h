@@ -26,6 +26,7 @@
 #include "g_items.h"
 #include "g_map.h"
 
+#define MAX_PLAYR_ITEMS 1000
 #define MAX_PLAYR_WPNS PLAYR_MAX_WPNS
 #define DASH_SPEED 5
 #define RDASH_SPEED 6
@@ -56,7 +57,7 @@ public:
 	Weapon* c_wpn = nullptr;
 	nomadbool_t wpn_select = false;
 	nomadenum_t wpn_slot_current = 1;
-	std::vector<Item*> inv;
+	std::array<Item, MAX_PLAYR_ITEMS> inv;
 	std::atomic<nomadint_t> body_health[4];
 	nomaduint_t pstate;
 	std::atomic<nomadenum_t> pmode;

@@ -23,7 +23,7 @@
 
 static Game* game;
 
-void Assigner(Game* const gptr)
+void MobAssigner(Game* const gptr)
 {
 	game = gptr;
 }

@@ -28,12 +28,27 @@ static FILE* fp;
 static constexpr uint64_t HEADER = 0x5f3759df;
 static constexpr auto svdir = "Files/gamedata/SVFILES/";
 
+enum : int8_t
+{
+	NGD_CHUNK_PLAYR,
+	NGD_CHUNK_MOB,
+	NGD_CHUNK_NPC,
+	NGD_CHUNK_WORLD
+};
+
 typedef struct _ngd_header
 {
 	uint64_t header = HEADER;
 	uint16_t nummobs;
 	uint16_t numnpcs;
+	uint16_t numchunks = 0;
 } ngd_header_t;
+
+typedef struct _ngd_chunk
+{
+	int8_t chunktype;
+	char buffer[BUFFER_SIZE];
+} ngd_chunk_t;
 
 static uint32_t countfiles(const char *path) {
     DIR *dir_ptr = NULL;
@@ -66,22 +81,16 @@ static uint32_t countfiles(const char *path) {
 
 void Game::G_SaveGame(void)
 {
-	uint32_t count = countfiles("Files/gamedata/SVFILES/");
+//	uint32_t count = countfiles("Files/gamedata/SVFILES/");
 	char svname[256];
-	snprintf(svname, sizeof(svname), "Files/gamedata/SVFILES/nomadsv_%iu.ngd", count);
-	fp = fopen(svname, "w");
+	snprintf(svname, sizeof(svname), "Files/gamedata/SVFILES/nomadsv.ngd");
+	fp = fopen(svname, "wb");
+
 	_ngd_header header;
 	header.nummobs = m_Active.size();
 	header.numnpcs = b_Active.size();
 	fwrite(&header, sizeof(_ngd_header), 1, fp);
 
-	std::vector<Item> item_ls;
-	uint32_t inv_size = playr->inv.size();
-	item_ls.reserve(playr->inv.size());
-	for (const auto* i : playr->inv) {
-		item_ls.emplace_back();
-		item_ls.back() = *i;
-	}	
 	// player data
 	fwrite((char *)&playr->name, sizeof(char), 256, fp);
 	fwrite(&playr->health, sizeof(playr->health), 1, fp);
@@ -89,8 +98,7 @@ void Game::G_SaveGame(void)
 	fwrite(&playr->coin, sizeof(playr->coin), 1, fp);
 	fwrite(&playr->lvl, sizeof(playr->lvl), 1, fp);
 	fwrite(&playr->pdir, sizeof(playr->pdir), 1, fp);
-	fwrite(&inv_size, sizeof(inv_size), 1, fp);
-	fwrite(&item_ls, sizeof(Item), inv_size, fp);
+	fwrite(&playr->inv, sizeof(Item), MAX_PLAYR_ITEMS, fp);
 	fwrite(&playr->P_wpns, sizeof(Weapon), MAX_PLAYR_WPNS, fp);
 	fwrite(&playr->wpn_slot_current, sizeof(playr->wpn_slot_current), 1, fp);
 	fwrite(&playr->pos.y, sizeof(playr->pos.y), 1, fp);
@@ -117,33 +125,27 @@ void Game::G_SaveGame(void)
 	
 	// npc data
 	for (const auto* i : b_Active) {
-
+		fwrite(&i->armor, sizeof(i->armor), 1, fp);
+		fwrite(&i->health, sizeof(i->health), 1, fp);
+		fwrite(&i->c_npc, sizeof(i->c_npc), 1, fp);
+		fwrite(&i->ndir, sizeof(i->ndir), 1, fp);
+		fwrite(&i->nstate, sizeof(i->nstate), 1, fp);
+		fwrite(&i->nticker, sizeof(i->nticker), 1, fp);
+		fwrite(&i->pos.y, sizeof(i->pos.y), 1, fp);
+		fwrite(&i->pos.x, sizeof(i->pos.x), 1, fp);
 	}
 	fclose(fp);
 }
 
-static void RedoZone(Game* const g1, Game* g2)
-{
-	g2 = g1;
-}
+
 
 bool Game::G_LoadGame(const char* svfile)
 {
-	uint64_t start, end;
-	Z_ClearZone();
-	Z_Init(start, end);
-	Game* game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
-	RedoZone(game, this);
-	std::string savefile;
-	if (!svfile)
-		savefile = "nomadsv_0.ngd";
-	else
-		savefile = svfile;
-	fp = fopen(savefile.c_str(), "r");
+	fp = fopen(svfile, "rb");
+	if (!fp) N_Error("could not load save file!");
+
 	_ngd_header header;
 	fread(&header, sizeof(_ngd_header), 1, fp);
-	if (!(header.header & HEADER))
-		return false;
 
 	fread((char *)&playr->name, sizeof(char), 256, fp);
 	fread(&playr->health, sizeof(playr->health), 1, fp);
@@ -151,34 +153,55 @@ bool Game::G_LoadGame(const char* svfile)
 	fread(&playr->coin, sizeof(playr->coin), 1, fp);
 	fread(&playr->lvl, sizeof(playr->lvl), 1, fp);
 	fread(&playr->pdir, sizeof(playr->pdir), 1, fp);
-	fread(&inv_size, sizeof(inv_size), 1, fp);
-	fread(&item_ls, sizeof(Item), inv_size, fp);
+	fread(&playr->inv, sizeof(Item), MAX_PLAYR_ITEMS, fp);
 	fread(&playr->P_wpns, sizeof(Weapon), MAX_PLAYR_WPNS, fp);
 	fread(&playr->wpn_slot_current, sizeof(playr->wpn_slot_current), 1, fp);
 	fread(&playr->pos.y, sizeof(playr->pos.y), 1, fp);
 	fread(&playr->pos.x, sizeof(playr->pos.x), 1, fp);
 
-	m_Active.reserve(header.nummobs);
-	b_Active.reserve(header.numnpcs);
-	for (nomaduint_t i = 0; i < header.nummobs) {
-		m_Active.emplace_back();
-		m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
-		Mob& mob = *m_Active.back();
-		fread(&mob.health, sizeof(mob.health), 1, fp);
-		fread(&mob.armor, sizeof(mob.armor), 1, fp);
-		fread(&mob.mpos.y, sizeof(mob.mpos.y), 1, fp);
-		fread(&mob.mpos.x, sizeof(mob.mpos.x), 1, fp);
-		fread(&mob.mstate, sizeof(mob.mstate), 1, fp);
-		fread(&mob.mticker, sizeof(mob.mticker), 1, fp);
-		fread(&mob.mdir, sizeof(mob.mdir), 1, fp);
-		fread(&mob.sector_id, sizeof(mob.sector_id), 1, fp);
-		fread(&mob.stepcounter, sizeof(mob.stepcounter), 1, fp);
-		fread(&mob.c_mob, sizeof(mobj_t), 1, fp);
+	fread(&world->day, sizeof(world->day), 1, fp);
+	fread(&world->time, sizeof(world->time), 1, fp);
+	fread(&world->temperature, sizeof(world->temperature), 1, fp);
+	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
+		Mob* const mob = m_Active[i];
+		fread(&mob->health, sizeof(mob->health), 1, fp);
+		fread(&mob->armor, sizeof(mob->armor), 1, fp);
+		fread(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
+		fread(&mob->mpos.x, sizeof(mob->mpos.x), 1, fp);
+		fread(&mob->mstate, sizeof(mob->mstate), 1, fp);
+		fread(&mob->mticker, sizeof(mob->mticker), 1, fp);
+		fread(&mob->mdir, sizeof(mob->mdir), 1, fp);
+		fread(&mob->sector_id, sizeof(mob->sector_id), 1, fp);
+		fread(&mob->stepcounter, sizeof(mob->stepcounter), 1, fp);
+	}
+	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
+		NPC* const npc = b_Active[i];
+		fread(&npc->armor, sizeof(npc->armor), 1, fp);
+		fread(&npc->health, sizeof(npc->health), 1, fp);
+		fread(&npc->ndir, sizeof(npc->ndir), 1, fp);
+		fread(&npc->nstate, sizeof(npc->nstate), 1, fp);
+		fread(&npc->nticker, sizeof(npc->nticker), 1, fp);
+		fread(&npc->pos.y, sizeof(npc->pos.y), 1, fp);
+		fread(&npc->pos.x, sizeof(npc->pos.x), 1, fp);
 	}
 
 	fclose(fp);
 	Z_CheckHeap();
 	return true;
+}
+
+struct ngd_file_t
+{
+	_ngd_header header;
+	uint32_t filenum;
+	uint64_t size;
+};
+
+void G_DisplaySlots(Game* const game)
+{
+	std::vector<ngd_file_t> svfiles;
+	ITEM** files = (ITEM **)Z_Malloc(sizeof(Item), TAG_STATIC, &files);
+	MENU* svmenu;
 }
 
 /*

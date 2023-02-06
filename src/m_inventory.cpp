@@ -35,7 +35,7 @@ void InvAssigner(Game* const gptr)
 
 inline void Inv_DisplayMercMissions(const std::vector<Mission>& m_ls);
 inline void Inv_DisplayItems();
-
+/*
 static inline void Inv_SortItemsABC(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
@@ -69,6 +69,7 @@ inline void Inv_SortItems(nomadenum_t sorter)
         break;
     };
 }
+*/
 
 void G_DisplayInventory(void)
 {

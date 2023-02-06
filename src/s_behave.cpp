@@ -26,6 +26,11 @@
 
 static Game* game;
 
+void NPCAssigner(Game* const gptr)
+{
+	game = gptr;
+}
+
 __CFUNC__ void B_SpawnShopBots(void)
 {
 #ifdef _NOMAD_DEBUG
@@ -182,64 +187,102 @@ void B_BartenderInteract()
 	}
 }
 
-static void B_MercDisplayMissions(const std::vector<Mission>& m_ls);
+static void B_MercDisplayMissions(const std::vector<Mission>& m_ls, Mission* m);
 
 void B_MercMasterInteract()
 {
 	Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today? [y/n]");
-	nomadint_t i = wgetch(game->screen);
+	nomadint_t i = getc(stdin);
 	if (i == 'y') {
 		Hud_Printf("Mercenary Master", "Excellent, here's a list of missions");
+		std::vector<Mission> m_ls;
+		G_GenMissionLs(m_ls);
+		Mission* m = nullptr;
+
+		// display the missions
+		B_MercDisplayMissions(m_ls, m);
 	}
 	else {
 		Hud_Printf("Mercernary Master", "Oh well, I'll be waiting for you");
 		return;
 	}
-	std::vector<Mission> m_ls;
-	G_GenMissionLs(m_ls);
-
-	// display the missions
-	B_MercDisplayMissions(m_ls);
 }
 
-static void B_MercDisplayMissions(const std::vector<Mission>& m_ls)
+static const char* GetMissionNameFromType(const Mission& m)
+{
+	switch (m.type) {
+	case M_ASSASSINATION: return "Assassination";
+	case M_BODYGUARDING: return "Bodyguarding";
+	case M_EXTORTION: return "Extortion";
+	case M_EXTRACTION: return "Extraction";
+	case M_CONTRACT: return "Contract";
+	case M_INFILTRATION: return "Infiltration";
+	case M_KIDNAPPING: return "Kidnapping";
+	};
+	if (!false)
+		N_Error("Unknown/Invalid Mission Type: %i", (int)m.type);
+	
+	return nullptr;
+}
+
+static void B_MercDisplayMissions(const std::vector<Mission>& m_ls, Mission* m)
 {
 	werase(game->screen);
+	
+	ITEM** missions;
+	MENU* menu;
+	missions = (ITEM **)Z_Malloc(sizeof(Item *) * (m_ls.size() + 1), TAG_STATIC, &missions);
+	
+	for (nomadenum_t i = 0; i < ARRAY_SIZE(missions) - 1; ++i) {
+		missions[i] = new_item(GetMissionNameFromType(m_ls[i]), NULL);
+		set_item_userptr(missions[i], (void *)&m_ls[i]);
+	}
+	missions[m_ls.size()+1] = nullptr;
+	menu = new_menu((ITEM **)missions);
+	box(game->screen, 0, 0);
+	mvwaddstr(game->screen, 0, 55, "[MISSIONS]");
+	post_menu(menu);
+	set_menu_mark(menu, " -> ");
 	wrefresh(game->screen);
-	nomadshort_t s = 0;
-	mvwaddstr(game->screen, 2, (getmaxx(game->screen) >> 1), "<Mission List>");
+	char c;
+
+	nomadshort_t selector = 0;
+	nomadbool_t selected = false;
 	while (1) {
-		for (nomadenum_t i = 0; i < m_ls.size(); ++i) {
-			mvwprintw(game->screen, (i+4), 0, "%hu", i);
-			mvwaddstr(game->screen, (i+4), 3, "-> ");
-			if (i == s) {
-				mvwaddch(game->screen, (i+4), 6, '[');
-				wprintw(game->screen, "%s]", missionstrings[m_ls[i].type]);
+		if (selected) break;
+		werase(game->screen);
+		box(game->screen, 0, 0);
+		mvwaddstr(game->screen, 0, 55, "[MISSIONS]");
+		c = wgetch(game->screen);
+		if (c == KEY_q) break;
+		switch (c) {
+		case KEY_w: {
+			--selector;
+			if (selector < 0) {
+				selector = m_ls.size();
 			}
-			else {
-				mvwprintw(game->screen, (i+4), 6, "%s", missionstrings[m_ls[i].type]);
+			menu_driver(menu, REQ_UP_ITEM);
+			break; }
+		case KEY_s: {
+			++selector;
+			if (selector >= m_ls.size()) {
+				selector = 0;
 			}
-		}
-		nomadshort_t c = wgetch(game->screen);
-		if (c != 'q') {
-			if (c == 'w') {
-				--s;
-				if (s < 0) {
-					s = m_ls.size();
-				}
-			}
-			else if (c == 's') {
-				++s;
-				if (s > m_ls.size()) {
-					s = 0;
-				}
-			}
-		}
-		else {
+			menu_driver(menu, REQ_DOWN_ITEM);
+			break; }
+		case 10:
+			m = (Mission *)Z_Malloc(sizeof(Mission), TAG_STATIC, &m);
+			*m = m_ls[selector];
+			selected = true;
 			break;
-		}
+		};
 		wrefresh(game->screen);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 	};
+	for (nomadenum_t i = 0; i < ARRAY_SIZE(missions) - 1; ++i) {
+		free_item(missions[i]);
+	}
+	Z_Free(missions);
+	unpost_menu(menu);
 	werase(game->screen);
 }

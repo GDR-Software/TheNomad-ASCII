@@ -40,6 +40,9 @@ __CFUNC__ void Z_Init(int size);
 __CFUNC__ void Z_Init(uint64_t& start, uint64_t& end);
 #endif
 
+#define UNOWNED    ((void*)666)
+#define ZONEID     0xa21d49
+
 // size: 40 bytes...?
 typedef struct memblock_s
 {

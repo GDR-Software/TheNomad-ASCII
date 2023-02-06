@@ -86,7 +86,7 @@ static void M_GenGroup()
 void Game::M_GenMobs(void)
 {
 	game = this;
-	Assigner(this);
+	MobAssigner(this);
 	NomadAssigner(this);
 	
 	m_Active.reserve(INITIAL_MOBS_ACTIVE * 2);

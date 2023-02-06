@@ -71,14 +71,14 @@ public: // stuff determined before/during the mission
 public: // during the mission stuff
     std::vector<Mob*> m_Active;
     std::vector<NPC*> b_Active;
-    
 public: // bounty/rewards after completion of the mission
     std::vector<nomaduint_t> m_coins; // bounty of said mission
-    std::vector<Item*> m_itemloot; // item-specific loot gained after completion
-    std::vector<Weapon*> m_wpnloot; // same thing as the item vector, but its weapons
+    std::vector<Item> m_itemloot; // item-specific loot gained after completion
+    std::vector<Weapon> m_wpnloot; // same thing as the item vector, but its weapons
 public:
     Mission() = default;
     ~Mission();
+    Mission& operator=(const Mission &m);
 };
 
 void MissionAssigner(Game* const gptr);
