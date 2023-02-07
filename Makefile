@@ -13,14 +13,26 @@ CC             = wine ../mingw32/bin/clang++.exe
 else
 endif
 endif
+ifndef win32
 CFLAGS         = -std=c++17 -I/usr/include
+else
+CFLAGS         = -std=c++17 -I../mingw32/include -I~/Repos/Libraries/ncurses-build/include
+endif
 O              = obj
 SDIR           = src
+ifndef win32
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
-				/usr/lib/x86_64-linux-gnu/libpthread.a
-LDLIBS         = -lmpg123
+				/usr/lib/x86_64-linux-gnu/libpthread.a -lmpg123
+else
+LDFLAGS        = libmenu.dll.a libncurses.dll.a ../mingw32/bin/libwinpthread-1.dll libmpg123-0.dll libsyn123-0.dll libout123-0.dll
+endif
+ifndef win32
 EXE            = nomadascii
 EXE_DEBUG      = nomadascii_debug
+else
+EXE            = nomadascii.exe
+EXE_DEBUG      = nomadascii_debug.exe
+endif
 
 .PHONY: all clean clean.exe clean.objs clean.debug
 
@@ -101,34 +113,7 @@ endif
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE) $(LDLIBS)
 $(EXE_DEBUG): $(DEBUG)
-	$(CC) $(CFLAGS) -Wall -Og -g $(DEBUG) $(LDFLAGS) -o $(EXE_DEBUG$(O)/n_shared.o \
-	$(O)/g_main.o \
-	$(O)/g_game.o \
-	$(O)/g_init.o \
-	$(O)/scf.o \
-	$(O)/scf_lexer.o \
-	$(O)/s_saveg.o \
-	$(O)/g_zone.o \
-	$(O)/p_playr.o \
-	$(O)/p_common.o \
-	$(O)/info.o \
-	$(O)/s_mmisc.o \
-	$(O)/m_hud.o \
-	$(O)/m_inventory.o \
-	$(O)/p_physics.o \
-	$(O)/g_loop.o \
-	$(O)/s_behave.o \
-	$(O)/g_rng.o \
-	$(O)/m_tuilib.o \
-	$(O)/s_enemy.o \
-	$(O)/g_math.o \
-	$(O)/s_mthink.o \
-	$(O)/s_nomads.o \
-	$(O)/g_combat.o \
-	$(O)/g_items.o \
-	$(O)/s_mission.o \
-	$(O)/s_world.o \
-	$(O)/g_loadbff.o \) $(LDLIBS)
+	$(CC) $(CFLAGS) -Wall -Og -g $(DEBUG) $(LDFLAGS) -o $(EXE_DEBUG) $(LDLIBS)
 
 $(O)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -Wno-unused-result -Ofast -o $@ -c $<

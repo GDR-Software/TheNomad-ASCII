@@ -27,7 +27,7 @@
 #define _N_SHARED_
 
 // if you got this, well then port it
-#if !defined(__unix__)
+#if !defined(__unix__) && !defined(_WIN32)
 #   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
 #endif
 
@@ -73,6 +73,12 @@ class Game;
 #   include <termios.h>
 #   include <signal.h>
 #   include <dlfcn.h>
+#elif defined(_WIN32)
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
+#   pragma comment(lib, "libloaderapi2")
+#   include <libloaderapi2.h>
+#   include <conio.h>
 #endif
 
 #include <ncurses.h>
@@ -173,6 +179,7 @@ constexpr uint8_t NUMDIFS                = 6;
 
 inline char kbhit()
 {
+#ifdef __unix__
 	struct timeval tv;
 	fd_set fds;
 	tv.tv_sec = 0;
@@ -186,6 +193,10 @@ inline char kbhit()
 	else {
 		return -1;
 	}
+#elif defined(_WIN32)
+	if (_kbhit()) return _getch();
+	else return -1;
+#endif
 }
 
 inline const char* booltostr(bool b) { return b ? "true" : "false"; }
