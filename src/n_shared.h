@@ -39,7 +39,13 @@
 #   error COMPILE WITH C++17 OR HIGHER!
 #endif
 
-#if defined(__GNUG__) || defined(__clang__)
+#ifdef _WIN32
+#define _NOMAD_32
+#elif defined(_WIN64)
+#define _NOMAD_64
+#endif
+
+#if defined(__GNUG__) || defined(__clang__) && !defined(_WIN32)
 #   if defined(__x86_64__) || defined(__amd64) || defined(__i686__)
 #       define _NOMAD_64
 #   elif defined(__i586__) || defined(__i486__) || defined(__i386__)
@@ -47,7 +53,7 @@
 #   else
 #       error UNKNOWN ARCHITECTURE!
 #   endif
-#elif defined(_MSVC_VER)
+#elif defined(_MSVC_VER) && !defined(_NOMAD_64) && !defined(_NOMAD_32)
 #   if defined(_M_X64)
 #       define _NOMAD_64
 #   elif defined(_M_X86)
@@ -114,28 +120,31 @@ void N_Error(const char* err, ...);
 #ifndef _N_TYPES_
 #define _N_TYPES_
 
-// these types depend on your arch/OS
-#ifdef _NOMAD_64
+// these types depend on your OS
+#ifdef UNIX_NOMAD
 typedef __int128_t nomadllong_t;
 typedef int64_t nomadlong_t;
 typedef int32_t nomadint_t;
 typedef int16_t nomadshort_t;
 
+typedef uint_fast8_t nomadenum_t;
+
 typedef __uint128_t nomadullong_t;
 typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
 typedef uint16_t nomadushort_t;
-//typedef double nomadfloat_t;
-#elif _NOMAD_32
-typedef int64_t nomadllong_t;
-typedef int32_t nomadlong_t;
-typedef int16_t nomadint_t;
-typedef int8_t nomadshort_t;
+#elif defined(WIN32_NOMAD)
+typedef long long nomadllong_t;
+typedef INT64 nomadlong_t;
+typedef INT32 nomadint_t;
+typedef INT16 nomadshort_t;
 
-typedef uint64_t noamdullong_t;
-typedef uint32_t nomadulong_t;
-typedef uint16_t nomaduint_t;
-typedef uint8_t nomadushort_t;
+typedef UINT8 nomadenum_t;
+
+typedef unsigned long long nomadullong_t;
+typedef UINT64 nomadulong_t;
+typedef UINT32 nomaduint_t;
+typedef UINT16 nomadushort_t;
 #endif
 
 #define NOMAD_VERSION_MAJOR _NOMAD_VERSION
@@ -148,7 +157,6 @@ typedef uint8_t nomadushort_t;
                      + NOMAD_VERSION_PATCH)
 
 // these types don't depend on the arch
-typedef uint_fast8_t nomadenum_t;
 typedef nomadenum_t sprite_t;
 typedef float nomadfloat_t;
 
