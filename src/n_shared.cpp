@@ -37,9 +37,9 @@ namespace std {
 			return -1;
 		}
 		else {
-			std::fseek(fp, 0, SEEK_END);
-			size_t fsize = std::ftell(fp);
-			std::fseek(fp, 0, SEEK_SET);
+			::std::fseek(fp, 0, SEEK_END);
+			size_t fsize = ::std::ftell(fp);
+			::std::fseek(fp, 0, SEEK_SET);
 			return fsize;
 		}
 #endif
@@ -55,14 +55,14 @@ namespace std {
 			return (size_t)fdata.st_size;
 		}
 #else // don't really want to be constructing an object whenever we do this
-		FILE* fp = std::fopen(filename.c_str(), "r");
+		FILE* fp = ::std::fopen(filename.c_str(), "r");
 		if (fp == NULL) {
 			return -1;
 		}
 		else {
-			std::fseek(fp, 0, SEEK_END);
-			size_t fsize = std::ftell(fp);
-			std::fseek(fp, 0, SEEK_SET);
+			::std::fseek(fp, 0, SEEK_END);
+			size_t fsize = ::std::ftell(fp);
+			::std::fseek(fp, 0, SEEK_SET);
 			return fsize;
 		}
 #endif

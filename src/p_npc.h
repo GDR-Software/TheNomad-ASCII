@@ -83,8 +83,9 @@ public:
 	std::atomic<nomadushort_t> armor;
 public:
 	NPC() = default;
-	~NPC() = delete;
-	NPC& operator=(const NPC &) = delete;
+	NPC& operator=(const NPC &npc) = delete;
+	NPC(const NPC&) = delete;
+	NPC(NPC &&) = default;
 };
 
 void B_GenNomadTribe();;

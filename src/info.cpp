@@ -50,6 +50,7 @@ scf::keybind_t scf::kb_binds[scf::NUMBINDS] = {
 	{"Slide West",     KEY_A,       scf::kbSlide_w,    P_SlideW},
 	{"Slide South",    KEY_S,       scf::kbSlide_s,    P_SlideS},
 	{"Slide East",     KEY_D,       scf::kbSlide_e,    P_SlideE},
+	{"Interact",       KEY_ENTER,   scf::kbInteract,   P_Interact}
 };
 
 std::vector<npc_t> npcinfo = {

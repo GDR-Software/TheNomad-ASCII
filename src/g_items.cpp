@@ -21,10 +21,6 @@
 #include "g_game.h"
 #include "g_rng.h"
 
-Item::~Item()
-{
-}
-
 static Game* game;
 static Playr* playr;
 

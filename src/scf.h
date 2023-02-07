@@ -84,7 +84,7 @@
 #ifdef KEY_ENTER
 #undef KEY_ENTER
 #endif
-#define KEY_ENTER	'\n' // 52
+#define KEY_ENTER	10 // 52
 #define KEY_SPACE	' ' // 53
 #define KEY_TAB		'\t' // 54
 #define KEY_BSPACE	'\b' // 55
@@ -230,6 +230,7 @@ namespace scf {
 		kbMelee,
 		kbQuickShot,
 		kbExitToPause,
+		kbInteract,
 		
 #ifdef DEVMODE
 		kbOpenCMD,

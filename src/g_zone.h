@@ -69,8 +69,8 @@ typedef struct
 extern memzone_t* mainzone;
 
 __CFUNC__ void* Z_Malloc(int size, int tag, void* user);
-__CFUNC__ void* Z_Realloc(void *user, int nsize);
-__CFUNC__ void* Z_Calloc(void *user, int nelem, int esize);
+__CFUNC__ void* Z_Realloc(void *user, int nsize, int tag);
+__CFUNC__ void* Z_Calloc(void *user, int nelem, int elemsize, int tag);
 __CFUNC__ void Z_Free(void *ptr);
 __CFUNC__ void Z_ClearZone(void);
 #ifndef TESTING

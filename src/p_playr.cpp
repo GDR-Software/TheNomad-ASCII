@@ -151,6 +151,11 @@ static nomadbool_t P_MoveTicker(Playr* playr)
 	}
 }
 
+void P_Interact()
+{
+
+}
+
 void P_UseLeftArm()
 {
 
@@ -207,7 +212,8 @@ static nomadint_t input;
 void Playr::P_RunTicker(nomadint_t finput)
 {
 	input = finput;
-	if (input == 10) return;
+	if (input == 10) P_Interact();
+	else if (input == '\n') P_Interact();
 	for (const auto& i : scf::kb_binds) {
 		if (input == i.button) {
 			(*i.actionp)();

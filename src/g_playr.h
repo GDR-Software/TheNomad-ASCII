@@ -57,7 +57,7 @@ public:
 	Weapon* c_wpn = nullptr;
 	nomadbool_t wpn_select = false;
 	nomadenum_t wpn_slot_current = 1;
-	std::array<Item, MAX_PLAYR_ITEMS> inv;
+	Item inv[MAX_PLAYR_ITEMS];
 	std::atomic<nomadint_t> body_health[4];
 	nomaduint_t pstate;
 	std::atomic<nomadenum_t> pmode;
@@ -73,6 +73,7 @@ public:
 	void P_RunTicker(nomadint_t finput);
 };
 
+void P_Interact();
 void P_PauseMenu();
 void P_UseWeapon();
 void P_UseMelee();

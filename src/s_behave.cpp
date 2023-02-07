@@ -41,7 +41,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	NPC* npc;
 	
 	b_Active.emplace_back(); // creating the guns 'n' grenades bartender
-	b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
+	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 	npc = b_Active.back();
 	npc->pos = botpos[0];
 	npc->c_npc = npcinfo[0];
@@ -49,7 +49,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	npc->ndir = D_WEST;
 
 	b_Active.emplace_back(); // creating the guns 'n' grenades mercenary master
-	b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
+	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 	npc = b_Active.back();
 	npc->pos = botpos[1];
 	npc->c_npc = npcinfo[1];
@@ -57,7 +57,7 @@ __CFUNC__ void B_SpawnShopBots(void)
 	npc->ndir = D_NORTH;
 
 	b_Active.emplace_back(); // creating the guns 'n' grenades weapons smith
-	b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
+	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 	npc = b_Active.back();
 	npc->pos = botpos[2];
 	npc->c_npc = npcinfo[2];
@@ -103,9 +103,9 @@ void Game::I_InitNPCs(void)
 	assert(!game);
 #endif
 	game = this;
-	b_Active = (NPC **)Z_Malloc(sizeof(NPC*) * (INITIAL_NPC_ACTIVE * 2), TAG_STATIC, &b_Active);
+	b_Active.reserve(INITIAL_NPC_ACTIVE * 4);
 #ifdef _NOMAD_DEBUG
-	LOG("reserving %li NPC* for b_Active", npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
+	LOG("reserving %li NPC for b_Active", npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
 #endif
 	NomadAssigner(this);
 	MissionAssigner(this);

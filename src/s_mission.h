@@ -73,8 +73,8 @@ public: // during the mission stuff
     std::vector<NPC*> b_Active;
 public: // bounty/rewards after completion of the mission
     std::vector<nomaduint_t> m_coins; // bounty of said mission
-    std::vector<Item> m_itemloot; // item-specific loot gained after completion
-    std::vector<Weapon> m_wpnloot; // same thing as the item vector, but its weapons
+    std::vector<nomaduint_t> m_itemloot; // item-specific loot gained after completion
+    std::vector<nomaduint_t> m_wpnloot; // same thing as the item vector, but its weapons
 public:
     Mission() = default;
     ~Mission();

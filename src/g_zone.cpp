@@ -70,8 +70,14 @@ __CFUNC__ void Z_Free(void *ptr)
 	
 	block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 	
-	if (block->id != ZONEID)
+	if (block->id != ZONEID) {
+#ifndef _NOMAD_DEBUG
+		ptr = nullptr;
+		return;
+#else
 		N_Error("Z_Free: trying to free a pointer without ZONEID!\n");
+#endif
+	}
 	if (block->tag != TAG_FREE && block->user)
 		block->user = nullptr;
 	if (block->user > (void *)0x100)
@@ -349,19 +355,19 @@ __CFUNC__ void* Z_Realloc(void *user, int nsize, int tag)
 #ifdef _NOMAD_DEBUG
 	assert(user);
 #endif
-	void *ptr = Z_Malloc(nsize, ntag, ptr);
+	void *ptr = Z_Malloc(nsize, tag, ptr);
 	memblock_t* block = (memblock_t *)((byte *)user - sizeof(memblock_t));
 	memcpy(ptr, user, nsize <= block->size ? nsize : block->size);
 	Z_Free(user);
 	return ptr;
 }
 
-__CFUNC__ void* Z_Calloc(void *user, int nelem, int elemsize)
+__CFUNC__ void* Z_Calloc(void *user, int nelem, int elemsize, int tag)
 {
 #ifdef _NOMAD_DEBUG
 	assert(user);
 #endif
-	return (nelem*=elemsize) ? memset((Z_Malloc(nelem)), 0, nelem) : NULL;
+	return (nelem*=elemsize) ? memset((Z_Malloc)(nelem, tag, user), 0, nelem) : NULL;
 }
 
 __CFUNC__ void Z_FreeTags(int lowtag, int hightag)

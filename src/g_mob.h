@@ -114,8 +114,9 @@ public:
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
 public:
-	Mob() = default;
-	~Mob() = delete;
+	Mob(){}
+	Mob(const Mob&) = delete;
+	Mob(Mob &&) = default;
 	Mob& operator=(const Mob &) = delete;
 
 	nomadbool_t M_SmellImmediate();

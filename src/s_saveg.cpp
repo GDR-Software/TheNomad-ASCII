@@ -39,8 +39,8 @@ enum : int8_t
 typedef struct _ngd_header
 {
 	uint64_t header = HEADER;
-	uint16_t nummobs;
-	uint16_t numnpcs;
+	uint16_t nummobs = 0;
+	uint16_t numnpcs = 0;
 	uint16_t numchunks = 0;
 } ngd_header_t;
 
@@ -110,29 +110,31 @@ void Game::G_SaveGame(void)
 	fwrite(&world->temperature, sizeof(world->temperature), 1, fp);
 
 	// mob data
-	for (const auto* i : m_Active) {
-		fwrite(&i->health, sizeof(i->health), 1, fp);
-		fwrite(&i->armor, sizeof(i->armor), 1, fp);
-		fwrite(&i->mpos.y, sizeof(i->mpos.y), 1, fp);
-		fwrite(&i->mpos.x, sizeof(i->mpos.x), 1, fp);
-		fwrite(&i->mstate, sizeof(i->mstate), 1, fp);
-		fwrite(&i->mticker, sizeof(i->mticker), 1, fp);
-		fwrite(&i->mdir, sizeof(i->mdir), 1, fp);
-		fwrite(&i->sector_id, sizeof(i->sector_id), 1, fp);
-		fwrite(&i->stepcounter, sizeof(i->stepcounter), 1, fp);
-		fwrite(&i->c_mob, sizeof(mobj_t), 1, fp);
+	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
+		const Mob* mob = m_Active[i];
+		fwrite(&mob->health, sizeof(mob->health), 1, fp);
+		fwrite(&mob->armor, sizeof(mob->armor), 1, fp);
+		fwrite(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
+		fwrite(&mob->mpos.x, sizeof(mob->mpos.x), 1, fp);
+		fwrite(&mob->mstate, sizeof(mob->mstate), 1, fp);
+		fwrite(&mob->mticker, sizeof(mob->mticker), 1, fp);
+		fwrite(&mob->mdir, sizeof(mob->mdir), 1, fp);
+		fwrite(&mob->sector_id, sizeof(mob->sector_id), 1, fp);
+		fwrite(&mob->stepcounter, sizeof(mob->stepcounter), 1, fp);
+		fwrite(&mob->c_mob, sizeof(mobj_t), 1, fp);
 	}
 	
 	// npc data
-	for (const auto* i : b_Active) {
-		fwrite(&i->armor, sizeof(i->armor), 1, fp);
-		fwrite(&i->health, sizeof(i->health), 1, fp);
-		fwrite(&i->c_npc, sizeof(i->c_npc), 1, fp);
-		fwrite(&i->ndir, sizeof(i->ndir), 1, fp);
-		fwrite(&i->nstate, sizeof(i->nstate), 1, fp);
-		fwrite(&i->nticker, sizeof(i->nticker), 1, fp);
-		fwrite(&i->pos.y, sizeof(i->pos.y), 1, fp);
-		fwrite(&i->pos.x, sizeof(i->pos.x), 1, fp);
+	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
+		const NPC* npc = b_Active[i];
+		fwrite(&npc->armor, sizeof(npc->armor), 1, fp);
+		fwrite(&npc->health, sizeof(npc->health), 1, fp);
+		fwrite(&npc->c_npc, sizeof(npc->c_npc), 1, fp);
+		fwrite(&npc->ndir, sizeof(npc->ndir), 1, fp);
+		fwrite(&npc->nstate, sizeof(npc->nstate), 1, fp);
+		fwrite(&npc->nticker, sizeof(npc->nticker), 1, fp);
+		fwrite(&npc->pos.y, sizeof(npc->pos.y), 1, fp);
+		fwrite(&npc->pos.x, sizeof(npc->pos.x), 1, fp);
 	}
 	fclose(fp);
 }
@@ -143,7 +145,14 @@ bool Game::G_LoadGame(const char* svfile)
 {
 	fp = fopen(svfile, "rb");
 	if (!fp) N_Error("could not load save file!");
-
+	for (auto* i : m_Active) {
+		Z_Free(i);
+		i = nullptr;
+	}
+	for (auto* i : b_Active) {
+		Z_Free(i);
+		i = nullptr;
+	}
 	_ngd_header header;
 	fread(&header, sizeof(_ngd_header), 1, fp);
 
@@ -162,8 +171,8 @@ bool Game::G_LoadGame(const char* svfile)
 	fread(&world->day, sizeof(world->day), 1, fp);
 	fread(&world->time, sizeof(world->time), 1, fp);
 	fread(&world->temperature, sizeof(world->temperature), 1, fp);
-	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
-		Mob* const mob = m_Active[i];
+	for (nomaduint_t i = 0; i < header.nummobs; ++i) {
+		Mob* mob = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &mob);
 		fread(&mob->health, sizeof(mob->health), 1, fp);
 		fread(&mob->armor, sizeof(mob->armor), 1, fp);
 		fread(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
@@ -175,7 +184,7 @@ bool Game::G_LoadGame(const char* svfile)
 		fread(&mob->stepcounter, sizeof(mob->stepcounter), 1, fp);
 	}
 	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
-		NPC* const npc = b_Active[i];
+		NPC* npc = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &npc);
 		fread(&npc->armor, sizeof(npc->armor), 1, fp);
 		fread(&npc->health, sizeof(npc->health), 1, fp);
 		fread(&npc->ndir, sizeof(npc->ndir), 1, fp);

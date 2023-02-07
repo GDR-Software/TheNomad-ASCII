@@ -79,9 +79,9 @@ public:
 	World* world;
 	nomaduint_t current_m_active = 0;
 	nomaduint_t current_b_active = 0;
-	Mob** m_Active;
-	NPC** b_Active;
-public: // map stuffw
+	std::vector<Mob*> m_Active;
+	std::vector<NPC*> b_Active;
+public: // map stuff
 	sndlvl_t sndmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	smelllvl_t smellmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	char c_map[MAP_MAX_Y+160][MAP_MAX_X+160];

@@ -33,7 +33,7 @@
 * another note: I thought up this algo in math class, freshmen year, when i should have been doing algebra,
 * but i have zero regrets
 */
-inline nomadint_t disBetweenOBJ(const coord_t src, const coord_t tar)
+nomadint_t disBetweenOBJ(coord_t src, coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
 #ifdef _NOMAD_DEBUG
