@@ -2,9 +2,16 @@ VERSION        = 0
 VERSION_UPDATE = 0
 VERSION_PATCH  = 1
 ifndef compile_clang
+ifndef win32
 CC             = g++
 else
-CC             = clang++
+CC             = wine ../mingw32/bin/g++.exe
+endif
+else
+ifdef win32
+CC             = wine ../mingw32/bin/clang++.exe
+else
+endif
 endif
 CFLAGS         = -std=c++17 -I/usr/include
 O              = obj
