@@ -21,6 +21,44 @@
 #include "g_game.h"
 #include "scf.h"
 
+nomaduint_t G_GetNumMobs(const Game* const game)
+{
+	nomaduint_t count = 0;
+	for (const auto* i : game->m_Active) {
+		if (i != nullptr) ++count;
+	}
+	return count;
+}
+
+nomaduint_t G_GetNumBots(const Game* const game)
+{
+	nomaduint_t count = 0;
+	for (const auto* i : game->b_Active) {
+		if (i != nullptr) ++count;
+	}
+	return count;
+}
+
+nomaduint_t G_GetFreeBot(const Game* const game)
+{
+	for (nomaduint_t i = 0; i < ARRAY_SIZE(game->b_Active); ++i) {
+		if (game->b_Active[i] != nullptr) {
+			return i;
+		}
+	}
+	return MAX_NPC_ACTIVE;
+}
+
+nomaduint_t G_GetFreeMob(const Game* const game)
+{
+	for (nomaduint_t i = 0; i < ARRAY_SIZE(game->m_Active); ++i) {
+		if (game->m_Active[i] != nullptr) {
+			return i;
+		}
+	}
+	return MAX_MOBS_ACTIVE;
+}
+
 Game::Game()
 {
 }
