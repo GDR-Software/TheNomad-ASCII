@@ -240,6 +240,7 @@ namespace scf {
 #ifdef _NOMAD_DEBUG
         LOG("Attempting to stat() .scf file");
 #endif
+#ifdef UNIX_NOMAD
         struct stat fdata;
         if (stat(filepath, &fdata) == -1)
             N_Error("Failed to get data from .scf file!");
@@ -256,13 +257,27 @@ namespace scf {
         const char* buffer = (char *)mmap(NULL, fdata.st_size, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
         if (!buffer)
             N_Error("Failed to read data from .scf file!");
+#elif defined(WIN32_NOMAD)
+        OFSTRUCT fdata;
+        HFILE fhandle = OpenFile(filepath, &fdata, OF_READ);
+        if (fhandle == HFILE_ERROR)
+            N_Error("Failed to open .scf file! win32 error: %s", GetLastError());
+        char* buffer = (char *)CreateFileMappingA(&fhandle, NULL, PAGE_READONLY, 2*1024, 1024/2, filepath);
+        if (!buffer)
+            N_Error("Failed to read data from .scf file! win32 error: %s", GetLastError());
+#endif
 #ifdef _NOMAD_DEBUG
         assert(buffer);
-        LOG("Successful mmap() of .scf file");
+        LOG("Successful read of .scf file");
 #endif
         Lexer lex(buffer);
+#ifdef UNIX_NOMAD
         munmap(&buffer, fdata.st_size);
         fclose(fp);
+#elif defined(WIN32_NOMAD)
+        UnmapViewOfFile(&buffer);
+        CloseHandle(&fhandle);
+#endif
         for (auto tok = lex.next(); !tok.is(Token::Kind::End); tok = lex.next()) {
             switch (tok.kind()) {
             case Token::Kind::Unexpected:

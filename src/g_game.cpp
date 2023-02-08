@@ -52,7 +52,10 @@ Game::~Game()
 	}
 	delwin(screen);
 	attroff(COLOR_PAIR(0));
+	endwin();
+#ifdef UNIX_NOMAD
 	set_block();
+#endif
 	// now we delete any of the runtime-only resources
 	remove("Files/gamedata/RUNTIME/mapfile.txt");
 	W_KillWorld();

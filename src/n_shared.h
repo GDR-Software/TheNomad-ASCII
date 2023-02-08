@@ -87,13 +87,18 @@ class Game;
 #   include <conio.h>
 #endif
 
-#include <ncurses.h>
-#include <menu.h>
+#ifdef __unix__
+#   define UNIX_NOMAD
+#   include <ncurses.h>
+#   include <menu.h>
+#elif defined(_WIN32)
+#   define WIN32_NOMAD
+#   include <ncursesw/ncurses.h>
+#   include <ncursesw/menu.h>
+#endif
 #include <mpg123.h>
 #include <out123.h>
 #include <syn123.h>
-#include <AL/al.h>
-#include <AL/alc.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,7 +124,7 @@ class Game;
 #include "n_debug.h"
 #endif
 
-#define byte uint_fast8_t
+#define byte unsigned char
 
 void N_Error(const char* err, ...);
 
@@ -185,7 +190,7 @@ constexpr uint8_t DIF_BLACKDEATH         = 4;
 constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
 constexpr uint8_t NUMDIFS                = 6;
 
-inline char kbhit()
+inline char kb_hit()
 {
 #ifdef __unix__
 	struct timeval tv;
@@ -240,11 +245,7 @@ enum : nomadenum_t
 
 typedef struct coord_s
 {
-#ifdef _NOMAD_64
 	nomadshort_t y, x;
-#elif _NOMAD_32
-	nomadint_t y, x;
-#endif
     auto& operator[](nomadenum_t i) {
         switch (i) {
         case 0: return y;

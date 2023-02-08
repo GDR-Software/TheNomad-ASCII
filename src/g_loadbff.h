@@ -9,11 +9,20 @@
 		exit(-1); \
 	} \
 }
+
+#ifdef __unix__
 #define BFF_API extern "C"
+#elif defined(_WIN32)
+#ifdef BFF_IMPLEMENTATION
+#define BFF_API extern "C" __declspec(dllimport) __stdcall
+#else
+#define BFF_API extern "C" __declspec(dllexport) __stdcall
+#endif
+#endif
+
 #define BFF_INTERNAL extern "C"
 
 typedef uint_fast8_t bffnum_t;
-typedef uint_fast8_t byte;
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,11 +39,14 @@ typedef struct _entity_spawner
 	coord_t spawn_loc;
 } entity_spawner_t;
 
-#define bffenum uint_fast8_t
+#define bffenum unsigned char
 
+#ifdef __unix__
 typedef __int128_t magicnum_t;
-typedef bffenum byte;
-typedef byte buffer[1024];
+#elif defined(_WIN32)
+typedef LONGLONG magicnum_t;
+#endif
+typedef char buffer[1024];
 
 #define NotFound std::string::npos
 #define BFFVAR static constexpr

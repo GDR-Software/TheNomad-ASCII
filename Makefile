@@ -5,7 +5,7 @@ ifndef compile_clang
 ifndef win32
 CC             = g++
 else
-CC             = wine ../mingw32/bin/g++.exe
+CC             = wine ../mingw32/bin/i686-w64-mingw32-g++.exe
 endif
 else
 ifdef win32
@@ -16,7 +16,7 @@ endif
 ifndef win32
 CFLAGS         = -std=c++17 -I/usr/include
 else
-CFLAGS         = -std=c++17 -I../mingw32/include -I~/Repos/Libraries/ncurses-build/include
+CFLAGS         = -std=c++17 -I../mingw32/include -I/home/noah/Downloads/include
 endif
 O              = obj
 SDIR           = src
@@ -24,7 +24,7 @@ ifndef win32
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
 				/usr/lib/x86_64-linux-gnu/libpthread.a -lmpg123
 else
-LDFLAGS        = libmenu.dll.a libncurses.dll.a ../mingw32/bin/libwinpthread-1.dll libmpg123-0.dll libsyn123-0.dll libout123-0.dll
+LDFLAGS        =  ../mingw32/bin/libwinpthread-1.dll ../mingw32/bin/libncursesw6.dll libmenuw.dll.a
 endif
 ifndef win32
 EXE            = nomadascii

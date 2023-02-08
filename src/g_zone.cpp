@@ -21,7 +21,8 @@
 //  and to keep better track of allocations. It speeds stuff up
 //  by allocating all the memory at the beginning, then returning
 //  blocks of memory of desired size, no mallocs, callocs, or
-//  reallocs during the main level loop.
+//  reallocs (stdlib.h function calls that is) during the main
+//  level loop.
 //----------------------------------------------------------
 #include "g_zone.h"
 
@@ -43,7 +44,6 @@
 //
 
 #define MEM_ALIGN  (sizeof(void *))
-typedef unsigned char byte;
 
 __CFUNC__ void Z_KillHeap();
 

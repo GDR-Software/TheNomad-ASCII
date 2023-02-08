@@ -50,6 +50,7 @@ typedef struct _ngd_chunk
 	char buffer[BUFFER_SIZE];
 } ngd_chunk_t;
 
+#ifdef UNIX_NOMAD
 static uint32_t countfiles(const char *path) {
     DIR *dir_ptr = NULL;
     struct dirent *direntp;
@@ -78,6 +79,7 @@ static uint32_t countfiles(const char *path) {
     closedir(dir_ptr);
     return count;
 }
+#endif
 
 void Game::G_SaveGame(void)
 {
@@ -112,6 +114,7 @@ void Game::G_SaveGame(void)
 	// mob data
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		const Mob* mob = m_Active[i];
+//		fwrite((byte *)&m_Active[i], sizeof(Mob), 1, fp);
 		fwrite(&mob->health, sizeof(mob->health), 1, fp);
 		fwrite(&mob->armor, sizeof(mob->armor), 1, fp);
 		fwrite(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
@@ -121,12 +124,13 @@ void Game::G_SaveGame(void)
 		fwrite(&mob->mdir, sizeof(mob->mdir), 1, fp);
 		fwrite(&mob->sector_id, sizeof(mob->sector_id), 1, fp);
 		fwrite(&mob->stepcounter, sizeof(mob->stepcounter), 1, fp);
-		fwrite(&mob->c_mob, sizeof(mobj_t), 1, fp);
+//		fwrite(&mob->c_mob, sizeof(mobj_t), 1, fp);
 	}
 	
 	// npc data
 	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
 		const NPC* npc = b_Active[i];
+//		fwrite((byte *)&b_Active[i], sizeof(NPC), 1, fp);
 		fwrite(&npc->armor, sizeof(npc->armor), 1, fp);
 		fwrite(&npc->health, sizeof(npc->health), 1, fp);
 		fwrite(&npc->c_npc, sizeof(npc->c_npc), 1, fp);
@@ -171,8 +175,10 @@ bool Game::G_LoadGame(const char* svfile)
 	fread(&world->day, sizeof(world->day), 1, fp);
 	fread(&world->time, sizeof(world->time), 1, fp);
 	fread(&world->temperature, sizeof(world->temperature), 1, fp);
-	for (nomaduint_t i = 0; i < header.nummobs; ++i) {
-		Mob* mob = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &mob);
+	for (nomaduint_t i = 0; i <	header.nummobs; ++i) {
+		m_Active[i] = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active[i]);
+		Mob* const mob = m_Active[i];
+//		fread((byte *)&m_Active[i], sizeof(Mob), 1, fp);
 		fread(&mob->health, sizeof(mob->health), 1, fp);
 		fread(&mob->armor, sizeof(mob->armor), 1, fp);
 		fread(&mob->mpos.y, sizeof(mob->mpos.y), 1, fp);
@@ -183,8 +189,10 @@ bool Game::G_LoadGame(const char* svfile)
 		fread(&mob->sector_id, sizeof(mob->sector_id), 1, fp);
 		fread(&mob->stepcounter, sizeof(mob->stepcounter), 1, fp);
 	}
-	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
-		NPC* npc = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &npc);
+	for (nomaduint_t i = 0; i < header.numnpcs; ++i) {
+		b_Active[i] = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active[i]);
+		NPC* const npc = b_Active[i];
+//		fread((byte *)&b_Active[i], sizeof(NPC), 1, fp);
 		fread(&npc->armor, sizeof(npc->armor), 1, fp);
 		fread(&npc->health, sizeof(npc->health), 1, fp);
 		fread(&npc->ndir, sizeof(npc->ndir), 1, fp);
@@ -192,6 +200,7 @@ bool Game::G_LoadGame(const char* svfile)
 		fread(&npc->nticker, sizeof(npc->nticker), 1, fp);
 		fread(&npc->pos.y, sizeof(npc->pos.y), 1, fp);
 		fread(&npc->pos.x, sizeof(npc->pos.x), 1, fp);
+//		b_Active[i] = npc;
 	}
 
 	fclose(fp);

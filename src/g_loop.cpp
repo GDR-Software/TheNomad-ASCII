@@ -192,7 +192,7 @@ static void levelLoop(void)
 		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		char c;
-		if ((c = kbhit()) != -1)
+		if ((c = kb_hit()) != -1)
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
 		pthread_join(game->wthread, NULL);
@@ -237,7 +237,7 @@ static void settingsLoop(void)
 		mvwprintw(game->screen, i+11, 0, "devmode: %s", booltostr(scf::launch::devmode));
 		mvwprintw(game->screen, i+12, 0, "infinite_ammo: %s", booltostr(scf::launch::infinite_ammo));
 		char c;
-		if ((c = kbhit()) != -1) {
+		if ((c = kb_hit()) != -1) {
 			switch (c) {
 			case KEY_BSPACE:
 			case CTRL_x:
