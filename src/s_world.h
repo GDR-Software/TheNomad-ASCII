@@ -40,6 +40,14 @@ public:
 public:
     World() = default;
     ~World() = delete;
+    World& operator=(const World& world) {
+    	memcpy(&(*this), &world, sizeof(World));
+    	return *this;
+    }
+    const World& operator=(const World& world) {
+    	memcpy(&(*this), &world, sizeof(World));
+    	return *this;
+    }
     void GenDungeon(void);
 };
 
