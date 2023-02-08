@@ -31,34 +31,42 @@ void NPCAssigner(Game* const gptr)
 	game = gptr;
 }
 
+static NPC* B_SpawnBot(void)
+{
+	nomaduint_t index;
+	if ((index = G_GetFreeBot(game)) == MAX_NPC_ACTIVE) {
+		return nullptr;
+	}
+	NPC* n = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &n);
+	npc = n;
+	npc->index = index;
+	game->b_Active[index] = npc;
+}
+
 __CFUNC__ void B_SpawnShopBots(void)
 {
 #ifdef _NOMAD_DEBUG
 	assert(game);
 #endif
 	// hardcoded until the BFFs roll around
-	std::vector<NPC*>& b_Active = game->b_Active;
 	NPC* npc;
 	
-	b_Active.emplace_back(); // creating the guns 'n' grenades bartender
-	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-	npc = b_Active.back();
+	// creating the guns 'n' grenades bartender
+	npc = B_SpawnBot();
 	npc->pos = botpos[0];
 	npc->c_npc = npcinfo[0];
 	npc->c_npc.btype = BOT_BARTENDER;
 	npc->ndir = D_WEST;
 
-	b_Active.emplace_back(); // creating the guns 'n' grenades mercenary master
-	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-	npc = b_Active.back();
+	// creating the guns 'n' grenades mercenary master
+	npc = B_SpawnBot();
 	npc->pos = botpos[1];
 	npc->c_npc = npcinfo[1];
 	npc->c_npc.btype = BOT_MERCMASTER;
 	npc->ndir = D_NORTH;
 
-	b_Active.emplace_back(); // creating the guns 'n' grenades weapons smith
-	b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-	npc = b_Active.back();
+	// creating the guns 'n' grenades weapons smith
+	npc = B_SpawnBot();
 	npc->pos = botpos[2];
 	npc->c_npc = npcinfo[2];
 	npc->c_npc.btype = BOT_WEAPONSMITH;
@@ -102,10 +110,9 @@ void Game::I_InitNPCs(void)
 #ifdef _NOMAD_DEBUG
 	assert(!game);
 #endif
-	game = this;
-	b_Active.reserve(INITIAL_NPC_ACTIVE * 4);
+	game = this;=
 #ifdef _NOMAD_DEBUG
-	LOG("reserving %li NPC for b_Active", npcinfo.size()+(INITIAL_NPC_ACTIVE*2));
+	LOG("reserving %li NPC for b_Active", npcinfo.size()+INITIAL_NPC_ACTIVE);
 #endif
 	NomadAssigner(this);
 	MissionAssigner(this);
