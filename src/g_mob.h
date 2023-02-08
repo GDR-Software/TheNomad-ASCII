@@ -25,10 +25,11 @@
 #include "g_playr.h"
 #include "g_obj.h"
 
-#define INITIAL_MOBS_ACTIVE 100
+#define INITIAL_MOBS_ACTIVE 200
+#define MAX_MOBS_ACTIVE 200
 
 // used for locating vars in the stateinfo array
-enum
+enum : nomaduint_t
 {
 	MT_HULK,
 	MT_RAVAGER,
@@ -39,16 +40,11 @@ enum
 	MT_SANDWURM,
 	
 	/* humanoid mobs */
-	MT_THUG,
-	MT_BEGGAR,
 	MT_MERC,
 	MT_MERC_LEADER,
 	// galakas-soldiers
-	MT_SOLDIER,
 	MT_SHOTTY,
 	MT_PISTOL, // technically the police
-	MT_GUARD,
-	MT_SNIPER,
 	MT_GUNNER,
 	// nomads
 	MT_NOMAD_LEADER,
@@ -66,6 +62,7 @@ typedef struct mobj_s
 	nomadshort_t health;
 	nomadushort_t armor;
 	nomaduint_t mtype;
+	state_t stateoffset;
 	entitytype_t etype;
 	nomadenum_t rng;
 	nomadenum_t chance_to_spawn;
@@ -78,8 +75,8 @@ typedef struct mobj_s
 	nomadushort_t melee_dmg;
 	nomadushort_t hitscan_dmg, hitscan_range;
 	nomadushort_t projectile_dmg, projectile_range;
-	const char** mlore;
-	const nomaduint_t** mdrops;
+	const char* mlore;
+	const nomaduint_t* mdrops;
 } mobj_t;
 
 typedef struct
@@ -113,36 +110,34 @@ public:
 	coord_t mpos;
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
+	nomaduint_t index = 0;
 public:
-	Mob(){}
-	Mob(const Mob&) = delete;
-	Mob(Mob &&) = default;
-	Mob& operator=(const Mob &) = delete;
-
-	nomadbool_t M_SmellImmediate();
-	nomadbool_t M_SmellPlayr();
-	nomadbool_t M_SeePlayr();
-	nomadbool_t M_HearImmediate();
-	nomadbool_t M_HearPlayr();
-
-	void M_SpawnThink();
-	void M_WanderThink();
-	void M_IdleThink();
-	void M_ChasePlayr();
-	void M_FightThink();
-	void M_FleeThink();
-	void M_DeadThink();
+	Mob() = default;
+	~Mob() = delete;
+	Mob& operator=(const Mob &mob) {
+		memcpy(&(*this), &mob, sizeof(Mob));
+		return *this;
+	}
+	const Mob& operator=(const Mob &mob) {
+		memcpy(&(*this), &mob, sizeof(Mob));
+		return *this;
+	}
 };
 
-extern void M_FollowPlayr(Mob* const mob, Game* const game);
-extern void M_GetLeaders(Game* const game);
-extern void M_FollowLeader(Mob* const mob, Game* const game);
+// s_mthink functions
+void M_ThinkerAssigner(Game* const gptr);
+void M_ThinkerCurrent(Mob* const mptr);
+void M_SpawnThink();
+void M_WanderThink();
+void M_IdleThink();
 
-void MobAssigner(Game* const gptr);
 void NomadAssigner(Game* const gptr);
-const char* MobTypeToStr(nomaduint_t mtype);
 
-void M_KillMob(Mob* const mob);
+// s_mmisc functions
+Mob* M_SpawnMob(void);
+void MobAssigner(Game* const gptr);
+const char* MobTypeToStr(nomaduint_t mtype);
+void M_KillMob(void);
 
 //extern const mstate_t mstates[NUMMOBSTATES];
 
