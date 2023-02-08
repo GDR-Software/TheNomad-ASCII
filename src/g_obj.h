@@ -170,7 +170,9 @@ typedef enum : nomaduint_t
 	S_BOT_INTERACTING,
 	S_BOT_DEAD,
 	
-	NUMSTATES
+	NUMSTATES,
+
+	S_STATE_NONE
 } state_t;
 
 typedef void (* actionp_t)();

@@ -99,22 +99,25 @@ static uint32_t countfiles(const char *path) {
 
 #define MAGIC_XOR 300
 
-#define WRITE(chunk, buffer)                           \
-{                                                      \
-	memset(&chunk.buffer, '\0', BUFFER_SIZE);          \
-	memcpy(&chunk.buffer, buffer, sizeof(buffer));     \
-	for (num_t i = 0; i < BUFFER_SIZE; ++i) {          \
-		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR; \
-	}                                                  \
-	fwrite(&chunk, sizeof(ngd_chunk_t), 1, fp);        \
+template<typename T>
+void WriteChunk(ngd_chunk_t& chunk, const T& buffer)
+{
+	memset(&chunk.buffer, '\0', BUFFER_SIZE);
+	memcpy(&chunk.buffer, &buffer, sizeof(T));
+	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
+		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
+	}
+	fwrite(&chunk, sizeof(ngd_chunk_t), 1, fp);
 }
-#define READ(chunk, buffer)                            \
-{                                                      \
-	fread(&chunk.buffer, sizeof(char), BUFFER_SIZE);   \
-	for (num_t i = 0; i < BUFFER_SIZE; ++i) {          \
-		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR; \
-	}                                                  \
-	memcpy(buffer, &chunk.buffer, BUFFER_SIZE);        \
+
+template<typename T>
+void ReadChunk(ngd_chunk_t& chunk, T& buffer)
+{
+	fread(&chunk.buffer, sizeof(char), BUFFER_SIZE, fp);
+	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
+		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
+	}
+	memcpy(&buffer, &chunk.buffer, sizeof(T));
 }
 
 void Game::G_SaveGame(void)
@@ -140,19 +143,15 @@ void Game::G_SaveGame(void)
 	ngd_chunk_t& wchunk = chunks[chunks_written];
 	chunks_written++;
 	
-	const Playr& p = *playr;
-	const World& w = *world;
-	
 	fwrite(&header, sizeof(ngd_header_t), 1, fp);
-	WRITE(pchunk, &p);
-	WRITE(wchunk, &w);
+	WriteChunk(pchunk, *playr);
+	WriteChunk(wchunk, *world);
 	
 	// mob data
 	for (nomaduint_t i = 0; i < ARRAY_SIZE(m_Active); ++i) {
 		ngd_chunk_t& mchunk = chunks[chunks_written];
 		mchunk.chunktype = NGD_CHUNK_MOB;
-		const Mob& mob = *m_Active[i];
-		WRITE(mchunk, &mob);
+		WriteChunk(mchunk, *m_Active[i]);
 		chunks_written++;
 	}
 	
@@ -160,8 +159,7 @@ void Game::G_SaveGame(void)
 	for (nomaduint_t i = 0; i < ARRAY_SIZE(b_Active); ++i) {
 		ngd_chunk_t& nchunk = chunks[chunks_written];
 		nchunk.chunktype = NGD_CHUNK_NPC;
-		const NPC& npc = *b_Active[i];
-		WRITE(nchunk, &npc);
+		WriteChunk(nchunk, *b_Active[i]);
 		chunks_written++;
 	}
 	free(chunks);
@@ -174,18 +172,18 @@ bool Game::G_LoadGame(const char* svfile)
 {
 	fp = fopen(svfile, "rb");
 	if (!fp) N_Error("could not load save file!");
-	ngd_file_t svfile;
-	fread(&svfile.header, sizeof(ngd_header_t), 1, fp);
-	if (!(svfile.header & HEADER))
+	ngd_file_t sv;
+	fread(&sv.header, sizeof(ngd_header_t), 1, fp);
+	if (!(sv.header.header & HEADER))
 		N_Error(".ngd save file header is the wrong number, corrupt save file?");
-	if (svfile.header.nummobs > MAX_MOBS_ACTIVE)
+	if (sv.header.nummobs > MAX_MOBS_ACTIVE)
 		N_Error("save file nummobs is greater than maximum allowed mobs, from a different version?");
-	if (svfile.header.numnpcs > MAX_NPC_ACTIVE)
+	if (sv.header.numnpcs > MAX_NPC_ACTIVE)
 		N_Error("save file numnpcs is greater than maxmium allowed npcs, from a different version?");
 	
 	// free not-needed/unnecessary non-player entity memory, and allocate if needed
-	if (header.nummobs < MAX_MOBS_ACTIVE) {
-		nomaduint_t moffset = ARRAY_SIZE(m_Active) - header.nummobs;
+	if (sv.header.nummobs < MAX_MOBS_ACTIVE) {
+		nomaduint_t moffset = ARRAY_SIZE(m_Active) - sv.header.nummobs;
 		while (moffset != MAX_MOBS_ACTIVE) {
 			if (m_Active[moffset])
 				Z_Free(m_Active[moffset]);
@@ -193,12 +191,12 @@ bool Game::G_LoadGame(const char* svfile)
 			++moffset;
 		}
 	}
-	else if (header.nummobs > G_GetNumMobs(this)) {
-		nomaduint_t c_mob = GetNumMob(this);
+	else if (sv.header.nummobs > G_GetNumMobs(this)) {
+		nomaduint_t c_mob = G_GetNumMobs(this);
 		nomaduint_t count, i;
 		count = 0;
 		i = 0;
-		while (count < header.nummobs) {
+		while (count < sv.header.nummobs) {
 			if (!m_Active[i]) {
 				m_Active[i] = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active[i]);
 				++count;
@@ -206,8 +204,8 @@ bool Game::G_LoadGame(const char* svfile)
 			++i;
 		}
 	}
-	if (header.numnpcs < MAX_NPC_ACTIVE) {
-		nomaduint_t noffset = ARRAY_SIZE(b_Active) - header.numnpcs;
+	if (sv.header.numnpcs < MAX_NPC_ACTIVE) {
+		nomaduint_t noffset = ARRAY_SIZE(b_Active) - sv.header.numnpcs;
 		while (noffset != MAX_NPC_ACTIVE) {
 			if (b_Active[noffset])
 				Z_Free(b_Active[noffset]);
@@ -215,12 +213,12 @@ bool Game::G_LoadGame(const char* svfile)
 			++noffset;
 		}
 	}
-	else if (header.numnpcs > G_GetNumBots(this)) {
+	else if (sv.header.numnpcs > G_GetNumBots(this)) {
 		nomaduint_t c_mob = G_GetNumBots(this);
 		nomaduint_t count, i;
 		count = 0;
 		i = 0;
-		while (count < header.numnpcs) {
+		while (count < sv.header.numnpcs) {
 			if (!b_Active[i]) {
 				b_Active[i] = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active[i]);
 				++count;
@@ -228,26 +226,26 @@ bool Game::G_LoadGame(const char* svfile)
 			++i;
 		}
 	}
-	ngd_chunk_t* chunks = (ngd_chunk_t *)malloc(sizeof(ngd_chunk_t) * svfile.header.numchunks);
+	ngd_chunk_t* chunks = (ngd_chunk_t *)malloc(sizeof(ngd_chunk_t) * sv.header.numchunks);
 	nomaduint_t mcount, ncount;
 	mcount = 0;
 	ncount = 0;
-	for (nomaduint_t i = 0; i < svfile.header.numchunks; ++i) {
-		fread(&chunks[i], sizeof(ngd_chunk_t), 1, fp);
+	for (nomaduint_t i = 0; i < sv.header.numchunks; ++i) {
+		fread(&chunks[i].chunktype, sizeof(num_t), 1, fp);
 		switch (chunks[i].chunktype) {
 		case NGD_CHUNK_PLAYR:
-			*playr = *(Playr *)chunks[i].buffer;
+			ReadChunk(chunks[i], *playr);
 			break;
 		case NGD_CHUNK_MOB:
-			*m_Active[mcount] = *(Mob *)chunks[i].buffer;
+			ReadChunk(chunks[i], *m_Active[mcount]);
 			++mcount;
 			break;
 		case NGD_CHUNK_NPC:
-			*b_Active[ncount] = *(NPC *)chunks[i].buffer;
+			ReadChunk(chunks[i], *b_Active[ncount]);
 			++ncount;
 			break;
 		case NGD_CHUNK_WORLD:
-			*world = *(World *)chunks[i].buffer;
+			ReadChunk(chunks[i], *world);
 			break;
 		};
 	}

@@ -236,7 +236,7 @@ static void M_DoThink(Mob* const mob)
 		mob->mticker = mob->mstate.numticks;
 	}
 	else {
-		(*mob->mstate.actionp)();
+		(*mob->mstate.actionf)();
 	}
 }
 

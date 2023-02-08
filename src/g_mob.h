@@ -118,10 +118,6 @@ public:
 		memcpy(&(*this), &mob, sizeof(Mob));
 		return *this;
 	}
-	const Mob& operator=(const Mob &mob) {
-		memcpy(&(*this), &mob, sizeof(Mob));
-		return *this;
-	}
 };
 
 // s_mthink functions
@@ -130,6 +126,10 @@ void M_ThinkerCurrent(Mob* const mptr);
 void M_SpawnThink();
 void M_WanderThink();
 void M_IdleThink();
+void M_FightThink();
+void M_ChasePlayr();
+void M_DeadThink();
+void M_FleeThink();
 
 void NomadAssigner(Game* const gptr);
 

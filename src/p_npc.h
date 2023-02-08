@@ -90,10 +90,6 @@ public:
 		memcpy(&(*this), &npc, sizeof(NPC));
 		return *this;
 	}
-	const NPC& operator=(const NPC& npc) {
-		memcpy(&(*this), &npc, sizeof(NPC));
-		return *this;
-	}
 };
 
 

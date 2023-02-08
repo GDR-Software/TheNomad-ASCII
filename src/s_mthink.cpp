@@ -70,6 +70,26 @@ void M_SpawnThink()
 	if (actor->mticker > -1) return;
 }
 
+void M_DeadThink()
+{
+	M_SpawnThink(); // for now
+}
+
+void M_ChasePlayr()
+{
+	return;
+}
+
+void M_FightThink()
+{
+	return;
+}
+
+void M_FleeThink()
+{
+	return;
+}
+
 void M_WanderThink()
 {
 	if (!actor->stepcounter) {
@@ -106,7 +126,7 @@ void M_IdleThink()
 	// hulks have no idle state, too aggressive and angry
 	if (actor->c_mob.mtype == MT_HULK) {
 		actor->mstate = stateinfo[S_HULK_WANDER];
-		actor->mticker = mstate.numticks;
+		actor->mticker = actor->mstate.numticks;
 		return;
 	}
 	if (M_SeePlayr()) {
@@ -123,7 +143,7 @@ static nomadenum_t M_NewChaseDir()
 
 	// the mob sees the player, so move them directly towards the player
 	if (M_SeePlayr()) {
-		coord_t& mpos = mob->mpos;
+		coord_t& mpos = actor->mpos;
 		char move = game->c_map[mpos.y+pos.y][mpos.x+pos.x];
 		switch (move) {
 		case '.':
@@ -142,36 +162,26 @@ static nomadenum_t M_NewChaseDir()
 
 void M_SearchForPlayr()
 {
-	nomadenum_t pursuit = idle;
-	if (mob->M_SmellPlayr()) {
-		pursuit++;
-	}
-	if (mob->M_HearPlayr()) {
-		pursuit++;
-	}
-	if (mob->M_SeePlayr()) {
-		pursuit++;
-	}
-	if (pursuit < 1) {
+	if (!M_SeePlayr()) {
 		return;
 	}
-	nomadenum_t chasedir = M_GetChaseDir(mob, game);
+	nomadenum_t chasedir = M_NewChaseDir();
 	nomadbool_t changedir = false;
 	if (chasedir == 5) {
 		// if the mob doesn't need to change direction, then best 
 		// thing to do is to go in the direction of player's last pos
-		M_FollowPlayr(mob, game);
+//		M_FollowPlayr();
 	}
 	else {
 		changedir = true;
 	}
 	// changing direction if needed
 	if (changedir) {
-		mob->mdir = chasedir;
+		actor->mdir = chasedir;
 		// try again after changing
-		chasedir = M_GetChaseDir(mob, game);
+		chasedir = M_NewChaseDir();
 		if (chasedir == 5) {
-			mob->mdir = chasedir;
+			actor->mdir = chasedir;
 		}
 		// if it fails again, give up
 		else {

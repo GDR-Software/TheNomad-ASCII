@@ -38,9 +38,10 @@ static NPC* B_SpawnBot(void)
 		return nullptr;
 	}
 	NPC* n = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &n);
-	npc = n;
+	NPC* npc = n;
 	npc->index = index;
 	game->b_Active[index] = npc;
+	return n;
 }
 
 __CFUNC__ void B_SpawnShopBots(void)
@@ -110,7 +111,7 @@ void Game::I_InitNPCs(void)
 #ifdef _NOMAD_DEBUG
 	assert(!game);
 #endif
-	game = this;=
+	game = this;
 #ifdef _NOMAD_DEBUG
 	LOG("reserving %li NPC for b_Active", npcinfo.size()+INITIAL_NPC_ACTIVE);
 #endif

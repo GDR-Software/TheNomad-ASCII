@@ -14,15 +14,23 @@ else
 endif
 endif
 ifndef win32
+ifndef replit
 CFLAGS         = -std=c++17 -I/usr/include
+else
+CFLAGS         = -std=c++17 -IFiles/gamedata/DEPS/include/ -DREPLIT
+endif
 else
 CFLAGS         = -std=c++17 -I../mingw32/include -I/home/noah/Downloads/include
 endif
 O              = obj
 SDIR           = src
 ifndef win32
+ifndef replit
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
 				/usr/lib/x86_64-linux-gnu/libpthread.a -lmpg123
+else
+LDFLAGS        = Files/gamedata/DEPS/lib/libmenu.a Files/gamedata/DEPS/lib/libncurses.a -lpthread
+endif
 else
 LDFLAGS        =  ../mingw32/bin/libwinpthread-1.dll ../mingw32/bin/libncursesw6.dll libmenuw.dll.a
 endif
@@ -64,7 +72,6 @@ OBJS= \
 	$(O)/s_behave.o \
 	$(O)/g_rng.o \
 	$(O)/m_tuilib.o \
-	$(O)/s_enemy.o \
 	$(O)/g_math.o \
 	$(O)/s_mthink.o \
 	$(O)/s_nomads.o \
@@ -94,7 +101,6 @@ DEBUG= \
 	$(O)/s_behave.debug.o \
 	$(O)/g_rng.debug.o \
 	$(O)/m_tuilib.debug.o \
-	$(O)/s_enemy.debug.o \
 	$(O)/g_math.debug.o \
 	$(O)/s_mthink.debug.o \
 	$(O)/s_nomads.debug.o \

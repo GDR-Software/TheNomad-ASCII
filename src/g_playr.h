@@ -73,10 +73,6 @@ public:
 		memcpy(&(*this), &playr, sizeof(Playr));
 		return *this;
 	}
-	const Playr& operator=(const Playr& playr) {
-		memcpy(&(*this), &playr, sizeof(Playr));
-		return *this;
-	}
 	
 	void P_Init();
 	void P_GetMode();

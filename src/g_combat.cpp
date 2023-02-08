@@ -235,7 +235,7 @@ void P_ShootShotty(Weapon* const wpn)
 				endpoint.x = playr->pos.y + (P_Random() & maxspread[right].y);
 			break; }
 		};
-		G_CastRay(endpoint, start);
+		collider_t c = G_CastRay(endpoint, start, game);
 	}
 }
 

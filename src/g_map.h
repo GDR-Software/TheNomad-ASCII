@@ -41,13 +41,6 @@ constexpr uint_fast8_t SECTOR_FN      = 7; // frozen north
 constexpr uint_fast8_t SECTOR_TECOG   = 8; // the eternal city of galakas
 #endif
 
-typedef struct
-{
-	coord_t where;
-	nomaduint_t what;
-	void *ptr = nullptr;
-} collider_t;
-
 // sound level is only ever checked by non-player entities
 typedef enum : nomadenum_t
 {

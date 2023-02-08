@@ -89,16 +89,23 @@ class Game;
 
 #ifdef __unix__
 #   define UNIX_NOMAD
+#   ifdef REPLIT
+#   include <ncurses/ncurses.h>
+#   include <ncurses/menu.h>
+#   else
 #   include <ncurses.h>
 #   include <menu.h>
+#   endif
 #elif defined(_WIN32)
 #   define WIN32_NOMAD
 #   include <ncursesw/ncurses.h>
 #   include <ncursesw/menu.h>
 #endif
+#ifndef REPLIT
 #include <mpg123.h>
 #include <out123.h>
 #include <syn123.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -252,12 +259,21 @@ typedef struct coord_s
         case 1: return x;
         };
     }
-    inline bool operator==(struct coord_s c) const;
-    inline bool operator>(struct coord_s c) const;
-	inline bool operator<(struct coord_s c) const;
-	inline bool operator>=(struct coord_s c) const;
-	inline bool operator<=(struct coord_s c) const;
-	inline bool operator!=(struct coord_s c) const;
+	inline bool operator==(struct coord_s c) const {
+		return (x == c.x && y == c.y);
+	}
+	inline bool operator>(struct coord_s c) const {
+		return (x > c.x && y > c.y);
+	}
+	inline bool operator<(struct coord_s c) const {
+		return (x < c.x && y < c.y);
+	}
+	inline bool operator>=(struct coord_s c) const {
+		return (x >= c.x && y >= c.y);
+	}
+	inline bool operator<=(struct coord_s c) const {
+		return (x <= c.x && y <= c.y);
+	}
 } coord_t, vec2_t;
 
 typedef struct
@@ -300,6 +316,15 @@ typedef struct
 
 typedef int32_t nomadfixed_t;
 
+typedef struct
+{
+	coord_t where;
+	nomaduint_t what;
+	void *ptr = nullptr;
+} collider_t;
+
+collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game);
+nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c);
 inline nomadfloat_t Q_root(nomadfloat_t x);
 nomadint_t disBetweenOBJ(coord_t src, coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);

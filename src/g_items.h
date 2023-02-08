@@ -206,7 +206,11 @@ public:
 	Item(){}
 	Item(const Item&) = delete;
 	Item(Item &&) = default;
-	Item& operator=(const Item&) = delete;
+	Item& operator=(const Item& item)
+	{
+		memcpy(&(*this), &item, sizeof(Item));
+		return *this;
+	}
 };
 
 class Weapon
@@ -215,7 +219,11 @@ public:
 	weapon_t c_wpn;
 public:
 	Weapon(){}
-	Weapon& operator=(const Weapon&) = delete;
+	Weapon& operator=(const Weapon& wpn)
+	{
+		memcpy(&(*this), &wpn, sizeof(Weapon));
+		return *this;
+	}
 };
 
 std::vector<collider_t>& P_GetHitEntities(Weapon* const wpn);

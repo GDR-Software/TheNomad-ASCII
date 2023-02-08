@@ -70,6 +70,7 @@ const char* GetWeaponNameFromId(nomaduint_t id)
     };
     if (!false)
         N_Error("Invalid weapon id %iu!", id);
+	return nullptr;
 }
 
 money_t currency_convert(money_t from, nomadenum_t to)

@@ -59,15 +59,15 @@ std::vector<npc_t> npcinfo = {
 	{"Weapons Smith\0",    'w', 100, 43}
 };
 
-const entitystate_t pstateinfo[NUMPSTATES] = {
-	{S_PLAYR_NULL, 0, 0, NULL},
-	{S_PLAYR_SPAWN, 2, 0, NULL},
-	{S_PLAYR_MOVE, 5, 0, NULL},
-	{S_PLAYR_IDLE, 3, 0, NULL},
-	{S_PLAYR_SHOOT, 6, 0, NULL},
-	{S_PLAYR_MELEE, 8, 0, NULL},
-	{S_PLAYR_INTERACT, 10, 0, NULL},
-	{S_PLAYR_LOWHEALTH, 24, 0, NULL},
+const entitystate_t stateinfo[NUMSTATES] = {
+	{S_PLAYR_NULL, 0, S_STATE_NONE, NULL},
+	{S_PLAYR_SPAWN, 2, S_STATE_NONE, NULL},
+	{S_PLAYR_MOVE, 5, S_STATE_NONE, NULL},
+	{S_PLAYR_IDLE, 3, S_STATE_NONE, NULL},
+	{S_PLAYR_SHOOT, 6, S_STATE_NONE, NULL},
+	{S_PLAYR_MELEE, 8, S_STATE_NONE, NULL},
+	{S_PLAYR_INTERACT, 10, S_STATE_NONE, NULL},
+	{S_PLAYR_LOWHEALTH, 24, S_STATE_NONE, NULL},
 	{S_PLAYR_DEAD, ticrate_base, S_PLAYR_NULL, NULL},
 	
 	// mob states
