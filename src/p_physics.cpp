@@ -69,38 +69,44 @@ void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomade
 	};
 }
 
-collider_t G_CheckCollider(coord_t point, Game* const game)
+nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c)
 {
-	collider_t c;
 	c.where = point;
 	c.what = ET_AIR;
+	c.ptr = nullptr;
+	
+	if (point == game->playr->pos) {
+		c.what = ET_PLAYR;
+		c.ptr = (void *)&game->playr;
+		return true;
+	}
 
 	// always check the entity positions before checking the pint
 	for (auto* i : game->m_Active) {
 		if (i->mpos.y == point.y && i->mpos.x == point.x) {
 			c.ptr = (void *)&i;
 			c.what = ET_MOB;
-			return c;
+			return true;
 		}
 	}
 	for (auto* i : game->b_Active) {
 		if (i->pos.y == point.y && i->pos.x == point.x) {
 			c.ptr = (void *)&i;
 			c.what = ET_NPC;
-			return c;
+			return true;
 		}
 	}
 	switch (game->c_map[point.y][point.x]) {
 	case '#':
 	case '_':
-		return c;
+		return false;
 		break;
 	case '.':
 	case ' ':
-		return c;
+		return false;
 		break;
 	default:
 		break;
 	};
-	return c;
+	return false;
 }
