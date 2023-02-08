@@ -134,6 +134,8 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+nomaduint_t G_GetNumMobs(const Game* const game);
+nomaduint_t G_GetNumBots(const Game* const game);
 nomaduint_t G_GetFreeMob(const Game* const game);
 nomaduint_t G_GetFreeBot(const Game* const game);
 void NPCAssigner(Game* const gptr);
