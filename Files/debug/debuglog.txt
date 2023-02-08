@@ -1,0 +1,464 @@
+Z_Init: allocated zone memory from 0x7f7659ca5010 -> 0x7f767b2b3c10 of size 10000000
+Z_Malloc: allocating memory block from 0x7f7659d6b2a8 -> 0x7f766fbecee8 of size 811616
+Z_Malloc: allocating memory block from 0x7f7659d6d598 -> 0x7f766fb97c58 of size 8944
+E_Init: Successfully Allocated game->playr
+I_InitNPCs: reserving 403 NPC* for b_Active
+Z_Malloc: allocating memory block from 0x7f7659d6d618 -> 0x7f766fb968d8 of size 128
+Z_Malloc: allocating memory block from 0x7f7659d6d698 -> 0x7f766fb95558 of size 128
+Z_Malloc: allocating memory block from 0x7f7659d6d718 -> 0x7f766fb941d8 of size 128
+Z_Malloc: allocating memory block from 0x7f7659d6d7d0 -> 0x7f766fb925d0 of size 184
+Z_Malloc: allocating memory block from 0x7f7659d6d8a8 -> 0x7f766fb904e8 of size 216
+Z_Malloc: allocating memory block from 0x7f7659d6d998 -> 0x7f766fb8e058 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6da88 -> 0x7f766fb8bbc8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6db78 -> 0x7f766fb89738 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6dc68 -> 0x7f766fb872a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6dd58 -> 0x7f766fb84e18 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6de48 -> 0x7f766fb82988 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6df38 -> 0x7f766fb804f8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e028 -> 0x7f766fb7e068 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e118 -> 0x7f766fb7bbd8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e208 -> 0x7f766fb79748 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e2f8 -> 0x7f766fb772b8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e3e8 -> 0x7f766fb74e28 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e4d8 -> 0x7f766fb72998 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e5c8 -> 0x7f766fb70508 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e6b8 -> 0x7f766fb6e078 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e7a8 -> 0x7f766fb6bbe8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e898 -> 0x7f766fb69758 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6e988 -> 0x7f766fb672c8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ea78 -> 0x7f766fb64e38 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6eb68 -> 0x7f766fb629a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ec58 -> 0x7f766fb60518 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ed48 -> 0x7f766fb5e088 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ee38 -> 0x7f766fb5bbf8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ef28 -> 0x7f766fb59768 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f018 -> 0x7f766fb572d8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f108 -> 0x7f766fb54e48 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f1f8 -> 0x7f766fb529b8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f2e8 -> 0x7f766fb50528 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f3d8 -> 0x7f766fb4e098 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f4c8 -> 0x7f766fb4bc08 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f5b8 -> 0x7f766fb49778 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f6a8 -> 0x7f766fb472e8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f798 -> 0x7f766fb44e58 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f888 -> 0x7f766fb429c8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6f978 -> 0x7f766fb40538 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fa68 -> 0x7f766fb3e0a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fb58 -> 0x7f766fb3bc18 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fc48 -> 0x7f766fb39788 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fd38 -> 0x7f766fb372f8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6fe28 -> 0x7f766fb34e68 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d6ff18 -> 0x7f766fb329d8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70008 -> 0x7f766fb30548 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d700f8 -> 0x7f766fb2e0b8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d701e8 -> 0x7f766fb2bc28 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d702d8 -> 0x7f766fb29798 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d703c8 -> 0x7f766fb27308 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d704b8 -> 0x7f766fb24e78 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d705a8 -> 0x7f766fb229e8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70698 -> 0x7f766fb20558 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70788 -> 0x7f766fb1e0c8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70878 -> 0x7f766fb1bc38 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70968 -> 0x7f766fb197a8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70a58 -> 0x7f766fb17318 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70b48 -> 0x7f766fb14e88 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70c38 -> 0x7f766fb129f8 of size 240
+Z_Malloc: allocating memory block from 0x7f7659d70c88 -> 0x7f766fb11dc8 of size 80
+W_Init: Successfully Allocted Memory To Game World
+W_Init: Successfully Assigned Game Class World* To World* Within This Function
+M_Init: Initializing Map Data
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully opened file map file
+M_Init: Successfully created RUNTIME/mapfile.txt
+M_Init: Successfully Closed RUNTIME/mapfile.txt
+Z_Malloc: allocating memory block from 0x7f7659d70db0 -> 0x7f766fb0f0b0 of size 296
+TUI_Init: game->screen allocated successfully
+TUI_Init: has_colors() = true
+Z_CheckHeap: heap check successful, no corruption within zone-allocated memory
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+P_Ticker: gamestate = 2
+P_Ticker: gamescreen = 1
+Z_Free: freeing zone-allocated pointer at 0x7f7659d70c60
+Z_Free: freeing zone-allocated pointer at 0x7f7659d6b2d0
