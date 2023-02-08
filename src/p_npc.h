@@ -28,7 +28,8 @@
 #undef INITIAL_NPC_ACTIVE
 #endif
 
-#define INITIAL_NPC_ACTIVE 200
+#define INITIAL_NPC_ACTIVE 400
+#define MAX_NPC_ACTIVE 500
 
 typedef enum : nomadenum_t
 {
@@ -81,12 +82,22 @@ public:
 	nomaduint_t nticker;
 	std::atomic<nomadint_t> health;
 	std::atomic<nomadushort_t> armor;
+	nomaduint_t index = 0;
 public:
 	NPC() = default;
-	NPC& operator=(const NPC &npc) = delete;
-	NPC(const NPC&) = delete;
-	NPC(NPC &&) = default;
+	~NPC() = delete;
+	NPC& operator=(const NPC& npc) {
+		memcpy(&(*this), &npc, sizeof(NPC));
+		return *this;
+	}
+	const NPC& operator=(const NPC& npc) {
+		memcpy(&(*this), &npc, sizeof(NPC));
+		return *this;
+	}
 };
+
+
+void B_KillNPC(NPC* const npc);
 
 void B_GenNomadTribe();;
 
