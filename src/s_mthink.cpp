@@ -22,191 +22,160 @@
 #include "g_rng.h"
 
 static Game* game;
+static Mob* actor;
 
-void MobAssigner(Game* const gptr)
+void M_ThinkerAssigner(Game* const gptr)
 {
 	game = gptr;
 }
 
-nomadbool_t Mob::M_HearImmediate()
+void M_ThinkerCurrent(Mob* const mptr)
 {
-	Game* const map = game;
-	if (map->sndmap[mpos.y - 1][mpos.x] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y][mpos.x - 1] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y + 1][mpos.x] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y][mpos.x + 1] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y - 1][mpos.y - 1] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y - 1][mpos.y + 1] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y + 1][mpos.y - 1] >= c_mob.snd_tol
-	|| map->sndmap[mpos.y + 1][mpos.y + 1] >= c_mob.snd_tol) {
-		return true;
-	}
-	else {
-		return false;
-	}
+	actor = mptr;
 }
 
-nomadbool_t Mob::M_HearPlayr()
+static nomadbool_t M_SeePlayr()
 {
-	Game* const map = game;
-	if (scf::launch::deafmobs && game->difficulty < DIF_BLACKDEATH) {
-		return false;
-	}
-	if (M_HearImmediate()) {
-		return true;
-	}
-	bool found = false;
-	coord_t area;
-	area.y = mpos.y - (c_mob.snd_area >> 1);
-	area.x = mpos.x - (c_mob.snd_area >> 1);
-	for (nomadushort_t y = mpos.y; y < area.y; ++y) {
-		for (nomadushort_t x = mpos.x; x < area.x; ++x) {
-			if (map->sndmap[y][x] >= c_mob.snd_tol) {
-				found = true;
-			}
-		}
-	}
-	return found;
-}
-
-nomadbool_t Mob::M_SeePlayr()
-{
-	Game* const map = game;
-	if (scf::launch::blindmobs && game->difficulty < DIF_BLACKDEATH) {
-		return false;
-	}
-	nomadbool_t found = false;
-	switch (mdir) {
-	case D_NORTH: {
-		for (nomadushort_t i = mpos.y; 
-		i < (mpos.y - c_mob.sight_range); --i) {
-		if (map->c_map[i][mpos.x] == map->playr->sprite) {
-				found = true;
-			}
-		}
-		break; }
-	case D_WEST: {
-		for (nomadushort_t i = mpos.x;
-		i < (mpos.x - c_mob.sight_range); --i) {
-			if (map->c_map[mpos.y][i] == map->playr->sprite) {
-				found = true;
-			}
-		}
-		break; }
-	case D_SOUTH: {
-		for (nomadushort_t i = mpos.y;
-		i < (mpos.y + c_mob.sight_range); ++i) {
-			if (map->c_map[i][mpos.x] == map->playr->sprite) {
-				found = true;
-			}
-		}
-		break; }
-	case D_EAST: {
-		for (nomadushort_t i = mpos.x;
-		i < (mpos.x + c_mob.sight_range); ++i) {
-			if (map->c_map[mpos.y][i] == map->playr->sprite) {
-				found = true;
-			}
-		}
-		break; }
-	default:
-		N_Error("Unknown/Invalid Direction For Mob: %s", c_mob.name);
+	coord_t pos = game->E_GetDir(actor->mdir);
+	coord_t end{};
+	switch (actor->mdir) {
+	case D_NORTH:
+		end.y = actor->mpos.y - actor->c_mob.sight_range;
+		end.x = actor->mpos.x;
+		break;
+	case D_WEST:
+		end.y = actor->mpos.y;
+		end.x = actor->mpos.x - actor->c_mob.sight_range;
+		break;
+	case D_SOUTH:
+		end.y = actor->mpos.y + actor->c_mob.sight_range;
+		end.x = actor->mpos.x;
+		break;
+	case D_EAST:
+		end.y = actor->mpos.y;
+		end.x = actor->mpos.x + actor->c_mob.sight_range;
 		break;
 	};
-	return found;
+	collider_t hit = G_CastRay(actor->mpos, end, game);
+	if (!hit.ptr || hit.what != ET_PLAYR)
+		return false;
+	else if (hit.what == ET_PLAYR)
+		return true;
+	return false;
 }
 
-nomadbool_t Mob::M_SmellImmediate()
+void M_SpawnThink()
 {
-	Game* const map = game;
-	if (map->smellmap[mpos.y - 1][mpos.x] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y][mpos.x - 1] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y + 1][mpos.x] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y][mpos.x + 1] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y - 1][mpos.y - 1] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y - 1][mpos.y + 1] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y + 1][mpos.y - 1] >= c_mob.smell_tol
-	|| map->smellmap[mpos.y + 1][mpos.y + 1] >= c_mob.smell_tol) {
-		return true;
-	}
-	else {
-		return false;
-	}
+	// emulating MTG summoning sickness
+	if (actor->mticker > -1) return;
 }
 
-nomadbool_t Mob::M_SmellPlayr()
+void M_WanderThink()
 {
-	Game* const map = game;
-	if (scf::launch::nosmell && game->difficulty < DIF_BLACKDEATH) {
-		return false;
-	}
-	if (M_SmellImmediate()) {
-		return true;
-	}
-	bool found = false;
-	for (nomadushort_t y = mpos.y;
-	y < (mpos.y - (c_mob.snd_area >> 1)); ++y) {
-		for (nomadushort_t x = mpos.x;
-		x < (mpos.x + (c_mob.snd_area >> 1)); ++x) {
-			if (map->smellmap[y][x] >= c_mob.smell_tol) {
-				found = true;
+	if (!actor->stepcounter) {
+		if (((P_Random() & 29)+1) > 10) {
+			actor->stepcounter = P_Random() & 10; // get a cardinal number in the future
+		
+			// and now with a newly set step counter, we change the direction if rng decides it so
+			if ((P_Random() & 100) < actor->c_mob.rng) {
+				actor->mdir = P_Random() & 3; // might be the same direction
 			}
 		}
-	}
-	return found;
-}
-
-void Mob::M_SpawnThink()
-{
-	if (!mticker) {
-		mstate = stateinfo[S_MOB_WANDER];
-		mticker = mstate.numticks;
-	}
-}
-
-void Mob::M_ChasePlayr()
-{
-	return;
-}
-void Mob::M_FightThink()
-{
-	return;
-}
-void Mob::M_FleeThink()
-{
-	return;
-}
-
-void Mob::M_WanderThink()
-{
-	if (!stepcounter) {
-		stepcounter = P_Random() & 10; // get a cardinal number in the future
-	
-		// and now with a newly set step counter, we change the direction if rng decides it so
-		if ((P_Random() & 100) < c_mob.rng) {
-			mdir = P_Random() & 3; // might be the same direction
+		else {
+			actor->mstate = stateinfo[S_MOB_IDLE+actor->c_mob.mtype];
 		}
 	}
 	else {
-		--stepcounter;
-		coord_t pos = game->E_GetDir(mdir);
+		--actor->stepcounter;
+		coord_t pos = game->E_GetDir(actor->mdir);
+		char move = game->c_map[actor->mpos.y+pos.y][actor->mpos.x+pos.x];
+		switch (move) {
+		case '.':
+		case ' ':
+			game->E_MoveImmediate(&actor->mpos, actor->mdir);
+			break;
+		default:
+			actor->mdir = P_Random() & 3;
+			break;
+		};
+	}
+}
+
+void M_IdleThink()
+{
+	// hulks have no idle state, too aggressive and angry
+	if (actor->c_mob.mtype == MT_HULK) {
+		actor->mstate = stateinfo[S_HULK_WANDER];
+		actor->mticker = mstate.numticks;
+		return;
+	}
+	if (M_SeePlayr()) {
+		actor->mstate = stateinfo[S_MOB_WANDER+actor->c_mob.stateoffset];
+	}
+	else {
+		return;
+	}
+}
+
+static nomadenum_t M_NewChaseDir()
+{
+	coord_t pos = game->E_GetDir(actor->mdir);
+
+	// the mob sees the player, so move them directly towards the player
+	if (M_SeePlayr()) {
+		coord_t& mpos = mob->mpos;
 		char move = game->c_map[mpos.y+pos.y][mpos.x+pos.x];
 		switch (move) {
 		case '.':
 		case ' ':
-			game->E_MoveImmediate(&mpos, mdir);
+			return 5;
 			break;
 		default:
-			mdir = P_Random() & 3;
+			return (P_Random() & 3);
 			break;
 		};
 	}
-//	M_FollowLeader(this, game);
-	if (M_SeePlayr()) {
-		M_FollowPlayr(this, game);
+	else {
+		return (P_Random() & 3);
 	}
 }
-void Mob::M_DeadThink()
+
+void M_SearchForPlayr()
 {
-	return;
+	nomadenum_t pursuit = idle;
+	if (mob->M_SmellPlayr()) {
+		pursuit++;
+	}
+	if (mob->M_HearPlayr()) {
+		pursuit++;
+	}
+	if (mob->M_SeePlayr()) {
+		pursuit++;
+	}
+	if (pursuit < 1) {
+		return;
+	}
+	nomadenum_t chasedir = M_GetChaseDir(mob, game);
+	nomadbool_t changedir = false;
+	if (chasedir == 5) {
+		// if the mob doesn't need to change direction, then best 
+		// thing to do is to go in the direction of player's last pos
+		M_FollowPlayr(mob, game);
+	}
+	else {
+		changedir = true;
+	}
+	// changing direction if needed
+	if (changedir) {
+		mob->mdir = chasedir;
+		// try again after changing
+		chasedir = M_GetChaseDir(mob, game);
+		if (chasedir == 5) {
+			mob->mdir = chasedir;
+		}
+		// if it fails again, give up
+		else {
+			return;
+		}
+	}
 }
