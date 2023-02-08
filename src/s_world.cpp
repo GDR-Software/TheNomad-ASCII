@@ -216,16 +216,28 @@ static inline void* N_Looper(void* arg)
 	assert(!arg && game);
 #endif
 	pthread_mutex_lock(&game->npc_mutex);
-	for (auto* const b : game->b_Active) {
-		if (b->nticker > 0) {
-			--b->nticker;
-		}
-		else {
-			b->nticker = b->nstate.numticks;
-		}
-	}
+	
 	pthread_mutex_unlock(&game->npc_mutex);
 	return NULL;
+}
+
+static void M_DoThink(Mob* const mob)
+{
+	--mob->mticker;
+	M_ThinkerCurrent(mob);
+	
+	// current state has run out of tics, so switch the state, DO NOT, HOWEVER, RUN THE ACTION
+	if (mob->mticker <= -1) {
+		// if no default next state, set the mob's state to wander (25%) or idle (75%)
+		if (mob->mstate.next == 0) {
+			mob->mstate = stateinfo[S_MOB_WANDER+mob->c_mob.stateoffset];
+		}
+		mob->mstate = stateinfo[mob->mstate.next];
+		mob->mticker = mob->mstate.numticks;
+	}
+	else {
+		(*mob->mstate.actionp)();
+	}
 }
 
 static inline void* M_Looper(void *arg)
@@ -234,14 +246,9 @@ static inline void* M_Looper(void *arg)
 	assert(!arg && game);
 #endif
 	pthread_mutex_lock(&game->mob_mutex);
-	M_GetLeaders(game);
-	for (auto* const m : game->m_Active) {
-		if (m->mticker > 0) {
-			--m->mticker;
-		}
-		else {
-			m->M_WanderThink();
-			m->mticker = m->mstate.numticks;
+	for (nomaduint_t i = 0; i < ARRAY_SIZE(game->m_Active); ++i) {
+		if (game->m_Active[i]) {
+			M_DoThink(game->m_Active[i]);
 		}
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
