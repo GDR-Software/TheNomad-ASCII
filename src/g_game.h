@@ -77,10 +77,8 @@ public:
 	nomadenum_t difficulty;
 	Playr* playr;
 	World* world;
-	nomaduint_t current_m_active = 0;
-	nomaduint_t current_b_active = 0;
-	std::vector<Mob*> m_Active;
-	std::vector<NPC*> b_Active;
+	Mob* m_Active[MAX_MOBS_ACTIVE];
+	NPC* b_Active[MAX_MOBS_ACTIVE];
 public: // map stuff
 	sndlvl_t sndmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	smelllvl_t smellmap[MAP_MAX_Y+160][MAP_MAX_X+160];
@@ -136,6 +134,8 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+nomaduint_t G_GetFreeMob(const Game* const game);
+nomaduint_t G_GetFreeBot(const Game* const game);
 void NPCAssigner(Game* const gptr);
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
