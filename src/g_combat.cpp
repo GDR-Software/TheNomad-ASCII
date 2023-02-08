@@ -97,37 +97,6 @@ static inline void G_MarkWall(coord_t pos)
 	}
 }
 
-//
-// G_CastRay(): the general-use combat function that casts a "ray" from a line or slope,
-// and determines what it first collides with. This is really just a hitscan collider,
-// but I couldn't think of a better name for it.
-//
-// returns if it hit a wall, and another function (ideally the shooting function) will be
-// calling it in a for every bullet in a shot loop. If it hits an entity, it deals damage to
-// that entity
-//
-static inline void G_CastRay(coord_t endpoint, coord_t startpoint)
-{
-	nomadshort_t dx = endpoint.x > startpoint.x ? endpoint.x - startpoint.x : startpoint.x - endpoint.x;
-	nomadshort_t sx = endpoint.x > startpoint.x ? 1 : -1;
-	nomadshort_t dy = endpoint.y > startpoint.y ? endpoint.y - startpoint.y : startpoint.y - endpoint.y; 
-	nomadshort_t sy = endpoint.y > startpoint.y ? 1 : -1;
-	nomadshort_t err = (dx > dy ? dx : -dy) >> 1;
-	while (1) {
-//		G_CheckCollider(startpoint);
-		if (startpoint.x == endpoint.x && startpoint.y == endpoint.y) break;
-		nomadshort_t e2 = err;
-		if (e2 > -dx) {
-			err -= dy;
-			startpoint.x += sx;
-		}
-		if (e2 < dy) {
-			err += dx;
-			startpoint.y += sy;
-		}
-	}
-}
-
 static inline void G_GetSpread(nomadenum_t spread, nomadenum_t dir, coord_t pos, coord_t* maxspread)
 {
 	// use bit-shifts if this gets too slow
