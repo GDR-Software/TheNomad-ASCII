@@ -16,280 +16,133 @@
 // Free Software Foundation.
 //
 // DESCRIPTION:
-//  src/s_behave.cpp
+//  src/s_mmisc.cpp
+//  mob spawner code, balancer, no mob thinker/action functions
+//  here, that's s_mthink
 //----------------------------------------------------------
+#include "g_mob.h"
 #include "g_game.h"
-#include "s_mission.h"
+#include "scf.h"
 #include "g_rng.h"
-#include "p_npc.h"
 #include "g_obj.h"
 
-static Game* game;
+typedef struct mobgroup_s
+{
+	Mob** m_Active;
+	Mob* leader;
+	area_t area;
+	nomadenum_t sector;
+} mobgroup_t;
 
-void NPCAssigner(Game* const gptr)
+static Game* game;
+static Mob* mob; // the current mob being iterated over
+
+void MobAssigner(Game* const gptr)
 {
 	game = gptr;
 }
 
-static NPC* B_SpawnBot(void)
+static void M_GenMercSquad();
+static void M_GenZurgutLegion();
+
+static void M_GenGroup()
+{
+	coord_t origin;
+	srand(time(NULL));
+	origin.y = (rand() % 300)+190;
+	origin.x = (rand() % 300)+190;
+	Mob* leader;
+	mobj_t mob = mobinfo[rand() % (NUMMOBS - 2)];
+	leader = M_SpawnMob();
+	leader->is_boss = false;
+	leader->c_mob = mob;
+	leader->mpos.y = origin.y;
+	leader->mpos.x = origin.x;
+	leader->mstate = stateinfo[S_MOB_WANDER];
+	leader->mticker = leader->mstate.numticks;
+	leader->stepcounter &= 0;
+	leader->mdir = P_Random() & 3;
+	nomadenum_t count = P_Random() & 6;
+	Mob* minions[count];
+	for (nomadenum_t i = 0; i < count; ++i) {
+		mob = mobinfo[rand() % (NUMMOBS - 2)];
+		minions[i] = M_SpawnMob();
+		Mob* const m = minions[i];
+		if ((rand() % 99) >= 49) {
+			m->mpos.y = origin.y + ((rand() % 10)+15);
+		} else {
+			m->mpos.y = origin.y - ((rand() % 10)+15);
+		}
+		if ((rand() % 99) >= 49) { 
+			m->mpos.x = origin.x + ((rand() % 10)+15);
+		} else {
+			m->mpos.x = origin.x - ((rand() % 10)+15);
+		}
+		m->is_boss = false;
+		m->c_mob = mob;
+		m->mstate = stateinfo[S_MOB_WANDER];
+		m->mticker = m->mstate.numticks;
+		m->stepcounter = P_Random() & 10;
+		m->mdir = P_Random() & 3;
+	}
+}
+
+void Game::M_GenMobs(void)
+{
+	game = this;
+	MobAssigner(this);
+	NomadAssigner(this);
+	
+	nomadenum_t numgroups = P_Random() & 15;
+	for (nomadenum_t i = 0; i < numgroups; ++i) {
+		M_GenGroup();
+	}
+}
+
+Mob* M_SpawnMob(void)
 {
 	nomaduint_t index;
-	if ((index = G_GetFreeBot(game)) == MAX_NPC_ACTIVE) {
+	if ((index = G_GetFreeMob(game)) == MAX_MOBS_ACTIVE) {
 		return nullptr;
 	}
-	NPC* n = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &n);
-	npc = n;
-	npc->index = index;
-	game->b_Active[index] = npc;
+	Mob* m = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m);
+	mob = m;
+	mob->index = index;
+	game->m_Active[index] = mob;
 }
 
-__CFUNC__ void B_SpawnShopBots(void)
+//
+// M_KillMob(): deallocates/kills the current mob being iterated over
+//
+void M_KillMob(void)
 {
 #ifdef _NOMAD_DEBUG
-	assert(game);
+	assert(mob);
 #endif
-	// hardcoded until the BFFs roll around
-	NPC* npc;
-	
-	// creating the guns 'n' grenades bartender
-	npc = B_SpawnBot();
-	npc->pos = botpos[0];
-	npc->c_npc = npcinfo[0];
-	npc->c_npc.btype = BOT_BARTENDER;
-	npc->ndir = D_WEST;
-
-	// creating the guns 'n' grenades mercenary master
-	npc = B_SpawnBot();
-	npc->pos = botpos[1];
-	npc->c_npc = npcinfo[1];
-	npc->c_npc.btype = BOT_MERCMASTER;
-	npc->ndir = D_NORTH;
-
-	// creating the guns 'n' grenades weapons smith
-	npc = B_SpawnBot();
-	npc->pos = botpos[2];
-	npc->c_npc = npcinfo[2];
-	npc->c_npc.btype = BOT_WEAPONSMITH;
-	npc->ndir = D_EAST;
+	game->m_Active[mob->index] = nullptr;
+	Z_Free(mob);
 }
-/*
-__CFUNC__ void B_GenerateCivilian(NPC* const npc)
+const char* MobTypeToStr(nomaduint_t mtype)
 {
-	npc->pos.y = (P_Random() & 204) + 112;
-	npc->pos.x = (P_Random() & 107) + 208;
-	switch (game->c_map[npc->pos.y][npc->pos.x]) {
-	case ' ':
-	case '_':
-	case '.':
-		break;
-	default:
-		Z_Free(npc);
-		return;
-		break;
-	};
-	npc->c_npc.sprite = 'c';
-	npc->c_npc.health = 100;
-	npc->c_npc.armor = 12;
-	npc->c_npc.btype = BOT_CIVILIAN;
-}
-__CFUNC__ void B_SpawnCivilianBots(void)
-{
-	std::vector<NPC*>& b_Active = game->b_Active;
-	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
-		b_Active.emplace_back();
-		b_Active.back() = (NPC*)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-		NPC* const npc = b_Active.back();
-		npc->nstate = stateinfo[S_BOT_WANDER];
-		npc->nticker = npc->nstate.numticks;
-		B_GenerateCivilian(npc);
-	}
-} */
-
-void Game::I_InitNPCs(void)
-{
-#ifdef _NOMAD_DEBUG
-	assert(!game);
-#endif
-	game = this;=
-#ifdef _NOMAD_DEBUG
-	LOG("reserving %li NPC for b_Active", npcinfo.size()+INITIAL_NPC_ACTIVE);
-#endif
-	NomadAssigner(this);
-	MissionAssigner(this);
-	B_SpawnShopBots();
-	B_GenNomadTribe();
-}
-
-static nomadbool_t B_IsScared(NPC* const npc)
-{
-#ifdef _NOMAD_DEBUG
-	assert(npc);
-#endif
-	if (npc->c_npc.btype == BOT_CIVILIAN) {
-		return true; // auto-true if its a civilian
-	}
-	nomaduint_t rand = (P_Random() & 49) + 1;
-	if (rand > 15 && npc->c_npc.btype != BOT_GUARD) {
-		return true;
-	}
-	else if (rand > 30 && npc->c_npc.btype == BOT_GUARD) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-void B_FleeArea(NPC* const npc)
-{
-#ifdef _NOMAD_DEBUG
-	assert(npc);
-#endif
-	if (!B_IsScared(npc)) {
-		return;
-	}
-
-	// extra-scared flag
-	nomadbool_t panic = (P_Random() & 100) > 75 || npc->c_npc.btype == BOT_CIVILIAN;
-	
-	if (panic) {
-		// run in wild circles
-		npc->pos.y += rand() % 444;
-	}
-	/*
-	coord_t pos = game->E_GetDir(npc->ndir);
-	npc->pos.y += pos.y;
-	npc->pos.x += pos.x; */
-}
-
-void B_KillBot(NPC* const npc)
-{
-#ifdef _NOMAD_DEBUG
-	assert(npc);
-#endif
-	Z_Free(npc);
-}
-
-void B_WeaponSmithInteract()
-{
-	Hud_Printf("Weapon Smith", "Greetings, anything I can help you with? [y/n]");
-	nomadint_t i = wgetch(game->screen);
-	if (i == 'y') {
-		Hud_Printf("Weapon Smith", "Splendid, now tell me, what would you like?");
-	}
-	else {
-		Hud_Printf("Weapon Smith", "Whelp then, see you when you need some metal");
-	}
-}
-
-void B_BartenderInteract()
-{
-	Hud_Printf("Bartender", "Hello there, anything I can get you today? [y/n]");
-	nomadint_t i = wgetch(game->screen);
-	if (i == 'y') {
-		Hud_Printf("Bartender", "Amazing!, what would ya like?");
-	}
-	else {
-		Hud_Printf("Bartender", "Aight, well, seeya later");
-	}
-}
-
-static void B_MercDisplayMissions(const std::vector<Mission>& m_ls, Mission* m);
-
-void B_MercMasterInteract()
-{
-	Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today? [y/n]");
-	nomadint_t i = getc(stdin);
-	if (i == 'y') {
-		Hud_Printf("Mercenary Master", "Excellent, here's a list of missions");
-		std::vector<Mission> m_ls;
-		G_GenMissionLs(m_ls);
-		Mission* m = nullptr;
-
-		// display the missions
-		B_MercDisplayMissions(m_ls, m);
-	}
-	else {
-		Hud_Printf("Mercernary Master", "Oh well, I'll be waiting for you");
-		return;
-	}
-}
-
-static const char* GetMissionNameFromType(const Mission& m)
-{
-	switch (m.type) {
-	case M_ASSASSINATION: return "Assassination";
-	case M_BODYGUARDING: return "Bodyguarding";
-	case M_EXTORTION: return "Extortion";
-	case M_EXTRACTION: return "Extraction";
-	case M_CONTRACT: return "Contract";
-	case M_INFILTRATION: return "Infiltration";
-	case M_KIDNAPPING: return "Kidnapping";
+	switch (mtype) {
+	case MT_BEGGAR: return VAR_TO_STR(MT_BEGGAR);
+	case MT_DRUID: return VAR_TO_STR(MT_DRUID);
+	case MT_SANDWURM: return VAR_TO_STR(MT_SANDWURM);
+	case MT_RAVAGER: return VAR_TO_STR(MT_RAVAGER);
+	case MT_PISTOL: return VAR_TO_STR(MT_PISTOL);
+	case MT_SHOTTY: return VAR_TO_STR(MT_SHOTTY);
+	case MT_GUNNER: return VAR_TO_STR(MT_GUNNER);
+	case MT_GRUNT: return VAR_TO_STR(MT_GRUNT);
+	case MT_GUARD: return VAR_TO_STR(MT_GUARD);
+	case MT_HULK: return VAR_TO_STR(MT_HULK);
+	case MT_MERC: return VAR_TO_STR(MT_MERC);
+	case MT_MERC_LEADER: return VAR_TO_STR(MT_MERC_LEADER);
+	case MT_NOMAD_LEADER: return VAR_TO_STR(MT_NOMAD_LEADER);
+	case MT_NOMAD_WARRIOR: return VAR_TO_STR(MT_NOMAD_WARRIOR);
+	case MT_SNIPER: return VAR_TO_STR(MT_SNIPER);
+	case MT_SOLDIER: return VAR_TO_STR(MT_SOLDIER);
+	case MT_THUG: return VAR_TO_STR(MT_THUG);
 	};
 	if (!false)
-		N_Error("Unknown/Invalid Mission Type: %i", (int)m.type);
-	
-	return nullptr;
-}
-
-static void B_MercDisplayMissions(const std::vector<Mission>& m_ls, Mission* m)
-{
-	werase(game->screen);
-	
-	ITEM** missions;
-	MENU* menu;
-	missions = (ITEM **)Z_Malloc(sizeof(Item *) * (m_ls.size() + 1), TAG_STATIC, &missions);
-	
-	for (nomadenum_t i = 0; i < ARRAY_SIZE(missions) - 1; ++i) {
-		missions[i] = new_item(GetMissionNameFromType(m_ls[i]), NULL);
-		set_item_userptr(missions[i], (void *)&m_ls[i]);
-	}
-	missions[m_ls.size()+1] = nullptr;
-	menu = new_menu((ITEM **)missions);
-	box(game->screen, 0, 0);
-	mvwaddstr(game->screen, 0, 55, "[MISSIONS]");
-	post_menu(menu);
-	set_menu_mark(menu, " -> ");
-	wrefresh(game->screen);
-	char c;
-
-	nomadshort_t selector = 0;
-	nomadbool_t selected = false;
-	while (1) {
-		if (selected) break;
-		werase(game->screen);
-		box(game->screen, 0, 0);
-		mvwaddstr(game->screen, 0, 55, "[MISSIONS]");
-		c = wgetch(game->screen);
-		if (c == KEY_q) break;
-		switch (c) {
-		case KEY_w: {
-			--selector;
-			if (selector < 0) {
-				selector = m_ls.size();
-			}
-			menu_driver(menu, REQ_UP_ITEM);
-			break; }
-		case KEY_s: {
-			++selector;
-			if (selector >= m_ls.size()) {
-				selector = 0;
-			}
-			menu_driver(menu, REQ_DOWN_ITEM);
-			break; }
-		case 10:
-			m = (Mission *)Z_Malloc(sizeof(Mission), TAG_STATIC, &m);
-			*m = m_ls[selector];
-			selected = true;
-			break;
-		};
-		wrefresh(game->screen);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
-	};
-	for (nomadenum_t i = 0; i < ARRAY_SIZE(missions) - 1; ++i) {
-		free_item(missions[i]);
-	}
-	Z_Free(missions);
-	unpost_menu(menu);
-	werase(game->screen);
+		N_Error("Unknown/Invalid Mob Type %iu!", mtype);
 }
