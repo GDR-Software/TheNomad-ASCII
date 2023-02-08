@@ -42,7 +42,8 @@ enum : nomadenum_t
 	P_MODE_SITTING
 };
 
-class Playr {
+class Playr
+{
 public:
 	std::string name;
 	sprite_t sprite;
@@ -68,6 +69,15 @@ public:
 public:
 	Playr() = default;
 	~Playr() = delete;
+	Playr& operator=(const Playr& playr) {
+		memcpy(&(*this), &playr, sizeof(Playr));
+		return *this;
+	}
+	const Playr& operator=(const Playr& playr) {
+		memcpy(&(*this), &playr, sizeof(Playr));
+		return *this;
+	}
+	
 	void P_Init();
 	void P_GetMode();
 	void P_RunTicker(nomadint_t finput);
