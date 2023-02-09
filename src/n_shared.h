@@ -127,8 +127,22 @@ class Game;
 #include <fstream>
 #include <pthread.h>
 
+#ifndef NDEBUG
+#define _NOMAD_DEBUG
+#endif
+
 #ifdef _NOMAD_DEBUG
-#include "n_debug.h"
+extern FILE* dbg_file;
+#define DBG_LOG(...)                       \
+{                                          \
+	fprintf(dbg_file, "%s(): ", __func__); \
+	fprintf(dbg_file, __VA_ARGS__);        \
+	fputc('\n', dbg_file);                 \
+}
+#define NOMAD_ASSERT(x, ...) if (!(x)) N_Error(__VA_ARGS__)
+#else
+#define DBG_LOG(...)
+#define NOMAD_ASSERT(x, ...)
 #endif
 
 #define byte unsigned char
