@@ -207,8 +207,9 @@ auto rdString(char* in) -> void  {
 		it++;
 	}
 }
-auto rdArray(void* ptr, int nelem, int elemsize) -> void {
-	
+
+auto wrItem(const Item* item) -> void {
+	auto 
 }
 
 static void G_ArchivePlayr(const Playr* playr)
@@ -217,14 +218,12 @@ static void G_ArchivePlayr(const Playr* playr)
 	wrByte(playr->health);
 	wrByte(playr->armor);
 	wrByte(playr->pstate);
-	fwrite((const char*)&playr->name, sizeof(char), 256, fp);
-	fwrite(&playr->health, sizeof(playr->health), 1, fp);
-	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
-	fwrite(&playr->pstate, sizeof(playr->pstate), 1, fp);
-	fwrite(&playr->pticker, sizeof(playr->pticker), 1, fp);
+	wrByte(playr->pticker);
 	fwrite(&playr->P_wpns, sizeof(Weapon), MAX_PLAYR_WPNS, fp);
 	fwrite(&playr->inv, sizeof(Item), MAX_PLAYR_ITEMS, fp);
-	fwrite(&playr->body_health, sizeof(playr->body_health[0]), 4, fp);
+	for (num_t i = 0; i < ARRAY_SIZE(playr->body_health); ++i) {
+		wrByte(playr->body_health[i]);
+	}
 	fwrite(&playr->wpn_slot_current, sizeof(playr->wpn_slot_current), 1, fp);
 	fwrite(&playr->pos, sizeof(coord_t), 1, fp);
 }
