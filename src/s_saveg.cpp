@@ -105,9 +105,11 @@ void Game::G_SaveGame(void)
 {
 	const char* svfile = "nomadsv.ngd";
 	fp = fopen(svfile, "wb");
-	fwrite(&playrname, sizeof(char), sizeof(playrname), fp);
+	fwrite((const char *)&playr->name, sizeof(char), 256, fp);
 	fwrite(&playr->health, sizeof(playr->health), 1, fp);
 	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
+	fwrite(&playr->pstate, sizeof(playr->pstate), 1, fp);
+	fwrite(&playr->pticker, sizeof(playr->pticker), 1, fp);
 	
 	num_t mobend = (num_t)MOB_MARK;
 	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
