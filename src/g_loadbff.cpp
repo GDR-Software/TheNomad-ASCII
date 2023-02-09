@@ -16,9 +16,7 @@ static void *bffhandle;
 
 void G_LoadBFF(const char* bffname, Game* const game)
 {
-#ifdef _NOMAD_DEBUG
     assert(bffname && game);
-#endif
 	typedef void (*bff_func)(bff_file_t*);
 	typedef unsigned char (*filetype)(bff_file_t*);
 	typedef bff_file_t*(*init_file)(const char*);
