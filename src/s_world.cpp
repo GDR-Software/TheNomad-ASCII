@@ -48,24 +48,17 @@ static inline void M_Init(void);
 
 void W_Init(Game* const gptr)
 {
-#ifdef _NOMAD_DEBUG
-    assert(gptr);
-#endif
+	assert(gptr);
     game = gptr;
     gametics = &game->ticcount;
     world = (World *)Z_Malloc(sizeof(World), TAG_STATIC, &world); // this'll stay static until the player quits or changes the gamemode
     if (!world)
         N_Error("Failed To Successfully Allocate Memory To Game World!");
-
-#ifdef _NOMAD_DEBUG
     assert(world); // to double-check
-    LOG("Successfully Allocted Memory To Game World");
-#endif
+    DBG_LOG("Successfully Allocted Memory To Game World");
     game->world = world;
-#ifdef _NOMAD_DEBUG
     assert(game->world);
-    LOG("Successfully Assigned Game Class World* To World* Within This Function");
-#endif
+    DBG_LOG("Successfully Assigned Game Class World* To World* Within This Function");
     world->time.ticcount = gametics;
     world->time.month = MONTH_LONGSUMMER; // start the player off at the beginning of longsummer
     world->time.year = start_year;
@@ -132,9 +125,7 @@ void* W_Loop(void *arg)
         break;
     default:
         // if called, just ignore the call
-#ifdef _NOMAD_DEBUG
-        LOG("called this function without pmode being roaming or mission");
-#endif
+        DBG_LOG("called this function without pmode being roaming or mission");
         break;
     };
     pthread_mutex_unlock(&world_mutex);
@@ -177,13 +168,9 @@ static void W_RoamingLoop(void)
 
 static void W_MissionLoop(void)
 {
-#ifdef _NOMAD_DEBUG
 	assert(game && playr->c_mission);
-#endif
 	Mission* m = playr->c_mission;
-#ifdef _NOMAD_DEBUG
 	assert(m);
-#endif
 	// checking what we should load, where to load, and how, all from the variables determined at merc master selection stage
 	switch (m->sector) {
 	case SECTOR_DOD:
@@ -212,9 +199,7 @@ static void W_MissionLoop(void)
 
 static inline void* N_Looper(void* arg)
 {
-#ifdef _NOMAD_DEBUG
 	assert(!arg && game);
-#endif
 	pthread_mutex_lock(&game->npc_mutex);
 	for (auto* const i : game->b_Active) {
 		--i->nticker;
@@ -248,9 +233,7 @@ static void M_DoThink(Mob* const mob)
 
 static inline void* M_Looper(void *arg)
 {
-#ifdef _NOMAD_DEBUG
 	assert(!arg && game);
-#endif
 	pthread_mutex_lock(&game->mob_mutex);
 	for (nomaduint_t i = 0; i < ARRAY_SIZE(game->m_Active); ++i) {
 		if (game->m_Active[i]) {
@@ -264,10 +247,8 @@ static inline void* M_Looper(void *arg)
 
 static inline void M_Init(void)
 {
-#ifdef _NOMAD_DEBUG
     assert(game);
-    LOG("Initializing Map Data");
-#endif
+    DBG_LOG("Initializing Map Data");
 #if 0 // no longer needed because of BFF files
 	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
 	nomaduint_t y, x;
