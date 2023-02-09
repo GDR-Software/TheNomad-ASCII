@@ -5,6 +5,7 @@ typedef struct _console_var
 {
 	const char* varstr;
 	std::string value;
+	bool isconst;
 	void* varptr;
 } cvar_t;
 
