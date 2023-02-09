@@ -91,6 +91,17 @@ static void M_GenGroup()
 	}
 }
 
+static void M_GenMob(Mob* const mob)
+{
+	mob->c_mob = mobinfo[rand() % NUMMOBS];
+	mob->mpos.y = (rand() % 480)+20;
+	mob->mpos.x = (rand() % 480)+20;
+	mob->mstate = stateinfo[S_MOB_SPAWN+mob->c_mob.stateoffset];
+	mob->mdir = P_Random() & 3;
+	mob->is_boss = false;
+	mob->stepcounter = P_Random() & 10;
+}
+
 void Game::M_GenMobs(void)
 {
 	game = this;
@@ -101,10 +112,7 @@ void Game::M_GenMobs(void)
 		m_Active.emplace_back();
 		m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
 		m_Active.back()->alive = false;
-	}
-	nomadenum_t numgroups = P_Random() & 15;
-	for (nomadenum_t i = 0; i < numgroups; ++i) {
-		M_GenGroup();
+		M_GenMob(m_Active.back());
 	}
 }
 
