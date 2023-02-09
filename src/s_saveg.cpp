@@ -22,7 +22,7 @@
 #include <dirent.h>
 #include <limits.h>
 
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE 1024
 
 static FILE* fp;
 static constexpr auto svdir = "Files/gamedata/SVFILES/";
@@ -34,6 +34,8 @@ enum : int8_t
 	NGD_CHUNK_NPC,
 	NGD_CHUNK_WORLD
 };
+
+#define MOB_MARK 0xFF1D
 
 #ifdef UNIX_NOMAD
 typedef int32_t num_t;
@@ -99,37 +101,37 @@ static uint32_t countfiles(const char *path) {
 
 #define MAGIC_XOR 300
 
-template<typename T>
-void WriteChunk(ngd_chunk_t& chunk, const T& buffer)
-{
-	memset(&chunk.buffer, '\0', BUFFER_SIZE);
-	memcpy(&chunk.buffer, &buffer, sizeof(T));
-	fwrite(&chunk, sizeof(ngd_chunk_t), 1, fp);
-}
-
-template<typename T>
-void ReadChunk(ngd_chunk_t& chunk, T& buffer)
-{
-	fread(&chunk.buffer, sizeof(char), BUFFER_SIZE, fp);
-	memcpy(&buffer, &chunk.buffer, sizeof(T));
-}
-
 void Game::G_SaveGame(void)
 {
-
-	const char* svname = "nomadsv.ngd";
-	std::ofstream file(svname, std::ios::out | std::ios::binary);
-	num_t header = (num_t)HEADER;
-	file.write((const char*)&header, sizeof(num_t));
-	file.write((const char*)&(*playr), sizeof(Playr));
-	file.write((const char*)&(*world), sizeof(World));
-	for (const auto* i : m_Active) {
-		file.write((const char*)&(*i), sizeof(Mob));
+	const char* svfile = "nomadsv.ngd";
+	fp = fopen(svfile, "wb");
+	fwrite(&playrname, sizeof(char), sizeof(playrname), fp);
+	fwrite(&playr->health, sizeof(playr->health), 1, fp);
+	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
+	
+	num_t mobend = (num_t)MOB_MARK;
+	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
+		Mob* const mob = m_Active[i];
+		fwrite(&mark, sizeof(num_t), 1, fp);
+		fwrite(&mob->health, sizeof(mob->health), 1, fp);
+		fwrite(&mob->armor, sizeof(mob->armor), 1, fp);
+		fwrite(&mob->mdir, sizeof(mob->mdir), 1, fp);
+		fwrite(&mob->mpos, sizeof(mob->mpos), 1, fp);
+		fwrite(&mob->mticker, sizeof(mob->mticker), 1, fp);
+		fwrite(&mob->stepcounter, sizeof(mob->stepcounter), 1, fp);
+		fwrite(&mob->mstate.id, sizeof(mob->mstate.id), 1, fp);
+		fwrite(&mob->c_mob.mtype, sizeof(mob->mtype), 1, fp);
+		fwrite(&mob->c_mob.sprite, sizeof(mob->sprite), 1, fp);
+		fwrite(&mob->alive, sizeof(mob->alive), 1, fp);
 	}
-	for (const auto* i : b_Active) {
-		file.write((const char*)&(*i), sizeof(NPC));
+	fwrite(&mobend, sizeof(num_t), 1, fp);
+	num_t botend = (num_t)MOB_MARK;
+	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
+		NPC* const npc = b_Active[i];
+		fwrite(&npc->health, sizeof(npc->health), 1, fp);
+		fwrite(&npc->armor, sizeof(npc->armor), 1, fp);
 	}
-	file.close();
+	fclose(fp);
 #if 0
 	snprintf(svname, sizeof(svname), "Files/gamedata/SVFILES/nomadsv.ngd");
 	fp = fopen(svname, "wb");
