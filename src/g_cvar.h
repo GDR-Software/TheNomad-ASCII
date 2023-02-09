@@ -4,7 +4,7 @@
 typedef struct _console_var
 {
 	const char* varstr;
-	char* value;
+	std::string value;
 } cvar_t;
 
 extern cvar_t cvars[];
