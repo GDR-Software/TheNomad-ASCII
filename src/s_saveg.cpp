@@ -35,8 +35,6 @@ enum : int8_t
 	NGD_CHUNK_WORLD
 };
 
-#define MOB_MARK 0xFF1D
-
 #ifdef UNIX_NOMAD
 typedef int32_t num_t;
 #elif defined(WIN32_NOMAD)
@@ -101,17 +99,35 @@ static uint32_t countfiles(const char *path) {
 
 #define MAGIC_XOR 300
 
-void Game::G_SaveGame(void)
+static void G_ArchivePlayr(const Playr* playr)
 {
-	const char* svfile = "nomadsv.ngd";
-	fp = fopen(svfile, "wb");
-	fwrite((const char *)&playr->name, sizeof(char), 256, fp);
+	fwrite((const char*)&playr->name, sizeof(char), 256, fp);
 	fwrite(&playr->health, sizeof(playr->health), 1, fp);
 	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
 	fwrite(&playr->pstate, sizeof(playr->pstate), 1, fp);
 	fwrite(&playr->pticker, sizeof(playr->pticker), 1, fp);
 	fwrite(&playr->P_wpns, sizeof(Weapon), MAX_PLAYR_WPNS, fp);
 	fwrite(&playr->inv, sizeof(Item), MAX_PLAYR_ITEMS, fp);
+	fwrite(&playr->body_health, sizeof(playr->body_health[0]), 4, fp);
+	fwrite(&playr->wpn_slot_current, sizeof(playr->wpn_slot_current), 1, fp);
+	fwrite(&playr->pos, sizeof(coord_t), 1, fp);
+}
+
+static void G_ArchiveWorld(const World* world, const Game* game)
+{
+	fwrite(&game->ticcount, sizeof(game->ticcount), 1, fp);
+	fwrite(&game->gamestate, sizeof(game->gamestate), 1, fp);
+	fwrite(&world);
+}
+
+void Game::G_SaveGame(void)
+{
+	const char* svfile = "nomadsv.ngd";
+	fp = fopen(svfile, "wb");
+	num_t version = NOMAD_VERSION;
+	fwrite(&version, sizeof(num_t), 1, fp);
+	G_ArchivePlayr(playr);
+	G_ArchiveWorld(world, this);
 	
 	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
 		Mob* const mob = m_Active[i];
