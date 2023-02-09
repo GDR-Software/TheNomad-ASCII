@@ -73,7 +73,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	// mob states
 	{S_HULK_NULL,              0,               S_HULK_SPAWN,         NULL}, // S_HULK_NULL
 	{S_HULK_SPAWN,             5,               S_HULK_WANDER,        M_SpawnThink}, // S_HULK_SPAWN
-	{S_HULK_WANDER,            ticrate_base*4,  S_HULK_IDLE,          M_WanderThink}, // S_HULK_WANDER
+//	{S_HULK_WANDER,            ticrate_base*4,  S_HULK_IDLE,          M_WanderThink}, // S_HULK_WANDER
 	{S_HULK_IDLE,              ticrate_base*3,  S_HULK_WANDER,        M_IdleThink}, // S_HULK_IDLE
 	{S_HULK_CHASEPLAYR,        ticrate_base*5,  S_HULK_FIGHT,         M_ChasePlayr}, // S_HULK_CHASEPLAYR
 	{S_HULK_FIGHT,             ticrate_base*2,  S_HULK_WANDER,        M_FightThink}, // S_HULK_FIGHT
@@ -81,7 +81,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_HULK_DEAD,              ticrate_base*10, S_HULK_NULL,          M_DeadThink}, // S_HULK_DEAD
 	{S_RAV_NULL,               0,               S_RAV_SPAWN,          NULL}, // S_RAV_NULL
 	{S_RAV_SPAWN,              5,               S_RAV_WANDER,         M_SpawnThink}, // S_RAV_SPAWN
-	{S_RAV_WANDER,             ticrate_base,    S_RAV_IDLE,           M_WanderThink}, // S_RAV_WANDER
+//	{S_RAV_WANDER,             ticrate_base,    S_RAV_IDLE,           M_WanderThink}, // S_RAV_WANDER
 	{S_RAV_IDLE,               ticrate_base,    S_RAV_WANDER,         M_IdleThink}, // S_RAV_IDLE
 	{S_RAV_CHASEPLAYR,         ticrate_base,    S_RAV_FIGHT,          M_ChasePlayr}, // S_RAV_CHASEPLAYR
 	{S_RAV_FIGHT,              ticrate_base,    S_RAV_WANDER,         M_FightThink}, // S_RAV_FIGHT
@@ -89,7 +89,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_RAV_DEAD,               ticrate_base,    S_RAV_NULL,           M_DeadThink}, // S_RAV_DEAD
 	{S_GRUNT_NULL,             0,               S_GRUNT_SPAWN,        NULL}, // S_GRUNT_NULL
 	{S_GRUNT_SPAWN,            5,               S_GRUNT_WANDER,       M_SpawnThink}, // S_GRUNT_SPAWN
-	{S_GRUNT_WANDER,           ticrate_base,    S_GRUNT_IDLE,         M_WanderThink}, // S_GRUNT_WANDER
+//	{S_GRUNT_WANDER,           ticrate_base,    S_GRUNT_IDLE,         M_WanderThink}, // S_GRUNT_WANDER
 	{S_GRUNT_IDLE,             ticrate_base,    S_GRUNT_WANDER,       M_IdleThink}, // S_GRUNT_IDLE
 	{S_GRUNT_CHASEPLAYR,       ticrate_base,    S_GRUNT_FIGHT,        M_ChasePlayr}, // S_GRUNT_CHASEPLAYR
 	{S_GRUNT_FIGHT,            ticrate_base,    S_GRUNT_WANDER,       M_FightThink}, // S_GRUNT_FIGHT
@@ -97,7 +97,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_GRUNT_DEAD,             ticrate_base,    S_GRUNT_NULL,         M_DeadThink}, // S_GRUNT_DEAD
 	{S_DRUID_NULL,             0,               S_DRUID_SPAWN,        NULL}, // S_DRUID_NULL
 	{S_DRUID_SPAWN,            5,               S_DRUID_WANDER,       M_SpawnThink}, // S_DRUID_SPAWN
-	{S_DRUID_WANDER,           ticrate_base,    S_DRUID_IDLE,         M_WanderThink}, // S_DRUID_WANDER
+//	{S_DRUID_WANDER,           ticrate_base,    S_DRUID_IDLE,         M_WanderThink}, // S_DRUID_WANDER
 	{S_DRUID_IDLE,             ticrate_base,    S_DRUID_WANDER,       M_IdleThink}, // S_DRUID_IDLE
 	{S_DRUID_CHASEPLAYR,       ticrate_base,    S_DRUID_FIGHT,        M_ChasePlayr}, // S_DRUID_CHASEPLAYR
 	{S_DRUID_FIGHT,            ticrate_base,    S_DRUID_WANDER,       M_FightThink}, // S_DRUID_FIGHT
@@ -105,7 +105,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_DRUID_DEAD,             ticrate_base,    S_DRUID_NULL,         M_DeadThink}, // S_DRUID_DEAD
 	{S_SANDWURM_NULL,          0,               S_SANDWURM_SPAWN,     NULL}, // S_RAV_NULL
 	{S_SANDWURM_SPAWN,         5,               S_SANDWURM_WANDER,    M_SpawnThink}, // S_SANDWURM_SPAWN
-	{S_SANDWURM_WANDER,        ticrate_base,    S_SANDWURM_IDLE,      M_WanderThink}, // S_SANDWURM_WANDER
+//	{S_SANDWURM_WANDER,        ticrate_base,    S_SANDWURM_IDLE,      M_WanderThink}, // S_SANDWURM_WANDER
 	{S_SANDWURM_IDLE,          ticrate_base,    S_SANDWURM_WANDER,    M_IdleThink}, // S_SANDWURM_IDLE
 	{S_SANDWURM_CHASEPLAYR,    ticrate_base,    S_SANDWURM_FIGHT,     M_ChasePlayr}, // S_SANDWURM_CHASEPLAYR
 	{S_SANDWURM_FIGHT,         ticrate_base,    S_SANDWURM_WANDER,    M_FightThink}, // S_SANDWURM_FIGHT
@@ -113,7 +113,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_SANDWURM_DEAD,          ticrate_base,    S_SANDWURM_NULL,      M_DeadThink}, // S_SANDWURM_DEAD
 	{S_MERC_NULL,              0,               S_MERC_SPAWN,         NULL}, // S_MERC_NULL
 	{S_MERC_SPAWN,             5,               S_MERC_WANDER,        M_SpawnThink}, // S_MERC_SPAWN
-	{S_MERC_WANDER,            ticrate_base,    S_MERC_IDLE,          M_WanderThink}, // S_MERC_WANDER
+//	{S_MERC_WANDER,            ticrate_base,    S_MERC_IDLE,          M_WanderThink}, // S_MERC_WANDER
 	{S_MERC_IDLE,              ticrate_base,    S_MERC_WANDER,        M_IdleThink}, // S_MERC_IDLE
 	{S_MERC_CHASEPLAYR,        ticrate_base,    S_MERC_FIGHT,         M_ChasePlayr}, // S_MERC_CHASEPLAYR
 	{S_MERC_FIGHT,             ticrate_base,    S_MERC_WANDER,        M_FightThink}, // S_MERC_FIGHT
@@ -121,7 +121,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_MERC_DEAD,              ticrate_base,    S_MERC_NULL,          M_DeadThink}, // S_MERC_DEAD
 	{S_MERC_LEADER_NULL,       0,               S_MERC_LEADER_SPAWN,  NULL}, // S_MERC_LEADER_NULL
 	{S_MERC_LEADER_SPAWN,      5,               S_MERC_LEADER_WANDER, M_SpawnThink}, // S_MERC_LEADER_SPAWN
-	{S_MERC_LEADER_WANDER,     ticrate_base,    S_MERC_LEADER_IDLE,   M_WanderThink}, // S_MERC_LEADER_WANDER
+//	{S_MERC_LEADER_WANDER,     ticrate_base,    S_MERC_LEADER_IDLE,   M_WanderThink}, // S_MERC_LEADER_WANDER
 	{S_MERC_LEADER_IDLE,       ticrate_base,    S_MERC_LEADER_WANDER, M_IdleThink}, // S_MERC_LEADER_IDLE
 	{S_MERC_LEADER_CHASEPLAYR, ticrate_base,    S_MERC_LEADER_FIGHT,  M_ChasePlayr}, // S_MERC_LEADER_CHASEPLAYR
 	{S_MERC_LEADER_FIGHT,      ticrate_base,    S_MERC_LEADER_WANDER, M_FightThink}, // S_MERC_LEADER_FIGHT
@@ -129,7 +129,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_MERC_LEADER_DEAD,       ticrate_base,    S_MERC_LEADER_NULL,   M_DeadThink}, // S_MERC_LEADER_DEAD
 	{S_PISTOL_NULL,            0,               S_PISTOL_SPAWN,       NULL}, // S_PISTOL_NULL
 	{S_PISTOL_SPAWN,           5,               S_PISTOL_WANDER,      M_SpawnThink}, // S_PISTOL_SPAWN
-	{S_PISTOL_WANDER,          ticrate_base,    S_PISTOL_IDLE,        M_WanderThink}, // S_PISTOL_WANDER
+//	{S_PISTOL_WANDER,          ticrate_base,    S_PISTOL_IDLE,        M_WanderThink}, // S_PISTOL_WANDER
 	{S_PISTOL_IDLE,            ticrate_base,    S_PISTOL_WANDER,      M_IdleThink}, // S_PISTOL_IDLE
 	{S_PISTOL_CHASEPLAYR,      ticrate_base,    S_PISTOL_FIGHT,       M_ChasePlayr}, // S_PISTOL_CHASEPLAYR
 	{S_PISTOL_FIGHT,           ticrate_base,    S_PISTOL_WANDER,      M_FightThink}, // S_PISTOL_FIGHT
@@ -137,7 +137,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PISTOL_DEAD,            ticrate_base,    S_PISTOL_NULL,        M_DeadThink}, // S_PISTOL_DEAD
 	{S_SHOTTY_NULL,            0,               S_SHOTTY_SPAWN,       NULL}, // S_SHOTTY_NULL
 	{S_SHOTTY_SPAWN,           5,               S_SHOTTY_WANDER,      M_SpawnThink}, // S_SHOTTY_SPAWN
-	{S_SHOTTY_WANDER,          ticrate_base,    S_SHOTTY_IDLE,        M_WanderThink}, // S_SHOTTY_WANDER
+//	{S_SHOTTY_WANDER,          ticrate_base,    S_SHOTTY_IDLE,        M_WanderThink}, // S_SHOTTY_WANDER
 	{S_SHOTTY_IDLE,            ticrate_base,    S_SHOTTY_WANDER,      M_IdleThink}, // S_SHOTTY_IDLE
 	{S_SHOTTY_CHASEPLAYR,      ticrate_base,    S_SHOTTY_FIGHT,       M_ChasePlayr}, // S_SHOTTY_CHASEPLAYR
 	{S_SHOTTY_FIGHT,           ticrate_base,    S_SHOTTY_WANDER,      M_FightThink}, // S_SHOTTY_FIGHT
@@ -145,7 +145,7 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_SHOTTY_DEAD,            ticrate_base,    S_SHOTTY_NULL,        M_DeadThink}, // S_SHOTTY_DEAD
 	{S_GUNNER_NULL,            0,               S_GUNNER_SPAWN,       NULL}, // S_GUNNER_NULL
 	{S_GUNNER_SPAWN,           5,               S_GUNNER_WANDER,      M_SpawnThink}, // S_GUNNER_SPAWN
-	{S_GUNNER_WANDER,          ticrate_base,    S_GUNNER_IDLE,        M_WanderThink}, // S_GUNNER_WANDER
+//	{S_GUNNER_WANDER,          ticrate_base,    S_GUNNER_IDLE,        M_WanderThink}, // S_GUNNER_WANDER
 	{S_GUNNER_IDLE,            ticrate_base,    S_GUNNER_WANDER,      M_IdleThink}, // S_GUNNER_IDLE
 	{S_GUNNER_CHASEPLAYR,      ticrate_base,    S_GUNNER_FIGHT,       M_ChasePlayr}, // S_GUNNER_CHASEPLAYR
 	{S_GUNNER_FIGHT,           ticrate_base,    S_GUNNER_WANDER,      M_FightThink}, // S_GUNNER_FIGHT

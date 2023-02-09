@@ -216,7 +216,12 @@ static inline void* N_Looper(void* arg)
 	assert(!arg && game);
 #endif
 	pthread_mutex_lock(&game->npc_mutex);
-	
+	for (auto* const i : game->b_Active) {
+		--i->nticker;
+		if (i->nticker <= -1) {
+			i->nticker = ticrate_base;
+		}
+	}
 	pthread_mutex_unlock(&game->npc_mutex);
 	return NULL;
 }
@@ -225,6 +230,7 @@ static void M_DoThink(Mob* const mob)
 {
 	--mob->mticker;
 	M_ThinkerCurrent(mob);
+	M_WanderThink();
 	
 	// current state has run out of tics, so switch the state, DO NOT, HOWEVER, RUN THE ACTION
 	if (mob->mticker <= -1) {
@@ -236,7 +242,7 @@ static void M_DoThink(Mob* const mob)
 		mob->mticker = mob->mstate.numticks;
 	}
 	else {
-		(*mob->mstate.actionf)();
+//		(*mob->mstate.actionf)();
 	}
 }
 

@@ -189,13 +189,13 @@ static void levelLoop(void)
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
-		pthread_create(&game->wthread, NULL, W_Loop, NULL);
+//		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		char c;
 		if ((c = kb_hit()) != -1)
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
-		pthread_join(game->wthread, NULL);
+//		pthread_join(game->wthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);

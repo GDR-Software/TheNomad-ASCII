@@ -99,10 +99,10 @@ void T_Interact()
 
 void B_GenNomadTribe()
 {
-	if (ARRAY_SIZE(tribes) == MAX_TRIBES_ACTIVE) return;
+//	if (ARRAY_SIZE(tribes) == MAX_TRIBES_ACTIVE) return;
 	nomadushort_t i;
-	Mob** m_Active = game->m_Active;
-//	NPC** b_Active = game->b_Active;
+	std::vector<Mob*>& m_Active = game->m_Active;
+//	std::vector<NPC*>& b_Active = game->b_Active;
 	tribes = (Tribe **)Z_Realloc(&tribes, ARRAY_SIZE(tribes) + sizeof(Tribe*), TAG_STATIC);
 	++numtribes;
 	tribes[numtribes] = (Tribe *)Z_Malloc(sizeof(Tribe), TAG_STATIC, &tribes[numtribes]);
@@ -153,6 +153,9 @@ void B_GenNomadTribe()
 	}*/
 	for (i = 0; i < tribe->numwarriors; ++i) {
 		Mob* mob = M_SpawnMob();
+		if (!mob) {
+			break;
+		}
 		warriors[i] = (nomad_t *)Z_Malloc(sizeof(nomad_t), TAG_STATIC, &warriors[i]);
 		nomad_t* n = warriors[i];
 		n->mob = mobinfo[MT_NOMAD_WARRIOR];

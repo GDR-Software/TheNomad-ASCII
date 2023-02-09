@@ -77,8 +77,8 @@ public:
 	nomadenum_t difficulty;
 	Playr* playr;
 	World* world;
-	Mob* m_Active[MAX_MOBS_ACTIVE];
-	NPC* b_Active[MAX_MOBS_ACTIVE];
+	std::vector<Mob*> m_Active;
+	std::vector<NPC*> b_Active;
 public: // map stuff
 	sndlvl_t sndmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	smelllvl_t smellmap[MAP_MAX_Y+160][MAP_MAX_X+160];

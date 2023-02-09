@@ -144,6 +144,7 @@ static inline void TUI_Init(Game* const game)
 	noecho();
 	curs_set(0);
 	game->screen = newwin(34, 129, 0, 0);
+	stdscr = game->screen;
 #ifdef _NOMAD_DEBUG
 	assert(game->screen);
 	LOG("game->screen allocated successfully");

@@ -82,7 +82,7 @@ public:
 	nomaduint_t nticker;
 	std::atomic<nomadint_t> health;
 	std::atomic<nomadushort_t> armor;
-	nomaduint_t index = 0;
+	nomadbool_t alive = false;
 public:
 	NPC() = default;
 	~NPC() = delete;

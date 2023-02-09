@@ -37,13 +37,11 @@ static NPC* B_SpawnBot(void)
 	if ((index = G_GetFreeBot(game)) == MAX_NPC_ACTIVE) {
 		return nullptr;
 	}
-	NPC* n = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &n);
-	NPC* npc = n;
-	npc->index = index;
-	game->b_Active[index] = npc;
-	return n;
+	game->b_Active[index]->alive = true;
+	return game->b_Active[index];
 }
 
+// should only get triggered once, and only ever during the initialize phase
 __CFUNC__ void B_SpawnShopBots(void)
 {
 #ifdef _NOMAD_DEBUG
@@ -112,13 +110,19 @@ void Game::I_InitNPCs(void)
 	assert(!game);
 #endif
 	game = this;
+	b_Active.reserve(MAX_NPC_ACTIVE);
+	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
+		b_Active.emplace_back();
+		b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
+		b_Active.back()->alive = false;
+	}
 #ifdef _NOMAD_DEBUG
-	LOG("reserving %li NPC for b_Active", npcinfo.size()+INITIAL_NPC_ACTIVE);
+	LOG("reserving %li NPC for b_Active", npcinfo.size()+MAX_NPC_ACTIVE);
 #endif
 	NomadAssigner(this);
 	MissionAssigner(this);
 	B_SpawnShopBots();
-	B_GenNomadTribe();
+//	B_GenNomadTribe();
 }
 
 static nomadbool_t B_IsScared(NPC* const npc)
@@ -168,7 +172,7 @@ void B_KillBot(NPC* const npc)
 #ifdef _NOMAD_DEBUG
 	assert(npc);
 #endif
-	Z_Free(npc);
+	npc->alive = false;
 }
 
 void B_WeaponSmithInteract()

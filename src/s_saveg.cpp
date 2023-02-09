@@ -22,7 +22,7 @@
 #include <dirent.h>
 #include <limits.h>
 
-#define BUFFER_SIZE 4*1024
+#define BUFFER_SIZE 512
 
 static FILE* fp;
 static constexpr auto svdir = "Files/gamedata/SVFILES/";
@@ -104,9 +104,9 @@ void WriteChunk(ngd_chunk_t& chunk, const T& buffer)
 {
 	memset(&chunk.buffer, '\0', BUFFER_SIZE);
 	memcpy(&chunk.buffer, &buffer, sizeof(T));
-	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
-		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
-	}
+//	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
+//		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
+//	}
 	fwrite(&chunk, sizeof(ngd_chunk_t), 1, fp);
 }
 
@@ -114,9 +114,9 @@ template<typename T>
 void ReadChunk(ngd_chunk_t& chunk, T& buffer)
 {
 	fread(&chunk.buffer, sizeof(char), BUFFER_SIZE, fp);
-	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
-		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
-	}
+//	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
+//		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
+//	}
 	memcpy(&buffer, &chunk.buffer, sizeof(T));
 }
 
@@ -128,8 +128,8 @@ void Game::G_SaveGame(void)
 	
 	ngd_file_t svfile;
 	ngd_header_t& header = svfile.header;
-	header.nummobs = ARRAY_SIZE(m_Active);
-	header.numnpcs = ARRAY_SIZE(b_Active);
+	header.nummobs = m_Active.size();
+	header.numnpcs = b_Active.size();
 	header.numchunks = header.nummobs + header.numnpcs + 2;
 	memset(&header.svname, '\0', sizeof(header.svname));
 	strncpy(header.svname, "nomadascii_svfile", sizeof(header.svname) - 1);
@@ -148,7 +148,7 @@ void Game::G_SaveGame(void)
 	WriteChunk(wchunk, *world);
 	
 	// mob data
-	for (nomaduint_t i = 0; i < ARRAY_SIZE(m_Active); ++i) {
+	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		ngd_chunk_t& mchunk = chunks[chunks_written];
 		mchunk.chunktype = NGD_CHUNK_MOB;
 		WriteChunk(mchunk, *m_Active[i]);
@@ -156,7 +156,7 @@ void Game::G_SaveGame(void)
 	}
 	
 	// npc data
-	for (nomaduint_t i = 0; i < ARRAY_SIZE(b_Active); ++i) {
+	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
 		ngd_chunk_t& nchunk = chunks[chunks_written];
 		nchunk.chunktype = NGD_CHUNK_NPC;
 		WriteChunk(nchunk, *b_Active[i]);
@@ -182,49 +182,25 @@ bool Game::G_LoadGame(const char* svfile)
 		N_Error("save file numnpcs is greater than maxmium allowed npcs, from a different version?");
 	
 	// free not-needed/unnecessary non-player entity memory, and allocate if needed
-	if (sv.header.nummobs < MAX_MOBS_ACTIVE) {
-		nomaduint_t moffset = ARRAY_SIZE(m_Active) - sv.header.nummobs;
-		while (moffset != MAX_MOBS_ACTIVE) {
-			if (m_Active[moffset])
-				Z_Free(m_Active[moffset]);
-			m_Active[moffset] = nullptr;
-			++moffset;
-		}
+	for (auto* const i : m_Active) {
+		i->alive = false;
 	}
-	else if (sv.header.nummobs > G_GetNumMobs(this)) {
-		nomaduint_t c_mob = G_GetNumMobs(this);
-		nomaduint_t count, i;
-		count = 0;
-		i = 0;
-		while (count < sv.header.nummobs) {
-			if (!m_Active[i]) {
-				m_Active[i] = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active[i]);
-				++count;
-			}
-			++i;
-		}
+	for (auto* const i : b_Active) {
+		i->alive = false;
 	}
-	if (sv.header.numnpcs < MAX_NPC_ACTIVE) {
-		nomaduint_t noffset = ARRAY_SIZE(b_Active) - sv.header.numnpcs;
-		while (noffset != MAX_NPC_ACTIVE) {
-			if (b_Active[noffset])
-				Z_Free(b_Active[noffset]);
-			b_Active[noffset] = nullptr;
-			++noffset;
-		}
+	nomaduint_t nummobs, numnpcs;
+	nummobs = numnpcs = 0;
+	nomadbool_t menough = false;
+	nomadbool_t nenough = false;
+	while (!menough) {
+		menough = G_GetNumMobs(this) == sv.header.nummobs;
+		m_Active[nummobs]->alive = true;
+		++nummobs;
 	}
-	else if (sv.header.numnpcs > G_GetNumBots(this)) {
-		nomaduint_t c_mob = G_GetNumBots(this);
-		nomaduint_t count, i;
-		count = 0;
-		i = 0;
-		while (count < sv.header.numnpcs) {
-			if (!b_Active[i]) {
-				b_Active[i] = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active[i]);
-				++count;
-			}
-			++i;
-		}
+	while (!nenough) {
+		nenough = G_GetNumBots(this) == sv.header.numnpcs;
+		b_Active[numnpcs]->alive = true;
+		++numnpcs;
 	}
 	ngd_chunk_t* chunks = (ngd_chunk_t *)malloc(sizeof(ngd_chunk_t) * sv.header.numchunks);
 	nomaduint_t mcount, ncount;
