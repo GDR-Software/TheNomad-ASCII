@@ -1,7 +1,6 @@
 #include "g_game.h"
 #define BFF_IMPLEMENTATION
 #include "g_loadbff.h"
-#define DL_ERROR() dlerror()
 
 static void *bffhandle;
 
@@ -24,8 +23,8 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	typedef unsigned char (*filetype)(bff_file_t*);
 	typedef bff_file_t*(*init_file)(const char*);
 	bffhandle = dlopen("./libbffproject.so.0.1", RTLD_NOW | RTLD_LOCAL);
-	if (!bffhandle)
-		N_Error("Could not load libbffproject.so.0.1 into memory! system error: %s", DL_ERROR());
+	NOMAD_ASSERT(bffhandle,
+		"Could not load libbffproject.so.0.1 into memory! system error: %s", dlerror());
 	init_file init;
 	LOAD(init, "BFF_InitFile");
 	bff_func parse;
@@ -36,8 +35,8 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	LOAD(kill, "BFF_Free");
 	LOAD(getfiletype, "BFF_GetFileType");
 	unsigned char bfftype = (unsigned char)(*getfiletype)(file);
-	if (bfftype == BFF_COMPILE)
-		N_Error(".bffc (compiled bff's) aren't yet compatible with The Nomad-ASCII");
+	NOMAD_ASSERT(bfftype != BFF_COMPILE,
+		".bffc (compiled bff's) aren't yet compatible with The Nomad-ASCII");
 	(*parse)(file);
 	FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
 	/*
@@ -45,14 +44,11 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	185
 	234
 	*/
-	if (!fp)
-		N_Error("Could Not Create RUNTIME/mapfile.txt!");
-#ifdef _NOMAD_DEBUG
+	NOMAD_ASSERT(fp, "Could not create RUNTIME/mapfile.txt!");
 	assert(fp);
-	LOG("Successfully created RUNTIME/mapfile.txt");
-#endif
-    nomadshort_t y{}, x{};
-    for (y = 0; y < 80; ++y) {
+	DBG_LOG("Successfully created RUNTIME/mapfile.txt");
+	nomadshort_t y{}, x{};
+	for (y = 0; y < 80; ++y) {
 		for (x = 0; x < MAP_MAX_X; ++x) {
 			fprintf(fp, "#");
 		}
