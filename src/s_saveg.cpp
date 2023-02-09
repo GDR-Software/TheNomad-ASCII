@@ -110,8 +110,9 @@ void Game::G_SaveGame(void)
 	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
 	fwrite(&playr->pstate, sizeof(playr->pstate), 1, fp);
 	fwrite(&playr->pticker, sizeof(playr->pticker), 1, fp);
+	fwrite(&playr->P_wpns, sizeof(Weapon), MAX_PLAYR_WPNS, fp);
+	fwrite(&playr->inv, sizeof(Item), MAX_PLAYR_ITEMS, fp);
 	
-	num_t mobend = (num_t)MOB_MARK;
 	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
 		Mob* const mob = m_Active[i];
 		fwrite(&mark, sizeof(num_t), 1, fp);
@@ -126,8 +127,6 @@ void Game::G_SaveGame(void)
 		fwrite(&mob->c_mob.sprite, sizeof(mob->sprite), 1, fp);
 		fwrite(&mob->alive, sizeof(mob->alive), 1, fp);
 	}
-	fwrite(&mobend, sizeof(num_t), 1, fp);
-	num_t botend = (num_t)MOB_MARK;
 	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
 		NPC* const npc = b_Active[i];
 		fwrite(&npc->health, sizeof(npc->health), 1, fp);
