@@ -74,6 +74,7 @@ public:
 	nomadenum_t gamescreen;
 	char bffname[256];
 	char scfname[256];
+	char svfile[256];
 	nomadenum_t difficulty;
 	Playr* playr;
 	World* world;
