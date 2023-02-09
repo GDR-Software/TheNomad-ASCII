@@ -209,12 +209,9 @@ static void levelLoop(void)
 static void settingsLoop(void)
 {
 	std::ifstream file("Files/gamedata/GS/settingsmenu.txt", std::ios::in);
-	if (file.fail())
-		N_Error("Failed to load settingsmenu resource!");
-#ifdef _NOMAD_DEBUG
+	NOMAD_ASSERT(!file.fail(), ("Failed to load settingsmenu resource!"));
 	assert(!file.fail());
-	LOG("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
-#endif
+	DBG_LOG("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
 	std::vector<std::string> filebuf;
 	std::string line;
 	while (std::getline(file, line)) { filebuf.push_back(line); };
