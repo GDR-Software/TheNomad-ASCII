@@ -67,8 +67,8 @@ public:
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
 	Mission* c_mission = nullptr;
 public:
-	Playr() = default;
-	~Playr() = delete;
+	Playr(){}
+	~Playr(){}
 	Playr& operator=(const Playr& playr) {
 		memcpy(&(*this), &playr, sizeof(Playr));
 		return *this;

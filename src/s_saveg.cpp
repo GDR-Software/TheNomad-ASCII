@@ -104,9 +104,6 @@ void WriteChunk(ngd_chunk_t& chunk, const T& buffer)
 {
 	memset(&chunk.buffer, '\0', BUFFER_SIZE);
 	memcpy(&chunk.buffer, &buffer, sizeof(T));
-//	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
-//		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
-//	}
 	fwrite(&chunk, sizeof(ngd_chunk_t), 1, fp);
 }
 
@@ -114,15 +111,26 @@ template<typename T>
 void ReadChunk(ngd_chunk_t& chunk, T& buffer)
 {
 	fread(&chunk.buffer, sizeof(char), BUFFER_SIZE, fp);
-//	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
-//		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
-//	}
 	memcpy(&buffer, &chunk.buffer, sizeof(T));
 }
 
 void Game::G_SaveGame(void)
 {
-	char svname[256];
+
+	const char* svname = "nomadsv.ngd";
+	std::ofstream file(svname, std::ios::out | std::ios::binary);
+	num_t header = (num_t)HEADER;
+	file.write((const char*)&header, sizeof(num_t));
+	file.write((const char*)&(*playr), sizeof(Playr));
+	file.write((const char*)&(*world), sizeof(World));
+	for (const auto* i : m_Active) {
+		file.write((const char*)&(*i), sizeof(Mob));
+	}
+	for (const auto* i : b_Active) {
+		file.write((const char*)&(*i), sizeof(NPC));
+	}
+	file.close();
+#if 0
 	snprintf(svname, sizeof(svname), "Files/gamedata/SVFILES/nomadsv.ngd");
 	fp = fopen(svname, "wb");
 	
@@ -164,12 +172,30 @@ void Game::G_SaveGame(void)
 	}
 	free(chunks);
 	fclose(fp);
+#endif
 }
 
 
 
 bool Game::G_LoadGame(const char* svfile)
 {
+	std::ifstream file(svfile, std::ios::in | std::ios::binary);
+	num_t header;
+	file.read((char *)&header, sizeof(num_t));
+	if (header != HEADER) {
+		N_Error(".ngd file header is incorrect!");
+	}
+	file.read((char *)&(*playr), sizeof(Playr));
+	file.read((char *)&(*world), sizeof(World));
+	for (auto* i : m_Active) {
+		file.read((char *)&(*i), sizeof(Mob));
+	}
+	for (auto* i : b_Active) {
+		file.read((char *)&(*i), sizeof(NPC));
+	}
+	file.close();
+	return true;
+#if 0
 	fp = fopen(svfile, "rb");
 	if (!fp) N_Error("could not load save file!");
 	ngd_file_t sv;
@@ -229,6 +255,7 @@ bool Game::G_LoadGame(const char* svfile)
 	fclose(fp);
 	Z_CheckHeap();
 	return true;
+#endif
 }
 
 /*

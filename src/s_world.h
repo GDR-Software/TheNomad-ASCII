@@ -38,8 +38,8 @@ public:
     nomadbool_t day; // whether its daytime or not
     nomadint_t temperature; // the average temperature of the world
 public:
-    World() = default;
-    ~World() = delete;
+    World(){}
+    ~World(){}
     World& operator=(const World& world) {
     	memcpy(&(*this), &world, sizeof(World));
     	return *this;

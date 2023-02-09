@@ -112,8 +112,8 @@ public:
 	nomadshort_t stepcounter;
 	nomadbool_t alive = false; // if false, then the memory can be overwritten with a new mob, if true, then the memory is safe
 public:
-	Mob() = default;
-	~Mob() = delete;
+	Mob(){}
+	~Mob(){}
 	Mob& operator=(const Mob &mob) {
 		memcpy(&(*this), &mob, sizeof(Mob));
 		return *this;

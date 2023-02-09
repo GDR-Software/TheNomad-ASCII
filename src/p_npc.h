@@ -84,8 +84,8 @@ public:
 	std::atomic<nomadushort_t> armor;
 	nomadbool_t alive = false;
 public:
-	NPC() = default;
-	~NPC() = delete;
+	NPC(){}
+	~NPC(){}
 	NPC& operator=(const NPC& npc) {
 		memcpy(&(*this), &npc, sizeof(NPC));
 		return *this;

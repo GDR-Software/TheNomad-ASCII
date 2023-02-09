@@ -145,7 +145,7 @@ void mainLoop(int argc, char* argv[])
 							game->gamescreen = MENU_SETTINGS;
 							break;
 						case 3:
-							game->G_LoadGame("Files/gamedata/SVFILES/nomadsv.ngd");
+							game->G_LoadGame("nomadsv.ngd");
 							break;
 						case 4:
 							game->G_SaveGame();
