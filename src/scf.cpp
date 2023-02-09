@@ -235,49 +235,23 @@ namespace scf {
     void G_LoadSCF(const char* filepath)
     {
         puts("G_LoadSCF(): Loading SACE Configuration File...");
-        if (!strstr(filepath, ".scf"))
-            N_Error("SACE Configuration File (scf) isn't correct format! (must be suffixed with .scf)");
-#ifdef _NOMAD_DEBUG
-        LOG("Attempting to stat() .scf file");
-#endif
-#ifdef UNIX_NOMAD
+       	NOMAD_ASSERT(strstr(filepath, ".scf"),
+		"SACE Configuration File (scf) isn't correct format! (must be suffixed with .scf)");
+        DBG_LOG("Attempting to stat() .scf file");
         struct stat fdata;
-        if (stat(filepath, &fdata) == -1)
-            N_Error("Failed to get data from .scf file!");
-#ifdef _NOMAD_DEBUG
-        LOG("Successful stat() of .scf file");
-#endif
+        NOMAD_ASSERT(stat(filepath, &fdata) != -1, "Failed to get data from .scf file!");
+	DBG_LOG("Successful stat() of .scf file");
         FILE* fp = fopen(filepath, "r");
-        if (!fp)
-            N_Error("Failed to open .scf file!");
-#ifdef _NOMAD_DEBUG
+        NOMAD_ASSERT(fp, "Failed to open .scf file!");
         assert(fp);
-        LOG("Successful fopen() of .scf file");
-#endif
+        DBG_LOG("Successful fopen() of .scf file");
         const char* buffer = (char *)mmap(NULL, fdata.st_size, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
-        if (!buffer)
-            N_Error("Failed to read data from .scf file!");
-#elif defined(WIN32_NOMAD)
-        OFSTRUCT fdata;
-        HFILE fhandle = OpenFile(filepath, &fdata, OF_READ);
-        if (fhandle == HFILE_ERROR)
-            N_Error("Failed to open .scf file! win32 error: %s", GetLastError());
-        char* buffer = (char *)CreateFileMappingA(&fhandle, NULL, PAGE_READONLY, 2*1024, 1024/2, filepath);
-        if (!buffer)
-            N_Error("Failed to read data from .scf file! win32 error: %s", GetLastError());
-#endif
-#ifdef _NOMAD_DEBUG
+	NOMAD_ASSERT(buffer, "Failed to read data from .scf file!");
         assert(buffer);
-        LOG("Successful read of .scf file");
-#endif
+        DBG_LOG("Successful read of .scf file");
         Lexer lex(buffer);
-#ifdef UNIX_NOMAD
         munmap(&buffer, fdata.st_size);
         fclose(fp);
-#elif defined(WIN32_NOMAD)
-        UnmapViewOfFile(&buffer);
-        CloseHandle(&fhandle);
-#endif
         for (auto tok = lex.next(); !tok.is(Token::Kind::End); tok = lex.next()) {
             switch (tok.kind()) {
             case Token::Kind::Unexpected:
