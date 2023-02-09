@@ -99,8 +99,124 @@ static uint32_t countfiles(const char *path) {
 
 #define MAGIC_XOR 300
 
+auto wrByte(uint8_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	putc(out, fp);
+}
+auto wrByte(int8_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	putc(out, fp);
+}
+auto wrByte(uint16_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	fwrite(&out, sizeof(uint16_t), 1, fp);
+}
+auto wrByte(int16_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	fwrite(&out, sizeof(int16_t), 1, fp);
+}
+auto wrByte(uint32_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	fwrite(&iout, sizeof(uint32_t), 1, fp);
+}
+auto wrByte(int32_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	fwrite(&out, sizeof(int32_t), 1, fp);
+}
+auto wrByte(uint64_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	fwrite(&out, sizeof(uint64_t), 1, fp);
+}
+auto wrByte(int64_t out) -> void {
+	out = out ^ MAGIC_XOR;
+	fwrite(&out, sizeof(int64_t), 1, fp);
+}
+template<typename T>
+auto wrByte(std::atomic<T>& out) -> void {
+	T val = out.load();
+	val = val ^ MAGIC_XOR;
+	fwrite(&val, sizeof(T), 1, fp);
+}
+auto wrString(char* out) -> void {
+	char str[256];
+	memset(&str, '\0', sizeof(str));
+	strncpy(str, out, strlen(out));
+	char *it = str;
+	while (*it != '\0') {
+		*it = *it ^ MAGIC_XOR;
+		++it;
+	}
+	fwrite(&str, sizeof(char), sizeof(str), fp);
+}
+
+auto rdByte(uint8_t* in) -> void {
+	uint8_t val;
+	fread(&val, sizeof(uint8_t), 1, fp);
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(int8_t* in) -> void {
+	int8_t val;
+	fread(&val, sizeof(int8_t), 1, fp);
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(uint16_t* in) -> void {
+	uint16_t val;
+	fread(&val, sizeof(uint16_t), 1, fp):
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(int16_t* in) -> void {
+	int16_t val;
+	fread(&val, sizeof(int16_t), 1, fp);
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(uint32_t* in) -> void {
+	uint32_t val;
+	fread(&val, sizeof(uint32_t), 1, fp):
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(int32_t* in) -> void {
+	int32_t val;
+	fread(&val, sizeof(int32_t), 1, fp);
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(uint64_t* in) -> void {
+	uint64_t val;
+	fread(&val, sizeof(uint64_t), 1, fp):
+	*in = val ^ MAGIC_XOR;
+}
+auto rdByte(int64_t* in) -> void {
+	int64_t val;
+	fread(&val, sizeof(int64_t), 1, fp);
+	*in = val ^ MAGIC_XOR;
+}
+template<typename T>
+auto rdByte(std::atomic<T>& in) -> void {
+	T val;
+	fread(&val, sizeof(T), 1, fp);
+	val = val ^ MAGIC_XOR;
+	in.store(val);
+}
+auto rdString(char* in) -> void  {
+	char str[256];
+	memset(&str, '\0', sizeof(str));
+	fread(&str, sizeof(char), sizeof(str), fp);
+	strncpy(in, str, sizeof(str));
+	char *it = in;
+	while (*it != '\0') {
+		*it = *it ^ MAGIC_XOR;
+		it++;
+	}
+}
+auto rdArray(void* ptr, int nelem, int elemsize) -> void {
+	
+}
+
 static void G_ArchivePlayr(const Playr* playr)
 {
+	wrString((char *)&playr->name);
+	wrByte(playr->health);
+	wrByte(playr->armor);
+	wrByte(playr->pstate);
 	fwrite((const char*)&playr->name, sizeof(char), 256, fp);
 	fwrite(&playr->health, sizeof(playr->health), 1, fp);
 	fwrite(&playr->armor, sizeof(playr->armor), 1, fp);
