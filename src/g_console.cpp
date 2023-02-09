@@ -3,12 +3,20 @@
 #include "scf.h"
 
 constexpr const char* commands[] = {
-	"=", // binding a cvar
 	"listcmds",
 	"listcvars",
 	"quit",
 	"crash",
-	"exit"
+	"exit",
+	"iamacheater", // enables cheat codes
+	"iamnotacheater", // disables cheat codes
+	"listcheats", // lists all cheat codes
+	"wimpmode", // turns on all cheat codes, the alternative was "iamapussy", but that's a wee bit, well...
+	"bravemode", // will only ever do anything if wimpmode is == "1", turns off all cheat codes
+	"killmobs", // kills all mobs, doesn't disable them, sorta a memory wipe
+	"killbots", // does the same as killmobs but for npcs/bots
+	"bind",
+	"set",
 };
 
 cvar_t cvars[] = {
@@ -30,4 +38,7 @@ cvar_t cvars[] = {
 	{"b_kbStrafe_r",   "d",                              false, (void*)&scf::kb_binds[kbStrafe_r].button},
 	{"b_Dash_n",       "@",                              false, (void*)&scf::kb_binds[kbDash_n].button},
 	{"b_Dash_w",       "!",                              false, (void*)&scf::kb_binds[kbDash_w].button},
+	{"b_Dash_s",       "#",                              false, (void*)&scf::kb_binds[kbDash_s].button},
+	{"b_Dash_e",       "$",                              false, (void*)&scf::kb_binds[kbDash_e].button},
+	{"b_UseWeapon",    "ctrl-v",                         false, (void*)&scf::kb_binds[kbUseWpn].button},
 };
