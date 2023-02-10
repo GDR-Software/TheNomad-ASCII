@@ -129,77 +129,11 @@ class Game;
 #if !defined(NDEBUG) && !defined(RELEASE)
 #include <assert.h>
 #define _NOMAD_DEBUG
-#ifndef __LOGGER__
-#define __LOGGER__
-
-#ifndef LOGGER_OUTFILE
-#define LOGGER_OUTFILE stdout
 #endif
 
-#define LOG_DEBUG(fmt,...)                              \
-{                                                       \
-	fprintf(LOGGER_OUTFILE, "[DEBUG](%s): ", __func__); \
-	fprintf(LOGGER_OUTFILE, fmt, ##__VA_ARGS__);        \
-	fprintf(LOGGER_OUTFILE, "\n");                      \
-}
-#define LOG_INFO(fmt,...)                              \
-{                                                      \
-	fprintf(LOGGER_OUTFILE, "[INFO](%s): ", __func__); \
-	fprintf(LOGGER_OUTFILE, fmt, ##__VA_ARGS__);       \
-	fprintf(LOGGER_OUTFILE, "\n");                     \
-}
-#define LOG_WARN(fmt,...)                                \
-{                                                        \
-	fprintf(LOGGER_OUTFILE, "WARNING (%s): ", __func__); \
-	fprintf(LOGGER_OUTFILE, fmt, ##__VA_ARGS__);         \
-	fprintf(LOGGER_OUTFILE, "\n");                       \
-}
-#define LOG_ERROR(fmt,...)                             \
-{                                                      \
-	fprintf(LOGGER_OUTFILE, "ERROR (%s): ", __func__); \
-	fprintf(LOGGER_OUTFILE, fmt, ##__VA_ARGS__);       \
-	fprintf(LOGGER_OUTFILE, "\n");                     \
-	exit(EXIT_FAILURE);                                \
-}
-
-#define LOG_TRACE_VAR(var) LOG_DEBUG(#var " = %s (%s:%d)", std::to_string(var).c_str(), __FILE__, __LINE__)
-#define LOG_PROFILE() Profiler profile(__func__)
-
-
-
-// the following below is for internal use, don't use yourself
-#define LOG_PROFILE_BEGIN(func) fprintf(LOGGER_OUTFILE, "[PROFILER](start) -> %s\n", func)
-#define LOG_PROFILE_END(func,time) fprintf(LOGGER_OUTFILE, "[PROFILER](end) -> %s, time: %f\n", func, time)
-class Profiler
-{
-private:
-	const char* function;
-	clock_t timer;
-public:
-	Profiler(const char* func) : function(func) { timer = clock(); LOG_PROFILE_BEGIN(); }
-	~Profiler() {
-		clock_t end = clock();
-		float time = (end - timer)/(float)CLOCKS_PER_SEC;
-		LOG_PROFILE_END(function,time);
-	}
-};
-
-#endif
-#endif
-
-#ifdef _NOMAD_DEBUG
 extern FILE* dbg_file;
-#define DBG_LOG(...)                       \
-{                                          \
-	fprintf(dbg_file, "%s(): ", __func__); \
-	fprintf(dbg_file, __VA_ARGS__);        \
-	fputc('\n', dbg_file);                 \
-}
-#else
-#define assert(x)
-#define DBG_LOG(...)
-#endif
-#define NOMAD_ASSERT(x, ...) if (!(x)) N_Error(__VA_ARGS__)
+#define LOGGER_OUTFILE dbg_file 
+#include "n_debug.h"
 
 #define byte unsigned char
 
