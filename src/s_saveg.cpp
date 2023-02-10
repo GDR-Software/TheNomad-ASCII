@@ -19,14 +19,10 @@
 //  src/s_saveg.cpp
 //----------------------------------------------------------
 #include "g_game.h"
-#include <dirent.h>
-#include <limits.h>
+
 #undef byte
-#include "single_include/nlohmann/json.hpp"
+#include "nlohmann/json.hpp"
 
-#define BUFFER_SIZE 1024
-
-static FILE* fp;
 static constexpr auto svdir = "Files/gamedata/SVFILES/";
 
 enum : int8_t
