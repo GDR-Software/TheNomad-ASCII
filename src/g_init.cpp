@@ -172,21 +172,21 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 	assert(myargv.size() > 0);
 	puts("I_ProcessArgs(): Parsing Command-Line Arguments...");
 	for (nomaduint_t i = 1; i < myargv.size(); ++i) {
-		if (strstr(myargv[i], "-fastmobs") != NULL) {
-			if (strchr(myargv[i], '1') != NULL) {
+		if (strstr(myargv[i], "-fastmobs")) {
+			if (strchr(myargv[i], '1')) {
 				scf::launch::fastmobs1 = true;
 				puts("Fast Mobs 1: On");
 			}
-			else if (strchr(myargv[i], '2') != NULL) {
+			else if (strchr(myargv[i], '2')) {
 				scf::launch::fastmobs2 = true;
 				puts("Fast Mobs 2: On");
 			}
-			else if (strchr(myargv[i], '3') != NULL) {
+			else if (strchr(myargv[i], '3')) {
 				scf::launch::fastmobs3 = true;
 				puts("Fast Mobs 3: On");
 			}
 		}
-		else if (strcmp(myargv[i], "-bff") != NULL) {
+		else if (strcmp(myargv[i], "-bff")) {
 			scf::launch::ext_bff = true;
 			++i;
 			strncpy(gptr->bffname, myargv[i], sizeof(gptr->bffname));
@@ -194,7 +194,7 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 				fprintf(stdout, "Using non-default BFFL file: %s\n", gptr->bffname);
 			}
 		}
-		else if (strcmp(myargv[i], "-scf") != NULL) {
+		else if (strcmp(myargv[i], "-scf")) {
 			scf::launch::ext_scf = true;
 			++i;
 			strncpy(gptr->scfname, myargv[i], sizeof(gptr->scfname));
@@ -202,27 +202,31 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 				fprintf(stdout, "Using non-default SACE Configuration File: %s\n", gptr->scfname);
 			}
 		}
-		else if (strcmp(myargv[i], "-save") != NULL) {
+		else if (strcmp(myargv[i], "--debug-log-dump")) {
+			LOG_DUMP();
+			exit(1);
+		}
+		else if (strcmp(myargv[i], "-save")) {
 			++i;
 			strncpy(gptr->svfile, myargv[i+1], sizeof(gptr));
 		}
-		else if (strcmp(myargv[i], "-deafmobs") != NULL) {
+		else if (strcmp(myargv[i], "-deafmobs")) {
 			scf::launch::deafmobs = true;
 			puts("Deaf Mobs: On");
 		}
-		else if (strcmp(myargv[i], "-nosmell") != NULL) {
+		else if (strcmp(myargv[i], "-nosmell")) {
 			scf::launch::nosmell = true;
 			puts("No Smell: On");
 		}
-		else if (strcmp(myargv[i], "-nomobs") != NULL) {
+		else if (strcmp(myargv[i], "-nomobs")) {
 			scf::launch::nomobs = true;
 			puts("No Mobs: On");
 		}
-		else if (strcmp(myargv[i], "-blindmobs") != NULL) {
+		else if (strcmp(myargv[i], "-blindmobs")) {
 			scf::launch::blindmobs = true;
 			puts("Blind Mobs: On");
 		}
-		else if (strcmp(myargv[i], "-devmode") != NULL) {
+		else if (strcmp(myargv[i], "-devmode")) {
 			scf::launch::devmode = true;
 			puts("Dev Mode: On");
 		} /*
@@ -231,22 +235,22 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 		} */
 		/* now we get to the REAL cheat codes */
 		// i want to be a god
-		else if (strcmp(myargv[i], "-iwtbag") != NULL) {
+		else if (strcmp(myargv[i], "-iwtbag")) {
 			scf::launch::godmode = true;
 			puts("God Mode: On");
 		}
 		// that goddam never-ending clip
-		else if (strcmp(myargv[i], "-tgdnec") != NULL) {
+		else if (strcmp(myargv[i], "-tgdnec")) {
 			scf::launch::bottomless_clip = true;
 			puts("Bottomless Clip: On");
 		}
 		// fuck yeah! infinite ammo
-		else if (strcmp(myargv[i], "-fyia") != NULL) {
+		else if (strcmp(myargv[i], "-fyia")) {
 			scf::launch::infinite_ammo = true;
 			puts("Infinite Ammo: On");
 		}
-		else if (strcmp(myargv[i], ".bff") != NULL
-		|| strcmp(myargv[i], ".scf") != NULL) { // bff's in the param list
+		else if (strcmp(myargv[i], ".bff")
+		|| strcmp(myargv[i], ".scf")) { // bff/scf in the param list
 			continue;
 		}
 		else {
