@@ -24,71 +24,6 @@
 static Game* game;
 static Mob* actor;
 
-void M_ThinkerAssigner(Game* const gptr)
-{
-	game = gptr;
-}
-
-void M_ThinkerCurrent(Mob* const mptr)
-{
-	actor = mptr;
-}
-
-static nomadbool_t M_SeePlayr()
-{
-	coord_t pos = game->E_GetDir(actor->mdir);
-	coord_t end{};
-	switch (actor->mdir) {
-	case D_NORTH:
-		end.y = actor->mpos.y - actor->c_mob.sight_range;
-		end.x = actor->mpos.x;
-		break;
-	case D_WEST:
-		end.y = actor->mpos.y;
-		end.x = actor->mpos.x - actor->c_mob.sight_range;
-		break;
-	case D_SOUTH:
-		end.y = actor->mpos.y + actor->c_mob.sight_range;
-		end.x = actor->mpos.x;
-		break;
-	case D_EAST:
-		end.y = actor->mpos.y;
-		end.x = actor->mpos.x + actor->c_mob.sight_range;
-		break;
-	};
-	collider_t hit = G_CastRay(actor->mpos, end, game);
-	if (!hit.ptr || hit.what != ET_PLAYR)
-		return false;
-	else if (hit.what == ET_PLAYR)
-		return true;
-	return false;
-}
-
-void M_SpawnThink()
-{
-	// emulating MTG summoning sickness
-	if (actor->mticker > -1) return;
-}
-
-void M_DeadThink()
-{
-	M_SpawnThink(); // for now
-}
-
-void M_ChasePlayr()
-{
-	return;
-}
-
-void M_FightThink()
-{
-	return;
-}
-
-void M_FleeThink()
-{
-	return;
-}
 
 void M_WanderThink()
 {
@@ -119,6 +54,73 @@ void M_WanderThink()
 			break;
 		};
 	}
+}
+
+
+void M_ThinkerAssigner(Game* const gptr)
+{
+	game = gptr;
+}
+
+void M_ThinkerCurrent(Mob* const mptr)
+{
+	actor = mptr;
+}
+
+void M_SpawnThink()
+{
+	// emulating MTG summoning sickness
+	if (actor->mticker > -1) return;
+}
+
+void M_DeadThink()
+{
+	M_SpawnThink(); // for now
+}
+
+void M_ChasePlayr()
+{
+	return;
+}
+
+void M_FightThink()
+{
+	return;
+}
+
+void M_FleeThink()
+{
+	return;
+}
+
+static nomadbool_t M_SeePlayr()
+{
+	coord_t pos = game->E_GetDir(actor->mdir);
+	coord_t end{};
+	switch (actor->mdir) {
+	case D_NORTH:
+		end.y = actor->mpos.y - actor->c_mob.sight_range;
+		end.x = actor->mpos.x;
+		break;
+	case D_WEST:
+		end.y = actor->mpos.y;
+		end.x = actor->mpos.x - actor->c_mob.sight_range;
+		break;
+	case D_SOUTH:
+		end.y = actor->mpos.y + actor->c_mob.sight_range;
+		end.x = actor->mpos.x;
+		break;
+	case D_EAST:
+		end.y = actor->mpos.y;
+		end.x = actor->mpos.x + actor->c_mob.sight_range;
+		break;
+	};
+	collider_t hit = G_CastRay(actor->mpos, end, game);
+	if (!hit.ptr || hit.what != ET_PLAYR)
+		return false;
+	else if (hit.what == ET_PLAYR)
+		return true;
+	return false;
 }
 
 void M_IdleThink()

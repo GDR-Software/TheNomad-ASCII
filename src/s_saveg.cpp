@@ -21,8 +21,10 @@
 #include "g_game.h"
 #include <dirent.h>
 #include <limits.h>
+#undef byte
+#include "single_include/nlohmann/json.hpp"
 
-#define BUFFER_SIZE 4*1024
+#define BUFFER_SIZE 1024
 
 static FILE* fp;
 static constexpr auto svdir = "Files/gamedata/SVFILES/";
@@ -96,162 +98,106 @@ static uint32_t countfiles(const char *path) {
 }
 #endif
 
-
 #define MAGIC_XOR 300
 
-template<typename T>
-void WriteChunk(ngd_chunk_t& chunk, const T& buffer)
+using json = nlohmann::json;
+
+static void G_ArchivePlayr(const Playr* playr, json& data)
 {
-	memset(&chunk.buffer, '\0', BUFFER_SIZE);
-	memcpy(&chunk.buffer, &buffer, sizeof(T));
-	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
-		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
-	}
-	fwrite(&chunk, sizeof(ngd_chunk_t), 1, fp);
+	auto health = playr->health.load();
+	auto armor = playr->armor.load();
+	data["playr"] = {
+		{"name", playr->name},
+		{"pdir", playr->pdir},
+		{"health", health},
+		{"armor", armor},
+		{"pos.y", playr->pos.y},
+		{"pos.x", playr->pos.x},
+		{"wpn_slot_current", playr->wpn_slot_current},
+		{"pstate", playr->pstate.id},
+		{"pticker", playr->pticker},
+		{"coin", playr->coin},
+		{"lvl", playr->lvl},
+		{"sprite", playr->sprite},
+		{"sector_id", playr->sector_id},
+	};
 }
 
-template<typename T>
-void ReadChunk(ngd_chunk_t& chunk, T& buffer)
+static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
 {
-	fread(&chunk.buffer, sizeof(char), BUFFER_SIZE, fp);
-	for (num_t i = 0; i < BUFFER_SIZE; ++i) {
-		chunk.buffer[i] = chunk.buffer[i] ^ MAGIC_XOR;
+	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
+		std::string node_name = "mob_"+std::to_string(i);
+		Mob* const mob = m_Active[i];
+		auto health = mob->health.load();
+		auto armor = mob->armor.load();
+		data[node_name] = {
+			{"health", health},
+			{"armor", armor},
+			{"mpos.y", mob->mpos.y},
+			{"mpos.x", mob->mpos.x},
+			{"mdir", mob->mdir},
+		};
 	}
-	memcpy(&buffer, &chunk.buffer, sizeof(T));
+}
+static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t nummobs)
+{
+	for (nomaduint_t i = 0; i < nummobs; ++i) {
+		std::string node_name = "mob_"+std::to_string(i);
+		Mob* const mob = m_Active[i];
+		mob->health = data[node_name]["health"];
+		mob->armor = data[node_name]["armor"];
+		mob->mpos.y = data[node_name]["mpos.y"];
+		mob->mpos.x = data[node_name]["mpos.x"];
+		mob->mdir = data[node_name]["mdir"];
+	}
+}
+
+static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data)
+{
+	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
+		std::string node_name = "bot_"+std::to_string(i);
+		NPC* const npc = b_Active[i];
+		auto health = npc->health.load();
+		auto armor = npc->armor.load();
+		data[node_name] = {
+			{"health", health},
+			{"armor", armor},
+		};
+	}
 }
 
 void Game::G_SaveGame(void)
 {
-	char svname[256];
-	snprintf(svname, sizeof(svname), "Files/gamedata/SVFILES/nomadsv.ngd");
-	fp = fopen(svname, "wb");
-	
-	ngd_file_t svfile;
-	ngd_header_t& header = svfile.header;
-	header.nummobs = ARRAY_SIZE(m_Active);
-	header.numnpcs = ARRAY_SIZE(b_Active);
-	header.numchunks = header.nummobs + header.numnpcs + 2;
-	memset(&header.svname, '\0', sizeof(header.svname));
-	strncpy(header.svname, "nomadascii_svfile", sizeof(header.svname) - 1);
-	
-	// only time we'll really ever make an allocation outside the main zone
-	ngd_chunk_t* chunks = (ngd_chunk_t *)malloc(sizeof(ngd_chunk_t) * header.numchunks);
-	nomadushort_t chunks_written = 0;
-	// anything beyond the second chunk'll be the mob/npc/wpn/item chunks
-	ngd_chunk_t& pchunk = chunks[chunks_written];
-	chunks_written++;
-	ngd_chunk_t& wchunk = chunks[chunks_written];
-	chunks_written++;
-	
-	fwrite(&header, sizeof(ngd_header_t), 1, fp);
-	WriteChunk(pchunk, *playr);
-	WriteChunk(wchunk, *world);
-	
-	// mob data
-	for (nomaduint_t i = 0; i < ARRAY_SIZE(m_Active); ++i) {
-		ngd_chunk_t& mchunk = chunks[chunks_written];
-		mchunk.chunktype = NGD_CHUNK_MOB;
-		WriteChunk(mchunk, *m_Active[i]);
-		chunks_written++;
-	}
-	
-	// npc data
-	for (nomaduint_t i = 0; i < ARRAY_SIZE(b_Active); ++i) {
-		ngd_chunk_t& nchunk = chunks[chunks_written];
-		nchunk.chunktype = NGD_CHUNK_NPC;
-		WriteChunk(nchunk, *b_Active[i]);
-		chunks_written++;
-	}
-	free(chunks);
-	fclose(fp);
+	constexpr const char* svname = "nomadascii_sv";
+	const char* svfile = "nomadsv.ngd";
+	std::ofstream file(svfile, std::ios::out | std::ios::trunc);
+	json data;
+	data["header"] = {
+		{"version", NOMAD_VERSION},
+		{"version.major", NOMAD_VERSION_MAJOR},
+		{"version.update", NOMAD_VERSION_MINOR},
+		{"version.patch", NOMAD_VERSION_PATCH},
+		{"svname", svname},
+		{"nummobs", m_Active.size()},
+		{"numbots", b_Active.size()},
+		{"slot", 0},
+	};
+	G_ArchivePlayr(playr, data);
+	G_ArchiveMobs(m_Active, data);
+	file << data;
+	file.close();
 }
-
 
 
 bool Game::G_LoadGame(const char* svfile)
 {
-	fp = fopen(svfile, "rb");
-	if (!fp) N_Error("could not load save file!");
-	ngd_file_t sv;
-	fread(&sv.header, sizeof(ngd_header_t), 1, fp);
-	if (!(sv.header.header & HEADER))
-		N_Error(".ngd save file header is the wrong number, corrupt save file?");
-	if (sv.header.nummobs > MAX_MOBS_ACTIVE)
-		N_Error("save file nummobs is greater than maximum allowed mobs, from a different version?");
-	if (sv.header.numnpcs > MAX_NPC_ACTIVE)
-		N_Error("save file numnpcs is greater than maxmium allowed npcs, from a different version?");
-	
-	// free not-needed/unnecessary non-player entity memory, and allocate if needed
-	if (sv.header.nummobs < MAX_MOBS_ACTIVE) {
-		nomaduint_t moffset = ARRAY_SIZE(m_Active) - sv.header.nummobs;
-		while (moffset != MAX_MOBS_ACTIVE) {
-			if (m_Active[moffset])
-				Z_Free(m_Active[moffset]);
-			m_Active[moffset] = nullptr;
-			++moffset;
-		}
-	}
-	else if (sv.header.nummobs > G_GetNumMobs(this)) {
-		nomaduint_t c_mob = G_GetNumMobs(this);
-		nomaduint_t count, i;
-		count = 0;
-		i = 0;
-		while (count < sv.header.nummobs) {
-			if (!m_Active[i]) {
-				m_Active[i] = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active[i]);
-				++count;
-			}
-			++i;
-		}
-	}
-	if (sv.header.numnpcs < MAX_NPC_ACTIVE) {
-		nomaduint_t noffset = ARRAY_SIZE(b_Active) - sv.header.numnpcs;
-		while (noffset != MAX_NPC_ACTIVE) {
-			if (b_Active[noffset])
-				Z_Free(b_Active[noffset]);
-			b_Active[noffset] = nullptr;
-			++noffset;
-		}
-	}
-	else if (sv.header.numnpcs > G_GetNumBots(this)) {
-		nomaduint_t c_mob = G_GetNumBots(this);
-		nomaduint_t count, i;
-		count = 0;
-		i = 0;
-		while (count < sv.header.numnpcs) {
-			if (!b_Active[i]) {
-				b_Active[i] = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active[i]);
-				++count;
-			}
-			++i;
-		}
-	}
-	ngd_chunk_t* chunks = (ngd_chunk_t *)malloc(sizeof(ngd_chunk_t) * sv.header.numchunks);
-	nomaduint_t mcount, ncount;
-	mcount = 0;
-	ncount = 0;
-	for (nomaduint_t i = 0; i < sv.header.numchunks; ++i) {
-		fread(&chunks[i].chunktype, sizeof(num_t), 1, fp);
-		switch (chunks[i].chunktype) {
-		case NGD_CHUNK_PLAYR:
-			ReadChunk(chunks[i], *playr);
-			break;
-		case NGD_CHUNK_MOB:
-			ReadChunk(chunks[i], *m_Active[mcount]);
-			++mcount;
-			break;
-		case NGD_CHUNK_NPC:
-			ReadChunk(chunks[i], *b_Active[ncount]);
-			++ncount;
-			break;
-		case NGD_CHUNK_WORLD:
-			ReadChunk(chunks[i], *world);
-			break;
-		};
-	}
-	free(chunks);
-	fclose(fp);
-	Z_CheckHeap();
+	std::ifstream file(svfile, std::ios::in);
+	json data = json::parse(file);
+	file.close();
+	nomaduint_t nummobs = data["header"]["nummobs"];
+	playr->pos.y = data["playr"]["pos.y"];
+	playr->pos.x = data["playr"]["pos.x"];
+	G_UnArchiveMobs(m_Active, data, nummobs);
 	return true;
 }
 
@@ -471,6 +417,109 @@ static void G_ArchiveNPCs(const std::vector<NPC*>& b_Active)
 }
 static void G_UnArchiveNPCs(std::vector<NPC*>& b_Active)
 {
+}
+
+static void G_LoadNGD(std::vector<std::string>& tokens, const char* svname)
+{
+	std::ifstream file(svname, std::ios::in);
+	std::string line;
+	nomaduint_t i;
+	while (std::getline(file, line)) {
+		std::string buf;
+		for (i = 0; i < line.size(); ++i) {
+			switch (line[i]) {
+			case '\n':
+			case ' ':
+			case '\0':
+				tokens.push_back(buf);
+				buf.clear();
+				break;
+			case '(':
+			case ')':
+			case '[':
+			case ']':
+			case '{':
+			case '}':
+			case '-':
+			case ';':
+			case '=':
+			case '+':
+			case '\\':
+			case '/':
+			case ':':
+				buf.push_back(line[i]);
+				tokens.push_back(buf);
+				buf.clear();
+				break;
+			case 'a':
+			case 'b':
+			case 'c':
+			case 'd':
+			case 'e':
+			case 'f':
+			case 'g':
+			case 'h':
+			case 'i':
+			case 'j':
+			case 'k':
+			case 'l':
+			case 'm':
+			case 'n':
+			case 'o':
+			case 'p':
+			case 'q':
+			case 'r':
+			case 's':
+			case 't':
+			case 'u':
+			case 'v':
+			case 'w':
+			case 'x':
+			case 'y':
+			case 'z':
+			case 'A':
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'E':
+			case 'F':
+			case 'G':
+			case 'H':
+			case 'I':
+			case 'J':
+			case 'K':
+			case 'L':
+			case 'M':
+			case 'N':
+			case 'O':
+			case 'P':
+			case 'Q':
+			case 'R':
+			case 'S':
+			case 'T':
+			case 'U':
+			case 'V':
+			case 'W':
+			case 'X':
+			case 'Y':
+			case 'Z':
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			case '_':
+				buf.push_back(line[i]);
+				break;
+			};
+		}
+	}
+	file.close();
 }
 
 */

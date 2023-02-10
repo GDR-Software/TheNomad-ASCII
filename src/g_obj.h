@@ -183,6 +183,10 @@ typedef struct entitystate_s
 	nomadlong_t numticks;
 	state_t next;
 	actionp_t actionf;
+	inline bool operator==(const entitystate_s state) const {
+		return (id == state.id && numticks == state.numticks
+			&& next == state.next && actionf == state.actionf);
+	}
 } entitystate_t;
 
 extern const entitystate_t stateinfo[NUMSTATES];

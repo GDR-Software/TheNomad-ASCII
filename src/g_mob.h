@@ -110,10 +110,10 @@ public:
 	coord_t mpos;
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
-	nomaduint_t index = 0;
+	nomadbool_t alive = false; // if false, then the memory can be overwritten with a new mob, if true, then the memory is safe
 public:
-	Mob() = default;
-	~Mob() = delete;
+	Mob(){}
+	~Mob(){}
 	Mob& operator=(const Mob &mob) {
 		memcpy(&(*this), &mob, sizeof(Mob));
 		return *this;

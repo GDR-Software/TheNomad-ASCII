@@ -54,6 +54,7 @@ static void M_GenGroup()
 	Mob* leader;
 	mobj_t mob = mobinfo[rand() % (NUMMOBS - 2)];
 	leader = M_SpawnMob();
+	if (!leader) return; // max mob count has been met
 	leader->is_boss = false;
 	leader->c_mob = mob;
 	leader->mpos.y = origin.y;
@@ -67,6 +68,9 @@ static void M_GenGroup()
 	for (nomadenum_t i = 0; i < count; ++i) {
 		mob = mobinfo[rand() % (NUMMOBS - 2)];
 		minions[i] = M_SpawnMob();
+		if (!minions[i]) { // out of space
+			break;
+		}
 		Mob* const m = minions[i];
 		if ((rand() % 99) >= 49) {
 			m->mpos.y = origin.y + ((rand() % 10)+15);
@@ -87,41 +91,51 @@ static void M_GenGroup()
 	}
 }
 
+static void M_GenMob(Mob* const mob)
+{
+	mob->c_mob = mobinfo[rand() % NUMMOBS];
+	mob->mpos.y = (rand() % 480)+20;
+	mob->mpos.x = (rand() % 480)+20;
+	mob->mstate = stateinfo[S_MOB_SPAWN+mob->c_mob.stateoffset];
+	mob->mdir = P_Random() & 3;
+	mob->is_boss = false;
+	mob->stepcounter = P_Random() & 10;
+}
+
 void Game::M_GenMobs(void)
 {
 	game = this;
 	MobAssigner(this);
 	NomadAssigner(this);
-	
-	nomadenum_t numgroups = P_Random() & 15;
-	for (nomadenum_t i = 0; i < numgroups; ++i) {
-		M_GenGroup();
+	m_Active.reserve(MAX_MOBS_ACTIVE);
+	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
+		m_Active.emplace_back();
+		m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
+		m_Active.back()->alive = false;
+		M_GenMob(m_Active.back());
 	}
 }
 
 Mob* M_SpawnMob(void)
 {
-	nomaduint_t index;
+	nomaduint_t index = 0;
 	if ((index = G_GetFreeMob(game)) == MAX_MOBS_ACTIVE) {
 		return nullptr;
 	}
-	Mob* m = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m);
-	Mob* mob = m;
-	mob->index = index;
-	game->m_Active[index] = mob;
-	return m;
+	game->m_Active[index]->alive = true;
+	return game->m_Active[index];
 }
 
 //
 // M_KillMob(): deallocates/kills the current mob being iterated over
 //
-void M_KillMob(void)
+void M_KillMob(Mob* const actor)
 {
 #ifdef _NOMAD_DEBUG
-	assert(mob);
+	assert(actor);
 #endif
-	game->m_Active[mob->index] = nullptr;
-	Z_Free(mob);
+	// this memory can now be overwritten
+	actor->alive = false;
 }
 const char* MobTypeToStr(nomaduint_t mtype)
 {

@@ -23,4 +23,7 @@ bind kbSwapWpn_7 KEY_7
 bind kbSwapWpn_8 KEY_8
 bind kbSwapWpn_9 KEY_9
 bind kbSwapWpn_10 KEY_0
-bind kbExitToPause CTRL_x
+bind kbExitToPause CTRL_X
+
+
+

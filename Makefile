@@ -42,6 +42,10 @@ EXE            = nomadascii.exe
 EXE_DEBUG      = nomadascii_debug.exe
 endif
 
+ifndef debug
+CFLAGS += -DRELEASE
+endif
+
 .PHONY: all clean clean.exe clean.objs clean.debug
 
 ERRORS         = \

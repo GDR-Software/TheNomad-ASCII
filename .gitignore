@@ -2,6 +2,7 @@ gamesizes
 gamesizes.cpp
 obj/*
 nomadascii
+.replit
 nomadascii_debug
 *.tar.gz
 nomadsv.ngd

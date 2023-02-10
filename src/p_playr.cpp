@@ -111,7 +111,10 @@ void Playr::P_Init()
 	coin = 0;
 	pos = {0, 0};
 	sector_id = 0;
+	pstate = stateinfo[S_PLAYR_SPAWN];
+	pticker = pstate.numticks;
 	pmode = P_MODE_ROAMING;
+	wpn_slot_current = 1;
 	p_rightarm.c_wpn = wpninfo[W_ARM_HB];
     p_leftarm.c_wpn = wpninfo[W_ARM_GRAPPLE];
     p_sidearm.c_wpn = wpninfo[W_SIDE_PLASMA];
@@ -120,29 +123,25 @@ void Playr::P_Init()
     p_heavyprimary.c_wpn = wpninfo[W_HPRIM_RAG13];
     p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
 	c_wpn = &p_shotty;
-
 	memset(&body_health, 100, sizeof(body_health));
-	pstate &= stateinfo[S_PLAYR_NULL].id;
 }
 
 static nomadbool_t P_MoveTicker(Playr* playr)
 {
-#ifdef _NOMAD_DEBUG
 	assert(playr);
-#endif
-	if (playr->pstate == stateinfo[S_PLAYR_NULL].id) {
-		playr->pstate = stateinfo[S_PLAYR_SPAWN].id;
-		playr->pticker = stateinfo[S_PLAYR_SPAWN].numticks;
+	if (playr->pstate == stateinfo[S_PLAYR_NULL]) {
+		playr->pstate = stateinfo[S_PLAYR_SPAWN];
+		playr->pticker = playr->pstate.numticks;
 		return true;
 	}
-	else if (playr->pstate == stateinfo[S_PLAYR_MOVE].id) {
-		playr->pticker = stateinfo[S_PLAYR_MOVE].numticks;
+	else if (playr->pstate == stateinfo[S_PLAYR_MOVE]) {
+		playr->pticker = playr->pstate.numticks;
 		return false;
 	}
 	else {
 		if (!playr->pticker) {
-			playr->pstate = stateinfo[S_PLAYR_MOVE].id;
-			playr->pticker = stateinfo[S_PLAYR_MOVE].numticks;
+			playr->pstate = stateinfo[S_PLAYR_MOVE];
+			playr->pticker = playr->pstate.numticks;
 			return false;
 		}
 		else {
@@ -198,10 +197,8 @@ void P_UseWeapon()
 
 void Game::P_Ticker(nomadint_t input)
 {
-#ifdef _NOMAD_DEBUG
-	LOG("gamestate = %hu", gamestate);
-	LOG("gamescreen = %hu", gamescreen);
-#endif
+	DBG_LOG("gamestate = %hu", gamestate);
+	DBG_LOG("gamescreen = %hu", gamescreen);
 	--playr->pticker;
 //	playr->P_GetMode();
 	playr->P_RunTicker(input);
@@ -532,10 +529,8 @@ void P_DashE()
 
 void P_ChangeDirL()
 {
-#ifdef _NOMAD_DEBUG
 	assert(playr->pdir < NUMDIRS);
-	LOG("pdir = %hu", playr->pdir);
-#endif
+	DBG_LOG("pdir = %hu", playr->pdir);
 	for (nomadshort_t y = 1; y < 4; ++y) {
 		for (nomadshort_t x = 1; x < 6; ++x) {
 			mvwaddch(game->screen, y, x, ' ');
@@ -551,10 +546,8 @@ void P_ChangeDirL()
 
 void P_ChangeDirR()
 {
-#ifdef _NOMAD_DEBUG
 	assert(playr->pdir < NUMDIRS);
-	LOG("pdir = %hu", playr->pdir);
-#endif
+	DBG_LOG("pdir = %hu", playr->pdir);
 	for (nomadshort_t y = 1; y < 4; ++y) {
 		for (nomadshort_t x = 1; x < 6; ++x) {
 			mvwaddch(game->screen, y, x, ' ');
@@ -586,7 +579,7 @@ void P_KillPlayr()
 void CommandConsole()
 {
 	char buf[1024];
-//	mvwscanw(game->screen, , , "%s", buf);
+	mvwscanw(game->screen, 20, 126, "/> %s", buf);
 	if (strstr(buf, "fyia") != NULL) {
 		if (scf::launch::infinite_ammo)
 			scf::launch::infinite_ammo = false;

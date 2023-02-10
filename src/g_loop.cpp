@@ -145,7 +145,7 @@ void mainLoop(int argc, char* argv[])
 							game->gamescreen = MENU_SETTINGS;
 							break;
 						case 3:
-							game->G_LoadGame("Files/gamedata/SVFILES/nomadsv.ngd");
+							game->G_LoadGame("nomadsv.ngd");
 							break;
 						case 4:
 							game->G_SaveGame();
@@ -189,13 +189,13 @@ static void levelLoop(void)
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
-		pthread_create(&game->wthread, NULL, W_Loop, NULL);
+//		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		char c;
 		if ((c = kb_hit()) != -1)
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
-		pthread_join(game->wthread, NULL);
+//		pthread_join(game->wthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
@@ -209,12 +209,9 @@ static void levelLoop(void)
 static void settingsLoop(void)
 {
 	std::ifstream file("Files/gamedata/GS/settingsmenu.txt", std::ios::in);
-	if (file.fail())
-		N_Error("Failed to load settingsmenu resource!");
-#ifdef _NOMAD_DEBUG
+	NOMAD_ASSERT(!file.fail(), ("Failed to load settingsmenu resource!"));
 	assert(!file.fail());
-	LOG("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
-#endif
+	DBG_LOG("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
 	std::vector<std::string> filebuf;
 	std::string line;
 	while (std::getline(file, line)) { filebuf.push_back(line); };

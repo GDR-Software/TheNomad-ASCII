@@ -23,6 +23,7 @@
 
 #include "n_shared.h"
 #include "scf.h"
+#include "g_obj.h"
 #include "g_items.h"
 #include "g_map.h"
 
@@ -60,15 +61,15 @@ public:
 	nomadenum_t wpn_slot_current = 1;
 	Item inv[MAX_PLAYR_ITEMS];
 	std::atomic<nomadint_t> body_health[4];
-	nomaduint_t pstate;
+	entitystate_t pstate;
 	std::atomic<nomadenum_t> pmode;
 	nomadenum_t lastmoved;
 	nomadlong_t pticker = 0;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
 	Mission* c_mission = nullptr;
 public:
-	Playr() = default;
-	~Playr() = delete;
+	Playr(){}
+	~Playr(){}
 	Playr& operator=(const Playr& playr) {
 		memcpy(&(*this), &playr, sizeof(Playr));
 		return *this;

@@ -117,18 +117,11 @@ void Game::G_DisplayHUD(void)
 
 static inline void Hud_InsertSprites()
 {
-	nomaduint_t i{};
-	for (i = 0; i < ARRAY_SIZE(game->b_Active); ++i) {
-		if (game->b_Active[i]) {
-			NPC* const npc = game->b_Active[i];
-			game->c_map[npc->pos.y][npc->pos.x] = npc->c_npc.sprite;
-		}
+	for (const auto* i : game->b_Active) {
+		game->c_map[i->pos.y][i->pos.x] = i->c_npc.sprite;
 	}
-	for (i = 0; i < ARRAY_SIZE(game->m_Active); ++i) {
-		if (game->m_Active[i]) {
-			Mob* const mob = game->m_Active[i];
-			game->c_map[mob->mpos.y][mob->mpos.x] = mob->c_mob.sprite;
-		}
+	for (const auto* i : game->m_Active) {
+		game->c_map[i->mpos.y][i->mpos.x] = i->c_mob.sprite;
 	}
 }
 

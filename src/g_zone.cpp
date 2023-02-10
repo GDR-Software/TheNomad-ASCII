@@ -59,14 +59,10 @@ __CFUNC__ void Z_KillHeap(void)
 //
 __CFUNC__ void Z_Free(void *ptr)
 {
-#ifdef _NOMAD_DEBUG
 	assert(ptr);
-#endif
 	memblock_t* block;
 	memblock_t* other;
-#ifdef _NOMAD_DEBUG
-	LOG("freeing zone-allocated pointer at %p", ptr);
-#endif
+	DBG_LOG("freeing zone-allocated pointer at %p", ptr);
 	
 	block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 	
@@ -221,17 +217,14 @@ __CFUNC__ void Z_Init(uint64_t& start, uint64_t& end)
 	base->size = mainzone->size - sizeof(memzone_t);
 	start = (uint64_t)mainzone;
 	end = (uint64_t)(mainzone+mainzone->size);
-#ifdef _NOMAD_DEBUG
-	LOG("allocated zone memory from %p -> %p of size %i", mainzone, (mainzone+mainzone->size), mainzone->size);
-#endif
+	DBG_LOG("allocated zone memory from %p -> %p of size %i",
+	mainzone, (mainzone+mainzone->size), mainzone->size);
 }
 #endif
 
 __CFUNC__ void Z_ClearZone(void)
 {
-#ifdef _NOMAD_DEBUG
-	LOG("clearing zone");
-#endif
+	DBG_LOG("clearing zone");
 	memblock_t*		block;
 	
 	// set the entire zone to one free block
@@ -255,11 +248,9 @@ __CFUNC__ void Z_ClearZone(void)
 // from within the zone without calling malloc
 __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 {
-#ifdef _NOMAD_DEBUG
 	assert(user);
 	assert(size > 0);
 	assert(tag > -1);
-#endif
 	if (!user)
 		return NULL;
 	memblock_t* rover;
@@ -318,9 +309,7 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 		userblock->prev = base;
 		userblock->next = base->next;
 		userblock->next->prev = userblock;
-#ifdef _NOMAD_DEBUG
-		LOG("allocating memory block from %p -> %p of size %i", userblock, (userblock+userblock->size), size);
-#endif
+		DBG_LOG("allocating memory block from %p -> %p of size %i", userblock, (userblock+userblock->size), size);
 	
 		base->next = userblock;
 		base->size = size;
@@ -337,9 +326,7 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 		}
 		// mark as in used, but unowned
 		base->user = UNOWNED;
-#ifdef _NOMAD_DEBUG
-		LOG("block at %p is used, but currently unowned", base);
-#endif
+		DBG_LOG("block at %p is used, but currently unowned", base);
 	}
 	base->tag = tag;
 
@@ -352,9 +339,7 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 
 __CFUNC__ void* Z_Realloc(void *user, int nsize, int tag)
 {
-#ifdef _NOMAD_DEBUG
 	assert(user);
-#endif
 	void *ptr = Z_Malloc(nsize, tag, ptr);
 	memblock_t* block = (memblock_t *)((byte *)user - sizeof(memblock_t));
 	memcpy(ptr, user, nsize <= block->size ? nsize : block->size);
@@ -364,17 +349,13 @@ __CFUNC__ void* Z_Realloc(void *user, int nsize, int tag)
 
 __CFUNC__ void* Z_Calloc(void *user, int nelem, int elemsize, int tag)
 {
-#ifdef _NOMAD_DEBUG
 	assert(user);
-#endif
 	return (nelem*=elemsize) ? memset((Z_Malloc)(nelem, tag, user), 0, nelem) : NULL;
 }
 
 __CFUNC__ void Z_FreeTags(int lowtag, int hightag)
 {
-#ifdef _NOMAD_DEBUG
-	LOG("freeing zone-allocated blocks with tags from %i -> %i", lowtag, hightag);
-#endif
+	DBG_LOG("freeing zone-allocated blocks with tags from %i -> %i", lowtag, hightag);
 	memblock_t*	block;
     memblock_t*	next;
 	
@@ -412,9 +393,7 @@ __CFUNC__ void Z_CheckHeap(void)
 			N_Error("Z_CheckHeap: two consecutive free blocks!\n");
 		}
 	}
-#ifdef _NOMAD_DEBUG
-	LOG("heap check successful, no corruption within zone-allocated memory");
-#endif
+	DBG_LOG("heap check successful, no corruption within zone-allocated memory");
 }
 
 __CFUNC__ void Z_ChangeTag2(void *ptr, int tag, const char *file, int line)
@@ -430,9 +409,7 @@ __CFUNC__ void Z_ChangeTag2(void *ptr, int tag, const char *file, int line)
         N_Error("%s: %i: Z_ChangeTag: an owner is required "
                 "for purgable blocks", file, line);
 
-#ifdef _NOMAD_DEBUG
-	LOG("changing tag of ptr %p to %i, old tag was %i", ptr, tag, block->tag);
-#endif
+	DBG_LOG("changing tag of ptr %p to %i, old tag was %i", ptr, tag, block->tag);
     block->tag = tag;
 }
 
@@ -446,9 +423,7 @@ __CFUNC__ void Z_ChangeUser(void *ptr, void *user)
 		N_Error("Z_ChangeUser: tried to change user for invalid block!\n");
 		return;
 	}
-#ifdef _NOMAD_DEBUG
-	LOG("changing user of ptr %p to %p, old user was %p", ptr, user, block->user);
-#endif
+	DBG_LOG("changing user of ptr %p to %p, old user was %p", ptr, user, block->user);
 	block->user = user;
 	user = ptr;
 }
