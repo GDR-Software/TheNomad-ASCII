@@ -131,19 +131,9 @@ class Game;
 #define _NOMAD_DEBUG
 #endif
 
-#ifdef _NOMAD_DEBUG
 extern FILE* dbg_file;
-#define DBG_LOG(...)                       \
-{                                          \
-	fprintf(dbg_file, "%s(): ", __func__); \
-	fprintf(dbg_file, __VA_ARGS__);        \
-	fputc('\n', dbg_file);                 \
-}
-#else
-#define assert(x)
-#define DBG_LOG(...)
-#endif
-#define NOMAD_ASSERT(x, ...) if (!(x)) N_Error(__VA_ARGS__)
+#define LOGGER_OUTFILE dbg_file 
+#include "n_debug.h"
 
 #define byte unsigned char
 

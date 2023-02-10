@@ -41,7 +41,7 @@ void signal_seggy(int signum)
 	if (game->gamestate != GS_TITLE && GS_MENU)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
-#ifndef _RELEASE
+#ifndef RELEASE
 	printf("Signal Segmentation Fault Received\n");
 #else
 	puts("Caught A Seggy! Goddamn It!");
@@ -54,7 +54,7 @@ void signal_unnatural_demise(int signum)
 	if (game->gamestate != GS_TITLE && GS_MENU)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
-#ifndef _RELEASE
+#ifndef RELEASE
 	puts("Received Signal Abort");
 #else
 	puts("The Game Object Was KIA'd By Strange & Mysterious Forces Beyond Our Knowledege...");
@@ -67,7 +67,7 @@ void signal_somethins_corrupt(int signum)
 	if (game->gamestate != GS_TITLE && GS_MENU)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
-#ifndef _RELEASE
+#ifndef RELEASE
 	printf("Received Signal Corruption\n");
 #else
 	puts("Somethin's Gotten Corrupt... I Don't Know What, But This Thing is Corrupt, Your Fault, Perhaps?");
@@ -94,24 +94,15 @@ static void set_nonblock(void)
 }
 #endif
 
-#ifndef _NOMAD_DEBUG
-void __attribute__((constructor)) debug_startup(void)
-{
-	return;
-}
-void __attribute__((destructor)) debug_kill(void)
-{
-	return;
-}
-#else
 FILE* dbg_file;
 #define DBG_PATH "Files/debug/"
 void __attribute__((constructor)) debug_startup(void)
 {
 	std::string dbg_path = DBG_PATH;
 	dbg_path += "debuglog.txt";
-	remove(dbg_path.c_str());
-	dbg_file = fopen(dbg_path.c_str(), "w");
+//	remove(dbg_path.c_str());
+	dbg_file = fopen(dbg_path.c_str(), "a");
+	fprintf(dbg_file"\n[APPENDING PREVIOUS LOG]\n\n");
 	auto time = std::chrono::system_clock::now();
 	time_t start = std::chrono::system_clock::to_time_t(time);
 	fprintf(dbg_file, "nomadascii debuglog start-time: %ld\n", (long)start);
@@ -123,7 +114,6 @@ void __attribute__((destructor)) debug_kill(void)
 	fprintf(dbg_file, "nomadascii debuglog end-time: %ld\n", (long)end);
 	fclose(dbg_file);
 }
-#endif
 
 int main(int argc, char* argv[])
 {
