@@ -108,7 +108,8 @@ FILE* dbg_file;
 #define DBG_PATH "Files/debug/"
 void __attribute__((constructor)) debug_startup(void)
 {
-	std::string dbg_path = DBG_PATH + "debuglog.txt";
+	std::string dbg_path = DBG_PATH;
+	dbg_path += "debuglog.txt";
 	remove(dbg_path.c_str());
 	dbg_file = fopen(dbg_path.c_str(), "w");
 	auto time = std::chrono::system_clock::now();

@@ -72,50 +72,13 @@ collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game)
 nomadint_t disBetweenOBJ(coord_t src, coord_t tar)
 {
 	if (src.y == tar.y) { // horizontal
-#ifdef _NOMAD_DEBUG
-		if (src.x > tar.x) {
-			LOG("distance is horizontal, src.x is greater than tar.x, distance between objects is %i", src.x - tar.x);
-			return (src.x - tar.x);
-		}
-		else if (src.x < tar.x) {
-			LOG("distance is horizontal, src.x is less than tar.x, distance between objects is %i", tar.x - src.x);
-			return (tar.x - src.x);
-		}
-		else {
-			LOG("distance is horziontal, src.x is equal to tar.x, returning 0");
-			return 0;
-		}
-#else
 		return src.x > tar.x ? (src.x - tar.x) : (tar.x - src.x);
-#endif
 	}
 	else if (src.x == tar.x) { // vertical
-#ifdef _NOMAD_DEBUG
-		if (src.y > tar.y) {
-			LOG("distance is vertical, src.y is greater than tar.y, distance between objects is %i", src.y - tar.y);
-			return (src.y - tar.y);
-		}
-		else if (src.y < tar.y) {
-			LOG("distance is vertical, src.y is less than tar.y, distance between objects is %i", tar.y - src.y);
-			return (tar.y - src.y);
-		}
-		else {
-			LOG("distance is vertical, src.y is equal to tar.y, returning 0");
-			return 0;
-		}
-#else
 		return src.y > tar.y ? (src.y - tar.y) : (tar.y - src.y);
-#endif
 	}
 	else { // diagonal
-#ifdef _NOMAD_DEBUG
-		// don't want to be do the calculations twice, assign it to a variable
-		nomadint_t r = abs(Q_root((pow((src.x - tar.x), 2) + pow((src.y - tar.y), 2))));
-		LOG("distance is diagonal, returning pythagorian theorem, result: %i", r);
-		return r;
-#else
 		return abs(Q_root((pow((src.x - tar.x), 2) + pow((src.y - tar.y), 2))));
-#endif
 	}
 }
 

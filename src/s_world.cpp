@@ -260,10 +260,8 @@ static inline void M_Init(void)
 		if (file.fail())
 			N_Error("M_Init: Could Not Open Mapsector File %hu!", i);
 		
-#ifdef _NOMAD_DEBUG
 		assert(file.is_open());
-		LOG("Successfully opened file map file");
-#endif
+		DBG_LOG("Successfully opened file map file");
 		std::string line;
 		std::vector<std::string> buffer;
 		while (std::getline(file, line)) {
@@ -282,13 +280,9 @@ static inline void M_Init(void)
 	185
 	234
 	*/
-	if (!fp)
-		N_Error("Could Not Create RUNTIME/mapfile.txt!");
-	
-#ifdef _NOMAD_DEBUG
+	NOMAD_ASSERT(fp, "Could not create RUNTIME/mapfile.txt!");
 	assert(fp);
-	LOG("Successfully created RUNTIME/mapfile.txt");
-#endif
+	DBG_LOG("Successfully created RUNTIME/mapfile.txt");
 	for (y = 0; y < 80; ++y) {
 		for (x = 0; x < MAP_MAX_X; ++x) {
 			fprintf(fp, "#");
@@ -356,9 +350,7 @@ static inline void M_Init(void)
 		fprintf(fp, "\n");
 	}
 	fclose(fp);
-#ifdef _NOMAD_DEBUG
-	LOG("Successfully Closed RUNTIME/mapfile.txt");
-#endif
+	DBG_LOG("Successfully Closed RUNTIME/mapfile.txt");
 #endif
 //	G_CopyBufferToMap();
 //	I_InitBiomes();

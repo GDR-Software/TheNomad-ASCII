@@ -44,9 +44,7 @@ static NPC* B_SpawnBot(void)
 // should only get triggered once, and only ever during the initialize phase
 __CFUNC__ void B_SpawnShopBots(void)
 {
-#ifdef _NOMAD_DEBUG
 	assert(game);
-#endif
 	// hardcoded until the BFFs roll around
 	NPC* npc;
 	
@@ -106,9 +104,7 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 
 void Game::I_InitNPCs(void)
 {
-#ifdef _NOMAD_DEBUG
 	assert(!game);
-#endif
 	game = this;
 	b_Active.reserve(MAX_NPC_ACTIVE);
 	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
@@ -116,9 +112,7 @@ void Game::I_InitNPCs(void)
 		b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
 		b_Active.back()->alive = false;
 	}
-#ifdef _NOMAD_DEBUG
-	LOG("reserving %li NPC for b_Active", npcinfo.size()+MAX_NPC_ACTIVE);
-#endif
+	DBG_LOG("reserving %li NPC for b_Active", npcinfo.size()+MAX_NPC_ACTIVE);
 	NomadAssigner(this);
 	MissionAssigner(this);
 	B_SpawnShopBots();
@@ -169,9 +163,7 @@ void B_FleeArea(NPC* const npc)
 
 void B_KillBot(NPC* const npc)
 {
-#ifdef _NOMAD_DEBUG
 	assert(npc);
-#endif
 	npc->alive = false;
 }
 

@@ -123,11 +123,11 @@ class Game;
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <assert.h>
 #include <fstream>
 #include <pthread.h>
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(RELEASE)
+#include <assert.h>
 #define _NOMAD_DEBUG
 #endif
 
@@ -139,11 +139,11 @@ extern FILE* dbg_file;
 	fprintf(dbg_file, __VA_ARGS__);        \
 	fputc('\n', dbg_file);                 \
 }
-#define NOMAD_ASSERT(x, ...) if (!(x)) N_Error(__VA_ARGS__)
 #else
+#define assert(x)
 #define DBG_LOG(...)
-#define NOMAD_ASSERT(x, ...)
 #endif
+#define NOMAD_ASSERT(x, ...) if (!(x)) N_Error(__VA_ARGS__)
 
 #define byte unsigned char
 
@@ -233,15 +233,13 @@ inline char kb_hit()
 #endif
 }
 
-inline const char* booltostr(bool b) { return b ? "true" : "false"; }
-
 
 namespace std {
 	size_t filelength(const char* filename);
 	size_t filelength(const std::string& filename);
 };
 
-enum : nomadenum_t
+enum dir : nomadenum_t
 {
 	D_NORTH,
 	D_WEST,
@@ -275,6 +273,9 @@ typedef struct coord_s
     }
 	inline bool operator==(struct coord_s c) const {
 		return (x == c.x && y == c.y);
+	}
+	inline bool operator!=(struct coord_s c) const {
+		return (x != c.x && y != c.y);
 	}
 	inline bool operator>(struct coord_s c) const {
 		return (x > c.x && y > c.y);
@@ -321,6 +322,15 @@ static const char* DirToStr(nomadenum_t dir)
 	};
 	if (!false)
 		N_Error("Unknown/Invalid Entity Direction %hu!", dir);
+	return nullptr;
+}
+static nomadenum_t StrToDir(const char* str)
+{
+	if (strcmp(str, "D_NORTH")) return D_NORTH;
+	else if (strcmp(str, "D_WEST")) return D_WEST;
+	else if (strcmp(str, "D_SOUTH")) return D_SOUTH;
+	else if (strcmp(str, "D_EAST")) return D_EAST;
+	else return D_NULL;
 }
 
 typedef struct
@@ -337,6 +347,10 @@ typedef struct
 	void *ptr = nullptr;
 } collider_t;
 
+inline const char* dirtostr(nomadenum_t dir) { return DirToStr(dir); }
+inline nomadenum_t strtodir(const char* str) { return StrToDir(str); }
+inline nomadbool_t strtobool(const char* str) { return strcmp(str, "true") ? true : false; }
+inline const char* booltostr(bool b) { return b ? "true" : "false"; }
 collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game);
 nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c);
 inline nomadfloat_t Q_root(nomadfloat_t x);

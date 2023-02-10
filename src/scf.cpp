@@ -240,13 +240,13 @@ namespace scf {
         DBG_LOG("Attempting to stat() .scf file");
         struct stat fdata;
         NOMAD_ASSERT(stat(filepath, &fdata) != -1, "Failed to get data from .scf file!");
-	DBG_LOG("Successful stat() of .scf file");
+	    DBG_LOG("Successful stat() of .scf file");
         FILE* fp = fopen(filepath, "r");
         NOMAD_ASSERT(fp, "Failed to open .scf file!");
         assert(fp);
         DBG_LOG("Successful fopen() of .scf file");
         const char* buffer = (char *)mmap(NULL, fdata.st_size, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
-	NOMAD_ASSERT(buffer, "Failed to read data from .scf file!");
+	    NOMAD_ASSERT(buffer, "Failed to read data from .scf file!");
         assert(buffer);
         DBG_LOG("Successful read of .scf file");
         Lexer lex(buffer);
