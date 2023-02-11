@@ -81,8 +81,6 @@ public:
 	std::vector<Mob*> m_Active;
 	std::vector<NPC*> b_Active;
 public: // map stuff
-	sndlvl_t sndmap[MAP_MAX_Y+160][MAP_MAX_X+160];
-	smelllvl_t smellmap[MAP_MAX_Y+160][MAP_MAX_X+160];
 	char c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
 public:
 	WINDOW* screen;
@@ -101,10 +99,6 @@ public:
 	Game();
 	~Game();
 
-	void DrawSpriteToMainWin(coord_t pos, sprite_t sprite);
-	void PrintMainWin(void);
-	void MainWinPrintf(const char* msg);
-	void ClearMainWin(void);
 	void DrawMainWinBorder(void);
 	void DrawCompass(void);
 	void DrawTitleScreen(void);
@@ -135,11 +129,13 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+void MobAssigner(Game* const gptr);
+void NPCAssigner(Game* const gptr);
+void NomadAssigner(Game* const gptr);
+
 nomaduint_t G_GetNumMobs(const Game* const game);
 nomaduint_t G_GetNumBots(const Game* const game);
-nomaduint_t G_GetFreeMob(const Game* const game);
-nomaduint_t G_GetFreeBot(const Game* const game);
-void NPCAssigner(Game* const gptr);
+
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
 void W_Init(Game* const gptr);

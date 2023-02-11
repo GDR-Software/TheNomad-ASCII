@@ -104,9 +104,9 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 		myargv.push_back(argv[i]);
 	}
 	I_ProcessArgs(myargv);
+	E_Init(game);
 	G_LoadBFF(game->bffname, game);
 	scf::G_LoadSCF(game->scfname);
-	E_Init(game);
 	puts("W_Init(): Initializing World Data...");
 	W_Init(game);
 	TUI_Init(game);
@@ -156,11 +156,11 @@ static inline void TUI_Init(Game* const game)
 
 static inline void E_Init(Game* const game)
 {
-	assert(game);
+	PTR_CHECK(NULL_CHECK, game);
 	puts("E_Init(): Initializing Entities...");
 	game->playr = (Playr*)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
-	assert(game->playr);
-	DBG_LOG("Successfully Allocated game->playr");
+	PTR_CHECK(NULL_CHECK, game->playr);
+	LOG_INFO("Successfully Allocated game->playr");
 	game->playr->P_Init();
 	srand(time(NULL));
 	game->I_InitNPCs();

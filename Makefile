@@ -1,46 +1,14 @@
 VERSION        = 0
 VERSION_UPDATE = 0
 VERSION_PATCH  = 1
-ifndef compile_clang
-ifndef win32
 CC             = g++
-else
-CC             = wine ../mingw32/bin/i686-w64-mingw32-g++.exe
-endif
-else
-ifdef win32
-CC             = wine ../mingw32/bin/clang++.exe
-else
-endif
-endif
-ifndef win32
-ifndef replit
-CFLAGS         = -std=c++17 -I/usr/include
-else
-CFLAGS         = -std=c++17 -IFiles/gamedata/DEPS/include/ -DREPLIT
-endif
-else
-CFLAGS         = -std=c++17 -I../mingw32/include -I/home/noah/Downloads/include
-endif
+CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include
 O              = obj
 SDIR           = src
-ifndef win32
-ifndef replit
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
 				/usr/lib/x86_64-linux-gnu/libpthread.a -lmpg123
-else
-LDFLAGS        = Files/gamedata/DEPS/lib/libmenu.a Files/gamedata/DEPS/lib/libncurses.a -lpthread
-endif
-else
-LDFLAGS        =  ../mingw32/bin/libwinpthread-1.dll ../mingw32/bin/libncursesw6.dll libmenuw.dll.a
-endif
-ifndef win32
 EXE            = nomadascii
 EXE_DEBUG      = nomadascii_debug
-else
-EXE            = nomadascii.exe
-EXE_DEBUG      = nomadascii_debug.exe
-endif
 
 ifndef debug
 CFLAGS += -DRELEASE
@@ -48,13 +16,20 @@ endif
 
 .PHONY: all clean clean.exe clean.objs clean.debug
 
-ERRORS         = \
-				-Werror=type-limits 
+OPTIMIZERS     = -finline-limit=100 \
+				-ffast-math \
+				-frounding-math \
+				-fmerge-all-constants
+
+ERRORS         = -Werror=type-limits \
+				-Werror=overflow \
+				-Werror=return-type
+
 DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_UPDATE=$(VERSION_UPDATE) \
 				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH)
 
-CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS)
+CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS) $(OPTIMIZERS)
 
 OBJS= \
 	$(O)/n_shared.o \
@@ -128,7 +103,7 @@ $(EXE_DEBUG): $(DEBUG)
 $(O)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -Wno-unused-result -Ofast -o $@ -c $<
 $(O)/%.debug.o: $(SDIR)/%.cpp
-	$(CC) $(CFLAGS) -Wall -Og -g -o $@ -c $<
+	$(CC) $(CFLAGS) -Wpedantic -Og -g -o $@ -c $<
 
 clean:
 	rm -rf $(O)/*

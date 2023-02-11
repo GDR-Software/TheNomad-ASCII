@@ -28,11 +28,9 @@ static void settingsLoop(void);
 
 void mainLoop(int argc, char* argv[])
 {
-	uint64_t start, end;
-	puts("Z_Init(): initializing zone memory allocation daemon...");
-	Z_Init(start, end);
-	printf("Allocated zone from %p -> %p, %i bytes allocated to zone\n", mainzone, (mainzone+mainzone->size), heapsize);
+	Z_Init();
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
+	PTR_CHECK(NULL_CHECK, game);
 	I_NomadInit(argc, argv, game);
 	Z_CheckHeap();
 #ifdef _NOMAD_DEBUG
@@ -44,7 +42,7 @@ void mainLoop(int argc, char* argv[])
 	attron(COLOR_PAIR(0));
 	while (1) {
 		if (game->gamestate == GS_TITLE) {
-			game->ClearMainWin();
+			werase(game->screen);
 			game->DrawTitleScreen();
 			nomadshort_t c;
 			c = wgetch(game->screen);
@@ -68,7 +66,7 @@ void mainLoop(int argc, char* argv[])
 		else if (game->gamestate == GS_MENU) {
 			int16_t s = 0; // this thing breaks if its a nomadshort_t, don't know why
 			while (game->gamestate == GS_MENU) {
-				game->ClearMainWin();
+				werase(game->screen);
 				game->DrawMenuScreen(s);
 				char f = wgetch(game->screen);
 				if (f != ctrl('x')) {
@@ -114,8 +112,8 @@ void mainLoop(int argc, char* argv[])
 		else if (game->gamestate == GS_PAUSE) {
 			nomadshort_t s = 0;
 			while (game->gamestate == GS_PAUSE) {
-				s = s;
-				game->ClearMainWin();
+//				s = s;
+				werase(game->screen);
 				game->DrawPauseMenu(s);
 				char f = wgetch(game->screen);
 				if (f != ctrl('x')) {
@@ -174,18 +172,22 @@ void mainLoop(int argc, char* argv[])
 
 static void levelLoop(void)
 {
-#ifdef _NOMAD_DEBUG
 	assert(game && game->playr);
-#endif
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
-#ifdef _NOMAD_DEBUG
 	assert(game->hudwin[HL_VMATRIX]);
-#endif
 	game->G_DisplayHUD();
 	werase(game->screen);
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	while (game->gamestate == GS_LEVEL) {
-//		werase(game->screen);
+		if (game->m_Active.size() < MAX_MOBS_ACTIVE) {
+			Mob* const mob = M_SpawnMob();
+			M_GenMob(mob);
+		}
+		M_CheckMobs();
+		if (game->b_Active.size() < MAX_NPC_ACTIVE) {
+			NPC* const npc = B_SpawnBot();
+			if (npc->c_npc.sprite == '^') B_KillBot(npc);
+		}
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future

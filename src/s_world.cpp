@@ -211,33 +211,12 @@ static inline void* N_Looper(void* arg)
 	return NULL;
 }
 
-static void M_DoThink(Mob* const mob)
-{
-	--mob->mticker;
-	M_ThinkerCurrent(mob);
-	M_WanderThink();
-	
-	// current state has run out of tics, so switch the state, DO NOT, HOWEVER, RUN THE ACTION
-	if (mob->mticker <= -1) {
-		// if no default next state, set the mob's state to wander (25%) or idle (75%)
-		if (mob->mstate.next == 0) {
-			mob->mstate = stateinfo[S_MOB_WANDER+mob->c_mob.stateoffset];
-		}
-		mob->mstate = stateinfo[mob->mstate.next];
-		mob->mticker = mob->mstate.numticks;
-	}
-	else {
-//		(*mob->mstate.actionf)();
-	}
-}
-
 static inline void* M_Looper(void *arg)
 {
 	assert(!arg && game);
 	pthread_mutex_lock(&game->mob_mutex);
-	for (nomaduint_t i = 0; i < ARRAY_SIZE(game->m_Active); ++i) {
+	for (nomaduint_t i = 0; i < game->m_Active.size(); ++i) {
 		if (game->m_Active[i]) {
-			M_DoThink(game->m_Active[i]);
 		}
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
@@ -354,7 +333,6 @@ static inline void M_Init(void)
 #endif
 //	G_CopyBufferToMap();
 //	I_InitBiomes();
-    game->I_InitHUD();
 }
 
 void W_KillWorld()

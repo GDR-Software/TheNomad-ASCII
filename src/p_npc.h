@@ -93,7 +93,8 @@ public:
 };
 
 
-void B_KillNPC(NPC* const npc);
+void B_KillBot(NPC* npc);
+NPC* B_SpawnBot(void);
 
 void B_GenNomadTribe();;
 

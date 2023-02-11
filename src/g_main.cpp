@@ -38,7 +38,7 @@ void signal_interrupt(int signum)
 
 void signal_seggy(int signum)
 {
-	if (game->gamestate != GS_TITLE && GS_MENU)
+	if (game->gamestate != GS_TITLE && GS_MENU && GS_PAUSE)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
 #ifndef RELEASE
@@ -51,7 +51,7 @@ void signal_seggy(int signum)
 
 void signal_unnatural_demise(int signum)
 {
-	if (game->gamestate != GS_TITLE && GS_MENU)
+	if (game->gamestate != GS_TITLE && GS_MENU && GS_PAUSE)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
 #ifndef RELEASE
@@ -64,7 +64,7 @@ void signal_unnatural_demise(int signum)
 
 void signal_somethins_corrupt(int signum)
 {
-	if (game->gamestate != GS_TITLE && GS_MENU)
+	if (game->gamestate != GS_TITLE && GS_MENU && GS_PAUSE)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
 #ifndef RELEASE
@@ -75,7 +75,6 @@ void signal_somethins_corrupt(int signum)
 	exit(EXIT_FAILURE);
 }
 
-#ifdef __unix__
 static void set_nonblock(void)
 {
 	struct termios ttystate;
@@ -92,7 +91,6 @@ static void set_nonblock(void)
 	// set the terminal attributes.
 	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
 }
-#endif
 
 FILE* dbg_file;
 #define DBG_PATH "Files/debug/"
@@ -100,19 +98,28 @@ void __attribute__((constructor)) debug_startup(void)
 {
 	std::string dbg_path = DBG_PATH;
 	dbg_path += "debuglog.txt";
-//	remove(dbg_path.c_str());
 	dbg_file = fopen(dbg_path.c_str(), "a");
-	fprintf(dbg_file"\n[APPENDING PREVIOUS LOG]\n\n");
-	auto time = std::chrono::system_clock::now();
-	time_t start = std::chrono::system_clock::to_time_t(time);
-	fprintf(dbg_file, "nomadascii debuglog start-time: %ld\n", (long)start);
+	fprintf(dbg_file, "\n\n\n%s(APPENDING PREVIOUS LOG)%s\n\n", C_GREEN, C_RESET);
+	fprintf(dbg_file, "%s%s<--------------------[START LOG SESSION]-------------------->%s\n", C_BG_BLACK, C_WHITE, C_RESET);
 }
 void __attribute__((destructor)) debug_kill(void)
 {
-	auto time = std::chrono::system_clock::now();
-	time_t end = std::chrono::system_clock::to_time_t(time);
-	fprintf(dbg_file, "nomadascii debuglog end-time: %ld\n", (long)end);
+	fprintf(dbg_file, "\n%s%s<--------------------[END LOG SESSION]-------------------->%s\n", C_BG_BLACK, C_WHITE, C_RESET);
 	fclose(dbg_file);
+}
+
+void signal_buss(int signum)
+{
+	if (game->gamestate != GS_TITLE && GS_MENU && GS_PAUSE)
+		delwin(game->hudwin[HL_VMATRIX]);
+	game->~Game();
+#ifdef RELEASE
+	LOG_WARN("RECIEVED SIGNAL SIGBUS!");
+	puts("Attempted to access invalid memory address (sigbus)");
+#else
+	puts("signal SIGBUS recieved");
+#endif
+	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[])
@@ -125,6 +132,7 @@ int main(int argc, char* argv[])
 	signal(SIGILL, signal_somethins_corrupt);
 	signal(SIGQUIT, signal_interrupt);
 	signal(SIGKILL, signal_interrupt);
+	signal(SIGBUS, signal_buss);
 	set_nonblock();
 #endif
 	mainLoop(argc, argv);

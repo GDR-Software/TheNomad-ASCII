@@ -45,8 +45,16 @@ void MobAssigner(Game* const gptr)
 static void M_GenMercSquad();
 static void M_GenZurgutLegion();
 
+void M_CheckMobs()
+{
+	for (auto* i : game->m_Active) {
+		if (i->c_mob.sprite == '^') M_KillMob(i);
+	}
+}
+
 static void M_GenGroup()
 {
+	LOG_PROFILE();
 	coord_t origin;
 	srand(time(NULL));
 	origin.y = (rand() % 300)+190;
@@ -91,51 +99,61 @@ static void M_GenGroup()
 	}
 }
 
-static void M_GenMob(Mob* const mob)
+static void M_BalanceMob(Mob* const mob)
+{
+	nomadbool_t done_coords = false;
+	while (!done_coords) {
+		switch (game->c_map[mob->mpos.y][mob->mpos.x]) {
+		case ' ':
+		case '.':
+			done_coords = true;
+			break;
+		// twas' once a time where mobs would spawn fucking anywhere
+		default:
+			mob->mpos.y = (rand() % 480)+20;
+			mob->mpos.x = (rand() % 480)+20;
+			break;
+		};
+	}
+}
+
+void M_GenMob(Mob* const mob)
 {
 	mob->c_mob = mobinfo[rand() % NUMMOBS];
 	mob->mpos.y = (rand() % 480)+20;
 	mob->mpos.x = (rand() % 480)+20;
-	mob->mstate = stateinfo[S_MOB_SPAWN+mob->c_mob.stateoffset];
+	M_BalanceMob(mob);
+	mob->mstate = stateinfo[S_MOB_SPAWN];
 	mob->mdir = P_Random() & 3;
+	mob->health = mob->c_mob.health;
+	mob->armor = mob->c_mob.armor;
 	mob->is_boss = false;
 	mob->stepcounter = P_Random() & 10;
 }
 
 void Game::M_GenMobs(void)
 {
+	LOG_PROFILE();
 	game = this;
 	MobAssigner(this);
 	NomadAssigner(this);
 	m_Active.reserve(MAX_MOBS_ACTIVE);
-	for (nomaduint_t i = 0; i < MAX_MOBS_ACTIVE; ++i) {
-		m_Active.emplace_back();
-		m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
-		m_Active.back()->alive = false;
-		M_GenMob(m_Active.back());
-	}
 }
 
 Mob* M_SpawnMob(void)
 {
-	nomaduint_t index = 0;
-	if ((index = G_GetFreeMob(game)) == MAX_MOBS_ACTIVE) {
-		return nullptr;
-	}
-	game->m_Active[index]->alive = true;
-	return game->m_Active[index];
+	game->m_Active.emplace_back();
+	game->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
+	return game->m_Active.back();
 }
 
 //
 // M_KillMob(): deallocates/kills the current mob being iterated over
 //
-void M_KillMob(Mob* const actor)
+void M_KillMob(Mob* mob)
 {
-#ifdef _NOMAD_DEBUG
-	assert(actor);
-#endif
-	// this memory can now be overwritten
-	actor->alive = false;
+	assert(mob);
+	game->m_Active.erase(std::remove(game->m_Active.begin(), game->m_Active.end(), mob), game->m_Active.end());
 }
 const char* MobTypeToStr(nomaduint_t mtype)
 {

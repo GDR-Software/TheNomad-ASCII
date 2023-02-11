@@ -18,176 +18,45 @@
 // DESCRIPTION:
 //  src/s_mthink.cpp
 //----------------------------------------------------------
-#include "g_game.h"
+#include "g_mob.h"
 #include "g_rng.h"
 
-static Game* game;
-static Mob* actor;
-
-
-void M_WanderThink()
+void M_NullThink(Mob* actor)
 {
-	if (!actor->stepcounter) {
-		if (((P_Random() & 29)+1) > 10) {
-			actor->stepcounter = P_Random() & 10; // get a cardinal number in the future
-		
-			// and now with a newly set step counter, we change the direction if rng decides it so
-			if ((P_Random() & 100) < actor->c_mob.rng) {
-				actor->mdir = P_Random() & 3; // might be the same direction
-			}
-		}
-		else {
-			actor->mstate = stateinfo[S_MOB_IDLE+actor->c_mob.mtype];
-		}
-	}
-	else {
-		--actor->stepcounter;
-		coord_t pos = game->E_GetDir(actor->mdir);
-		char move = game->c_map[actor->mpos.y+pos.y][actor->mpos.x+pos.x];
-		switch (move) {
-		case '.':
-		case ' ':
-			game->E_MoveImmediate(&actor->mpos, actor->mdir);
-			break;
-		default:
-			actor->mdir = P_Random() & 3;
-			break;
-		};
-	}
+    return;
 }
 
-
-void M_ThinkerAssigner(Game* const gptr)
+void M_SpawnThink(Mob* actor)
 {
-	game = gptr;
+    return;
 }
 
-void M_ThinkerCurrent(Mob* const mptr)
+void M_WanderThink(Mob* actor)
 {
-	actor = mptr;
+    return;
 }
 
-void M_SpawnThink()
+void M_IdleThink(Mob* actor)
 {
-	// emulating MTG summoning sickness
-	if (actor->mticker > -1) return;
+    return;
 }
 
-void M_DeadThink()
+void M_ChasePlayr(Mob* actor)
 {
-	M_SpawnThink(); // for now
+    return;
 }
 
-void M_ChasePlayr()
+void M_FightThink(Mob* actor)
 {
-	return;
+    return;
 }
 
-void M_FightThink()
+void M_FleeThink(Mob* actor)
 {
-	return;
+    return;
 }
 
-void M_FleeThink()
+void M_DeadThink(Mob* actor)
 {
-	return;
-}
-
-static nomadbool_t M_SeePlayr()
-{
-	coord_t pos = game->E_GetDir(actor->mdir);
-	coord_t end{};
-	switch (actor->mdir) {
-	case D_NORTH:
-		end.y = actor->mpos.y - actor->c_mob.sight_range;
-		end.x = actor->mpos.x;
-		break;
-	case D_WEST:
-		end.y = actor->mpos.y;
-		end.x = actor->mpos.x - actor->c_mob.sight_range;
-		break;
-	case D_SOUTH:
-		end.y = actor->mpos.y + actor->c_mob.sight_range;
-		end.x = actor->mpos.x;
-		break;
-	case D_EAST:
-		end.y = actor->mpos.y;
-		end.x = actor->mpos.x + actor->c_mob.sight_range;
-		break;
-	};
-	collider_t hit = G_CastRay(actor->mpos, end, game);
-	if (!hit.ptr || hit.what != ET_PLAYR)
-		return false;
-	else if (hit.what == ET_PLAYR)
-		return true;
-	return false;
-}
-
-void M_IdleThink()
-{
-	// hulks have no idle state, too aggressive and angry
-	if (actor->c_mob.mtype == MT_HULK) {
-		actor->mstate = stateinfo[S_HULK_WANDER];
-		actor->mticker = actor->mstate.numticks;
-		return;
-	}
-	if (M_SeePlayr()) {
-		actor->mstate = stateinfo[S_MOB_WANDER+actor->c_mob.stateoffset];
-	}
-	else {
-		return;
-	}
-}
-
-static nomadenum_t M_NewChaseDir()
-{
-	coord_t pos = game->E_GetDir(actor->mdir);
-
-	// the mob sees the player, so move them directly towards the player
-	if (M_SeePlayr()) {
-		coord_t& mpos = actor->mpos;
-		char move = game->c_map[mpos.y+pos.y][mpos.x+pos.x];
-		switch (move) {
-		case '.':
-		case ' ':
-			return 5;
-			break;
-		default:
-			return (P_Random() & 3);
-			break;
-		};
-	}
-	else {
-		return (P_Random() & 3);
-	}
-}
-
-void M_SearchForPlayr()
-{
-	if (!M_SeePlayr()) {
-		return;
-	}
-	nomadenum_t chasedir = M_NewChaseDir();
-	nomadbool_t changedir = false;
-	if (chasedir == 5) {
-		// if the mob doesn't need to change direction, then best 
-		// thing to do is to go in the direction of player's last pos
-//		M_FollowPlayr();
-	}
-	else {
-		changedir = true;
-	}
-	// changing direction if needed
-	if (changedir) {
-		actor->mdir = chasedir;
-		// try again after changing
-		chasedir = M_NewChaseDir();
-		if (chasedir == 5) {
-			actor->mdir = chasedir;
-		}
-		// if it fails again, give up
-		else {
-			return;
-		}
-	}
+    return;
 }

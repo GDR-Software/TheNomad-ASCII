@@ -23,40 +23,12 @@
 
 nomaduint_t G_GetNumMobs(const Game* const game)
 {
-	nomaduint_t count = 0;
-	for (const auto* i : game->m_Active) {
-		if (i->alive) ++count;
-	}
-	return count;
+	return game->m_Active.size();
 }
 
 nomaduint_t G_GetNumBots(const Game* const game)
 {
-	nomaduint_t count = 0;
-	for (const auto* i : game->b_Active) {
-		if (i->alive) ++count;
-	}
-	return count;
-}
-
-nomaduint_t G_GetFreeBot(const Game* const game)
-{
-	for (nomaduint_t i = 0; i < game->b_Active.size(); ++i) {
-		if (!game->b_Active[i]->alive) {
-			return i;
-		}
-	}
-	return MAX_NPC_ACTIVE;
-}
-
-nomaduint_t G_GetFreeMob(const Game* const game)
-{
-	for (nomaduint_t i = 0; i < game->m_Active.size(); ++i) {
-		if (!game->m_Active[i]->alive) {
-			return i;
-		}
-	}
-	return MAX_MOBS_ACTIVE;
+	return game->b_Active.size();
 }
 
 Game::Game()

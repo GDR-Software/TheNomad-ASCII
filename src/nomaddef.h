@@ -69,11 +69,10 @@
 #define BULLET_STRING          "magazine of bullets"
 #define BULLETBOX_STRING       "box of bullets"
 
+#define GAIN_HEALTH(x)         "You gained "x" health"
+#define GAIN_ARMOR(x)          "You gained "x" armor"
 #define PICKUP_AMMO(x)         "You picked up "x"!"
 #define PICKUP_WEAPON(x)       "You got the "x"!"
-
-#define ID_SHOTTY_ADB
-#define ID
 
 #define SHOTTY_ADB_STRING      "Asturion Double-Barrel"
 #define SHOTTY_FAB_STRING      "Full-Auto Bitch"
@@ -246,5 +245,14 @@
 #define ARM_HC_COST            20
 #define ARM_SB_COST            25
 #define ARM_FT_COST            3
+
+// timed in-game delays (tickers)
+#define FULL_TIC               (ticrate_base)
+#define HALF_TIC               (ticrate_base>>1)
+#define QUARTER_TIC            (ticrate_base/4)
+#define FRACTION_TICKER(frac)  (ticrate_base*(frac))
+#define TICKER(numtics)        (ticrate_base*numtics)
+
+#define PLAYR_SHOOT_TICKER     FRACTION_TICKER(3/5)
 
 #endif

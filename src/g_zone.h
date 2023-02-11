@@ -26,7 +26,6 @@
 constexpr auto TAG_FREE       = 0;
 constexpr auto TAG_STATIC     = 1; // stays allocated for the entire execution time
 constexpr auto TAG_MISSION    = 2;
-
 constexpr auto TAG_PURGELEVEL = 100;
 constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
@@ -37,36 +36,8 @@ static constexpr int heapsize = 10000000; // allocating 3 mb
 #ifdef TESTING
 __CFUNC__ void Z_Init(int size);
 #else
-__CFUNC__ void Z_Init(uint64_t& start, uint64_t& end);
+__CFUNC__ void Z_Init();
 #endif
-
-#define UNOWNED    ((void*)666)
-#define ZONEID     0xa21d49
-
-// size: 40 bytes...?
-typedef struct memblock_s
-{
-	int size;
-	int tag;
-	int id;
-	void* user;
-	
-	struct memblock_s* next;
-	struct memblock_s* prev;
-} memblock_t;
-
-typedef struct
-{
-	// total bytes allocated, including the sizeof memzone_t
-	int size;
-
-	// start/end cap for the linked list of blocks
-	memblock_t blocklist;
-	// the block pointer
-	memblock_t* rover;
-} memzone_t;
-
-extern memzone_t* mainzone;
 
 __CFUNC__ void* Z_Malloc(int size, int tag, void* user);
 __CFUNC__ void* Z_Realloc(void *user, int nsize, int tag);

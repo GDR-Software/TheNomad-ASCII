@@ -62,7 +62,6 @@ typedef struct mobj_s
 	nomadshort_t health;
 	nomadushort_t armor;
 	nomaduint_t mtype;
-	state_t stateoffset;
 	entitytype_t etype;
 	nomadenum_t rng;
 	nomadenum_t chance_to_spawn;
@@ -88,12 +87,7 @@ typedef struct
 } bossj_t;
 
 extern const mobj_t mobinfo[NUMMOBS];
-extern const bossj_t bossinfo;
-
-constexpr nomadenum_t idle       = 0b00000000;
-constexpr nomadenum_t smellplayr = 0b00000001;
-constexpr nomadenum_t hearplayr  = 0b00000010;
-constexpr nomadenum_t seeplayr   = 0b00000011;
+extern const bossj_t bossinfo[];
 
 class Mob
 {
@@ -102,7 +96,6 @@ public:
 	nomadbool_t is_boss;
 	bossj_t c_boss;
 	
-	nomadenum_t sector_id;
 	nomadlong_t mticker;
 	std::atomic<nomadint_t> health;
 	std::atomic<nomadint_t> armor;
@@ -110,7 +103,6 @@ public:
 	coord_t mpos;
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
-	nomadbool_t alive = false; // if false, then the memory can be overwritten with a new mob, if true, then the memory is safe
 public:
 	Mob(){}
 	~Mob(){}
@@ -120,24 +112,25 @@ public:
 	}
 };
 
+void M_GenMob(Mob* const mob);
+void M_CheckMobs();
+
 // s_mthink functions
 void M_ThinkerAssigner(Game* const gptr);
-void M_ThinkerCurrent(Mob* const mptr);
-void M_SpawnThink();
-void M_WanderThink();
-void M_IdleThink();
-void M_FightThink();
-void M_ChasePlayr();
-void M_DeadThink();
-void M_FleeThink();
 
-void NomadAssigner(Game* const gptr);
+void M_NullThink(Mob* actor);
+void M_SpawnThink(Mob* actor);
+void M_WanderThink(Mob* actor);
+void M_IdleThink(Mob* actor);
+void M_FightThink(Mob* actor);
+void M_ChasePlayr(Mob* actor);
+void M_DeadThink(Mob* actor);
+void M_FleeThink(Mob* actor);
 
 // s_mmisc functions
 Mob* M_SpawnMob(void);
-void MobAssigner(Game* const gptr);
 const char* MobTypeToStr(nomaduint_t mtype);
-void M_KillMob(void);
+void M_KillMob(Mob* mob);
 
 //extern const mstate_t mstates[NUMMOBSTATES];
 

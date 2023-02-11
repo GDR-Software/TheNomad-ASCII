@@ -111,8 +111,8 @@ void Playr::P_Init()
 	coin = 0;
 	pos = {0, 0};
 	sector_id = 0;
-	pstate = stateinfo[S_PLAYR_SPAWN];
-	pticker = pstate.numticks;
+	pstate = stateinfo[S_PLAYR_NULL];
+	pticker = 0;
 	pmode = P_MODE_ROAMING;
 	wpn_slot_current = 1;
 	p_rightarm.c_wpn = wpninfo[W_ARM_HB];
@@ -124,30 +124,6 @@ void Playr::P_Init()
     p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
 	c_wpn = &p_shotty;
 	memset(&body_health, 100, sizeof(body_health));
-}
-
-static nomadbool_t P_MoveTicker(Playr* playr)
-{
-	assert(playr);
-	if (playr->pstate == stateinfo[S_PLAYR_NULL]) {
-		playr->pstate = stateinfo[S_PLAYR_SPAWN];
-		playr->pticker = playr->pstate.numticks;
-		return true;
-	}
-	else if (playr->pstate == stateinfo[S_PLAYR_MOVE]) {
-		playr->pticker = playr->pstate.numticks;
-		return false;
-	}
-	else {
-		if (!playr->pticker) {
-			playr->pstate = stateinfo[S_PLAYR_MOVE];
-			playr->pticker = playr->pstate.numticks;
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
 }
 
 void P_Interact()
@@ -177,6 +153,7 @@ void P_PauseMenu()
 
 void P_UseWeapon()
 {
+	LOG_PROFILE();
 	switch (playr->c_wpn->c_wpn.id) {
 	case W_SHOTTY_ADB:
 	case W_SHOTTY_FAB:
@@ -197,8 +174,8 @@ void P_UseWeapon()
 
 void Game::P_Ticker(nomadint_t input)
 {
-	DBG_LOG("gamestate = %hu", gamestate);
-	DBG_LOG("gamescreen = %hu", gamescreen);
+	LOG_INFO("gamestate = %hu", gamestate);
+	LOG_INFO("gamescreen = %hu", gamescreen);\
 	--playr->pticker;
 //	playr->P_GetMode();
 	playr->P_RunTicker(input);
@@ -209,8 +186,6 @@ static nomadint_t input;
 void Playr::P_RunTicker(nomadint_t finput)
 {
 	input = finput;
-	if (input == 10) P_Interact();
-	else if (input == '\n') P_Interact();
 	for (const auto& i : scf::kb_binds) {
 		if (input == i.button) {
 			(*i.actionp)();
@@ -331,119 +306,111 @@ void Playr::P_GetMode()
 
 void P_MoveN()
 {
-	if (!P_MoveTicker(playr)) {
-		switch (game->c_map[playr->pos.y - 1][playr->pos.x]) {
-		case '_':
-			P_DoorInteract(input);
-			break;
-		case '.':
-		case ' ':
-			playr->pos.y--;
-			break;
-		case 'M':
-			B_MercMasterInteract();
-			break;
-		case '(':
-			B_BartenderInteract();
-			break;
-		case ':': { // a chair/seat sprite
-			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-			else { playr->pos.y--; playr->pmode = P_MODE_ROAMING; }
-			break; }
-		case '=': // weapons smith table
-			B_WeaponSmithInteract();
-			break;
-		default:
-			break;
-		};
-	}
+	switch (game->c_map[playr->pos.y - 1][playr->pos.x]) {
+	case '_':
+		P_DoorInteract(input);
+		break;
+	case '.':
+	case ' ':
+		playr->pos.y--;
+		break;
+	case 'M':
+		B_MercMasterInteract();
+		break;
+	case '(':
+		B_BartenderInteract();
+		break;
+	case ':': { // a chair/seat sprite
+		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+		else { playr->pos.y--; playr->pmode = P_MODE_ROAMING; }
+		break; }
+	case '=': // weapons smith table
+		B_WeaponSmithInteract();
+		break;
+	default:
+		break;
+	};
 }
 void P_MoveW()
 {
-	if (!P_MoveTicker(playr)) {
-		switch (game->c_map[playr->pos.y][playr->pos.x - 1]) {
-		case '_':
-			P_DoorInteract(input);
-			break;
-		case '.':
-		case ' ':
-			playr->pos.x--;
-			break;
-		case 'M': // the merc master's custom sprite
-			B_MercMasterInteract();
-			break;
-		case '(': // a bar sprite
-			B_BartenderInteract();
-			break;
-		case ':': { // a chair/seat sprite
-			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-			else { playr->pos.x--; playr->pmode = P_MODE_ROAMING; }
-			break; }
-		case '=': // weapons smith table
-			B_WeaponSmithInteract();
-			break;
-		default:
-			break;
-		};
-	}
+	switch (game->c_map[playr->pos.y][playr->pos.x - 1]) {
+	case '_':
+		P_DoorInteract(input);
+		break;
+	case '.':
+	case ' ':
+		playr->pos.x--;
+		break;
+	case 'M': // the merc master's custom sprite
+		B_MercMasterInteract();
+		break;
+	case '(': // a bar sprite
+		B_BartenderInteract();
+		break;
+	case ':': { // a chair/seat sprite
+		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+		else { playr->pos.x--; playr->pmode = P_MODE_ROAMING; }
+		break; }
+	case '=': // weapons smith table
+		B_WeaponSmithInteract();
+		break;
+	default:
+		break;
+	};
 }
 void P_MoveS()
 {
-	if (!P_MoveTicker(playr)) {
-		switch (game->c_map[playr->pos.y + 1][playr->pos.x]) {
-		case '_':
-			P_DoorInteract(input);
-			break;
-		case '.':
-		case ' ':
-			playr->pos.y++;
-			break;
-		case 'M':
-			B_MercMasterInteract();
-			break;
-		case '(':
-			B_BartenderInteract();
-			break;
-		case ':': { // a chair/seat sprite
-			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-			else { playr->pos.y++; playr->pmode = P_MODE_ROAMING; }
-			break; }
-		case '=': // weapons smith table
-			B_WeaponSmithInteract();
-			break;
-		default:
-			break;
-		};
-	}
+	switch (game->c_map[playr->pos.y + 1][playr->pos.x]) {
+	case '_':
+		P_DoorInteract(input);
+		break;
+	case '.':
+	case ' ':
+		playr->pos.y++;
+		break;
+	case 'M':
+		B_MercMasterInteract();
+		break;
+	case '(':
+		B_BartenderInteract();
+		break;
+	case ':': { // a chair/seat sprite
+		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+		else { playr->pos.y++; playr->pmode = P_MODE_ROAMING; }
+		break; }
+	case '=': // weapons smith table
+		B_WeaponSmithInteract();
+		break;
+	default:
+		break;
+	};
 }
 void P_MoveE()
 {
-	if (!P_MoveTicker(playr)) {
-		switch (game->c_map[playr->pos.y][playr->pos.x + 1]) {
-		case '_':
-			P_DoorInteract(input);
-			break;
-		case '.':
-		case ' ':
-			playr->pos.x++;
-			break;
-		case 'M':
-			B_MercMasterInteract();
-			break;
-		case '(':
-			B_BartenderInteract();
-			break;
-		case ':': { // a chair/seat sprite
-			if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-			else { playr->pos.x++; playr->pmode = P_MODE_ROAMING; }
-			break; }
-		case '=': // weapons smith table
-			B_WeaponSmithInteract();
-			break;
-		default:
-			break;
-		};
-	}
+	switch (game->c_map[playr->pos.y][playr->pos.x + 1]) {
+	case '_':
+		P_DoorInteract(input);
+		break;
+	case '.':
+	case ' ':
+		playr->pos.x++;
+		break;
+	case 'M':
+		B_MercMasterInteract();
+		break;
+	case '(':
+		B_BartenderInteract();
+		break;
+	case ':': { // a chair/seat sprite
+		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
+		else { playr->pos.x++; playr->pmode = P_MODE_ROAMING; }
+		break; }
+	case '=': // weapons smith table
+		B_WeaponSmithInteract();
+		break;
+	default:
+		break;
+	};
 }
 
 void P_DashN()

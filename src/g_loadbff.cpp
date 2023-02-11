@@ -115,4 +115,5 @@ void G_LoadBFF(const char* bffname, Game* const game)
     fclose(fp);
 	(*kill)(file);
 	dlclose(bffhandle);
+	game->I_InitHUD();
 }

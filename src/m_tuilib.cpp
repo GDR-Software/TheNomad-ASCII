@@ -22,26 +22,6 @@
 //#define OPENTL_IMPLEMENTATION
 //#include "tl.h"
 
-void Game::DrawSpriteToMainWin(coord_t pos, sprite_t sprite)
-{
-	mvwaddch(screen, pos.y, pos.x, sprite);
-}
-
-void Game::PrintMainWin(void)
-{
-	wrefresh(screen);
-}
-
-void Game::ClearMainWin(void)
-{
-	werase(screen);
-}
-
-void Game::MainWinPrintf(const char *msg)
-{
-	wrefresh(screen);
-}
-
 void Game::DrawMainWinBorder(void)
 {
 	nomadenum_t i;
@@ -56,16 +36,6 @@ void Game::DrawMainWinBorder(void)
 }
 
 static std::string buffer;
-/*
-void Game::DrawSettingsScreen()
-{
-	
-}
-
-void Game::DrawLevelScreen()
-{
-	
-}*/
 
 void Game::DrawTitleScreen()
 {

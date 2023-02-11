@@ -31,14 +31,11 @@ void NPCAssigner(Game* const gptr)
 	game = gptr;
 }
 
-static NPC* B_SpawnBot(void)
+NPC* B_SpawnBot(void)
 {
-	nomaduint_t index;
-	if ((index = G_GetFreeBot(game)) == MAX_NPC_ACTIVE) {
-		return nullptr;
-	}
-	game->b_Active[index]->alive = true;
-	return game->b_Active[index];
+	game->b_Active.emplace_back();
+	game->b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &game->b_Active.back());
+	return game->b_Active.back();
 }
 
 // should only get triggered once, and only ever during the initialize phase
@@ -107,12 +104,7 @@ void Game::I_InitNPCs(void)
 	assert(!game);
 	game = this;
 	b_Active.reserve(MAX_NPC_ACTIVE);
-	for (nomaduint_t i = 0; i < MAX_NPC_ACTIVE; ++i) {
-		b_Active.emplace_back();
-		b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-		b_Active.back()->alive = false;
-	}
-	DBG_LOG("reserving %li NPC for b_Active", npcinfo.size()+MAX_NPC_ACTIVE);
+	LOG_INFO("reserving %i NPC for b_Active", MAX_NPC_ACTIVE);
 	NomadAssigner(this);
 	MissionAssigner(this);
 	B_SpawnShopBots();
@@ -161,10 +153,11 @@ void B_FleeArea(NPC* const npc)
 	npc->pos.x += pos.x; */
 }
 
-void B_KillBot(NPC* const npc)
+void B_KillBot(NPC* npc)
 {
 	assert(npc);
-	npc->alive = false;
+	game->b_Active.erase(std::remove(game->b_Active.begin(), game->b_Active.end(), npc), game->b_Active.end());
+	Z_Free(npc);
 }
 
 void B_WeaponSmithInteract()

@@ -83,6 +83,7 @@ namespace scf {
 		case kbOpenConsole: return "Open Text/Command Console";
 		};
 		assert(false);
+        return NULL;
 	}
 
     scfbind kbStrings[NUMBINDS] = { SCF_KB_STRINGS };
@@ -235,20 +236,27 @@ namespace scf {
     void G_LoadSCF(const char* filepath)
     {
         puts("G_LoadSCF(): Loading SACE Configuration File...");
-       	NOMAD_ASSERT(strstr(filepath, ".scf"),
-		"SACE Configuration File (scf) isn't correct format! (must be suffixed with .scf)");
-        DBG_LOG("Attempting to stat() .scf file");
+       	if (!strstr(filepath, ".scf")) {
+    		N_Error("SACE Configuration File (scf) isn't correct format! (must be suffixed with .scf)");
+        }
+        LOG_INFO("Attempting to stat() .scf file");
         struct stat fdata;
-        NOMAD_ASSERT(stat(filepath, &fdata) != -1, "Failed to get data from .scf file!");
-	    DBG_LOG("Successful stat() of .scf file");
+        if (stat(filepath, &fdata) == -1) {
+            N_Error("Failed to get data from .scf file!");
+        }
+	    LOG_INFO("Successful stat() of .scf file");
         FILE* fp = fopen(filepath, "r");
-        NOMAD_ASSERT(fp, "Failed to open .scf file!");
+        if (!fp) {
+            N_Error("Failed to open .scf file!");
+        }
         assert(fp);
-        DBG_LOG("Successful fopen() of .scf file");
+        LOG_INFO("Successful fopen() of .scf file");
         const char* buffer = (char *)mmap(NULL, fdata.st_size, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
-	    NOMAD_ASSERT(buffer, "Failed to read data from .scf file!");
+	    if (!buffer) {
+            N_Error("Failed to read data from .scf file!");
+        }
         assert(buffer);
-        DBG_LOG("Successful read of .scf file");
+        LOG_INFO("Successful read of .scf file");
         Lexer lex(buffer);
         munmap(&buffer, fdata.st_size);
         fclose(fp);
