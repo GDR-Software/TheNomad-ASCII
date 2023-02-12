@@ -31,39 +31,67 @@ void NPCAssigner(Game* const gptr)
 	game = gptr;
 }
 
+static void B_BalanceBot(NPC* const npc)
+{
+	npc->c_npc = npcinfo[rand() % NUMBOTTYPES];
+	npc->sprite = npc->c_npc.sprite;
+	npc->health = npc->c_npc.health;
+	npc->armor = npc->c_npc.armor;
+	npc->ndir = P_Random() & 3;
+	npc->pos.y = (rand() % 480)+20;
+	npc->pos.x = (rand() % 480)+20;
+	nomadbool_t done_coords = false;
+	while (!done_coords) {
+		switch (game->c_map[npc->pos.y][npc->pos.x]) {
+		case ' ':
+		case '.':
+			done_coords = true;
+			break;
+		default:
+			npc->pos.y = (rand() % 480)+20;
+			npc->pos.x = (rand() % 480)+20;
+			break;
+		};
+	}
+}
+
 NPC* B_SpawnBot(void)
 {
 	game->b_Active.emplace_back();
 	game->b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &game->b_Active.back());
+//	B_BalanceBot(game->b_Active.back());
 	return game->b_Active.back();
 }
 
 // should only get triggered once, and only ever during the initialize phase
 __CFUNC__ void B_SpawnShopBots(void)
 {
-	assert(game);
+	PTR_CHECK(NULL_CHECK, game);
 	// hardcoded until the BFFs roll around
 	NPC* npc;
 	
 	// creating the guns 'n' grenades bartender
 	npc = B_SpawnBot();
 	npc->pos = botpos[0];
-	npc->c_npc = npcinfo[0];
+	npc->c_npc = npcinfo[BOT_BARTENDER];
+	npc->sprite = npc->c_npc.sprite;
 	npc->c_npc.btype = BOT_BARTENDER;
 	npc->ndir = D_WEST;
 
 	// creating the guns 'n' grenades mercenary master
 	npc = B_SpawnBot();
 	npc->pos = botpos[1];
-	npc->c_npc = npcinfo[1];
+	npc->c_npc = npcinfo[BOT_MERCMASTER];
 	npc->c_npc.btype = BOT_MERCMASTER;
+	npc->sprite = npc->c_npc.sprite;
 	npc->ndir = D_NORTH;
 
 	// creating the guns 'n' grenades weapons smith
 	npc = B_SpawnBot();
 	npc->pos = botpos[2];
-	npc->c_npc = npcinfo[2];
+	npc->c_npc = npcinfo[BOT_WEAPONSMITH];
 	npc->c_npc.btype = BOT_WEAPONSMITH;
+	npc->sprite = npc->c_npc.sprite;
 	npc->ndir = D_EAST;
 }
 /*
@@ -101,8 +129,8 @@ __CFUNC__ void B_SpawnCivilianBots(void)
 
 void Game::I_InitNPCs(void)
 {
-	assert(!game);
 	game = this;
+	PTR_CHECK(NULL_CHECK, game);
 	b_Active.reserve(MAX_NPC_ACTIVE);
 	LOG_INFO("reserving %i NPC for b_Active", MAX_NPC_ACTIVE);
 	NomadAssigner(this);
@@ -113,9 +141,7 @@ void Game::I_InitNPCs(void)
 
 static nomadbool_t B_IsScared(NPC* const npc)
 {
-#ifdef _NOMAD_DEBUG
-	assert(npc);
-#endif
+	PTR_CHECK(NULL_CHECK, npc);
 	if (npc->c_npc.btype == BOT_CIVILIAN) {
 		return true; // auto-true if its a civilian
 	}
@@ -133,9 +159,7 @@ static nomadbool_t B_IsScared(NPC* const npc)
 
 void B_FleeArea(NPC* const npc)
 {
-#ifdef _NOMAD_DEBUG
-	assert(npc);
-#endif
+	PTR_CHECK(NULL_CHECK, npc);
 	if (!B_IsScared(npc)) {
 		return;
 	}
@@ -155,8 +179,12 @@ void B_FleeArea(NPC* const npc)
 
 void B_KillBot(NPC* npc)
 {
-	assert(npc);
-	game->b_Active.erase(std::remove(game->b_Active.begin(), game->b_Active.end(), npc), game->b_Active.end());
+	PTR_CHECK(NULL_CHECK, npc);
+	for (std::vector<NPC*>::iterator it = game->b_Active.begin(); it != game->b_Active.end(); ++it) {
+		if ((*it) == npc) {
+			game->b_Active.erase(it);
+		}
+	}
 	Z_Free(npc);
 }
 

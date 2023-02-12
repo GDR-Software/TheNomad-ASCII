@@ -54,16 +54,24 @@ scf::keybind_t scf::kb_binds[scf::NUMBINDS] = {
 };
 
 std::vector<npc_t> npcinfo = {
-	{"The Bartender\0",    'b', 90,  49},
-	{"Mercenary Master\0", 'M', 200, 50},
-	{"Weapons Smith\0",    'w', 100, 43}
+	{"Civilian\0",         'c', 15,  8,  BOT_CIVILIAN},
+	{"Guard\0",            'g', 40,  19, BOT_GUARD},
+	{"Merchant\0",         't', 43,  29, BOT_MERCHANT},
+	{"Mercenary Master\0", 'M', 200, 50, BOT_MERCMASTER},
+	{"The Bartender\0",    'b', 90,  49, BOT_BARTENDER},
+	{"Blacksmith\0",       'f', 78,  67, BOT_BLACKSMITH},
+	// they're like rippers but more psychopathic and crazy
+	{"Stitcher\0",         's', 65,  40, BOT_STITCHER},
+	// stitchers who mess around with genes and genetics, named after my dearest Spino
+	{"Splicer\0",          'S', 66,  39, BOT_SPLICER},
+	{"Weapons Smith\0",    'w', 100, 43, BOT_WEAPONSMITH},
 };
 
-const entitystate_t stateinfo[NUMSTATES] = {
+std::vector<entitystate_t> stateinfo = {
 	{S_MOB_NULL,                          1,     S_MOB_SPAWN}, // S_MOB_NULL
 	{S_MOB_SPAWN,              ticrate_base,      S_MOB_IDLE}, // S_MOB_SPAWN
-	{S_MOB_IDLE,               ticrate_base,    S_MOB_WANDER}, // S_MOB_IDLE
-	{S_MOB_WANDER,             ticrate_base,      S_MOB_IDLE}, // S_MOB_WANDER
+	{S_MOB_WANDER,           ticrate_base*1,      S_MOB_IDLE}, // S_MOB_WANDER
+	{S_MOB_IDLE,             ticrate_base*2,    S_MOB_WANDER}, // S_MOB_IDLE
 	{S_MOB_CHASE,              ticrate_base,    S_MOB_WANDER}, // S_MOB_CHASE
 	{S_MOB_FIGHT,              ticrate_base,     S_MOB_CHASE}, // S_MOB_FIGHT
 	{S_MOB_FLEE,               ticrate_base,    S_MOB_WANDER}, // S_MOB_FLEE
@@ -79,6 +87,12 @@ const entitystate_t stateinfo[NUMSTATES] = {
 	{S_PLAYR_DEAD,             ticrate_base,    S_PLAYR_NULL}, // S_PLAYR_DEAD
 };
 
+
+//static constexpr const char* hulk_lore;
+//static constexpr const char* rav_lore;
+//static constexpr const char* grunt_lore;
+
+
 // name, sprite, health, armor, mtype, etype, rng, chance-to-spawn, sndtol, sndarea,
 // smelltol, smellarea, sight range, hasmelee, hashitscan. hasprojectile, melee dmg,
 // hitscan dmg, hitscan range, projectile dmg, projectile range, mlore, mdrops
@@ -92,6 +106,7 @@ const mobj_t mobinfo[NUMMOBS] = {
 	ET_MOB,
 	150,
 	44,
+
 },
 {
 	"Ravager\0",

@@ -64,6 +64,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	char buf[256];
 	strncpy(game->bffname, "nomadmain.bffl", sizeof(game->bffname));
 	strncpy(game->scfname, "default.scf", sizeof(game->scfname));
+	strncpy(game->svfile, "nomadsv.ngd", sizeof(game->svfile));
 	switch (_NOMAD_VERSION) {
 	case 0:
 		snprintf(buf, sizeof(buf),
@@ -131,7 +132,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 
 static inline void TUI_Init(Game* const game)
 {
-	assert(game);
+	PTR_CHECK(NULL_CHECK, game);
 	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
 	setlocale(LC_ALL, "");
 	initscr();
@@ -141,16 +142,15 @@ static inline void TUI_Init(Game* const game)
 	curs_set(0);
 	game->screen = newwin(34, 129, 0, 0);
 	stdscr = game->screen;
-	assert(game->screen);
-	DBG_LOG("game->screen allocated successfully");
+	PTR_CHECK(NULL_CHECK, game->screen);
+	LOG_INFO("game->screen allocated successfully");
 	keypad(game->screen, TRUE);
 	
 	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45)
 		N_Error("Screen Too Small For nomadascii!");
 	// change this in the future, this game doesn't "require" colors
 	NOMAD_ASSERT(has_colors(), "Terminal Must Support Colors!");
-	assert(has_colors());
-	DBG_LOG("has_colors() = true");
+	LOG_INFO("has_colors() = true");
 	ncurses_on = true;
 }
 
@@ -165,6 +165,7 @@ static inline void E_Init(Game* const game)
 	srand(time(NULL));
 	game->I_InitNPCs();
 	game->M_GenMobs();
+	MobtAssigner(game);
 }
 
 static inline void I_ProcessArgs(const std::vector<char*>& myargv)
@@ -202,13 +203,12 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 				fprintf(stdout, "Using non-default SACE Configuration File: %s\n", gptr->scfname);
 			}
 		}
-		else if (strcmp(myargv[i], "--debug-log-dump")) {
-			LOG_DUMP();
-			exit(1);
-		}
 		else if (strcmp(myargv[i], "-save")) {
 			++i;
 			strncpy(gptr->svfile, myargv[i+1], sizeof(gptr));
+			if (!strncmp(gptr->svfile, "nomadsv.ngd", sizeof(gptr->svfile))) {
+				fprintf(stdout, "Using non-default nomad game data save file: %s\n", gptr->svfile);
+			}
 		}
 		else if (strcmp(myargv[i], "-deafmobs")) {
 			scf::launch::deafmobs = true;

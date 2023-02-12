@@ -47,9 +47,8 @@ static char* hudbuffer;
 
 void Hud_Printf(const char* from, const char* msg, ...)
 {
-#ifdef _NOMAD_DEBUG
-	assert(msg && from);
-#endif
+	PTR_CHECK(NULL_CHECK, from);
+	PTR_CHECK(NULL_CHECK, msg);
 	va_list argptr;
 	va_start(argptr, msg);
 	vsnprintf(hudbuffer, BUFFER_SIZE, msg, argptr);
@@ -84,6 +83,7 @@ static void HudAssigner(Game* const gptr)
 
 void Game::I_InitHUD(void)
 {
+	LOG_INFO("Initializign HUD data");
 	printf("I_InitHUD(): Initializing HUD...\n");
 	HudAssigner(this);
 	playr->pos = origin;
@@ -119,15 +119,10 @@ static inline void Hud_InsertSprites()
 {
 	LOG_PROFILE();
 	for (const auto* i : game->b_Active) {
-		game->c_map[i->pos.y][i->pos.x] = i->c_npc.sprite;
+		game->c_map[i->pos.y][i->pos.x] = i->sprite;
 	}
 	for (auto* i : game->m_Active) {
-		if (i->c_mob.sprite == '^') {
-			M_KillMob(i);
-		}
-		else {
-			game->c_map[i->mpos.y][i->mpos.x] = i->c_mob.sprite;
-		}
+		game->c_map[i->mpos.y][i->mpos.x] = i->sprite;
 	}
 }
 
@@ -447,6 +442,7 @@ static inline void Hud_FilterVMatrix()
 
 static inline void Hud_GetVMatrix()
 {
+	LOG_PROFILE();
 	P_GetMapBuffer();
 	game->c_map[playr->pos.y][playr->pos.x] = playr->sprite;
 	coord_t startc;

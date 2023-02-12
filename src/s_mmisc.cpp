@@ -55,6 +55,7 @@ void M_CheckMobs()
 static void M_GenGroup()
 {
 	LOG_PROFILE();
+	LOG_INFO("Generating a mob grouping");
 	coord_t origin;
 	srand(time(NULL));
 	origin.y = (rand() % 300)+190;
@@ -119,11 +120,12 @@ static void M_BalanceMob(Mob* const mob)
 
 void M_GenMob(Mob* const mob)
 {
-	mob->c_mob = mobinfo[rand() % NUMMOBS];
+	mob->c_mob = mobinfo[rand() % (NUMMOBS - 1)];
+	mob->sprite = mob->c_mob.sprite;
 	mob->mpos.y = (rand() % 480)+20;
 	mob->mpos.x = (rand() % 480)+20;
 	M_BalanceMob(mob);
-	mob->mstate = stateinfo[S_MOB_SPAWN];
+	mob->mstate = stateinfo[S_MOB_NULL];
 	mob->mdir = P_Random() & 3;
 	mob->health = mob->c_mob.health;
 	mob->armor = mob->c_mob.armor;
@@ -134,6 +136,7 @@ void M_GenMob(Mob* const mob)
 void Game::M_GenMobs(void)
 {
 	LOG_PROFILE();
+	LOG_INFO("Generating mobs");
 	game = this;
 	MobAssigner(this);
 	NomadAssigner(this);
@@ -148,12 +151,17 @@ Mob* M_SpawnMob(void)
 }
 
 //
-// M_KillMob(): deallocates/kills the current mob being iterated over
+// M_KillMob(): deallocates/kills mob
 //
 void M_KillMob(Mob* mob)
 {
-	assert(mob);
-	game->m_Active.erase(std::remove(game->m_Active.begin(), game->m_Active.end(), mob), game->m_Active.end());
+	PTR_CHECK(NULL_CHECK, mob);
+	for (std::vector<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
+		if ((*it) == mob) {
+			game->m_Active.erase(it);
+		}
+	}
+	Z_Free(mob);
 }
 const char* MobTypeToStr(nomaduint_t mtype)
 {
@@ -171,7 +179,6 @@ const char* MobTypeToStr(nomaduint_t mtype)
 	case MT_NOMAD_LEADER: return VAR_TO_STR(MT_NOMAD_LEADER);
 	case MT_NOMAD_WARRIOR: return VAR_TO_STR(MT_NOMAD_WARRIOR);
 	};
-	if (!false)
-		N_Error("Unknown/Invalid Mob Type %iu!", mtype);
-	return nullptr;
+	LOG_WARN("given mtype is invalid! returning \"Unknown Mob\"");
+	return "Unknown Mob";
 }

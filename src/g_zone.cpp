@@ -79,6 +79,11 @@ __CFUNC__ void Z_KillHeap(void)
 	free(mainzone);
 }
 
+
+static unsigned long log_size = 0; // once this reaches ~10 kb, it'll reset
+static unsigned long free_size = 0; // same as above
+static unsigned long numblocks = 0;
+
 //
 // Z_Free
 //
@@ -87,7 +92,6 @@ __CFUNC__ void Z_Free(void *ptr)
 	assert(ptr);
 	memblock_t* block;
 	memblock_t* other;
-	DBG_LOG("freeing zone-allocated pointer at %p", ptr);
 	
 	block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 	
@@ -98,6 +102,11 @@ __CFUNC__ void Z_Free(void *ptr)
 #else
 		N_Error("Z_Free: trying to free a pointer without ZONEID!\n");
 #endif
+	}
+	free_size += block->size;
+	if (free_size > 10000) {
+		LOG_HEAP();
+		free_size = 0;
 	}
 	if (block->tag != TAG_FREE && block->user)
 		block->user = nullptr;
@@ -110,6 +119,7 @@ __CFUNC__ void Z_Free(void *ptr)
 	block->id = 0;
 
 	other = block->prev;
+	--numblocks;
 
 	if (other->tag == TAG_FREE) {
 		// merge with previous free block
@@ -241,12 +251,13 @@ __CFUNC__ void Z_Init()
 	base->user = NULL;
 	base->size = mainzone->size - sizeof(memzone_t);
 	printf("Allocated Zone From %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
+	LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
 }
 #endif
 
 __CFUNC__ void Z_ClearZone(void)
 {
-	DBG_LOG("clearing zone");
+	LOG_INFO("clearing zone");
 	memblock_t*		block;
 	
 	// set the entire zone to one free block
@@ -270,7 +281,6 @@ __CFUNC__ void Z_ClearZone(void)
 // from within the zone without calling malloc
 __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 {
-	LOG_ALLOC(user, tag, size);
 	assert(size > 0);
 	assert(tag > -1);
 	if (!user) {
@@ -356,16 +366,27 @@ __CFUNC__ void* Z_Malloc(int size, int tag, void* user)
 	// next allocation will start looking here
 	mainzone->rover = base->next;
 	base->id = ZONEID;
-
+	log_size += base->size;
+	if (log_size > 10000) {
+		LOG_HEAP();
+		log_size = 0;
+	}
+	++numblocks;
 	return (void *)((byte *)base+sizeof(memblock_t));
 }
 
 __CFUNC__ void* Z_Realloc(void *user, int nsize, int tag)
 {
 	PTR_CHECK(NULL_CHECK, user);
-	LOG_ALLOC(user, tag, nsize);
 	void *ptr = Z_Malloc(nsize, tag, ptr);
 	memblock_t* block = (memblock_t *)((byte *)user - sizeof(memblock_t));
+	free_size += block->size;
+	log_size += nsize;
+	++numblocks;
+	if (log_size > 10000) {
+		LOG_HEAP();
+		log_size = 0;
+	}
 	memcpy(ptr, user, nsize <= block->size ? nsize : block->size);
 	Z_Free(user);
 	return ptr;
@@ -374,7 +395,12 @@ __CFUNC__ void* Z_Realloc(void *user, int nsize, int tag)
 __CFUNC__ void* Z_Calloc(void *user, int nelem, int elemsize, int tag)
 {
 	PTR_CHECK(NULL_CHECK, user);
-	LOG_ALLOC(user, tag, nelem);
+	log_size += nelem * elemsize;
+	++numblocks;
+	if (log_size > 10000) {
+		LOG_HEAP();
+		log_size = 0;
+	}
 	return (nelem*=elemsize) ? memset((Z_Malloc)(nelem, tag, user), 0, nelem) : NULL;
 }
 

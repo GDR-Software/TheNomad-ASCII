@@ -48,18 +48,19 @@ static inline void M_Init(void);
 
 void W_Init(Game* const gptr)
 {
-	assert(gptr);
+	PTR_CHECK(NULL_CHECK, gptr);
     game = gptr;
     gametics = &game->ticcount;
     world = (World *)Z_Malloc(sizeof(World), TAG_STATIC, &world); // this'll stay static until the player quits or changes the gamemode
     if (!world)
-        N_Error("Failed To Successfully Allocate Memory To Game World!");
-    assert(world); // to double-check
-    DBG_LOG("Successfully Allocted Memory To Game World");
+        N_Error("Failed to allocate memory to game->world!");
+    PTR_CHECK(NULL_CHECK, world);
+	LOG_INFO("successfully allocted memory to game->world");
     game->world = world;
-    assert(game->world);
-    DBG_LOG("Successfully Assigned Game Class World* To World* Within This Function");
-    world->time.ticcount = gametics;
+    PTR_CHECK(NULL_CHECK, game->world);
+	LOG_INFO("successfully assigned game->world ptr to this file's local world ptr");
+	LOG_INFO("setting up and initializing world.time structure variables");
+	world->time.ticcount = gametics;
     world->time.month = MONTH_LONGSUMMER; // start the player off at the beginning of longsummer
     world->time.year = start_year;
     world->time.day = 0;
@@ -90,17 +91,19 @@ static void W_RoamingLoop(void);
 
 void* W_Loop(void *arg)
 {
+	LOG_PROFILE();
     pthread_mutex_lock(&world_mutex);
 	
+	auto gtics = gametics->load();
 	// time still passes by even if the player isn't actively
-    if ((*gametics % ticrate_lightoff) == 0) { // a single day has passed
+    if ((gtics % ticrate_lightoff) == 0) { // a single day has passed
         if (!world->day) {
             world->day = true;
             ++world->time.day;
 		}
 	}
     // check if the month has changed
-    switch (*gametics) {
+    switch (gtics) {
     case ticrate_month_1:
         world->time.month = MONTH_MIDAUTUMN;
         break;
@@ -110,7 +113,7 @@ void* W_Loop(void *arg)
     case ticrate_month_3:
         world->time.month = MONTH_LONGSUMMER;
 		++world->time.year;
-        *gametics = 0; // reset the ticcount/timer
+        gametics->store(0); // reset the ticcount/timer
         break;
     default:
         break;
@@ -125,14 +128,14 @@ void* W_Loop(void *arg)
         break;
     default:
         // if called, just ignore the call
-        DBG_LOG("called this function without pmode being roaming or mission");
+        LOG_WARN("called this function without pmode being roaming or mission");
         break;
     };
     pthread_mutex_unlock(&world_mutex);
     return NULL;
 }
 
-static inline void* N_Looper(void* arg);
+static inline void* N_Looper(void *arg);
 static inline void* M_Looper(void *arg);
 
 void P_Pickup(Weapon& wpn)
@@ -157,9 +160,8 @@ void P_Pickup(Item* item)
 
 static void W_RoamingLoop(void)
 {
-#ifdef _NOMAD_DEBUG
-	assert(game);
-#endif
+	LOG_PROFILE();
+	PTR_CHECK(NULL_CHECK, game);
 	pthread_create(&game->nthread, NULL, N_Looper, NULL);
 	pthread_create(&game->mthread, NULL, M_Looper, NULL);
 	pthread_join(game->nthread, NULL);
@@ -168,9 +170,11 @@ static void W_RoamingLoop(void)
 
 static void W_MissionLoop(void)
 {
-	assert(game && playr->c_mission);
+	LOG_PROFILE();
+	PTR_CHECK(NULL_CHECK, game);
+	PTR_CHECK(NULL_CHECK, playr->c_mission);
 	Mission* m = playr->c_mission;
-	assert(m);
+	PTR_CHECK(NULL_CHECK, m);
 	// checking what we should load, where to load, and how, all from the variables determined at merc master selection stage
 	switch (m->sector) {
 	case SECTOR_DOD:
@@ -197,14 +201,18 @@ static void W_MissionLoop(void)
 	};
 }
 
+static std::vector<NPC*>::iterator npc_it;
+static std::vector<Mob*>::iterator mob_it;
+
 static inline void* N_Looper(void* arg)
 {
-	assert(!arg && game);
+	LOG_PROFILE();
+	PTR_CHECK(NULL_CHECK, game);
 	pthread_mutex_lock(&game->npc_mutex);
-	for (auto* const i : game->b_Active) {
-		--i->nticker;
-		if (i->nticker <= -1) {
-			i->nticker = ticrate_base;
+	for (npc_it = game->b_Active.begin(); npc_it != game->b_Active.end(); ++npc_it) {
+		--(*npc_it)->nticker;
+		if ((*npc_it)->nticker <= -1) {
+			(*npc_it)->nticker = 100;
 		}
 	}
 	pthread_mutex_unlock(&game->npc_mutex);
@@ -213,11 +221,12 @@ static inline void* N_Looper(void* arg)
 
 static inline void* M_Looper(void *arg)
 {
-	assert(!arg && game);
+	LOG_PROFILE();
+	PTR_CHECK(NULL_CHECK, game);
 	pthread_mutex_lock(&game->mob_mutex);
-	for (nomaduint_t i = 0; i < game->m_Active.size(); ++i) {
-		if (game->m_Active[i]) {
-		}
+	for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
+		Mob* const mob = *mob_it;
+		M_RunThinker(mob);
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
 	return NULL;
@@ -226,8 +235,8 @@ static inline void* M_Looper(void *arg)
 
 static inline void M_Init(void)
 {
-    assert(game);
-    DBG_LOG("Initializing Map Data");
+	PTR_CHECK(NULL_CHECK, game);
+    LOG_INFO("Initializing map data");
 #if 0 // no longer needed because of BFF files
 	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
 	nomaduint_t y, x;

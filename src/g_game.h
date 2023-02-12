@@ -81,7 +81,7 @@ public:
 	std::vector<Mob*> m_Active;
 	std::vector<NPC*> b_Active;
 public: // map stuff
-	char c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
+	int8_t c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
 public:
 	WINDOW* screen;
 	WINDOW* hudwin[NUMHUDLAYERS];
@@ -115,7 +115,7 @@ public:
 	void M_GenMobs(void);
 
 	bool G_LoadGame(const char* svfile);
-	void G_SaveGame();
+	void G_SaveGame(const char* svfile);
 
 	npc_t N_MakeNPC(void);
 	void I_InitNPCs(void);
@@ -129,6 +129,7 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+void MobtAssigner(Game* const gptr);
 void MobAssigner(Game* const gptr);
 void NPCAssigner(Game* const gptr);
 void NomadAssigner(Game* const gptr);

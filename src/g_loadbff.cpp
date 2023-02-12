@@ -23,16 +23,27 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	bffhandle = dlopen("./libbffproject.so.0.1", RTLD_NOW | RTLD_LOCAL);
 	NOMAD_ASSERT(bffhandle,
 		"Could not load libbffproject.so.0.1 into memory! system error: %s", dlerror());
+	LOG_INFO("sucessfully loaded libbffproject.so.0.1 into memory with dlopen()");
 	init_file init;
 	LOAD(init, "BFF_InitFile");
+	LOG_INFO("successfully linked init to BFF_InitFile");
 	bff_func parse;
 	LOAD(parse, "BFF_Parse");
+	LOG_INFO("successfully linked parse to BFF_Parse");
 	bff_file_t* file = (bff_file_t*)(*init)(bffname);
+	PTR_CHECK(NULL_CHECK, file);
+	LOG_INFO("successfully allocated memory to bff_file_t* file");
 	filetype getfiletype;
 	bff_func kill;
 	LOAD(kill, "BFF_Free");
+	LOG_INFO("successfully linked kill to BFF_Free");
 	LOAD(getfiletype, "BFF_GetFileType");
+	LOG_INFO("successfully linked getfiletype to BFF_GetFileType");
 	unsigned char bfftype = (unsigned char)(*getfiletype)(file);
+	if (bfftype != BFF_COMPILE || BFF_DECOMPILE) {
+		LOG_WARN("bfftype was not equal to BFF_COMPILE or BFF_DECOMPILE! assigning default value of BFF_DECOMPILE");
+		bfftype = BFF_DECOMPILE;
+	}
 	NOMAD_ASSERT(bfftype != BFF_COMPILE,
 		".bffc (compiled bff's) aren't yet compatible with The Nomad-ASCII");
 	(*parse)(file);
@@ -43,8 +54,8 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	234
 	*/
 	NOMAD_ASSERT(fp, "Could not create RUNTIME/mapfile.txt!");
-	assert(fp);
-	DBG_LOG("Successfully created RUNTIME/mapfile.txt");
+	PTR_CHECK(NULL_CHECK, fp);
+	LOG_INFO("Successfully created RUNTIME/mapfile.txt");
 	nomadshort_t y{}, x{};
 	for (y = 0; y < 80; ++y) {
 		for (x = 0; x < MAP_MAX_X; ++x) {
@@ -113,7 +124,10 @@ void G_LoadBFF(const char* bffname, Game* const game)
 		fprintf(fp, "\n");
 	}
     fclose(fp);
+	LOG_INFO("closing write-only mapfile.txt");
 	(*kill)(file);
+	LOG_INFO("freeing/cleaning up libbffproject memory");
 	dlclose(bffhandle);
+	LOG_INFO("deallocating dynamic library loader handle");
 	game->I_InitHUD();
 }

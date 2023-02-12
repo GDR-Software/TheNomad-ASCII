@@ -136,17 +136,17 @@ void mainLoop(int argc, char* argv[])
 							game->gamestate = GS_LEVEL;
 							break;
 						case 1:
-							game->G_SaveGame();
+							game->G_SaveGame(game->svfile);
 							break;
 						case 2:
 							game->gamestate = GS_SETTINGS;
 							game->gamescreen = MENU_SETTINGS;
 							break;
 						case 3:
-							game->G_LoadGame("nomadsv.ngd");
+							game->G_LoadGame(game->svfile);
 							break;
 						case 4:
-							game->G_SaveGame();
+							game->G_SaveGame(game->svfile);
 							game->~Game();
 							exit(1);
 							break;
@@ -183,21 +183,20 @@ static void levelLoop(void)
 			Mob* const mob = M_SpawnMob();
 			M_GenMob(mob);
 		}
-		M_CheckMobs();
 		if (game->b_Active.size() < MAX_NPC_ACTIVE) {
 			NPC* const npc = B_SpawnBot();
-			if (npc->c_npc.sprite == '^') B_KillBot(npc);
+			npc->sprite = npc->c_npc.sprite;
 		}
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
-//		pthread_create(&game->wthread, NULL, W_Loop, NULL);
+		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		char c;
 		if ((c = kb_hit()) != -1)
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
-//		pthread_join(game->wthread, NULL);
+		pthread_join(game->wthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
@@ -213,7 +212,7 @@ static void settingsLoop(void)
 	std::ifstream file("Files/gamedata/GS/settingsmenu.txt", std::ios::in);
 	NOMAD_ASSERT(!file.fail(), ("Failed to load settingsmenu resource!"));
 	assert(!file.fail());
-	DBG_LOG("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
+	LOG_INFO("Succesfully opened Files/gamedata/GS/settingsmenu.txt");
 	std::vector<std::string> filebuf;
 	std::string line;
 	while (std::getline(file, line)) { filebuf.push_back(line); };

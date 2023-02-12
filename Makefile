@@ -2,7 +2,7 @@ VERSION        = 0
 VERSION_UPDATE = 0
 VERSION_PATCH  = 1
 CC             = g++
-CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include
+CFLAGS         = -std=c++17 -I/usr/include -s
 O              = obj
 SDIR           = src
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
@@ -16,7 +16,7 @@ endif
 
 .PHONY: all clean clean.exe clean.objs clean.debug
 
-OPTIMIZERS     = -finline-limit=100 \
+OPTIMIZERS     = -finline-limit=10000 \
 				-ffast-math \
 				-frounding-math \
 				-fmerge-all-constants
@@ -59,6 +59,7 @@ OBJS= \
 	$(O)/s_mission.o \
 	$(O)/s_world.o \
 	$(O)/g_loadbff.o \
+	$(O)/g_animation.o \
 
 DEBUG= \
 	$(O)/n_shared.debug.o \

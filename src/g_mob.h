@@ -100,6 +100,7 @@ public:
 	std::atomic<nomadint_t> health;
 	std::atomic<nomadint_t> armor;
 	nomadenum_t mdir;
+	sprite_t sprite;
 	coord_t mpos;
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
@@ -116,8 +117,7 @@ void M_GenMob(Mob* const mob);
 void M_CheckMobs();
 
 // s_mthink functions
-void M_ThinkerAssigner(Game* const gptr);
-
+void M_RunThinker(Mob* const actor);
 void M_NullThink(Mob* actor);
 void M_SpawnThink(Mob* actor);
 void M_WanderThink(Mob* actor);

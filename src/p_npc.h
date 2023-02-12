@@ -38,8 +38,6 @@ typedef enum : nomadenum_t
 	BOT_MERCHANT,
 	BOT_MERCMASTER,
 	BOT_BARTENDER,
-	BOT_NOMAD_CIVILIAN,
-	BOT_NOMAD_TRADER,
 	BOT_BLACKSMITH,
 	BOT_STITCHER,
 	BOT_SPLICER,
@@ -47,6 +45,10 @@ typedef enum : nomadenum_t
 	
 	NUMBOTTYPES
 } bot_t;
+
+enum : nomadushort_t
+{
+};
 
 typedef struct
 {
@@ -59,11 +61,11 @@ typedef struct
 
 typedef struct
 {
-	std::string name;
+	const char* name;
 	sprite_t sprite;
 	nomadint_t health;
 	nomadushort_t armor;
-	traits_t personality;
+//	traits_t personality;
 	bot_t btype;
 } npc_t;
 
@@ -82,7 +84,7 @@ public:
 	nomaduint_t nticker;
 	std::atomic<nomadint_t> health;
 	std::atomic<nomadushort_t> armor;
-	nomadbool_t alive = false;
+	sprite_t sprite;
 public:
 	NPC(){}
 	~NPC(){}

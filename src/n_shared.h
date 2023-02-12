@@ -275,6 +275,7 @@ class Game;
 #endif
 
 extern FILE* dbg_file;
+extern FILE* p_file;
 #define LOGGER_OUTFILE dbg_file 
 #include "n_debug.h"
 
@@ -322,7 +323,7 @@ typedef UINT16 nomadushort_t;
                      + NOMAD_VERSION_PATCH)
 
 // these types don't depend on the arch
-typedef nomadenum_t sprite_t;
+typedef int8_t sprite_t;
 typedef float nomadfloat_t;
 
 #define chtype chtype_small

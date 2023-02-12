@@ -3,11 +3,9 @@
 
 static Game* game;
 static pthread_mutex_t pushmutex, loopmutex;
-static std::vector<animator> animations;
 
 static void A_Kill()
 {
-    pthread_mutex_destroy(&pushmutex);
     pthread_mutex_destroy(&loopmutex);
 }
 
@@ -15,22 +13,83 @@ void A_Init(Game* const gptr)
 {
     game = gptr;
     atexit(A_Kill);
-    pthread_mutex_init(&pushmutex, NULL);
     pthread_mutex_init(&loopmutex, NULL);
 }
 
-inline void A_PushAnimation(nomadulong_t ticcount, animator anim)
+typedef struct animation_s
 {
-    pthread_mutex_lock(&pushmutex);
-    animations.push_back(anim);
-    pthread_mutex_unlock(&pushmutex);
+    nomadlong_t numtics;
+    animator_t anim;
+    animatorp_t panim;
+    animatorm_t manim;
+    animatorb_t banim;
+    Mob* mob = NULL;
+    Playr* playr = NULL;
+    NPC* npc = NULL;
+    animation_s(nomadlong_t ticker, animator_t func)
+        : numtics(ticker), anim(func)
+    {
+    }
+    animation_s(nomadlong_t ticker, animatorp_t func, Playr* ptr)
+        : numtics(ticker), panim(func), playr(ptr)
+    {
+    }
+    animation_s(nomadlong_t ticker, animatorm_t func, Mob* ptr)
+        : numtics(ticker), manim(func), mob(ptr)
+    {
+    }
+    animation_s(nomadlong_t ticker, animatorb_t func, NPC* ptr)
+        : numtics(ticker), banim(func), npc(ptr)
+    {
+    }
+} animation_t;
+
+static std::vector<animation_t> animators;
+static std::vector<animation_t> panimators;
+static std::vector<animation_t> manimators;
+static std::vector<animation_t> banimators;
+
+void A_PushAnimation(nomadlong_t numtics, animator_t anim)
+{
+    animators.push_back({numtics, anim});
+}
+void A_PushAnimation(nomadlong_t numtics, animatorm_t anim, Mob* mob)
+{
+    animators.push_back({numtics, anim, mob});
+}
+void A_PushAnimation(nomadlong_t numtics, animatorp_t anim, Playr* playr)
+{
+    animators.push_back({numtics, anim, playr});
+}
+void A_PushAnimation(nomadlong_t numtics, animatorb_t anim, NPC* npc)
+{
+    animators.push_back({numtics, anim, npc});
 }
 
 void* A_Loop(void *arg)
 {
     pthread_mutex_lock(&loopmutex);
-    for (const auto& i : animations)
-        (*i)();
+    std::vector<animation_t>::iterator it;
+    for (it = animators.begin(); it != animators.end(); ++it) {
+        --it->numtics;
+        if (it->numtics <= -1) animators.erase(it);
+        else (*it->anim)();
+    }
+    for (it = panimators.begin(); it != panimators.end(); ++it) {
+        --it->numtics;
+        if (it->numtics <= -1) panimators.erase(it);
+        else (*it->panim)(it->playr);
+    }
+    for (it = manimators.begin(); it != manimators.end(); ++it) {
+        --it->numtics;
+        if (it->numtics <= -1) manimators.erase(it);
+        else (*it->manim)(it->mob);
+    }
+    for (it = banimators.begin(); it != banimators.end(); ++it) {
+        --it->numtics;
+        if (it->numtics <= -1) banimators.erase(it);
+        else (*it->banim)(it->npc);
+    }
     pthread_mutex_unlock(&loopmutex);
     return NULL;
 }

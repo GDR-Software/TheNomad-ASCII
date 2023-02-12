@@ -99,6 +99,7 @@ void PlayrAssigner(Game* const gptr)
 
 void Playr::P_Init()
 {
+	LOG_INFO("initializing player stats");
 	playr = this;
 	CombatAssigner(game);
 	ItemAssigner(game);
@@ -166,16 +167,14 @@ void P_UseWeapon()
 	case W_HPRIM_DR:
 //		P_ShootSingle(*wpn);
 		break;
-	default:
-		N_Error("Unknown/Invalid Weapon ID! id: %iu", playr->c_wpn->c_wpn.id);
-		break;
+	default: {
+		LOG_WARN("unknown/invalid weapon id %hu, returning without using weapon", playr->c_wpn->c_wpn.id);
+		break; }
 	};
 }
 
 void Game::P_Ticker(nomadint_t input)
 {
-	LOG_INFO("gamestate = %hu", gamestate);
-	LOG_INFO("gamescreen = %hu", gamescreen);\
 	--playr->pticker;
 //	playr->P_GetMode();
 	playr->P_RunTicker(input);
@@ -496,8 +495,10 @@ void P_DashE()
 
 void P_ChangeDirL()
 {
-	assert(playr->pdir < NUMDIRS);
-	DBG_LOG("pdir = %hu", playr->pdir);
+	if (playr->pdir > NUMDIRS) {
+		LOG_WARN("playr->pdir > NUMDIRS! assigning it to D_NORTH");
+		playr->pdir = D_NORTH;
+	}
 	for (nomadshort_t y = 1; y < 4; ++y) {
 		for (nomadshort_t x = 1; x < 6; ++x) {
 			mvwaddch(game->screen, y, x, ' ');
@@ -513,8 +514,10 @@ void P_ChangeDirL()
 
 void P_ChangeDirR()
 {
-	assert(playr->pdir < NUMDIRS);
-	DBG_LOG("pdir = %hu", playr->pdir);
+	if (playr->pdir > NUMDIRS) {
+		LOG_WARN("playr->pdir > NUMDIRS! assigning it to D_NORTH");
+		playr->pdir = D_NORTH;
+	}
 	for (nomadshort_t y = 1; y < 4; ++y) {
 		for (nomadshort_t x = 1; x < 6; ++x) {
 			mvwaddch(game->screen, y, x, ' ');
@@ -540,6 +543,7 @@ void P_QuickShot()
 
 void P_KillPlayr()
 {
+	LOG_INFO("freeing up game->playr pointer memory");
 	Z_Free(playr);
 }
 

@@ -42,23 +42,27 @@ static void G_UnArchiveItem(Item* const item, json& data);
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t nummobs);
 static void G_UnArchiveBots(std::vector<NPC*>& b_Active, json& data, nomaduint_t numbots);
 
-void Game::G_SaveGame(void)
+void Game::G_SaveGame(const char* svfile)
 {
-	const char* save_name = "nomadascii_sv";
+	struct stat svstat;
+	if (stat(svfile, &svstat) == -1) {
+		N_Error("Failed to stat() save file!");
+	}
+	LOG_SAVEFILE();
 	json data;
 	data["header"] = {
 		{"version", NOMAD_VERSION},
 		{"version.major", NOMAD_VERSION_MAJOR},
 		{"version.update", NOMAD_VERSION_MINOR},
 		{"version.patch", NOMAD_VERSION_PATCH},
-		{"svname", save_name},
 		{"nummobs", m_Active.size()},
 		{"numbots", b_Active.size()},
 	};
 	G_ArchivePlayr(playr, data);
 	G_ArchiveMobs(m_Active, data);
 	G_ArchiveBots(b_Active, data);
-	std::ofstream file("nomadsv.ngd", std::ios::out | std::ios::trunc);
+	std::ofstream file(svfile, std::ios::out | std::ios::trunc);
+	NOMAD_ASSERT(!file.fail(), "Failed to open save file %s!", svfile);
 	file << data;
 	file.close();
 }
@@ -66,6 +70,11 @@ void Game::G_SaveGame(void)
 
 bool Game::G_LoadGame(const char* svfile)
 {
+	struct stat svstat;
+	if (stat(svfile, &svstat) == -1) {
+		N_Error("Failed to stat() save file!");
+	}
+	LOG_SAVEFILE();
 	std::ifstream file(svfile, std::ios::in);
 	json data = json::parse(file);
 	file.close();
@@ -79,6 +88,7 @@ bool Game::G_LoadGame(const char* svfile)
 
 static void G_ArchivePlayr(const Playr* playr, json& data)
 {
+	LOG_INFO("Archiving game->playr data");
 	auto health = playr->health.load();
 	auto armor = playr->armor.load();
 	data["playr"] = {
@@ -100,6 +110,7 @@ static void G_ArchivePlayr(const Playr* playr, json& data)
 
 static void G_UnArchivePlayr(Playr* const playr, json& data)
 {
+	LOG_INFO("Unarchiving game->playr data");
 	playr->health = data["playr"]["health"];
 	playr->armor = data["playr"]["armor"];
 	playr->name = data["playr"]["name"];
@@ -116,15 +127,18 @@ static void G_UnArchivePlayr(Playr* const playr, json& data)
 
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
 {
+	LOG_INFO("Archiving m_Active mob data");
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
 		Mob* const mob = m_Active[i];
 		auto health = mob->health.load();
 		auto armor = mob->armor.load();
 		data[node_name] = {
-			{"sprite", (char)mob->c_mob.sprite},
+			{"sprite", (int8_t)mob->sprite},
 			{"health", health},
 			{"armor", armor},
+			{"mstate", mob->mstate.id},
+			{"mticker", mob->mticker},
 			{"mpos.y", mob->mpos.y},
 			{"mpos.x", mob->mpos.x},
 			{"mdir", mob->mdir},
@@ -149,9 +163,11 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t
 	for (nomaduint_t i = 0; i < nummobs; ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
 		Mob* const mob = m_Active[i];
-		mob->c_mob.sprite = (sprite_t)data[node_name]["sprite"];
+		mob->sprite = (int8_t)data[node_name]["sprite"];
 		mob->health = data[node_name]["health"];
 		mob->armor = data[node_name]["armor"];
+		mob->mstate = stateinfo[data[node_name]["mstate"]];
+		mob->mticker = data[node_name]["mticker"];
 		mob->mpos.y = data[node_name]["mpos.y"];
 		mob->mpos.x = data[node_name]["mpos.x"];
 		mob->mdir = data[node_name]["mdir"];
@@ -160,6 +176,7 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t
 
 static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data)
 {
+	LOG_INFO("Archiving b_Active bot data");
 	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
 		std::string node_name = "bot_"+std::to_string(i);
 		NPC* const npc = b_Active[i];
@@ -168,7 +185,7 @@ static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data)
 		data[node_name] = {
 			{"health", health},
 			{"armor", armor},
-			{"sprite", (char)npc->c_npc.sprite},
+			{"sprite", (int8_t)npc->sprite},
 			{"btype", npc->c_npc.btype},
 			{"pos.y", npc->pos.y},
 			{"pos.x", npc->pos.x},
@@ -194,7 +211,7 @@ static void G_UnArchiveBots(std::vector<NPC*>& b_Active, json& data, nomaduint_t
 	for (nomaduint_t i = 0; i < numbots; ++i) {
 		std::string node_name = "bot_"+std::to_string(i);
 		NPC* const npc = b_Active[i];
-		npc->c_npc.sprite = (sprite_t)data[node_name]["sprite"];
+		npc->sprite = (int8_t)data[node_name]["sprite"];
 		npc->health = data[node_name]["health"];
 		npc->armor = data[node_name]["armor"];
 		npc->pos.y = data[node_name]["pos.y"];

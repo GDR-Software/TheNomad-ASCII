@@ -37,6 +37,15 @@ typedef enum : nomadenum_t
 
 typedef enum : nomaduint_t
 {
+	S_MOB_NULL,
+	S_MOB_SPAWN,
+	S_MOB_WANDER,
+	S_MOB_IDLE,
+	S_MOB_CHASE,
+	S_MOB_FIGHT,
+	S_MOB_FLEE,
+	S_MOB_DEAD,
+	
 	S_PLAYR_NULL, // in the menus
 	S_PLAYR_SPAWN, // just spawned in
 	S_PLAYR_MOVE, // player is moving
@@ -46,15 +55,6 @@ typedef enum : nomaduint_t
 	S_PLAYR_INTERACT,
 	S_PLAYR_LOWHEALTH,
 	S_PLAYR_DEAD,
-	
-	S_MOB_NULL,
-	S_MOB_SPAWN,
-	S_MOB_WANDER,
-	S_MOB_IDLE,
-	S_MOB_CHASE,
-	S_MOB_FIGHT,
-	S_MOB_FLEE,
-	S_MOB_DEAD,
 	
 	S_BOT_NULL,
 	S_BOT_SPAWN,
@@ -76,8 +76,11 @@ typedef struct entitystate_s
 	inline bool operator==(const entitystate_s state) const {
 		return (id == state.id && next == state.next && numticks == state.numticks);
 	}
+	inline bool operator!=(const entitystate_s state) const {
+		return (id != state.id && next != state.next && numticks != state.numticks);
+	}
 } entitystate_t;
 
-extern const entitystate_t stateinfo[NUMSTATES];
+extern std::vector<entitystate_t> stateinfo;
 
 #endif

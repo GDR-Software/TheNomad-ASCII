@@ -93,18 +93,34 @@ static void set_nonblock(void)
 }
 
 FILE* dbg_file;
+FILE* p_file;
 #define DBG_PATH "Files/debug/"
+void __attribute__((constructor)) profile_startup(void)
+{
+	std::string p_path = DBG_PATH;
+	p_path += "profile.log";
+	p_file = fopen(p_path.c_str(), "a");
+	fprintf(p_file, "\n\n\n%s(APPENDING PREVIOUS PROFILING SESSION)%s\n\n", C_GREEN, C_RESET);
+	fprintf(p_file, "%s%s<--------------------[START PROFILE SESSION]-------------------->%s\n", C_BG_BR_BLACK, C_WHITE, C_RESET);
+}
+void __attribute__((destructor)) profile_kill(void)
+{
+	fprintf(p_file, "\n%s%s<--------------------[END PROFILE SESSION]-------------------->%s\n", C_BG_BR_BLACK, C_WHITE, C_RESET);
+	fflush(p_file);
+	fclose(p_file);
+}
 void __attribute__((constructor)) debug_startup(void)
 {
 	std::string dbg_path = DBG_PATH;
-	dbg_path += "debuglog.txt";
+	dbg_path += "debug.log";
 	dbg_file = fopen(dbg_path.c_str(), "a");
 	fprintf(dbg_file, "\n\n\n%s(APPENDING PREVIOUS LOG)%s\n\n", C_GREEN, C_RESET);
-	fprintf(dbg_file, "%s%s<--------------------[START LOG SESSION]-------------------->%s\n", C_BG_BLACK, C_WHITE, C_RESET);
+	fprintf(dbg_file, "%s%s<--------------------[START LOG SESSION]-------------------->%s\n", C_BG_BR_BLACK, C_WHITE, C_RESET);
 }
 void __attribute__((destructor)) debug_kill(void)
 {
-	fprintf(dbg_file, "\n%s%s<--------------------[END LOG SESSION]-------------------->%s\n", C_BG_BLACK, C_WHITE, C_RESET);
+	fprintf(dbg_file, "\n%s%s<--------------------[END LOG SESSION]-------------------->%s\n", C_BG_BR_BLACK, C_WHITE, C_RESET);
+	fflush(dbg_file);
 	fclose(dbg_file);
 }
 
@@ -124,6 +140,7 @@ void signal_buss(int signum)
 
 int main(int argc, char* argv[])
 {
+	LOG_INFO("starting up game");
 #ifdef UNIX_NOMAD
 	signal(SIGINT, signal_interrupt);
 	signal(SIGSEGV, signal_seggy);
