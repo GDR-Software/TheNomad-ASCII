@@ -45,9 +45,7 @@ static void G_UnArchiveBots(std::vector<NPC*>& b_Active, json& data, nomaduint_t
 void Game::G_SaveGame(const char* svfile)
 {
 	struct stat svstat;
-	if (stat(svfile, &svstat) == -1) {
-		N_Error("Failed to stat() save file!");
-	}
+	stat(svfile, &svstat);
 	LOG_SAVEFILE();
 	json data;
 	data["header"] = {

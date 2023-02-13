@@ -35,6 +35,13 @@ typedef enum : nomadenum_t
 	ET_NULL
 } entitytype_t;
 
+typedef enum : nomadint_t
+{
+	EF_PLAYR_HIT, // damaged from player's attack
+	EF_JUST_HIT, // hit by non-player entity
+	EF_KILLABLE
+} entityflag_t;
+
 typedef enum : nomaduint_t
 {
 	S_MOB_NULL,
@@ -45,7 +52,7 @@ typedef enum : nomaduint_t
 	S_MOB_FIGHT,
 	S_MOB_FLEE,
 	S_MOB_DEAD,
-	
+
 	S_PLAYR_NULL, // in the menus
 	S_PLAYR_SPAWN, // just spawned in
 	S_PLAYR_MOVE, // player is moving

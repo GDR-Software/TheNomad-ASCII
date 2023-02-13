@@ -99,6 +99,8 @@ public:
 	nomadlong_t mticker;
 	std::atomic<nomadint_t> health;
 	std::atomic<nomadint_t> armor;
+	std::atomic<entityflag_t> mobflags;
+
 	nomadenum_t mdir;
 	sprite_t sprite;
 	coord_t mpos;

@@ -92,7 +92,7 @@ void M_RunThinker(Mob* const actor)
 {
     --actor->mticker;
     if (actor->mticker <= -1) {
-        M_ChangeState(actor);
+        M_ChangeState(actor, actor->mstate.next);
     }
     for (const auto& i : thinker_funcs) {
         if (actor->mstate.id == i.statenum) {
@@ -144,7 +144,7 @@ void M_RavBoost(Mob* actor);
 void M_NullThink(Mob* actor)
 {
     if (actor->mticker <= -1)
-        M_ChangeState(actor);
+        M_ChangeState(actor, S_MOB_SPAWN);
     else
         return;
 }
@@ -154,7 +154,7 @@ void M_SpawnThink(Mob* actor)
     if (actor->mticker > -1)
         return;
     else
-        M_ChangeState(actor);
+        M_ChangeState(actor, S_MOB_IDLE);
 }
 
 void M_WanderThink(Mob* actor)
@@ -167,7 +167,7 @@ void M_WanderThink(Mob* actor)
                 M_DoMove(actor);
             }
             else {
-                M_ChangeState(actor);
+                M_ChangeState(actor, S_MOB_IDLE);
             }
         }
         else {
@@ -179,7 +179,7 @@ void M_WanderThink(Mob* actor)
             actor->mticker = actor->mstate.numticks;
         }
         else {
-            M_ChangeState(actor);
+            M_ChangeState(actor, S_MOB_IDLE);
         }
     }
 }
@@ -188,10 +188,10 @@ void M_IdleThink(Mob* actor)
 {
     if (actor->mticker <= -1) {
         if (M_SeePlayr(actor)) {
-            M_ChangeState(actor);
+            M_ChangeState(actor, S_MOB_WANDER);
         }
         else if ((P_Random() & 100) > 50) {
-            M_ChangeState(actor);
+            M_ChangeState(actor, S_MOB_WANDER);
         }
         else {
             actor->mticker = actor->mstate.numticks;
@@ -199,29 +199,96 @@ void M_IdleThink(Mob* actor)
     }
     else {
         if (M_SeePlayr(actor)) {
-            M_ChangeState(actor);
+            M_ChangeState(actor, S_MOB_CHASE);
         }
     }
 }
 
 void M_ChasePlayr(Mob* actor)
 {
+    if (actor->mticker <= -1) {
+        --actor->stepcounter;
+        if (actor->stepcounter == 0) {
+            if ((P_Random() & 25) > 10) {
+                actor->stepcounter = (P_Random() & 18)+2;
+                M_DoMove(actor);
+            }
+            else {
+                M_ChangeState(actor, S_MOB_IDLE);
+            }
+        }
+        else {
+            M_DoMove(actor);
+        }
+    }
+    else {
+        if ((P_Random() & 100) > 76) {
+            actor->mticker = actor->mstate.numticks;
+        }
+        else {
+            M_ChangeState(actor, S_MOB_IDLE);
+        }
+    }/*
     switch (actor->c_mob.mtype) {
     case MT_HULK:
         A_PushAnimation(2, M_HulkCharge, actor);
         break;
     };
-    return;
+    return; */
 }
 
 void M_FightThink(Mob* actor)
 {
-    return;
+    if (actor->mticker <= -1) {
+        --actor->stepcounter;
+        if (actor->stepcounter == 0) {
+            if ((P_Random() & 25) > 10) {
+                actor->stepcounter = (P_Random() & 18)+2;
+                M_DoMove(actor);
+            }
+            else {
+                M_ChangeState(actor, S_MOB_IDLE);
+            }
+        }
+        else {
+            M_DoMove(actor);
+        }
+    }
+    else {
+        if ((P_Random() & 100) > 76) {
+            actor->mticker = actor->mstate.numticks;
+        }
+        else {
+            M_ChangeState(actor, S_MOB_IDLE);
+        }
+    }
 }
 
 void M_FleeThink(Mob* actor)
 {
-    return;
+    if (actor->mticker <= -1) {
+        --actor->stepcounter;
+        if (actor->stepcounter == 0) {
+            if ((P_Random() & 25) > 10) {
+                actor->stepcounter = (P_Random() & 18)+2;
+                M_DoMove(actor);
+            }
+            else {
+                M_ChangeState(actor, S_MOB_IDLE);
+            }
+        }
+        else {
+            M_DoMove(actor);
+        }
+    }
+    else {
+        if ((P_Random() & 100) > 76) {
+            actor->mticker = actor->mstate.numticks;
+        }
+        else {
+            M_ChangeState(actor, S_MOB_IDLE);
+        }
+    }
 }
 
 void M_DeadThink(Mob* actor)
