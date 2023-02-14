@@ -42,16 +42,17 @@ void M_PistolThink(Mob* const actor);
 void M_ShottyThink(Mob* const actor);
 
 // quick little lambdas
-inline auto M_GetDir(nomadenum_t dir) -> coord_t;
+auto M_GetDir(nomadenum_t dir) -> coord_t;
 // override the next state
-inline auto M_ChangeState(Mob* const actor, state_t newstate) -> void;
+auto M_ChangeState(Mob* const actor, state_t newstate) -> void;
 // change current mstate to next state within the stateinfo array
-inline auto M_ChangeState(Mob* const actor) -> void;
-inline auto M_SeePlayr(Mob* const actor) -> bool;
-inline auto M_CheckMissleRange(Mob* const actor) -> nomadbool_t;
-inline auto M_CheckMeleeRange(Mob* const actor) -> nomadbool_t;
-inline auto M_CanMove(Mob* const actor) -> nomadbool_t;
-inline auto M_NewMoveDir(Mob* const actor) -> nomadbool_t;
+auto M_ChangeState(Mob* const actor) -> void;
+auto M_SeePlayr(Mob* const actor) -> nomadbool_t;
+auto M_CheckMissleRange(Mob* const actor) -> nomadbool_t;
+auto M_CheckMeleeRange(Mob* const actor) -> nomadbool_t;
+auto M_CanMove(Mob* const actor) -> nomadbool_t;
+auto M_NewMoveDir(Mob* const actor) -> nomadbool_t;
+auto M_HearPlayr(Mob* const actor) -> nomadbool_t;
 
 static mob_thinker thinkers[] = {
     {MT_GRUNT,   M_GruntThink},
@@ -159,136 +160,67 @@ void M_SpawnThink(Mob* actor)
 
 void M_WanderThink(Mob* actor)
 {
-    if (actor->mticker <= -1) {
-        --actor->stepcounter;
-        if (actor->stepcounter == 0) {
-            if ((P_Random() & 25) > 10) {
-                actor->stepcounter = (P_Random() & 18)+2;
-                M_DoMove(actor);
-            }
-            else {
-                M_ChangeState(actor, S_MOB_IDLE);
-            }
-        }
-        else {
-            M_DoMove(actor);
-        }
-    }
-    else {
-        if ((P_Random() & 100) > 76) {
-            actor->mticker = actor->mstate.numticks;
-        }
-        else {
-            M_ChangeState(actor, S_MOB_IDLE);
-        }
-    }
+    
 }
 
 void M_IdleThink(Mob* actor)
 {
-    if (actor->mticker <= -1) {
-        if (M_SeePlayr(actor)) {
-            M_ChangeState(actor, S_MOB_WANDER);
-        }
-        else if ((P_Random() & 100) > 50) {
-            M_ChangeState(actor, S_MOB_WANDER);
-        }
-        else {
-            actor->mticker = actor->mstate.numticks;
-        }
-    }
-    else {
-        if (M_SeePlayr(actor)) {
-            M_ChangeState(actor, S_MOB_CHASE);
-        }
-    }
+	if (actor->mobflags & EF_JUST_HIT) {
+		M_ChangeState(actor, S_MOB_CHASE);
+		return;
+	}
+	if (actor->mticker > -1)
+		return;
+	if (M_HearPlayr(actor)) {
+		if (M_SeePlayr(actor)) {
+			M_ChangeState(actor, S_MOB_CHASE);
+		}
+		else {
+			M_ChangeState(actor, S_MOB_WANDER);
+		}
+	}
+}
+
+void M_FollowPlayr(Mob* actor)
+{
+	if (game->playr->pos.y > actor->mpos.y)
+		actor->mpos.y += scf::mobspeed;
+	else if (game->playr->pos.y < actor->mpos.y)
+		actor->mpos.y -= scf::mobspeed;
+	if (game->playr->pos.x > actor->mpos.x)
+		actor->mpos.x += scf::mobspeed;
+	else if (game->playr->pos.x < actor->mpos.x)
+		actor->mpos.x -= scf::mobspeed;
 }
 
 void M_ChasePlayr(Mob* actor)
 {
-    if (actor->mticker <= -1) {
-        --actor->stepcounter;
-        if (actor->stepcounter == 0) {
-            if ((P_Random() & 25) > 10) {
-                actor->stepcounter = (P_Random() & 18)+2;
-                M_DoMove(actor);
-            }
-            else {
-                M_ChangeState(actor, S_MOB_IDLE);
-            }
-        }
-        else {
-            M_DoMove(actor);
-        }
-    }
-    else {
-        if ((P_Random() & 100) > 76) {
-            actor->mticker = actor->mstate.numticks;
-        }
-        else {
-            M_ChangeState(actor, S_MOB_IDLE);
-        }
-    }/*
-    switch (actor->c_mob.mtype) {
-    case MT_HULK:
-        A_PushAnimation(2, M_HulkCharge, actor);
-        break;
-    };
-    return; */
+	if (actor->mticker <= -1) {
+		if (!M_SeePlayr(actor) || !M_HearPlayr(actor)) {
+			M_ChangeState(actor, S_MOB_IDLE);
+			return;
+		}
+		if (M_SeePlayr(actor)) {
+			actor->mticker = actor->mstate.numticks;
+		}
+		if (M_HearPlayr(actor)) {
+			M_ChangeState(actor, S_MOB_WANDER);
+		}
+	}
+	else {
+		if (disBetweenOBJ(actor->mpos, game->playr->pos) > actor->c_mob.sight_range) {
+			// attempt to close the gap
+			M_FollowPlayr(actor);
+		}
+	}
 }
 
 void M_FightThink(Mob* actor)
 {
-    if (actor->mticker <= -1) {
-        --actor->stepcounter;
-        if (actor->stepcounter == 0) {
-            if ((P_Random() & 25) > 10) {
-                actor->stepcounter = (P_Random() & 18)+2;
-                M_DoMove(actor);
-            }
-            else {
-                M_ChangeState(actor, S_MOB_IDLE);
-            }
-        }
-        else {
-            M_DoMove(actor);
-        }
-    }
-    else {
-        if ((P_Random() & 100) > 76) {
-            actor->mticker = actor->mstate.numticks;
-        }
-        else {
-            M_ChangeState(actor, S_MOB_IDLE);
-        }
-    }
 }
 
 void M_FleeThink(Mob* actor)
 {
-    if (actor->mticker <= -1) {
-        --actor->stepcounter;
-        if (actor->stepcounter == 0) {
-            if ((P_Random() & 25) > 10) {
-                actor->stepcounter = (P_Random() & 18)+2;
-                M_DoMove(actor);
-            }
-            else {
-                M_ChangeState(actor, S_MOB_IDLE);
-            }
-        }
-        else {
-            M_DoMove(actor);
-        }
-    }
-    else {
-        if ((P_Random() & 100) > 76) {
-            actor->mticker = actor->mstate.numticks;
-        }
-        else {
-            M_ChangeState(actor, S_MOB_IDLE);
-        }
-    }
 }
 
 void M_DeadThink(Mob* actor)
@@ -354,7 +286,7 @@ void M_ShottyThink(Mob* const actor)
 }
 
 // quick little lambdas
-inline auto M_GetDir(nomadenum_t dir) -> coord_t
+auto M_GetDir(nomadenum_t dir) -> coord_t
 {
     coord_t pos;
     switch (dir) {
@@ -382,51 +314,68 @@ inline auto M_GetDir(nomadenum_t dir) -> coord_t
     };
     return pos;
 };
-inline auto M_ChangeState(Mob* const actor, state_t newstate) -> void
+auto M_ChangeState(Mob* const actor, state_t newstate) -> void
 {
     actor->mstate = stateinfo[newstate];
     actor->mticker = actor->mstate.numticks;    
 };
-inline auto M_ChangeState(Mob* const actor) -> void
+auto M_ChangeState(Mob* const actor) -> void
 {
     actor->mstate = stateinfo[actor->mstate.next];
     actor->mticker = actor->mstate.numticks;
 };
-inline auto M_SeePlayr(Mob* const actor) -> bool
+auto M_SeePlayr(Mob* const actor) -> nomadbool_t
 {
+    area_t see_perim;
     switch (actor->mdir) {
-    case D_NORTH: {
-        for (nomadshort_t i = actor->mpos.y; i > actor->mpos.y - actor->c_mob.sight_range; --i) {
-            if (game->playr->pos.y == i && game->playr->pos.x == actor->mpos.x) {
-                return true;
-            }
-        }
-        break; }
-    case D_WEST: {
-        for (nomadshort_t i = actor->mpos.x; i > actor->mpos.x - actor->c_mob.sight_range; --i) {
-            if (game->playr->pos.x == i && game->playr->pos.y == actor->mpos.y) {
-                return true;
-            }
-        }
-        break; }
-    case D_SOUTH: {
-        for (nomadshort_t i = actor->mpos.y; i < actor->mpos.y + actor->c_mob.sight_range; ++i) {
-            if (game->playr->pos.y == i && game->playr->pos.x == actor->mpos.x) {
-                return true;
-            }
-        }
-        break; }
-    case D_EAST: {
-        for (nomadshort_t i = actor->mpos.x; i > actor->mpos.x + actor->c_mob.sight_range; ++i) {
-            if (game->playr->pos.x == i && game->playr->pos.y == actor->mpos.y) {
-                return true;
-            }
-        }
-        break; }
+    case D_NORTH:
+    	see_perim.tl.y = actor->mpos.y - actor->c_mob.sight_range;
+    	see_perim.tl.x = actor->mpos.x - 1;
+    	see_perim.tr.y = actor->mpos.y - actor->c_mob.sight_range;
+    	see_perim.tr.x = actor->mpos.x + 1;
+    	see_perim.bl.y = actor->mpos.y;
+    	see_perim.bl.x = actor->mpos.x - 1;
+    	see_perim.br.y = actor->mpos.y;
+    	see_perim.br.x = actor->mpos.x + 1;
+    	break;
+    case D_WEST:
+    	see_perim.tl.y = actor->mpos.y - 1;
+    	see_perim.tl.x = actor->mpos.x - actor->c_mob.sight_range;
+    	see_perim.tr.y = actor->mpos.y - 1;
+    	see_perim.tr.x = actor->mpos.x;
+    	see_perim.bl.y = actor->mpos.y + 1;
+    	see_perim.bl.x = actor->mpos.x - actor->c_mob.sight_range;
+    	see_perim.br.y = actor->mpos.y + 1;
+    	see_perim.br.x = actor->mpos.x;
+    	break;
+    case D_SOUTH:
+    	see_perim.tl.y = actor->mpos.y;
+    	see_perim.tl.x = actor->mpos.x - 1;
+    	see_perim.tr.y = actor->mpos.y;
+    	see_perim.tr.x = actor->mpos.x + 1;
+    	see_perim.bl.y = actor->mpos.y + actor->c_mob.sight_range;
+    	see_perim.bl.x = actor->mpos.x - 1;
+    	see_perim.br.y = actor->mpos.y + actor->c_mob.sight_range;
+    	see_perim.br.x = actor->mpos.x + 1;
+    	break;
+    case D_EAST:
+    	see_perim.tl.y = actor->mpos.y - 1;
+    	see_perim.tl.x = actor->mpos.x;
+    	see_perim.tr.y = actor->mpos.y - 1;
+    	see_perim.tr.x = actor->mpos.x + actor->c_mob.sight_range;
+    	see_perim.bl.y = actor->mpos.y + 1;
+    	see_perim.bl.x = actor->mpos.x;
+    	see_perim.br.y = actor->mpos.y + 1;
+    	see_perim.br.x = actor->mpos.x + actor->c_mob.sight_range;
+    	break;
     };
+    if ((game->playr->pos.y >= see_perim.tl.y && game->playr->pos.y <= see_perim.br.y)
+    && (game->playr->pos.x >= see_perim.tl.x && game->playr->pos.x <= see_perim.br.x)) {
+    	return true;
+    }
     return false;
 };
-inline auto M_CanMove(Mob* const actor) -> nomadbool_t
+auto M_CanMove(Mob* const actor) -> nomadbool_t
 {
     coord_t pos = M_GetDir(actor->mdir);
     switch (game->c_map[actor->mpos.y+pos.y][actor->mpos.x+pos.x]) {
@@ -441,7 +390,7 @@ inline auto M_CanMove(Mob* const actor) -> nomadbool_t
     LOG_WARN("reached end of switch statement for this function");
     return false;
 };
-inline auto M_NewMoveDir(Mob* const actor) -> nomadbool_t
+auto M_NewMoveDir(Mob* const actor) -> nomadbool_t
 {
     nomadenum_t numtries = (P_Random() & 8)+1;
     for (nomadenum_t i = 0; i < numtries; ++i) {
@@ -456,4 +405,21 @@ inline auto M_NewMoveDir(Mob* const actor) -> nomadbool_t
         };
     }
     return false;
+};
+auto M_HearPlayr(Mob* const actor) -> nomadbool_t
+{
+	area_t perim;
+	perim.tl.y = actor->mpos.y - 5;
+	perim.tl.x = actor->mpos.x - 5;
+	perim.tr.y = actor->mpos.y - 5;
+	perim.tr.x = actor->mpos.x + 5;
+	perim.bl.y = actor->mpos.y + 5;
+	perim.bl.x = actor->mpos.x - 5;
+	perim.br.y = actor->mpos.y + 5;
+	perim.br.x = actor->mpos.x + 5;
+	if ((game->playr->pos.y >= perim.tl.y && game->playr->pos.y <= perim.br.y)
+	&& (game->playr->pos.x >= perim.tl.x && game->playr->pos.x <= perim.br.x)) {
+		return true;
+	}
+	return false;
 };

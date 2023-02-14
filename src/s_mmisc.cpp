@@ -130,7 +130,7 @@ void M_GenMob(Mob* const mob)
 	mob->health = mob->c_mob.health;
 	mob->armor = mob->c_mob.armor;
 	mob->is_boss = false;
-	mob->stepcounter = P_Random() & 10;
+	mob->stepcounter = (P_Random() & 25)+2;
 }
 
 void Game::M_GenMobs(void)
