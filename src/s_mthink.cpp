@@ -92,9 +92,9 @@ static mob_thinker2 thinker_funcs[] = {
 void M_RunThinker(Mob* const actor)
 {
     --actor->mticker;
-    if (actor->mticker <= -1) {
-        M_ChangeState(actor, actor->mstate.next);
-    }
+//    if (actor->mticker <= -1) {
+//        M_ChangeState(actor, actor->mstate.next);
+//    }
     for (const auto& i : thinker_funcs) {
         if (actor->mstate.id == i.statenum) {
             (*i.funcptr)(actor);
@@ -115,8 +115,8 @@ void M_DoMove(Mob* const actor)
         }
     }
     coord_t pos = M_GetDir(actor->mdir);
-    actor->mpos.y += (pos.y * MOB_SPEED_STD);
-    actor->mpos.x += (pos.x * MOB_SPEED_STD);
+    actor->mpos.y += (pos.y * scf::mobspeed);
+    actor->mpos.x += (pos.x * scf::mobspeed);
 }
 
 
@@ -160,7 +160,7 @@ void M_SpawnThink(Mob* actor)
 
 void M_WanderThink(Mob* actor)
 {
-    
+    M_DoMove(actor);
 }
 
 void M_IdleThink(Mob* actor)

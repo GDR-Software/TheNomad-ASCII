@@ -125,7 +125,7 @@ void M_GenMob(Mob* const mob)
 	mob->mpos.y = (rand() % 480)+20;
 	mob->mpos.x = (rand() % 480)+20;
 	M_BalanceMob(mob);
-	mob->mstate = stateinfo[S_MOB_NULL];
+	mob->mstate = stateinfo[S_MOB_SPAWN];
 	mob->mdir = P_Random() & 3;
 	mob->health = mob->c_mob.health;
 	mob->armor = mob->c_mob.armor;

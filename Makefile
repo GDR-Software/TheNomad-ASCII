@@ -3,10 +3,10 @@ VERSION_UPDATE = 0
 VERSION_PATCH  = 1
 CC             = g++
 CFLAGS         = -std=c++17 -I/usr/include -s
-O              = obj
-SDIR           = src
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
 				/usr/lib/x86_64-linux-gnu/libpthread.a -lmpg123
+O              = obj
+SDIR           = src
 EXE            = nomadascii
 EXE_DEBUG      = nomadascii_debug
 

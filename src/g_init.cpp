@@ -259,15 +259,15 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 	}
 	// mobs like little kids who've had a little too much sugar
 	if (scf::launch::fastmobs1) {
-		scf::mobspeed <<= 1;
+		scf::mobspeed = pow(1, 2);
 	}
 	// mobs on crack. Serious, hardcore crack
 	else if (scf::launch::fastmobs2) {
-		scf::mobspeed <<= 3;
+		scf::mobspeed = pow(3, 2);
 	}
 	// mobs on black-tar heroin
 	else if (scf::launch::fastmobs3) {
-		scf::mobspeed <<= 5;
+		scf::mobspeed = pow(5, 2);
 	}
 }
 #endif
