@@ -26,6 +26,8 @@
 #ifndef _N_SHARED_
 #define _N_SHARED_
 
+#pragma once
+
 // if you got this, well then port it
 #if !defined(__unix__) && !defined(_WIN32)
 #   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
@@ -122,6 +124,7 @@ class Game;
 #include <atomic>
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <string>
 #include <iomanip>
 #include <fstream>

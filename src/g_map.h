@@ -21,6 +21,8 @@
 #ifndef _G_MAP_
 #define _G_MAP_
 
+#pragma once
+
 #include "n_shared.h"
 
 // these vars will most likely change with the version

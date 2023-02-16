@@ -1,6 +1,8 @@
 #ifndef _G_CONSOLE_
 #define _G_CONSOLE_
 
+#pragma once
+
 typedef struct _console_var
 {
 	const char* varstr;

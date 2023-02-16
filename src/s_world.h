@@ -21,6 +21,8 @@
 #ifndef _S_WORLD_
 #define _S_WORLD_
 
+#pragma once
+
 #include "g_game.h"
 
 typedef struct

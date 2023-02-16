@@ -1,6 +1,8 @@
 #ifndef _N_CHEATS_
 #define _N_CHEATS_
 
+#pragma once
+
 #define MAGIC_XOR 300
 
 #define CHEAT_1 "JUEM" // fyia (f*** yeah! infinite ammo)

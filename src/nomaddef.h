@@ -23,6 +23,8 @@
 #ifndef __NOMADDEF__
 #define __NOMADDEF__
 
+#pragma once
+
 #define CURRENCY_EMERALD       4
 #define CURRENCY_GOLD          3
 #define CURRENCY_SILVER        2

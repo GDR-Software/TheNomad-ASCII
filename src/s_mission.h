@@ -21,6 +21,8 @@
 #ifndef _S_MISSION_
 #define _S_MISSION_
 
+#pragma once
+
 #include "n_shared.h"
 #include "g_mob.h"
 #include "p_npc.h"

@@ -21,6 +21,8 @@
 #ifndef _G_MOB_
 #define _G_MOB_
 
+#pragma once
+
 #include "n_shared.h"
 #include "g_playr.h"
 #include "g_obj.h"

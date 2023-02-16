@@ -21,6 +21,8 @@
 #ifndef _Z_ZONE_
 #define _Z_ZONE_
 
+#pragma once
+
 #include "n_shared.h"
 
 constexpr auto TAG_FREE       = 0;

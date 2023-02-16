@@ -21,6 +21,8 @@
 #ifndef _P_NPC_
 #define _P_NPC_
 
+#pragma comment
+
 #include "n_shared.h"
 #include "g_obj.h"
 

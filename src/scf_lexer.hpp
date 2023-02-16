@@ -29,6 +29,8 @@
 #ifndef __SCF_LEXER__
 #define __SCF_LEXER__
 
+#pragma once
+
 #include <string>
 
 class Token

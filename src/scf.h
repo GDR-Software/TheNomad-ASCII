@@ -21,6 +21,8 @@
 #ifndef __SCF__
 #define __SCF__
 
+#pragma once
+
 #include "n_shared.h"
 
 #define MAX_VERT_FOV 24

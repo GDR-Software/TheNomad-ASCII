@@ -21,6 +21,8 @@
 #ifndef _G_OBJ_
 #define _G_OBJ_
 
+#pragma once
+
 #include "n_shared.h"
 
 typedef enum : nomadenum_t

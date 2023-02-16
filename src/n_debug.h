@@ -1,6 +1,8 @@
 #ifndef _N_DEBUG_
 #define _N_DEBUG_
 
+#pragma once
+
 #ifndef LOGGER_OUTFILE
 #define LOGGER_OUTFILE dbg_file
 #endif

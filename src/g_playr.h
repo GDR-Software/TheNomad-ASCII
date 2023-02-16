@@ -21,6 +21,8 @@
 #ifndef _G_PLAYR_
 #define _G_PLAYR_
 
+#pragma once
+
 #include "n_shared.h"
 #include "scf.h"
 #include "g_obj.h"

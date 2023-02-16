@@ -21,6 +21,8 @@
 #ifndef _G_GAME_
 #define _G_GAME_
 
+#pragma once
+
 #include "n_shared.h"
 #include "g_zone.h"
 #include "p_npc.h"

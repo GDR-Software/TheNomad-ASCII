@@ -21,6 +21,8 @@
 #ifndef _G_ITEMS_
 #define _G_ITEMS_
 
+#pragma once
+
 #include "n_shared.h"
 #include "g_map.h"
 

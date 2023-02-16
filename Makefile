@@ -60,6 +60,7 @@ OBJS= \
 	$(O)/s_world.o \
 	$(O)/g_loadbff.o \
 	$(O)/g_animation.o \
+	$(O)/s_scripted.o \
 
 DEBUG= \
 	$(O)/n_shared.debug.o \

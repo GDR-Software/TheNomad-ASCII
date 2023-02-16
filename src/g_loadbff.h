@@ -1,6 +1,8 @@
 #ifndef _G_LOADBFF_
 #define _G_LOADBFF_
 
+#pragma once
+
 #define ASSERT(x, ...) \
 { \
 	if (!(x)) { \

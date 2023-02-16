@@ -1,6 +1,8 @@
 #ifndef _G_ANIMATION_
 #define _G_ANIMATION_
 
+#pragma once
+
 void A_Init(Game* const gptr);
 
 // the function the updates and checks the animations vector and runs them
