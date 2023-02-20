@@ -99,9 +99,9 @@ public:
 	bossj_t c_boss;
 	
 	nomadlong_t mticker;
-	std::atomic<nomadint_t> health;
-	std::atomic<nomadint_t> armor;
-	std::atomic<entityflag_t> mobflags;
+	std::atomic<nomadlong_t> health;
+	std::atomic<nomadlong_t> armor;
+	entityflag_t mobflags;
 
 	nomadenum_t mdir;
 	sprite_t sprite;
@@ -134,6 +134,7 @@ void M_FleeThink(Mob* actor);
 // s_mmisc functions
 Mob* M_SpawnMob(void);
 const char* MobTypeToStr(nomaduint_t mtype);
+void M_KillMob(std::vector<Mob*>::iterator mob);
 void M_KillMob(Mob* mob);
 
 //extern const mstate_t mstates[NUMMOBSTATES];

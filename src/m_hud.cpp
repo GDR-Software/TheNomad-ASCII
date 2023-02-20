@@ -23,7 +23,7 @@
 static constexpr uint8_t vert_fov = MAX_VERT_FOV >> 1;
 static constexpr uint8_t horz_fov = MAX_HORZ_FOV >> 1;
 #define mapfile "Files/gamedata/RUNTIME/mapfile.txt"
-static constexpr coord_t origin = {260, 260};
+static coord_t origin = coord_t(260, 260);
 
 static inline void P_GetMapBuffer();
 static inline void Hud_GetVMatrix();
@@ -91,18 +91,17 @@ void Game::I_InitHUD(void)
 	hudbuffer =  (char *)Z_Malloc(BUFFER_SIZE, TAG_STATIC, &hudbuffer);
 	if (!hudbuffer)
 		N_Error("Failed to allocate memory to hudbuffer!");
-
 	Hud_GetVMatrix();
 }
 
 void Game::G_DisplayHUD(void)
 {
 	nomadenum_t i, a;
+	Hud_DisplayLocation();
 	Hud_DisplayConsole();
 	Hud_DisplayBarVitals();
 	Hud_DisplayBodyVitals();
 	Hud_DisplayCompass();
-	Hud_DisplayLocation();
 	Hud_DisplayWeapons();
 	Hud_DisplayVMatrix();
 	for (a = 1; a < 7; ++a) {
@@ -182,10 +181,11 @@ static inline void Hud_DisplayLocation()
 		strncpy(name, "The Eternal City of Galakas", sizeof(name));
 		break;
 	};
+	wmove(game->screen, 1, 8);
+	wclrtoeol(game->screen);
 	mvwprintw(game->screen, 1, 8, "Location/Biome: %s", name);
-	// ok, so you may need to adjust this if you're using _NOMAD_32
-	mvwprintw(
-		game->screen, 2, 8, "Coords: (y) %i, (x) %i", playr->pos.y, playr->pos.x);
+	mvwprintw(game->screen, 2, 8, "Coords: (y) %hi, (x) %hi", playr->pos.y, playr->pos.x);
+	mvwaddch(game->screen, 1, (getmaxx(game->screen) - 1), '#');
 }
 
 static inline void Hud_DisplayCompass()

@@ -35,21 +35,21 @@ void InvAssigner(Game* const gptr)
 
 inline void Inv_DisplayMercMissions(const std::vector<Mission>& m_ls);
 inline void Inv_DisplayItems();
-/*
+
 static inline void Inv_SortItemsABC(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
-        [](const Item* a, const Item* b){ return a->c_item.name < b->c_item.name; } );
+        [](const item_t& a, const item_t& b){ return a.name < b.name; } );
 }
 static inline void Inv_SortItemPricey(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
-        [](const Item* a, const Item* b){ return a->c_item.item_cost < b->c_item.item_cost; } );
+        [](const item_t& a, const item_t& b){ return a.item_cost < b.item_cost; } );
 }
 static inline void Inv_SortItemsWeight(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
-        [](const Item* a, const Item* b){ return a->c_item.item_weight < b->c_item.item_cost; });
+        [](const item_t& a, const item_t& b){ return a.item_weight < b.item_cost; });
 }
 inline void Inv_SortItems(nomadenum_t sorter)
 {
@@ -69,9 +69,102 @@ inline void Inv_SortItems(nomadenum_t sorter)
         break;
     };
 }
-*/
+
+nomaduint_t P_GetNumItems()
+{
+    nomaduint_t numitems = 0;
+    for (const auto& i : playr->inv) {
+        if (i.name)
+            ++numitems;
+    }
+    return numitems;
+}
+
 
 void G_DisplayInventory(void)
 {
+    ITEM **item_ls;
+	char c;	
+	MENU *menu;
+    nomadint_t n_choices, i;
+    nomadshort_t selector = 0;
+    nomadbool_t done = false;
+    werase(game->screen);
+	init_pair(4, COLOR_RED, COLOR_BLACK);
+	init_pair(5, COLOR_CYAN, COLOR_BLACK);
+    std::vector<const char*> choices;
+    for (const auto& i : playr->inv) {
+        if (i.name) {
+            choices.push_back(i.name);
+        }
+    }
+    choices.emplace_back();
+    choices.back() = (const char*)NULL;
 
+	/* Create items */
+    n_choices = choices.size();
+    item_ls = (ITEM **)Z_Malloc(n_choices * sizeof(ITEM *), TAG_STATIC, &item_ls);
+    for(i = 0; i < n_choices; ++i) {
+        if (playr->inv[i].name) {
+            item_ls[i] = new_item(playr->inv[i].name, NULL);
+        }
+    }
+
+	/* Crate menu */
+	menu = new_menu((ITEM **)item_ls);
+     
+	/* Set main window and sub window */
+    set_menu_win(menu, game->screen);
+    set_menu_sub(menu, derwin(game->screen, 10, 38, 3, 1));
+	set_menu_format(menu, 10, 1);
+			
+	/* Set menu mark to the string " * " */
+    set_menu_mark(menu, " -> ");
+
+	/* Print a border around the main window and print a title */
+    box(game->screen, 0, 0);
+    wattron(game->screen, COLOR_PAIR(5));
+    mvwprintw(game->screen, 1, 55, "[Inventory]");
+    wattroff(game->screen, COLOR_PAIR(5));
+	mvwaddch(game->screen, 2, 46, '+');
+	mvwhline(game->screen, 2, 47, '-', 33);
+	mvwaddch(game->screen, 2, 80, '+');
+    mvwaddch(game->screen, 1, 46, '|');
+    mvwaddch(game->screen, 1, 80, '|');
+    wrefresh(game->screen);
+	/* Post the menu */
+	post_menu(menu);
+	wrefresh(game->screen);
+	while (1) {
+        c = getc(stdin);
+        switch (c) {
+        case KEY_w: {
+            --selector;
+            if (selector < 0)
+                selector = choices.size() - 1;
+            menu_driver(menu, REQ_UP_ITEM);
+            break; }
+        case KEY_s: {
+            ++selector;
+            if (selector >= choices.size())
+                selector = 0;
+            menu_driver(menu, REQ_DOWN_ITEM);
+            break; }
+        case ctrl('x'):
+        case KEY_q:
+            game->gamestate = GS_MENU;
+            goto done;
+            break;
+        default:
+            continue;
+            break;
+        }
+        wrefresh(game->screen);
+        std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+	}
+done:
+    unpost_menu(menu);
+    free_menu(menu);
+    for(i = 0; i < n_choices; ++i)
+        free_item(item_ls[i]);
 }

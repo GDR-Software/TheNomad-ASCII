@@ -271,15 +271,20 @@ coord_t botpos[] = {
 	{259, 283},
 };
 
-const item_t iteminfo[NUMITEMS] = {
-	{"Small Health Pack",     },
-	{"Medium Health Pack",    },
-	{"Large Health Pack",     },
-	{"Bandage",               },
-	{"Street-Grade Armor",    },
-	{"Militarty-Grade Armor", },
-	{"Mercenary's Armor",     },
-	{""},
+// name, id, weight, cost
+std::vector<item_t> iteminfo = {
+	{"Small Health Pack",     I_HEALTH_SMALL,   6,  13},
+	{"Medium Health Pack",    I_HEALTH_NORM,    11, 45},
+	{"Large Health Pack",     I_HEALTH_LARGE,   16, 88},
+	{"Bandage",               I_BANDAGE,        4,  8},
+	{"Street-Grade Armor",    I_ARMOR_STREET,   12, 5},
+	{"Militarty-Grade Armor", I_ARMOR_MILITARY, 24, 26},
+	{"Mercenary's Armor",     I_ARMOR_MERC,     39, 69},
+	{"Piece of Flak",         I_FLAK,           9,  5},
+	{"Shotgun Shells (6)",    I_SHELL_PACK,     4,  16},
+	{"Bullets (15)",          I_BULLET_PACK,    6,  13},
+	{"Box of Shotgun Shells", I_SHELL_BOX,      16, 54},
+	{"Box of Bullets",        I_BULLET_BOX,     18, 43},
 };
 
 const char* logosplash =
@@ -317,3 +322,20 @@ const char* companysplash =
 " \\--------/   |----/    |       \\      \\--------/   /              \\  |      \\/      |  |=======>  <======/ \n"
 "                                                                                                            \n"
 " 2021-2023                                                                                                  \n";
+
+const char* about_str =
+"The Nomad-ASCII has been a project in the making for a long time now, and its been a hard game to,\n"
+"develop. The game's idea originally came from fan-fiction after I played Modern Warfare 2's Remastered\n"
+"Campaign for the second time around, it used to take place in right about 2020-2080, but then during\n"
+"the development I watched and feel in love with Mad Max: Fury Road. I changed up the setting to fit\n"
+"more of a desert-planet style of post-apocalypse, but when I was doing this, I thought: \"How can I\n"
+"use the already developed content?\", and that right there is exactly how the notorious mercenary guilds\n"
+"of Bellatum Terrae were born.\n"
+"\nHave fun,\nYour Resident Fiend, Noah Van Til\n\n(IN COLLABORATION WITH GDR GAMES)\n";
+const char* credits_str =
+"\n"
+"That one piano piece you'll hear often: alpecagrenade\n"
+"Programming: Noah Van Til (and most of the music as well)\n"
+"Concept Artists & Ideas Contributers: Cooper & Tucker Kemnitz\n"
+"A Few of the Guns: Ben Pavlovic\n"
+"\n";

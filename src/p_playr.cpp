@@ -18,9 +18,11 @@
 // DESCRIPTION:
 //  src/p_playr.cpp
 //----------------------------------------------------------
+#include "s_scripted.h"
 #include "g_playr.h"
 #include "g_obj.h"
 #include "g_game.h"
+#include "p_npc.h"
 
 static Playr* playr;
 static Game* game;
@@ -125,6 +127,11 @@ void Playr::P_Init()
     p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
 	c_wpn = &p_shotty;
 	memset(&body_health, 100, sizeof(body_health));
+	c_stage = &stages[0];
+	c_chapter = &c_stage->chapters[0];
+	for (auto& i : inv) {
+		i.name = (const char*)NULL;  
+	}
 }
 
 void P_Interact()
@@ -160,6 +167,7 @@ void P_UseWeapon()
 	case W_SHOTTY_FAB:
 	case W_SHOTTY_QS:
 		P_ShootShotty(playr->c_wpn);
+		Hud_Printf("System", "You shoot your shotgun");
 		break;
 	case W_HPRIM_FUSION:
 	case W_HPRIM_HOSIG:

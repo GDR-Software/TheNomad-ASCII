@@ -32,13 +32,11 @@ using json = nlohmann::json;
 static void G_ArchivePlayr(const Playr* playr, json& data);
 static void G_ArchiveWorld(const World* world, json& data);
 static void G_ArchiveWeapon(const Weapon* wpn, json& data);
-static void G_ArchiveItem(const Item* item, json& data);
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data);
 static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data);
 
 static void G_UnArchivePlayr(Playr* const playr, json& data);
 static void G_UnArchiveWeapon(Weapon* const wpn, json& data);
-static void G_UnArchiveItem(Item* const item, json& data);
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t nummobs);
 static void G_UnArchiveBots(std::vector<NPC*>& b_Active, json& data, nomaduint_t numbots);
 
@@ -87,8 +85,8 @@ bool Game::G_LoadGame(const char* svfile)
 static void G_ArchivePlayr(const Playr* playr, json& data)
 {
 	LOG_INFO("Archiving game->playr data");
-	auto health = playr->health.load();
-	auto armor = playr->armor.load();
+	nomadlong_t health = playr->health.load();
+	nomadlong_t armor = playr->armor.load();
 	data["playr"] = {
 		{"name", playr->name},
 		{"pdir", playr->pdir},
@@ -103,14 +101,15 @@ static void G_ArchivePlayr(const Playr* playr, json& data)
 		{"lvl", playr->lvl},
 		{"sprite", playr->sprite},
 		{"sector_id", playr->sector_id},
+		{"pdir", playr->pdir},
 	};
 }
 
 static void G_UnArchivePlayr(Playr* const playr, json& data)
 {
 	LOG_INFO("Unarchiving game->playr data");
-	playr->health = data["playr"]["health"];
-	playr->armor = data["playr"]["armor"];
+	playr->health = (nomadlong_t)data["playr"]["health"];
+	playr->armor = (nomadlong_t)data["playr"]["armor"];
 	playr->name = data["playr"]["name"];
 	playr->pos.y = data["playr"]["pos.y"];
 	playr->pos.x = data["playr"]["pos.x"];
@@ -121,6 +120,7 @@ static void G_UnArchivePlayr(Playr* const playr, json& data)
 	playr->lvl = data["playr"]["lvl"];
 	playr->sprite = data["playr"]["sprite"];
 	playr->sector_id = data["playr"]["sector_id"];
+	playr->pdir = data["playr"]["pdir"];
 }
 
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
@@ -129,8 +129,8 @@ static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
 		Mob* const mob = m_Active[i];
-		auto health = mob->health.load();
-		auto armor = mob->armor.load();
+		nomadlong_t health = mob->health.load();
+		nomadlong_t armor = mob->armor.load();
 		data[node_name] = {
 			{"sprite", (int8_t)mob->sprite},
 			{"health", health},
@@ -178,8 +178,8 @@ static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data)
 	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
 		std::string node_name = "bot_"+std::to_string(i);
 		NPC* const npc = b_Active[i];
-		auto health = npc->health.load();
-		auto armor = npc->armor.load();
+		nomadlong_t health = npc->health.load();
+		nomadlong_t armor = npc->armor.load();
 		data[node_name] = {
 			{"health", health},
 			{"armor", armor},

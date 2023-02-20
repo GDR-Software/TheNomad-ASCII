@@ -92,7 +92,6 @@ static void W_RoamingLoop(void);
 void* W_Loop(void *arg)
 {
 	LOG_PROFILE();
-    pthread_mutex_lock(&world_mutex);
 	
 	auto gtics = gametics->load();
 	// time still passes by even if the player isn't actively
@@ -121,9 +120,9 @@ void* W_Loop(void *arg)
 
     switch (game->playr->pmode) {
     case P_MODE_MISSION:
-        W_MissionLoop();
-        break;
-    case P_MODE_ROAMING:
+		W_MissionLoop();
+		break;
+	case P_MODE_ROAMING:
         W_RoamingLoop();
         break;
     default:
@@ -131,7 +130,6 @@ void* W_Loop(void *arg)
         LOG_WARN("called this function without pmode being roaming or mission");
         break;
     };
-    pthread_mutex_unlock(&world_mutex);
     return NULL;
 }
 
@@ -148,58 +146,36 @@ void P_Pickup(Weapon* wpn)
 	Hud_Printf("System", "You picked up an item: %s", wpn->c_wpn.name);
 }
 
-void P_Pickup(Item& item)
+void P_Pickup(item_t& item)
 {
-	Hud_Printf("System", "You picked up an item: %s", item.c_item.name);
+	Hud_Printf("System", "You picked up an item: %s", item.name);
 }
 
-void P_Pickup(Item* item)
+void P_Pickup(item_t* item)
 {
-	Hud_Printf("System", "You picked up an item: %s", item->c_item.name);
+	Hud_Printf("System", "You picked up an item: %s", item->name);
 }
 
 static void W_RoamingLoop(void)
 {
 	LOG_PROFILE();
 	PTR_CHECK(NULL_CHECK, game);
+	pthread_mutex_lock(&world_mutex);
+	if (game->m_Active.size() < MAX_MOBS_ACTIVE) {
+		Mob* const mob = M_SpawnMob();
+		M_GenMob(mob);
+	}
+	if (game->b_Active.size() < MAX_NPC_ACTIVE) {
+		NPC* const npc = B_SpawnBot();
+		B_BalanceBot(npc);
+	}
 	pthread_create(&game->nthread, NULL, N_Looper, NULL);
 	pthread_create(&game->mthread, NULL, M_Looper, NULL);
 	pthread_join(game->nthread, NULL);
 	pthread_join(game->mthread, NULL);
+	pthread_mutex_unlock(&world_mutex);
 }
 
-static void W_MissionLoop(void)
-{
-	LOG_PROFILE();
-	PTR_CHECK(NULL_CHECK, game);
-	PTR_CHECK(NULL_CHECK, playr->c_mission);
-	Mission* m = playr->c_mission;
-	PTR_CHECK(NULL_CHECK, m);
-	// checking what we should load, where to load, and how, all from the variables determined at merc master selection stage
-	switch (m->sector) {
-	case SECTOR_DOD:
-		break;
-	case SECTOR_AW:
-		break;
-	case SECTOR_SW:
-		break;
-	case SECTOR_AP:
-		break;
-	case SECTOR_BH:
-		break;
-	case SECTOR_SOS:
-		break;
-	case SECTOR_DC:
-		break;
-	case SECTOR_FN:
-		break;
-	case SECTOR_TECOG:
-		break;
-	default:
-		N_Error("Mission taking place in unknown sector: %hu", m->sector);
-		break;
-	};
-}
 
 static std::vector<NPC*>::iterator npc_it;
 static std::vector<Mob*>::iterator mob_it;
@@ -225,13 +201,66 @@ static inline void* M_Looper(void *arg)
 	PTR_CHECK(NULL_CHECK, game);
 	pthread_mutex_lock(&game->mob_mutex);
 	for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
-		Mob* const mob = *mob_it;
-		M_RunThinker(mob);
+		Mob* mob = *mob_it;
+		if (mob->health < 0) {
+			M_KillMob(mob_it);
+		} else {
+			M_RunThinker(mob);
+		}
 	}
 	pthread_mutex_unlock(&game->mob_mutex);
 	return NULL;
 }
 
+static inline void* M_MissionLoop(void *arg)
+{
+	LOG_PROFILE();
+	pthread_mutex_lock(&game->mob_mutex);
+	pthread_mutex_unlock(&game->mob_mutex);
+	return NULL;
+}
+
+static inline void* N_MissionLoop(void *arg)
+{
+	LOG_PROFILE();
+	pthread_mutex_lock(&game->npc_mutex);
+	pthread_mutex_unlock(&game->npc_mutex);
+	return NULL;
+}
+
+static void W_MissionLoop()
+{
+	LOG_PROFILE();
+	PTR_CHECK(NULL_CHECK, game);
+	pthread_mutex_lock(&world_mutex);
+//	if (playr->c_chapter.has_area_lock) {
+//		AreaLock_Check();
+//	}
+//	if (MOBS_ARE_DEAD(*playr->c_chapter)) {
+//		playr->pmode.store(P_MODE_ROAMING);
+//	}
+	if (playr->pmode == P_MODE_MISSION) {
+		pthread_create(&game->mthread, NULL, M_MissionLoop, NULL);
+		pthread_create(&game->nthread, NULL, N_MissionLoop, NULL);
+		
+		pthread_join(game->mthread, NULL);
+		pthread_join(game->nthread, NULL);
+	}
+	else {
+		return;
+	}
+	pthread_mutex_unlock(&world_mutex);
+}
+
+void P_Teleport(coord_t pos)
+{
+	game->playr->pos = pos;
+}
+void P_Teleport(nomadshort_t y, nomadshort_t x)
+{
+	game->playr->pos.y = y;
+	game->playr->pos.x = x;
+}
 
 static inline void M_Init(void)
 {

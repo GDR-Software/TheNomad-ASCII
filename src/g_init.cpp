@@ -19,6 +19,7 @@
 //  src/g_init.cpp
 //----------------------------------------------------------
 #include "g_game.h"
+#include "g_bff.h"
 
 static nomadbool_t ncurses_on;
 static Game* gptr;
@@ -46,7 +47,6 @@ void N_Error(const char* err, ...)
 #ifndef TESTING
 
 static inline void E_Init(Game* const game);
-static inline void TUI_Init(Game* const game);
 static inline void I_ProcessArgs(const std::vector<char*>& myargv);
 
 void I_NomadInit(int argc, char* argv[], Game* game)
@@ -60,6 +60,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	pthread_mutex_init(&game->npc_mutex, NULL);
 	game->gamestate = GS_TITLE;
 	game->gamescreen = MENU_TITLE;
+	game->difficulty = DIF_NOOB;
 	game->ticcount = 0;
 	char buf[256];
 	strncpy(game->bffname, "nomadmain.bffl", sizeof(game->bffname));
@@ -96,6 +97,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 		exit(EXIT_FAILURE);
 		break;
 	};
+	CampaignAssigner(game);
 	puts(buf);
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	printf("I_NomadInit(): Initializing Game...\n");
@@ -107,6 +109,9 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	G_LoadBFF(game->bffname, game);
+	LOG_INFO("closing write-only mapfile.txt");
+	game->I_InitHUD();
+	G_InitEvents(game);
 	scf::G_LoadSCF(game->scfname);
 	puts("W_Init(): Initializing World Data...");
 	W_Init(game);
@@ -130,7 +135,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	}
 }
 
-static inline void TUI_Init(Game* const game)
+void TUI_Init(Game* const game)
 {
 	PTR_CHECK(NULL_CHECK, game);
 	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
@@ -150,6 +155,7 @@ static inline void TUI_Init(Game* const game)
 		N_Error("Screen Too Small For nomadascii!");
 	// change this in the future, this game doesn't "require" colors
 	NOMAD_ASSERT(has_colors(), "Terminal Must Support Colors!");
+	start_color();
 	LOG_INFO("has_colors() = true");
 	ncurses_on = true;
 }
@@ -187,46 +193,56 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 				puts("Fast Mobs 3: On");
 			}
 		}
-		else if (strcmp(myargv[i], "-bff")) {
+		else if (strstr(myargv[i], "-dif")) {
+			++i;
+			if (!strstr(myargv[i], "DIF_")) {
+				gptr->difficulty = atoi(myargv[i]);
+				printf("New Game Difficulty Assigned: %s\n", difftostr(gptr->difficulty));
+			} else {
+				gptr->difficulty = strtodiff(myargv[i]);
+				printf("New Game Difficulty Assigned: %s\n", difftostr(gptr->difficulty));
+			}
+		}
+		else if (strstr(myargv[i], "-bff")) {
 			scf::launch::ext_bff = true;
 			++i;
 			strncpy(gptr->bffname, myargv[i], sizeof(gptr->bffname));
-			if (!strncmp(gptr->bffname, "nomadmain.bffl", sizeof(gptr->bffname))) {
+			if (!strstr(gptr->bffname, "nomadmain.bffl")) {
 				fprintf(stdout, "Using non-default BFFL file: %s\n", gptr->bffname);
 			}
 		}
-		else if (strcmp(myargv[i], "-scf")) {
+		else if (strstr(myargv[i], "-scf")) {
 			scf::launch::ext_scf = true;
 			++i;
 			strncpy(gptr->scfname, myargv[i], sizeof(gptr->scfname));
-			if (!strncmp(gptr->scfname, "default.scf", sizeof(gptr->scfname))) {
+			if (!strstr(gptr->scfname, "default.scf")) {
 				fprintf(stdout, "Using non-default SACE Configuration File: %s\n", gptr->scfname);
 			}
 		}
-		else if (strcmp(myargv[i], "-save")) {
+		else if (strstr(myargv[i], "-save")) {
 			++i;
 			strncpy(gptr->svfile, myargv[i+1], sizeof(gptr));
-			if (!strncmp(gptr->svfile, "nomadsv.ngd", sizeof(gptr->svfile))) {
+			if (!strstr(gptr->svfile, "nomadsv.ngd")) {
 				fprintf(stdout, "Using non-default nomad game data save file: %s\n", gptr->svfile);
 			}
 		}
-		else if (strcmp(myargv[i], "-deafmobs")) {
+		else if (strstr(myargv[i], "-deafmobs")) {
 			scf::launch::deafmobs = true;
 			puts("Deaf Mobs: On");
 		}
-		else if (strcmp(myargv[i], "-nosmell")) {
+		else if (strstr(myargv[i], "-nosmell")) {
 			scf::launch::nosmell = true;
 			puts("No Smell: On");
 		}
-		else if (strcmp(myargv[i], "-nomobs")) {
+		else if (strstr(myargv[i], "-nomobs")) {
 			scf::launch::nomobs = true;
 			puts("No Mobs: On");
 		}
-		else if (strcmp(myargv[i], "-blindmobs")) {
+		else if (strstr(myargv[i], "-blindmobs")) {
 			scf::launch::blindmobs = true;
 			puts("Blind Mobs: On");
 		}
-		else if (strcmp(myargv[i], "-devmode")) {
+		else if (strstr(myargv[i], "-devmode")) {
 			scf::launch::devmode = true;
 			puts("Dev Mode: On");
 		} /*
@@ -235,22 +251,23 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 		} */
 		/* now we get to the REAL cheat codes */
 		// i want to be a god
-		else if (strcmp(myargv[i], "-iwtbag")) {
+		else if (strstr(myargv[i], "-iwtbag")) {
 			scf::launch::godmode = true;
 			puts("God Mode: On");
 		}
 		// that goddam never-ending clip
-		else if (strcmp(myargv[i], "-tgdnec")) {
+		else if (strstr(myargv[i], "-tgdnec")) {
 			scf::launch::bottomless_clip = true;
 			puts("Bottomless Clip: On");
 		}
 		// fuck yeah! infinite ammo
-		else if (strcmp(myargv[i], "-fyia")) {
+		else if (strstr(myargv[i], "-fyia")) {
 			scf::launch::infinite_ammo = true;
 			puts("Infinite Ammo: On");
 		}
-		else if (strcmp(myargv[i], ".bff")
-		|| strcmp(myargv[i], ".scf")) { // bff/scf in the param list
+		else if (strstr(myargv[i], ".bff")
+		|| strstr(myargv[i], ".scf")
+		|| strstr(myargv[i], ".ngd")) { // bff/scf/ngd in the param list
 			continue;
 		}
 		else {

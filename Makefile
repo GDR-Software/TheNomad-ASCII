@@ -1,10 +1,10 @@
 VERSION        = 0
-VERSION_UPDATE = 0
-VERSION_PATCH  = 1
+VERSION_UPDATE = 1
+VERSION_PATCH  = 2
 CC             = g++
 CFLAGS         = -std=c++17 -I/usr/include -s
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
-				/usr/lib/x86_64-linux-gnu/libpthread.a -lmpg123
+				/usr/lib/x86_64-linux-gnu/libpthread.a
 O              = obj
 SDIR           = src
 EXE            = nomadascii
@@ -19,11 +19,11 @@ endif
 OPTIMIZERS     = -finline-limit=10000 \
 				-ffast-math \
 				-frounding-math \
-				-fmerge-all-constants
+				-fmerge-all-constants \
 
 ERRORS         = -Werror=type-limits \
 				-Werror=overflow \
-				-Werror=return-type
+				-Werror=return-type \
 
 DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_UPDATE=$(VERSION_UPDATE) \
@@ -58,9 +58,11 @@ OBJS= \
 	$(O)/g_items.o \
 	$(O)/s_mission.o \
 	$(O)/s_world.o \
-	$(O)/g_loadbff.o \
+	$(O)/g_bff.o \
 	$(O)/g_animation.o \
 	$(O)/s_scripted.o \
+	$(O)/s_campaign.o \
+	$(O)/g_slf.o \
 
 DEBUG= \
 	$(O)/n_shared.debug.o \
@@ -98,7 +100,7 @@ all: $(EXE)
 endif
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -Ofast $(OBJS) $(LDFLAGS) -o $(EXE) $(LDLIBS)
+	$(CC) $(CFLAGS) -Ofast $(OBJS) -o $(EXE) $(LDLIBS) $(LDFLAGS)
 $(EXE_DEBUG): $(DEBUG)
 	$(CC) $(CFLAGS) -Wall -Og -g $(DEBUG) $(LDFLAGS) -o $(EXE_DEBUG) $(LDLIBS)
 

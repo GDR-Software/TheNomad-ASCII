@@ -13,7 +13,8 @@ ncurses-6.3/
 n_shared.h.gch
 src/threadpool.h
 src/threadpool.cpp
-nomadmain.bffl
+nomadmain.bff
+nomadmain/
 
 # until i figure out how to do it with alsa without segging
 src/g_sound.cpp

@@ -10,6 +10,8 @@
 #define LOGGER_PROFILE p_file
 #endif
 
+#define MARKER() puts("marker"); exit(1)
+
 #ifdef _NOMAD_DEBUG
 #include <assert.h>
 #define LOG_DEBUG(...)                                  \

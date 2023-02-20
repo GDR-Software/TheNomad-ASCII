@@ -31,7 +31,7 @@ void NPCAssigner(Game* const gptr)
 	game = gptr;
 }
 
-static void B_BalanceBot(NPC* const npc)
+void B_BalanceBot(NPC* const npc)
 {
 	npc->c_npc = npcinfo[rand() % NUMBOTTYPES];
 	npc->sprite = npc->c_npc.sprite;
@@ -217,15 +217,11 @@ static void B_MercDisplayMissions(const std::vector<Mission>& m_ls, Mission* m);
 void B_MercMasterInteract()
 {
 	Hud_Printf("Mercenary Master", "Well hello there, mercenary, how may I help you today? [y/n]");
+	wrefresh(game->screen);
 	nomadint_t i = getc(stdin);
 	if (i == 'y') {
 		Hud_Printf("Mercenary Master", "Excellent, here's a list of missions");
-		std::vector<Mission> m_ls;
-		G_GenMissionLs(m_ls);
-		Mission* m = nullptr;
-
-		// display the missions
-		B_MercDisplayMissions(m_ls, m);
+		return;
 	}
 	else {
 		Hud_Printf("Mercernary Master", "Oh well, I'll be waiting for you");
@@ -252,62 +248,81 @@ static const char* GetMissionNameFromType(const Mission& m)
 
 static void B_MercDisplayMissions(const std::vector<Mission>& m_ls, Mission* m)
 {
-	werase(game->screen);
-	
-	ITEM** missions;
-	MENU* menu;
-	missions = (ITEM **)Z_Malloc(sizeof(Item *) * (m_ls.size() + 1), TAG_STATIC, &missions);
-	
-	for (nomadenum_t i = 0; i < ARRAY_SIZE(missions) - 1; ++i) {
-		missions[i] = new_item(GetMissionNameFromType(m_ls[i]), NULL);
-		set_item_userptr(missions[i], (void *)&m_ls[i]);
-	}
-	missions[m_ls.size()+1] = nullptr;
-	menu = new_menu((ITEM **)missions);
-	box(game->screen, 0, 0);
-	mvwaddstr(game->screen, 0, 55, "[MISSIONS]");
-	post_menu(menu);
-	set_menu_mark(menu, " -> ");
-	wrefresh(game->screen);
-	char c;
+	ITEM **item_ls;
+	char c;	
+	MENU *menu;
+    nomadint_t n_choices, i;
+    nomadshort_t selector = 0;
+    nomadbool_t done = false;
+    werase(game->screen);
+	init_pair(4, COLOR_RED, COLOR_BLACK);
+	init_pair(5, COLOR_CYAN, COLOR_BLACK);
+    std::vector<const char*> choices;
+    choices.emplace_back();
+    choices.back() = (const char*)NULL;
 
-	nomadshort_t selector = 0;
-	nomadbool_t selected = false;
+	/* Create items */
+    n_choices = choices.size();
+    item_ls = (ITEM **)Z_Malloc(n_choices * sizeof(ITEM *), TAG_STATIC, &item_ls);
+    for(i = 0; i < n_choices; ++i) {
+        
+    }
+
+	/* Crate menu */
+	menu = new_menu((ITEM **)item_ls);
+     
+	/* Set main window and sub window */
+    set_menu_win(menu, game->screen);
+    set_menu_sub(menu, derwin(game->screen, 10, 38, 3, 1));
+	set_menu_format(menu, 10, 1);
+			
+	/* Set menu mark to the string " * " */
+    set_menu_mark(menu, " -> ");
+
+	/* Print a border around the main window and print a title */
+    box(game->screen, 0, 0);
+    wattron(game->screen, COLOR_PAIR(5));
+    mvwprintw(game->screen, 1, 55, "[Inventory]");
+    wattroff(game->screen, COLOR_PAIR(5));
+	mvwaddch(game->screen, 2, 46, '+');
+	mvwhline(game->screen, 2, 47, '-', 33);
+	mvwaddch(game->screen, 2, 80, '+');
+    mvwaddch(game->screen, 1, 46, '|');
+    mvwaddch(game->screen, 1, 80, '|');
+    wrefresh(game->screen);
+	/* Post the menu */
+	post_menu(menu);
+	wrefresh(game->screen);
 	while (1) {
-		if (selected) break;
-		werase(game->screen);
-		box(game->screen, 0, 0);
-		mvwaddstr(game->screen, 0, 55, "[MISSIONS]");
-		c = wgetch(game->screen);
-		if (c == KEY_q) break;
-		switch (c) {
-		case KEY_w: {
-			--selector;
-			if (selector < 0) {
-				selector = m_ls.size();
-			}
-			menu_driver(menu, REQ_UP_ITEM);
-			break; }
-		case KEY_s: {
-			++selector;
-			if (selector >= m_ls.size()) {
-				selector = 0;
-			}
-			menu_driver(menu, REQ_DOWN_ITEM);
-			break; }
-		case 10:
-			m = (Mission *)Z_Malloc(sizeof(Mission), TAG_STATIC, &m);
-			*m = m_ls[selector];
-			selected = true;
-			break;
-		};
-		wrefresh(game->screen);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
-	};
-	for (nomadenum_t i = 0; i < ARRAY_SIZE(missions) - 1; ++i) {
-		free_item(missions[i]);
+        c = getc(stdin);
+        switch (c) {
+        case KEY_w: {
+            --selector;
+            if (selector < 0)
+                selector = choices.size() - 1;
+            menu_driver(menu, REQ_UP_ITEM);
+            break; }
+        case KEY_s: {
+            ++selector;
+            if (selector >= choices.size())
+                selector = 0;
+            menu_driver(menu, REQ_DOWN_ITEM);
+            break; }
+        case ctrl('x'):
+        case KEY_q:
+            game->gamestate = GS_MENU;
+            goto done;
+            break;
+        default:
+            continue;
+            break;
+        }
+        wrefresh(game->screen);
+        std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 	}
-	Z_Free(missions);
-	unpost_menu(menu);
-	werase(game->screen);
+done:
+    unpost_menu(menu);
+    free_menu(menu);
+    for(i = 0; i < n_choices; ++i)
+        free_item(item_ls[i]);
 }

@@ -25,6 +25,7 @@
 
 #include "n_shared.h"
 #include "g_zone.h"
+#include "s_scripted.h"
 #include "p_npc.h"
 #include "g_playr.h"
 #include "g_mob.h"
@@ -44,7 +45,8 @@ typedef enum : nomadenum_t
 	GS_MENU,
 	GS_LEVEL,
 	GS_SETTINGS,
-	GS_PAUSE
+	GS_PAUSE,
+	GS_CAMPAIGN,
 } gamestate_t;
 
 typedef enum : nomadenum_t
@@ -82,6 +84,7 @@ public:
 	World* world;
 	std::vector<Mob*> m_Active;
 	std::vector<NPC*> b_Active;
+	char* biomenames[9];
 public: // map stuff
 	int8_t c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
 public:
@@ -95,6 +98,7 @@ public: // *** multithreading! ***
 	pthread_t nthread;
 	pthread_t wthread;
 	pthread_t pthread;
+	pthread_t cthread; // thread specific the scripted encounters daemon
 	nomadlong_t hudtics;
 	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:
@@ -131,14 +135,19 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+
+void LooperDelay(nomaduint_t numsecs);
 void MobtAssigner(Game* const gptr);
 void MobAssigner(Game* const gptr);
 void NPCAssigner(Game* const gptr);
 void NomadAssigner(Game* const gptr);
+void CampaignAssigner(Game* const gptr);
 
 nomaduint_t G_GetNumMobs(const Game* const game);
 nomaduint_t G_GetNumBots(const Game* const game);
 
+void TUI_Init(Game* const game);
+void G_CampaignSelect();
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
 void W_Init(Game* const gptr);
@@ -154,5 +163,7 @@ std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
 
 extern const char* logosplash;
 extern const char* companysplash;
+extern const char* about_str;
+extern const char* credits_str;
 
 #endif

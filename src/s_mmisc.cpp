@@ -45,13 +45,6 @@ void MobAssigner(Game* const gptr)
 static void M_GenMercSquad();
 static void M_GenZurgutLegion();
 
-void M_CheckMobs()
-{
-	for (auto* i : game->m_Active) {
-		if (i->c_mob.sprite == '^') M_KillMob(i);
-	}
-}
-
 static void M_GenGroup()
 {
 	LOG_PROFILE();
@@ -125,7 +118,7 @@ void M_GenMob(Mob* const mob)
 	mob->mpos.y = (rand() % 480)+20;
 	mob->mpos.x = (rand() % 480)+20;
 	M_BalanceMob(mob);
-	mob->mstate = stateinfo[S_MOB_SPAWN];
+	mob->mstate = stateinfo[S_MOB_WANDER];
 	mob->mdir = P_Random() & 3;
 	mob->health = mob->c_mob.health;
 	mob->armor = mob->c_mob.armor;
@@ -153,16 +146,21 @@ Mob* M_SpawnMob(void)
 //
 // M_KillMob(): deallocates/kills mob
 //
+void M_KillMob(std::vector<Mob*>::iterator mob)
+{
+	game->m_Active.erase(mob);
+	Z_Free(*mob);
+}
 void M_KillMob(Mob* mob)
 {
-	PTR_CHECK(NULL_CHECK, mob);
 	for (std::vector<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
-		if ((*it) == mob) {
+		if (*it == mob) {
 			game->m_Active.erase(it);
 		}
 	}
 	Z_Free(mob);
 }
+
 const char* MobTypeToStr(nomaduint_t mtype)
 {
 	switch (mtype) {

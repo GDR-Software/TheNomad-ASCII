@@ -296,25 +296,47 @@ typedef int64_t nomadlong_t;
 typedef int32_t nomadint_t;
 typedef int16_t nomadshort_t;
 
+typedef uint64_t nomadsize_t;
+typedef int64_t nomadssize_t;
 typedef uint_fast8_t nomadenum_t;
 
 typedef __uint128_t nomadullong_t;
 typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
 typedef uint16_t nomadushort_t;
+
+#define nomad_fast8_t register int8_t
+#define nomad_ufast8_t register uint8_t
 #elif defined(WIN32_NOMAD)
 typedef long long nomadllong_t;
 typedef INT64 nomadlong_t;
 typedef INT32 nomadint_t;
 typedef INT16 nomadshort_t;
 
+typedef UINT64 nomadsize_t;
+typedef INT64 nomadssize_t;
 typedef UINT8 nomadenum_t;
 
 typedef unsigned long long nomadullong_t;
 typedef UINT64 nomadulong_t;
 typedef UINT32 nomaduint_t;
 typedef UINT16 nomadushort_t;
+
+#define nomad_fast8_t register INT8
+#define nomad_ufast8_t register UINT8
 #endif
+
+#define nomad_fast128_t register nomadllong_t
+#define nomad_fast64_t register nomadlong_t
+#define nomad_fast32_t register nomadint_t
+#define nomad_fast16_t register nomadshort_t
+#define nomad_ufast128_t register nomadullong_t
+#define nomad_ufast64_t register nomadulong_t
+#define nomad_ufast32_t register nomaduint_t
+#define nomad_ufast16_t register nomadushort_t
+
+#define nomadptr_t nomadint_t huge*
+#define	nomaduptr_t nomaduint_t huge*
 
 #define NOMAD_VERSION_MAJOR _NOMAD_VERSION
 #define NOMAD_VERSION_MINOR _NOMAD_VERSION_UPDATE
@@ -410,6 +432,13 @@ typedef struct coord_s
 		LOG_WARN("Invalid call to coord_s operator[], returning y");
 		return y;
     }
+	inline coord_s(nomadshort_t _y, nomadshort_t _x)
+		: y(_y), x(_x)
+	{
+	}
+	inline coord_s()
+	{
+	}
 	inline bool operator==(struct coord_s c) const {
 		return (x == c.x && y == c.y);
 	}
@@ -430,7 +459,7 @@ typedef struct coord_s
 	}
 } coord_t, vec2_t;
 
-typedef struct
+typedef struct area_s
 {
     coord_t tl;
     coord_t tr;
@@ -446,7 +475,60 @@ typedef struct
 		LOG_WARN("Invalid call to area operator[], returning tl");
 		return tl;
     }
+	area_s(coord_t _tl, coord_t _tr, coord_t _bl, coord_t _br)
+		: tl(_tl), tr(_tr), bl(_bl), br(_br)
+	{
+	}
+	area_s()
+		: tl({0,0}), tr({0,0}), bl({0,0}), br({0,0})
+	{
+	}
 } area_t;
+
+typedef struct collider_s
+{
+	coord_t where;
+	nomaduint_t what;
+	void *ptr = nullptr;
+	collider_s(coord_t _where, nomaduint_t _what, void *_ptr)
+		: where(_where), what(_what), ptr(_ptr)
+	{
+	}
+	collider_s()
+	{
+	}
+} collider_t;
+
+typedef union floatint_u
+{
+	nomadint_t i;
+	nomaduint_t u;
+	float f;
+	nomadenum_t b[4];
+} floatint_t;
+
+#ifdef NOMAD_FAST_MATH
+#define float_to_fixed(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
+#define fixed_to_float(x) \
+({ \
+  	if (!i) \
+  	  	return 0; \
+  	unsigned s = i>>31; \
+  	unsigned E = (int) (log(i<0 ? -i : i)/log(2)); \
+  	unsigned exp = E + 127; \
+  	unsigned M= i>0? i : -i; \
+  	unsigned frac = M ^ (1<<E); \
+  	if (E>=23) \
+    	frac >>= E-23; \
+	else
+		frac <<= 23-E; \
+	return s<<31 | exp<<23 | frac; \
+})
+#else
+#define float_to_fixed(x) ((nomadfixed_t)x)
+#define fixed_to_float(x) ((float)x)
+#endif
+
 
 #define ctrl(x) (x & 0x1F)
 #define VAR_TO_STR(x) #x
@@ -466,29 +548,74 @@ static const char* DirToStr(nomadenum_t dir)
 }
 static nomadenum_t StrToDir(const char* str)
 {
-	if (strcmp(str, "D_NORTH")) return D_NORTH;
-	else if (strcmp(str, "D_WEST")) return D_WEST;
-	else if (strcmp(str, "D_SOUTH")) return D_SOUTH;
-	else if (strcmp(str, "D_EAST")) return D_EAST;
+	if (strstr(str, "D_NORTH")) return D_NORTH;
+	else if (strstr(str, "D_WEST")) return D_WEST;
+	else if (strstr(str, "D_SOUTH")) return D_SOUTH;
+	else if (strstr(str, "D_EAST")) return D_EAST;
 	else return D_NULL;
 }
 
-typedef struct
+typedef struct dim_s
 {
 	nomadenum_t height, width;
+	dim_s(nomadenum_t _height, nomadenum_t _width)
+		: height(_height), width(_width)
+	{
+	}
+	dim_s()
+	{
+	}
 } dim_t;
 
 typedef int32_t nomadfixed_t;
 
-typedef struct
+class Menu
 {
-	coord_t where;
-	nomaduint_t what;
-	void *ptr = nullptr;
-} collider_t;
+public:
+	dim_t dimensions;
+	coord_t coords;
+	nomaduint_t numitems;
+	MENU* menu;
+	ITEM** item_ls;
+	ITEM* c_item;
+	WINDOW* menuwin;
+	std::string menu_name;
+public:
+	Menu(dim_t dim, coord_t s_coords, const std::vector<const char*>& arr, nomaduint_t itemcount, WINDOW* win,
+		const char* name);
+	~Menu();
+	void DrawMenu()
+	{
+		werase(menuwin);
+		wrefresh(menuwin);
+	}
+	void UpItem() { menu_driver(menu, REQ_UP_ITEM); }
+	void DownItem() { menu_driver(menu, REQ_DOWN_ITEM); }
+	void SetMenuMark(const char* mark) { set_menu_mark(menu, mark); }
+};
 
 inline auto dirtostr(nomadenum_t dir) -> const char* { return DirToStr(dir); };
 inline auto strtodir(const char* str) -> nomadenum_t { return StrToDir(str); };
+inline auto difftostr(uint_fast8_t diff) -> const char* {
+	switch (diff) {
+	case DIF_NOOB: return "I AM A NOOB";
+	case DIF_RECRUIT: return "I Can Do Stuff";
+	case DIF_MERC: return "bring. It .ON!";
+	case DIF_NOMAD: return "Can't Touch This";
+	case DIF_BLACKDEATH: return "John Wick Junior";
+	case DIF_MINORINCONVENIENCE: return "I AM DEATH ITSELF";
+	};
+	return (const char *)NULL;
+};
+inline auto strtodiff(const char* str) -> nomadenum_t {
+	if (strstr(str, "DIF_NOOB")) return DIF_NOOB;
+	else if (strstr(str, "DIF_RECRUIT")) return DIF_RECRUIT;
+	else if (strstr(str, "DIF_MERC")) return DIF_MERC;
+	else if (strstr(str, "DIF_NOMAD")) return DIF_NOMAD;
+	else if (strstr(str, "DIF_BLACKDEATH")) return DIF_BLACKDEATH;
+	else if (strstr(str, "DIF_MINORINCONVENIENCE")) return DIF_MINORINCONVENIENCE;
+	return NUMDIFS;
+};
 inline auto strtobool(const char* str) -> nomadbool_t { return strcmp(str, "true") ? true : false; };
 inline auto booltostr(bool b) -> const char* { return b ? "true" : "false"; };
 collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game);
@@ -496,6 +623,7 @@ nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c);
 inline nomadfloat_t Q_root(nomadfloat_t x);
 nomadint_t disBetweenOBJ(coord_t src, coord_t tar);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
+nomadbool_t inArea(area_t a, coord_t pos);
 
 using namespace std::literals::chrono_literals;
 

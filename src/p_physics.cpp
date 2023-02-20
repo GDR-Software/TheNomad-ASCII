@@ -99,7 +99,8 @@ nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c)
 	switch (game->c_map[point.y][point.x]) {
 	case '#':
 	case '_':
-		return false;
+		c.what = ET_WALL;
+		return true;
 		break;
 	case '.':
 	case ' ':

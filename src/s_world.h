@@ -51,8 +51,10 @@ public:
 
 void P_Pickup(Weapon* wpn);
 void P_Pickup(Weapon& wpn);
-void P_Pickup(Item& item);
-void P_Pickup(Item* item);
+void P_Pickup(item_t& item);
+void P_Pickup(item_t* item);
 void W_KillWorld();
+void P_Teleport(coord_t pos);
+void P_Teleport(nomadshort_t y, nomadshort_t x);
 
 #endif

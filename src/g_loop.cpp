@@ -23,6 +23,35 @@
 #if !defined(TESTING)
 static Game* game;
 
+static void G_ShowAbout()
+{
+	werase(game->screen);
+	mvwprintw(game->screen, 0, 55, "[ABOUT]");
+	mvwaddstr(game->screen, 1, 0, about_str);
+	wrefresh(game->screen);
+	char c;
+	while (c != 'q') {
+		c = getc(stdin);
+		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+	}
+	werase(game->screen);
+	return;
+}
+static void G_ShowCredits()
+{
+	werase(game->screen);
+	mvwprintw(game->screen, 0, 55, "[CREDITS]");
+	mvwaddstr(game->screen, 1, 0, credits_str);
+	wrefresh(game->screen);
+	char c;
+	while (c != 'q') {
+		c = getc(stdin);
+		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+	}
+	werase(game->screen);
+	return;
+}
+
 static void levelLoop(void);
 static void settingsLoop(void);
 
@@ -64,7 +93,7 @@ void mainLoop(int argc, char* argv[])
 			}
 		}
 		else if (game->gamestate == GS_MENU) {
-			int16_t s = 0; // this thing breaks if its a nomadshort_t, don't know why
+			nomadshort_t s = 0;
 			while (game->gamestate == GS_MENU) {
 				werase(game->screen);
 				game->DrawMenuScreen(s);
@@ -74,21 +103,30 @@ void mainLoop(int argc, char* argv[])
 						// s behaves in strange and mysterious ways
 						s--;
 						if (s < 0) {
-							s = 5;
+							s = 7;
 						}
 					}
 					else if (f == 's') {
 						s++;
-						if (s > 5) {
+						if (s > 7) {
 							s = 0;
 						}
 					}
 					else if (f == '\n') {
 						switch (s) {
 						case 0:
+							game->gamestate = GS_CAMPAIGN;
+							break;
+						case 1:
 							game->gamestate = GS_LEVEL;
 							break;
 						case 5:
+							G_ShowAbout();
+							break;
+						case 6:
+							G_ShowCredits();
+							break;
+						case 7:
 							game->~Game();
 							exit(1);
 							break;
@@ -103,6 +141,9 @@ void mainLoop(int argc, char* argv[])
 				std::this_thread::sleep_for(100ms);
 			}
 		}
+		else if (game->gamestate == GS_CAMPAIGN) {
+			G_CampaignSelect();
+		}
 		else if (game->gamestate == GS_LEVEL) {
 			levelLoop();
 		}
@@ -112,7 +153,6 @@ void mainLoop(int argc, char* argv[])
 		else if (game->gamestate == GS_PAUSE) {
 			nomadshort_t s = 0;
 			while (game->gamestate == GS_PAUSE) {
-//				s = s;
 				werase(game->screen);
 				game->DrawPauseMenu(s);
 				char f = wgetch(game->screen);
@@ -170,6 +210,13 @@ void mainLoop(int argc, char* argv[])
 	}
 }
 
+static nomaduint_t loop_delay = 0;
+
+void LooperDelay(nomaduint_t numsecs)
+{
+	loop_delay = numsecs;
+}
+
 static void levelLoop(void)
 {
 	assert(game && game->playr);
@@ -179,23 +226,21 @@ static void levelLoop(void)
 	werase(game->screen);
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	while (game->gamestate == GS_LEVEL) {
-		if (game->m_Active.size() < MAX_MOBS_ACTIVE) {
-			Mob* const mob = M_SpawnMob();
-			M_GenMob(mob);
-		}
-		if (game->b_Active.size() < MAX_NPC_ACTIVE) {
-			NPC* const npc = B_SpawnBot();
-			npc->sprite = npc->c_npc.sprite;
+		if (loop_delay > 0) {
+			std::this_thread::sleep_for(std::chrono::seconds(loop_delay));
+			loop_delay = 0;
 		}
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		// custom key-binds will be implemented in the future
+		pthread_create(&game->cthread, NULL, G_EventDaemon, NULL);
 		pthread_create(&game->wthread, NULL, W_Loop, NULL);
 		pthread_mutex_lock(&game->playr_mutex);
 		char c;
-		if ((c = kb_hit()) != -1)
+		if ((c = kb_hit()) != -1 && !pmove_lock)
 			game->P_Ticker(c);
 		pthread_mutex_unlock(&game->playr_mutex);
+		pthread_join(game->cthread, NULL);
 		pthread_join(game->wthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;

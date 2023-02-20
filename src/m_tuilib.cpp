@@ -22,6 +22,34 @@
 //#define OPENTL_IMPLEMENTATION
 //#include "tl.h"
 
+Menu::Menu(dim_t dim, coord_t s_coords, const std::vector<const char*>& arr, nomaduint_t itemcount, WINDOW* win,
+	const char* name)
+	: dimensions(dim), coords(s_coords), numitems(itemcount), menuwin(win), menu_name(name)
+{
+	item_ls = (ITEM **)Z_Malloc((numitems + 1) * sizeof(ITEM *), TAG_STATIC, &item_ls);
+	for (nomaduint_t i = 0; i < numitems; ++i) {
+		item_ls[i] = new_item(NULL, arr[i]);
+	}
+	item_ls[numitems] = (ITEM *)NULL;
+	menu = new_menu((ITEM **)item_ls);
+	set_menu_win(menu, menuwin);
+	box(menuwin, 0, 0);
+	mvwaddstr(menuwin, 0, dimensions.width >> 1, menu_name.c_str());
+	post_menu(menu);
+	wrefresh(menuwin);
+}
+
+Menu::~Menu()
+{
+	unpost_menu(menu);
+	for (nomaduint_t i = 0; i < numitems; ++i) {
+		free_item(item_ls[i]);
+	}
+	Z_Free(item_ls);
+	free_menu(menu);
+}
+
+
 void Game::DrawMainWinBorder(void)
 {
 	nomadenum_t i;

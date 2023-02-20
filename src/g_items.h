@@ -88,9 +88,12 @@ enum
 	I_ARMOR_MERC,
 	I_FLAK,
 
-	I_SHELL,
-	I_BULLET,
-	I_ROCKET,
+	I_SHELL_PACK,
+	I_BULLET_PACK,
+//	I_ROCKET,
+
+	I_SHELL_BOX,
+	I_BULLET_BOX,
 
 	I_COIN_EMERALD,
 	I_COIN_GOLD,
@@ -184,7 +187,7 @@ typedef struct
 	nomaduint_t id;
 } material_t;
 
-typedef struct
+typedef struct item_s
 {
 	const char* name;
 	nomaduint_t item_id;
@@ -194,26 +197,10 @@ typedef struct
 
 	// in gold coins
 	nomaduint_t item_cost;
-	std::vector<material_t> mtl_ls;
 } item_t;
 
 extern const weapon_t wpninfo[NUMWEAPONS];
-extern const item_t iteminfo[NUMITEMS];
-
-class Item
-{
-public: // basic item statistics
-	item_t c_item;
-public:
-	Item(){}
-	Item(const Item&) = delete;
-	Item(Item &&) = default;
-	Item& operator=(const Item& item)
-	{
-		memcpy(&(*this), &item, sizeof(Item));
-		return *this;
-	}
-};
+extern std::vector<item_t> iteminfo;
 
 class Weapon
 {
@@ -221,14 +208,18 @@ public:
 	weapon_t c_wpn;
 public:
 	Weapon(){}
-	Weapon& operator=(const Weapon& wpn)
-	{
+	~Weapon(){}
+	Weapon(const Weapon &) = delete;
+
+	inline bool operator==(const Weapon& wpn) const {
+		return memcmp(&(*this), &wpn, sizeof(Weapon));
+	}
+	inline Weapon& operator=(const Weapon& wpn) {
 		memcpy(&(*this), &wpn, sizeof(Weapon));
 		return *this;
 	}
 };
 
-std::vector<collider_t>& P_GetHitEntities(Weapon* const wpn);
 void CombatAssigner(Game* const gptr);
 void ItemAssigner(Game* const gptr);
 void P_ShootShotty(Weapon* const wpn);

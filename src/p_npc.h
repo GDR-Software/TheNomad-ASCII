@@ -84,8 +84,8 @@ public:
 	nomadenum_t ndir;
 	entitystate_t nstate;
 	nomaduint_t nticker;
-	std::atomic<nomadint_t> health;
-	std::atomic<nomadushort_t> armor;
+	std::atomic<nomadlong_t> health;
+	std::atomic<nomadlong_t> armor;
 	sprite_t sprite;
 public:
 	NPC(){}
@@ -96,7 +96,7 @@ public:
 	}
 };
 
-
+void B_BalanceBot(NPC* const npc);
 void B_KillBot(NPC* npc);
 NPC* B_SpawnBot(void);
 

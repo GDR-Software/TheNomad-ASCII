@@ -28,6 +28,7 @@
 #include "g_obj.h"
 #include "g_items.h"
 #include "g_map.h"
+#include "s_scripted.h"
 
 #define MAX_PLAYR_ITEMS 1000
 #define MAX_PLAYR_WPNS PLAYR_MAX_WPNS
@@ -50,10 +51,11 @@ class Playr
 public:
 	std::string name;
 	sprite_t sprite;
-	std::atomic<nomadint_t> health;
-	std::atomic<nomadushort_t> armor;
+	std::atomic<nomadlong_t> health;
+	std::atomic<nomadlong_t> armor;
 	nomadenum_t pdir = D_NORTH;
 	nomadushort_t lvl = 0;
+	nomadulong_t xp = 0;
 	nomadint_t coin = 0;
 	coord_t pos;
 	nomadenum_t sector_id;
@@ -61,14 +63,15 @@ public:
 	Weapon* c_wpn = nullptr;
 	nomadbool_t wpn_select = false;
 	nomadenum_t wpn_slot_current = 1;
-	Item inv[MAX_PLAYR_ITEMS];
-	std::atomic<nomadint_t> body_health[4];
+	std::array<item_t, MAX_PLAYR_ITEMS> inv;
+	nomadint_t body_health[4];
 	entitystate_t pstate;
-	std::atomic<nomadenum_t> pmode;
+	nomadenum_t pmode;
 	nomadenum_t lastmoved;
 	nomadlong_t pticker = 0;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
-	Mission* c_mission = nullptr;
+	stage_t* c_stage = nullptr;
+	chapter_t* c_chapter = nullptr;
 public:
 	Playr(){}
 	~Playr(){}

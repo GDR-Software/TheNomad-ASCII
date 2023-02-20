@@ -25,6 +25,6 @@ bind kbSwapWpn_9 KEY_9
 bind kbSwapWpn_10 KEY_0
 bind kbInteract KEY_ENTER
 bind kbExitToPause CTRL_X
-
+bind kbUseWeapon CTRL_v
 
 

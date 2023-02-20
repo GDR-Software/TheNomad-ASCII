@@ -92,13 +92,13 @@ static mob_thinker2 thinker_funcs[] = {
 void M_RunThinker(Mob* const actor)
 {
     --actor->mticker;
-//    if (actor->mticker <= -1) {
-//        M_ChangeState(actor, actor->mstate.next);
-//    }
-    for (const auto& i : thinker_funcs) {
-        if (actor->mstate.id == i.statenum) {
-            (*i.funcptr)(actor);
+    if (actor->mticker <= -1) {
+        for (const auto& i : thinker_funcs) {
+            if (actor->mstate.id == i.statenum) {
+                (*i.funcptr)(actor);
+            }
         }
+        actor->mticker = actor->mstate.numticks;
     }
 }
 
