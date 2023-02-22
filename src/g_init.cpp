@@ -70,26 +70,26 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	case 0:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Pre-Alpha (v%i.%i.%i)\n"
+			"  Version: Pre-Alpha (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 		break;
 	case 1:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Alpha (v%i.%i.%i)  \n"
+			"  Version: Alpha (v%i.%i.%i)  \n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	case 2:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad Beta (v%i.%i.%i)\n"
+			"  Version: Beta (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	case 3:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
-			"  The Nomad (v%i.%i.%i)\n"
+			"  Version: (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
 	default: // should theoretically never happen
