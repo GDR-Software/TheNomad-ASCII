@@ -135,7 +135,7 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
-
+void TUIAssigner(Game* const gptr);
 void LooperDelay(nomaduint_t numsecs);
 void MobtAssigner(Game* const gptr);
 void MobAssigner(Game* const gptr);

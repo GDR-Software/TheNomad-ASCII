@@ -16,12 +16,9 @@
 #include <assert.h>
 #define LOG_DEBUG(...)                                  \
 {                                                       \
-	std::mutex lock;                                    \
-	lock.lock();                                        \
 	fprintf(LOGGER_OUTFILE, "[DEBUG](%s): ", __func__); \
 	fprintf(LOGGER_OUTFILE, __VA_ARGS__);               \
 	fprintf(LOGGER_OUTFILE, "\n");                      \
-	lock.unlock();                                      \
 }
 #else
 #define assert(x)
@@ -52,8 +49,6 @@
 
 #define LOG_FREETAGS(lowtag, hightag, nblocks, bfreed)   \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"Zone Daemon Log:\n"                                 \
 	"\tlog type    => FREETAGS\n"                        \
@@ -63,27 +58,22 @@
 	"\tblocks freed=> %i\n",                             \
 	TAG_TO_STR(lowtag),                                  \
 	TAG_TO_STR(hightag), nblocks, bfreed);               \
-	lock.unlock();                                       \
 }
 
 #define LOG_HEAP()                                       \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"[Zone Daemon Log]\n"                                \
+	"\tzone id               => %i\n"                    \
 	"\tlog type              => HEAP_CHECK\n"            \
 	"\ttotal bytes allocated => %lu\n"                   \
 	"\ttotal bytes freed     => %lu\n"                   \
 	"\tnumber of memblocks   => %lu\n",                  \
-	log_size, free_size, numblocks);                     \
-	lock.unlock();                                       \
+	GET_ZONE_ID(zone), log_size, free_size, numblocks);  \
 }
 
 #define LOG_ALLOC(ptr, tag, size)                        \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"[Zone Daemon Log]\n"                                \
 	"\tlog type        => ALLOCATION\n"                  \
@@ -91,12 +81,9 @@
 	"\tblock tag       => %i\n"                          \
 	"\tuser pointer    => %p\n",                         \
 	size, tag, ptr);                                     \
-	lock.unlock();                                       \
 }
 #define LOG_DEALLOC(ptr, tag, size)                      \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"[Zone Daemon Log]\n"                                \
 	"\tlog type     => DEALLOCATION\n"                   \
@@ -104,23 +91,17 @@
 	"\tblock tag    => %i\n"                             \
 	"\tuser pointer => %p\n",                            \
 	size, tag, ptr);                                     \
-	lock.unlock();                                       \
 }
 
 #define LOG_INFO(...)                                    \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"%s[INFO]%s(%s): ", C_GREEN, C_RESET, __func__);     \
 	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
 	fprintf(LOGGER_OUTFILE, "\n");                       \
-	lock.unlock();                                       \
 }
 #define LOG_WARN(...)                                    \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"%sWARNING:%s%s\n"                                   \
 	"\tfunction: %s\n"                                   \
@@ -128,12 +109,9 @@
 		C_RED, C_RESET, C_YELLOW, __func__);             \
 	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
 	fprintf(LOGGER_OUTFILE, "%s\n", C_RESET);            \
-	lock.unlock();                                       \
 }
 #define LOG_ERROR(...)                                   \
 {                                                        \
-	std::mutex lock;                                     \
-	lock.lock();                                         \
 	fprintf(LOGGER_OUTFILE,                              \
 	"%sERROR:%s%s\n"                                     \
 	"\tfunction: %s\n"                                   \
@@ -141,7 +119,6 @@
 		C_RED, C_RESET, C_YELLOW, __func__);             \
 	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
 	fprintf(LOGGER_OUTFILE, "%s\n", C_RESET);            \
-	lock.unlock();                                       \
 	exit(EXIT_FAILURE);                                  \
 }
 
@@ -153,19 +130,14 @@
 #define NULL_CHECK 0
 #define PTR_CHECK(type, ptr)                                            \
 {                                                                       \
-	std::mutex lock;                                                    \
-	lock.lock();                                                        \
 	LOG_INFO("running pointer check %s on %s", #type, #ptr);            \
 	if (!ptr) {                                                         \
 		LOG_WARN("pointer %s was NULL!", #ptr);                         \
 	}                                                                   \
-	lock.unlock();                                                      \
 }
 
 #define LOG_SAVEFILE()                                                  \
 {                                                                       \
-	std::mutex lock;                                                    \
-	lock.lock();                                                        \
 	fprintf(LOGGER_OUTFILE,                                             \
 	"<=== Beginning Save/Load Game Procedures ===>\n"                   \
 	"\tfile name:     %s\n"                                             \
@@ -173,7 +145,6 @@
 	"\tlast accessed: %lu\n"                                            \
 	"\tlast modified: %lu\n",                                           \
 	svfile, svstat.st_size, svstat.st_atime, svstat.st_mtime);          \
-	lock.unlock();                                                      \
 }
 
 // the following below is for internal use, don't use yourself

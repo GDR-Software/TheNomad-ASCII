@@ -91,7 +91,11 @@ DEBUG= \
 	$(O)/g_items.debug.o \
 	$(O)/s_mission.debug.o \
 	$(O)/s_world.debug.o \
-	$(O)/g_loadbff.debug.o \
+	$(O)/g_bff.debug.o \
+	$(O)/g_animation.debug.o \
+	$(O)/s_scripted.debug.o \
+	$(O)/s_campaign.debug.o \
+	$(O)/g_slf.debug.o \
 
 ifdef debug
 all: $(EXE_DEBUG)

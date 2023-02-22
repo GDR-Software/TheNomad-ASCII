@@ -101,11 +101,17 @@ void P_ShootShotty(Weapon* const wpn)
 	
 	area_t a;
 	G_GetShottyArea(&a, playr->pdir, playr->pos, range, spread);
+	std::vector<Mob*> hit;
 	for (auto *i : game->m_Active) {
 		if ((i->mpos.y >= a.tl.y && i->mpos.y <= a.br.y)
 		&&  (i->mpos.x >= a.tl.x && i->mpos.x <= a.br.x)) {
-			i->health -= wpn->c_wpn.dmg;
+			hit.push_back(i);
 		}
+	}
+	// divide the damage somewhat equally
+	nomaduint_t divvy = wpn->c_wpn.dmg / hit.size();
+	for (auto* const i : hit) {
+		i->health -= divvy;
 	}
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
 	playr->pticker = playr->pstate.numticks;

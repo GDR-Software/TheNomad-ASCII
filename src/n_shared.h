@@ -130,6 +130,17 @@ class Game;
 #include <fstream>
 #include <pthread.h>
 
+#ifdef _NOMAD_EXPERIMENTAL
+#include <curl/curl.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <net/if.h>
+#include <net/ethernet.h>
+#include <arpa/inet.h>
+#include <arpa/ftp.h>
+#include <sys/ioctl.h>
+#endif
+
 /*
  * ISC License
  * 
@@ -305,8 +316,8 @@ typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
 typedef uint16_t nomadushort_t;
 
-#define nomad_fast8_t register int8_t
-#define nomad_ufast8_t register uint8_t
+typedef int8_t nomadbyte_t;
+typedef uint8_t nomadubyte_t;
 #elif defined(WIN32_NOMAD)
 typedef long long nomadllong_t;
 typedef INT64 nomadlong_t;
@@ -322,21 +333,17 @@ typedef UINT64 nomadulong_t;
 typedef UINT32 nomaduint_t;
 typedef UINT16 nomadushort_t;
 
-#define nomad_fast8_t register INT8
-#define nomad_ufast8_t register UINT8
+typedef INT8 nomadbyte_t;
+typedef UINT8 nomadubyte_t;
 #endif
 
-#define nomad_fast128_t register nomadllong_t
-#define nomad_fast64_t register nomadlong_t
-#define nomad_fast32_t register nomadint_t
-#define nomad_fast16_t register nomadshort_t
-#define nomad_ufast128_t register nomadullong_t
-#define nomad_ufast64_t register nomadulong_t
-#define nomad_ufast32_t register nomaduint_t
-#define nomad_ufast16_t register nomadushort_t
+typedef const char* nomad_cstr_t;
+typedef std::string nomad_str_t;
 
-#define nomadptr_t nomadint_t huge*
-#define	nomaduptr_t nomaduint_t huge*
+#define nomad_fancy_var(mods, type) mods type
+
+#define nomadptr_t nomadlong_t huge*
+#define	nomaduptr_t nomadulong_t huge*
 
 #define NOMAD_VERSION_MAJOR _NOMAD_VERSION
 #define NOMAD_VERSION_MINOR _NOMAD_VERSION_UPDATE
@@ -349,7 +356,11 @@ typedef UINT16 nomadushort_t;
 
 // these types don't depend on the arch
 typedef int8_t sprite_t;
+#ifdef NOMAD_DOUBLE
+typedef double nomadfloat_t;
+#else
 typedef float nomadfloat_t;
+#endif
 
 #define chtype chtype_small
 typedef sprite_t chtype;
@@ -357,7 +368,7 @@ typedef sprite_t chtype;
 #ifdef __cplusplus
 typedef bool nomadbool_t;
 #else
-typedef enum{false, true} nomadbool_t;
+typedef enum{false = 0, true = 1} nomadbool_t;
 #endif
 
 #endif
@@ -572,26 +583,15 @@ typedef int32_t nomadfixed_t;
 class Menu
 {
 public:
-	dim_t dimensions;
-	coord_t coords;
 	nomaduint_t numitems;
 	MENU* menu;
 	ITEM** item_ls;
-	ITEM* c_item;
-	WINDOW* menuwin;
-	std::string menu_name;
 public:
-	Menu(dim_t dim, coord_t s_coords, const std::vector<const char*>& arr, nomaduint_t itemcount, WINDOW* win,
-		const char* name);
+	Menu(const std::vector<std::string>& choices, const char* marker);
+	Menu(const char** choices, const char* marker);
 	~Menu();
-	void DrawMenu()
-	{
-		werase(menuwin);
-		wrefresh(menuwin);
-	}
 	void UpItem() { menu_driver(menu, REQ_UP_ITEM); }
 	void DownItem() { menu_driver(menu, REQ_DOWN_ITEM); }
-	void SetMenuMark(const char* mark) { set_menu_mark(menu, mark); }
 };
 
 inline auto dirtostr(nomadenum_t dir) -> const char* { return DirToStr(dir); };

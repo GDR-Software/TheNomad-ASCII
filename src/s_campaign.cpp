@@ -54,39 +54,19 @@ inline auto chapter_highest_diff(chapter_t& chapter) -> const char*
 
 void G_CampaignSelect()
 {
-	ITEM **item_ls;
 	char c;	
-	MENU *menu;
-    nomadint_t n_choices, i;
     nomadshort_t selector = 0;
     nomadbool_t done = false;
     werase(game->screen);
 	init_pair(4, COLOR_RED, COLOR_BLACK);
 	init_pair(5, COLOR_CYAN, COLOR_BLACK);
 
-    const char* choices[] = {
-        "Mission 1: From Eagle's Peak",
-        "Mission 2: To Guns 'n' Grenades",
-        "Mission 3: Invasion of Galakas",
-        "Mission 4: A Duel With Death",
-        (const char *)NULL
+    const char *choices[] = {
+        "Mission 1: ",
+        (const char*)NULL
     };
-	/* Create items */
-    n_choices = ARRAY_SIZE(choices);
-    item_ls = (ITEM **)Z_Malloc(n_choices * sizeof(ITEM *), TAG_STATIC, &item_ls);
-    for(i = 0; i < n_choices; ++i)
-        item_ls[i] = new_item(choices[i], NULL);
 
-	/* Crate menu */
-	menu = new_menu((ITEM **)item_ls);
-     
-	/* Set main window and sub window */
-    set_menu_win(menu, game->screen);
-    set_menu_sub(menu, derwin(game->screen, 10, 38, 3, 1));
-	set_menu_format(menu, 10, 1);
-			
-	/* Set menu mark to the string " * " */
-    set_menu_mark(menu, " -> ");
+    Menu menu(choices, " -> ");
 
 	/* Print a border around the main window and print a title */
     box(game->screen, 0, 0);
@@ -105,7 +85,7 @@ void G_CampaignSelect()
         booltostr(game->playr->c_stage->chapters[selector].done));
     wrefresh(game->screen);
 	/* Post the menu */
-	post_menu(menu);
+	post_menu(menu.menu);
 	wrefresh(game->screen);
 	while (1) {
         mvwaddstr(game->screen, 2, 85, "[Mission Statistics]");
@@ -119,13 +99,13 @@ void G_CampaignSelect()
             --selector;
             if (selector < 0)
                 selector = game->playr->c_stage->chapters.size() - 1;
-            menu_driver(menu, REQ_UP_ITEM);
+            menu.DownItem();
             break; }
         case KEY_s: {
             ++selector;
             if (selector >= game->playr->c_stage->chapters.size())
                 selector = 0;
-            menu_driver(menu, REQ_DOWN_ITEM);
+            menu.DownItem();
             break; }
         case ctrl('x'):
         case KEY_q:
@@ -140,8 +120,5 @@ void G_CampaignSelect()
         std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 	}
 done:
-    unpost_menu(menu);
-    free_menu(menu);
-    for(i = 0; i < n_choices; ++i)
-        free_item(item_ls[i]);
+    unpost_menu(menu.menu);
 }

@@ -32,6 +32,17 @@ struct mob_thinker
     nomaduint_t mtype;
     actionf_t funcptr;
 };
+struct mob_ticker
+{
+    nomadlong_t ticker = 0;
+    const Mob* mob;
+    mob_ticker(Mob* const actor)
+        : mob(actor)
+    {
+    }
+};
+
+static std::vector<mob_ticker> tickers;
 
 void M_GruntThink(Mob* const actor);
 void M_GunnerThink(Mob* const actor);
@@ -92,6 +103,7 @@ static mob_thinker2 thinker_funcs[] = {
 void M_RunThinker(Mob* const actor)
 {
     --actor->mticker;
+    tickers.push_back({ actor });
     if (actor->mticker <= -1) {
         for (const auto& i : thinker_funcs) {
             if (actor->mstate.id == i.statenum) {
@@ -183,8 +195,19 @@ void M_IdleThink(Mob* actor)
 
 void M_FollowPlayr(Mob* actor)
 {
-	if (game->playr->pos.y > actor->mpos.y)
-		actor->mpos.y += scf::mobspeed;
+    nomadbool_t done = false;
+	if (game->playr->pos.y > actor->mpos.y) {
+		for (nomadushort_t i = 0; i < scf::mobspeed && !done; ++i, --actor->mpos.y) {
+            switch (game->c_map[actor->mpos.y][actor->mpos.x]) {
+            case '#':
+            case '_':
+                break;
+            case '.':
+                break;
+            };
+        }
+        actor->mpos.y += scf::mobspeed;
+    }
 	else if (game->playr->pos.y < actor->mpos.y)
 		actor->mpos.y -= scf::mobspeed;
 	if (game->playr->pos.x > actor->mpos.x)

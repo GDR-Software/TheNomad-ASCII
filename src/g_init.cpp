@@ -97,6 +97,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 		exit(EXIT_FAILURE);
 		break;
 	};
+	TUIAssigner(game);
 	CampaignAssigner(game);
 	puts(buf);
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
@@ -221,7 +222,7 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 		}
 		else if (strstr(myargv[i], "-save")) {
 			++i;
-			strncpy(gptr->svfile, myargv[i+1], sizeof(gptr));
+			strncpy(gptr->svfile, myargv[i], sizeof(gptr->svfile));
 			if (!strstr(gptr->svfile, "nomadsv.ngd")) {
 				fprintf(stdout, "Using non-default nomad game data save file: %s\n", gptr->svfile);
 			}
