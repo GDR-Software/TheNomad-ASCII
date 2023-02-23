@@ -91,6 +91,22 @@ static inline void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, noma
 	};
 }
 
+void P_DoGrenade(Weapon* const wpn)
+{
+	area_t explosion;
+	coord_t& tl = explosion.tl;
+	coord_t& tr = explosion.tr;
+	coord_t& bl = explosion.bl;
+	coord_t& br = explosion.br;
+	std::vector<Mob*> m_hit;
+	std::vector<NPC*> b_hit;
+	for (auto* i : game->m_Active) {
+		if (inArea(explosion, i->mpos)) {
+			m_hit.push_back(i);
+		}
+	}
+}
+
 void P_ShootShotty(Weapon* const wpn)
 {
 	if (playr->pticker > -1)
@@ -103,16 +119,17 @@ void P_ShootShotty(Weapon* const wpn)
 	G_GetShottyArea(&a, playr->pdir, playr->pos, range, spread);
 	std::vector<Mob*> hit;
 	for (auto *i : game->m_Active) {
-		if ((i->mpos.y >= a.tl.y && i->mpos.y <= a.br.y)
-		&&  (i->mpos.x >= a.tl.x && i->mpos.x <= a.br.x)) {
+		if (inArea(a, i->mpos))
 			hit.push_back(i);
-		}
 	}
 	// divide the damage somewhat equally
 	nomaduint_t divvy = wpn->c_wpn.dmg / hit.size();
-	for (auto* const i : hit) {
+	if (divvy < (wpn->c_wpn.dmg / 3)) // don't do really small damage
+		divvy += wpn->c_wpn.dmg >> 1; // add a bit of damage to the divvy
+
+	for (auto* const i : hit)
 		i->health -= divvy;
-	}
+	
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
 	playr->pticker = playr->pstate.numticks;
 }
@@ -123,7 +140,6 @@ void P_ShootSingle(Weapon* const wpn)
 	if (playr->pticker > -1)
 		return;
 
-	nomadenum_t spread = wpn->c_wpn.spread;
 	nomaduint_t range = wpn->c_wpn.range;
 	coord_t endpoint;
 	switch (playr->pdir) {
@@ -156,10 +172,12 @@ void P_ShootSingle(Weapon* const wpn)
 			for (auto* i : game->m_Active) {
 				if (i->mpos == coord_t(y, x)) {
 					i->health -= wpn->c_wpn.dmg;
+					goto done; // only one hit target allowed (armor piercing in the future'll override this)
 				}
 			}
 		}
 	}
+done:
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
 	playr->pticker = playr->pstate.numticks;
 }

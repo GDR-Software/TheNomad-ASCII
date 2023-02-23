@@ -72,8 +72,11 @@ typedef struct
 } npc_t;
 
 extern coord_t botpos[];
-
 extern std::vector<npc_t> npcinfo;
+
+#define BOT_UNKILLABLE 10
+#define BOT_PLAYR_FRIEND 9
+#define BOT_RANDO 8
 
 class NPC
 {
@@ -87,6 +90,7 @@ public:
 	std::atomic<nomadlong_t> health;
 	std::atomic<nomadlong_t> armor;
 	sprite_t sprite;
+	nomadenum_t importance = BOT_RANDO; // var that helps determine whether or not an NPC should be MURDERED
 public:
 	NPC(){}
 	~NPC(){}

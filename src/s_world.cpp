@@ -22,6 +22,7 @@
 #include "s_world.h"
 #include "s_mission.h"
 #include "p_npc.h"
+#include "g_rng.h"
 
 static pthread_mutex_t world_mutex;
 
@@ -69,6 +70,44 @@ void W_Init(Game* const gptr)
     M_Init();
 
     pthread_mutex_init(&world_mutex, NULL);
+}
+
+settlement_t* World::GenHamlet(void)
+{
+	settlement_t* hamlet = (settlement_t *)Z_Malloc(sizeof(settlement_t), TAG_STATIC, &hamlet);
+	coord_t& tl = hamlet->area.tl;
+	coord_t& tr = hamlet->area.tr;
+	coord_t& bl = hamlet->area.bl;
+	coord_t& br = hamlet->area.br;
+	tl.y = (P_Random() & 480) + 20;
+	tl.x = (P_Random() & 480) + 20;
+	tr.y = tl.y;
+	tr.x = tl.x + ((P_Random() & 20) + 10) + tl.x;
+	bl.y = ((P_Random() & 20) + 10) + tl.y;
+	bl.x = tl.x;
+	br.y = bl.y;
+	br.x = tr.x;
+	nomadenum_t numbots = (P_Random() & 8) + 4;
+	while (game->b_Active.size() + numbots > MAX_NPC_ACTIVE) {
+		for (std::vector<NPC*>::iterator it = game->b_Active.begin(); it != game->b_Active.end();) {
+			if ((*it)->importance < BOT_PLAYR_FRIEND) {
+				Z_Free((*it));
+				break;
+			}
+			++it;
+		}
+	}
+	game->b_Active.emplace_back();
+	game->b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &game->b_Active.back());
+	std::vector<NPC*>::iterator beginit = game->b_Active.end();
+	for (nomadenum_t i = 0; i < numbots - 1; ++i) {
+		game->b_Active.emplace_back();
+		game->b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &game->b_Active.back());
+	}
+	std::vector<NPC*>::iterator endit = game->b_Active.end();
+	std::copy(beginit, endit, std::back_inserter(hamlet->bots));
+	
+	return hamlet;
 }
 
 static void W_MissionLoop(void);
@@ -378,5 +417,10 @@ void W_KillWorld()
 	Z_Free(world);
 	pthread_mutex_destroy(&world_mutex);
 }
+
+std::vector<const char*> settlement_lore = {
+	"This is an ancient settlement dating back to the Great Desolation",
+	(const char *)NULL
+};
 
 #endif

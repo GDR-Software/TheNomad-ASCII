@@ -32,8 +32,8 @@
 #include "g_map.h"
 #include "s_world.h"
 
-#ifndef _NOMAD_MAIN_
-#define _NOMAD_MAIN_
+#ifndef NOMAD_MAIN
+#define NOMAD_MAIN
 #endif
 
 // used for loading the bff, tracking the progress // nope, not anymore

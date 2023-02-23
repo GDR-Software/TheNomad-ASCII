@@ -33,12 +33,31 @@ typedef struct
     nomadulong_t day;
 } worldtime_t;
 
+typedef enum : nomaduint_t
+{
+    W_RAINING,
+    W_SANDSTORM,
+    W_THUNDERSTORM,
+    W_SNOWING,
+    W_SUNNY,
+    W_SCORCHING
+} weather_t;
+
+typedef struct settlement_s
+{
+    area_t area;
+    std::vector<NPC*> bots;
+    std::string lore;
+} settlement_t;
+
 class World
 {
 public:
     worldtime_t time;
     nomadbool_t day; // whether its daytime or not
     nomadint_t temperature; // the average temperature of the world
+    nomadint_t weather;
+    nomadint_t biome_temp[9]; // the individual temperatures of each sector
 public:
     World(){}
     ~World(){}
@@ -47,6 +66,7 @@ public:
     	return *this;
     }
     void GenDungeon(void);
+    settlement_t* GenHamlet(void);
 };
 
 void P_Pickup(Weapon* wpn);
@@ -56,5 +76,7 @@ void P_Pickup(item_t* item);
 void W_KillWorld();
 void P_Teleport(coord_t pos);
 void P_Teleport(nomadshort_t y, nomadshort_t x);
+
+extern std::vector<const char*> settlement_lore;
 
 #endif

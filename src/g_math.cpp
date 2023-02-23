@@ -21,6 +21,10 @@
 #include "n_shared.h"
 #include "g_map.h"
 
+nomadbool_t inArea(area_t a, coord_t pos)
+{
+	return (pos.y >= a.tl.y && pos.y <= a.br.y) && (pos.x >= a.tl.x && pos.x <= a.br.x);
+}
 
 
 //

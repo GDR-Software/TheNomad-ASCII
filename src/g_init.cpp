@@ -110,7 +110,6 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	G_LoadBFF(game->bffname, game);
-	LOG_INFO("closing write-only mapfile.txt");
 	game->I_InitHUD();
 	G_InitEvents(game);
 	scf::G_LoadSCF(game->scfname);
