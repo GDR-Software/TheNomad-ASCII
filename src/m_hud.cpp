@@ -42,8 +42,8 @@ static inline void Hud_DisplayLocation();
 
 static nomadlong_t hudtics{};
 static std::string hudbuf;
-static constexpr uint16_t BUFFER_SIZE = 256;
-static char* hudbuffer;
+static constexpr uint16_t BUFFER_SIZE = 90;
+static char *hudbuffer;
 
 void Hud_Printf(const char* from, const char* msg, ...)
 {
@@ -53,11 +53,18 @@ void Hud_Printf(const char* from, const char* msg, ...)
 	va_start(argptr, msg);
 	vsnprintf(hudbuffer, BUFFER_SIZE, msg, argptr);
 	va_end(argptr);
+#if 0
 	wmove(game->screen, 30, 31);
 	wclrtoeol(game->screen);
 	wrefresh(game->screen);
-	mvwprintw(game->screen, 30, 32, "[%s] %s", from, hudbuffer);
+#endif
+	for (nomadshort_t i = 0; i < BUFFER_SIZE; ++i) {
+		mvwaddch(game->screen, 30, i+36, ' ');
+	}
+	mvwprintw(game->screen, 30, 32, "[%s]: %s", from, hudbuffer);
+#if 0
 	mvwaddch(game->screen, 30, 128, '#');
+#endif
 }
 
 static inline void Hud_DisplayConsole()
@@ -67,10 +74,9 @@ static inline void Hud_DisplayConsole()
 	}
 	else {
 		hudtics = ticrate_base*5;
-		wmove(game->screen, 30, 31);
-		wclrtoeol(game->screen);
-		wrefresh(game->screen);
-		mvwaddch(game->screen, 30, 128, '#');
+		for (nomadshort_t i = 32; i < getmaxx(game->screen) - 2; ++i) {
+			mvwaddch(game->screen, 30, i, ' ');
+		}
 		// fixed the FIXME
 	}
 }
@@ -88,9 +94,7 @@ void Game::I_InitHUD(void)
 	HudAssigner(this);
 	playr->pos = origin;
 	hudtics = 0;
-	hudbuffer =  (char *)Z_Malloc(BUFFER_SIZE, TAG_STATIC, &hudbuffer);
-	if (!hudbuffer)
-		N_Error("Failed to allocate memory to hudbuffer!");
+	hudbuffer = (char *)Z_Malloc(BUFFER_SIZE, TAG_STATIC, &hudbuffer);
 	Hud_GetVMatrix();
 }
 

@@ -62,7 +62,7 @@ OBJS= \
 	$(O)/g_animation.o \
 	$(O)/s_scripted.o \
 	$(O)/s_campaign.o \
-	$(O)/g_slf.o \
+	$(O)/g_lvl.o \
 
 DEBUG= \
 	$(O)/n_shared.debug.o \

@@ -1,76 +1,43 @@
-#ifndef __BFFLANG__
-#define __BFFLANG__
+#ifndef _G_BFF_
+#define _G_BFF_
+
+#pragma once
+
+#ifndef NotFound
+#define NotFound std::string::npos
+#endif
 
 #define ASSERT(x, ...) \
 { \
 	if (!(x)) { \
 		fprintf(stderr, "%s(): ", __func__); \
 		fprintf(stderr, __VA_ARGS__); \
-		fprintf(stderr, "\n"); \
-		fflush(stderr); \
 		exit(-1); \
 	} \
 }
 
-#define BFF_API extern "C"
-
-#ifndef BFF_LOG_PATH
-#define BFF_LOG_PATH "bffinfo.log"
+#if defined(__unix__)
+#define BFF_API extern "C" __attribute__((visibilty("default")))
+#elif defined(_WIN32)
+#ifdef BFF_IMPLEMENTATION
+#define BFF_API extern "C" __declspec(dllimport)
+#else
+#define BFF_API extern "C" __declspec(dllexport)
+#endif
 #endif
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdarg.h>
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <list>
-
-#define BFF_LOGFILE logfile
-
-#define BFF_INFO(...) \
-{ \
-	fprintf(BFF_LOGFILE, "[INFO](%s): ", __func__); \
-	fprintf(BFF_LOGFILE, __VA_ARGS__); \
-	fprintf(BFF_LOGFILE, "\n"); \
-}
-#define BFF_WARN(...) \
-{ \
-	fprintf(BFF_LOGFILE, "WARNING(%s): ", __func__); \
-	fprintf(BFF_LOGFILE, __VA_ARGS__); \
-	fprintf(BFF_LOGFILE, "\n"); \
-}
-
-#ifndef NotFound
-#define NotFound std::string::npos
+#ifndef NOMAD_MAIN
+typedef uint_fast8_t byte;
 #endif
-#define BFFVAR static constexpr
 
-typedef int64_t magicnum_t;
-
-BFFVAR magicnum_t BFF_FILE_HEADER = 0xa49d21f;
-
-BFFVAR uint8_t CONTEXT_NO_CHUNK   = 0b00000000;
-BFFVAR uint8_t CONTEXT_MAP_CHUNK  = 0b00000001;
-BFFVAR uint8_t CONTEXT_DATA_CHUNK = 0b00000010;
-
-BFFVAR uint32_t BFF_UNDEFINED      = 0x0000;
-BFFVAR uint32_t BFF_TYPE_CAMPAIGN  = 0x0001;
-BFFVAR uint32_t BFF_TYPE_ROGUELIKE = 0x0002;
-BFFVAR uint32_t BFF_TYPE_DOOMCLONE = 0x0003;
-BFFVAR uint32_t BFF_DATA_ITEM      = 0x0004;
-BFFVAR uint32_t BFF_DATA_WPN       = 0x0005;
-BFFVAR uint32_t BFF_DATA_MOB       = 0x0006;
-BFFVAR uint32_t BFF_DATA_NPC       = 0x0007;
-BFFVAR uint32_t BFF_MAX_ALLOWED    = 0x0008;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define BFF_COMPILE       1
 #define BFF_DECOMPILE     2
+#define BFF_VERSION_MAJOR 0
+#define BFF_VERSION_MINOR 2
 
 #ifndef NOMAD_MAIN
 typedef struct coord_s
@@ -82,10 +49,24 @@ typedef struct coord_s
 
 typedef struct _entity_spawner
 {
-	std::string spawner_type;
-	std::string entity_id;
+	uint32_t entity_id;
 	coord_t spawn_loc;
 } entity_spawner_t;
+
+#define LOG(...)                         \
+{                                        \
+	fprintf(stdout, "%s(): ", __func__); \
+	fprintf(stdout, __VA_ARGS__);        \
+	fputc('\n', stdout);                 \
+}
+
+typedef struct token_s
+{
+	char ftok;
+	char btok;
+	size_t line;
+	std::string buffer;
+} token_t;
 
 enum
 {
@@ -96,6 +77,8 @@ enum
 	VAR_DECLARE,
 	SPECIAL_VAR_DECLARE,
 	DEFAULT_VALUE,
+	CODE_OPEN,
+	CODE_CLOSE,
 	SUBCHUNK_OPEN,
 	SUBCHUNK_CLOSE,
 	NEWLINE,
@@ -103,78 +86,77 @@ enum
 	ELEMENT_DECLARE,
 	DATA_OPEN,
 	DATA_CLOSE,
-	DUMBCHUNK_OPEN,
-	DUMBCHUNK_CLOSE,
-	
 	
 	NUMTOKENS
 };
 
+#ifdef __cplusplus
+}
+#endif
+
 static constexpr char tokens[NUMTOKENS] = {
 	'#',
 	'%',
-	'{',
-	'}',
+	'[',
+	']',
 	'$',
 	'&',
 	':',
+	'{',
+	'}',
 	'(',
 	')',
 	'\n',
 	'\0',
 	'@',
 	'1',
-	'0',
-	'[',
-	']'
+	'0'
 };
 
-typedef struct _bff_map bff_map_t;
-typedef struct _bff_file bff_file_t;
-
-typedef struct _blf_file
+typedef struct _bff_runtime
 {
-	bff_file_t* file;
-	bff_map_t* bffmap = (bff_map_t *)NULL;
-	std::string lvl_name;
-	std::string lvl_id;
-	int map_height = 0;
-	int map_width = 0;
-	char** lvl_map;
-	std::vector<int> mobspawners;
-	std::vector<int> itemspawners;
-	std::vector<int> wpnspawners;
-} blf_file_t;
+	uint64_t i;
+	std::vector<token_t> tokbuf;
+	std::vector<std::string> strbuf;
+} bff_runtime_t;
 
-extern blf_file_t* c_blf;
+typedef struct _bff_file bff_file_t;
+typedef struct _bff_map bff_map_t;
+
+typedef struct _bff_lvl
+{
+    bff_file_t* file = NULL;
+    bff_map_t* bffmap = NULL;
+    std::string lvl_name;
+    std::string lvl_id;
+    uint8_t map_height = 0;
+    uint8_t map_width = 0;
+    char** lvl_map;
+} bff_lvl_t;
 
 typedef struct _bff_map
 {
-	std::string mapname;
+    std::string mapname;
 	std::string mapid;
-	char sectormap[9][120][120];
-	int8_t sectorcounter = -1;
-	int numlvls = 0;
-	std::vector<std::string> levels;
+    char mapbuffer[9][120][120];
+    std::vector<std::string> levels;
 } bff_map_t;
-
-typedef struct _bff_data
-{
-	std::list<entity_spawner_t> spawners;
-} bff_data_t;
 
 typedef struct _bff_file
 {
-	std::string bffname;
-	bff_map_t* bffmap;
-	std::vector<blf_file_t*> levels;
-	
-	bff_data_t bffdata;
-	
-	int nummaps = 0;
+    bff_runtime_t* run;
+    std::string bffname;
+    bff_map_t* bffmap = NULL;
+
+    bff_lvl_t** levels;
 } bff_file_t;
 
+BFF_API void BFF_Parse(bff_file_t* file, const std::string& filename);
 BFF_API void BFF_Free(bff_file_t* file);
-BFF_API bff_file_t* BFF_Parse(const std::string& filename);
+BFF_API void BFF_Compile(bff_file_t* file);
+
+void G_AllocLevelList(const std::vector<bff_lvl_t*>& bfflvls);
+void G_FreeLevel(bff_lvl_t* lvl);
+bff_lvl_t* G_LoadLevel(const std::string& name, bff_lvl_t* old);
 
 #endif
