@@ -1,36 +1,41 @@
-//----------------------------------------------------------
-//
-// Copyright (C) SIGAAMDAD 2022-2023
-//
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
-// Free Software Foundation.
-//
-// DESCRIPTION:
-//  src/n_shared.h
-//  the big, chunky header that's supposed to be the first include
-//  in every header file within the main /src directory.
-//  DO NOT MODIFY UNLESS YOU KNOW WHAT YOU ARE DOING!!!!
-//----------------------------------------------------------
-
-// fast32 isn't size 4, its a long, shit lies
 #ifndef _N_SHARED_
 #define _N_SHARED_
 
 #pragma once
 
-// if you got this, well then port it
-#if !defined(__unix__) && !defined(_WIN32)
-#   error CURRENT OS NOT COMPATIBLE WITH THE NOMAD ASCII!
+#define NOMAD_VERSION_MAJOR _NOMAD_VERSION
+#define NOMAD_VERSION_MINOR _NOMAD_VERSION_UPDATE
+#define NOMAD_VERSION_PATCH _NOMAD_VERSION_PATCH
+
+#define NVER NOMAD_VERSION_MAJOR
+#define PATCH_NUM NOMAD_VERSION_PATCH
+
+#define NOMAD_VERSION_NUM "v"NOMAD_VERSION_MAJOR"."NOMAD_VERSION_MINOR"."NOMAD_VERSION_PATCH""
+
+#define NOMAD_VERSION (NOMAD_VERSION_MAJOR * 10000 \
+                     + NOMAD_VERSION_MINOR * 100 \
+                     + NOMAD_VERSION_PATCH)
+
+#ifndef NOMAD_EXPERIMENTAL
+#if NVER == 0
+#define NOMAD_VERSION_STR "The Nomad (Pre-Alpha) "NOMAD_VERSION_NUM""
+#elif NVER == 1
+#define NOMAD_VERSION_STR "The Nomad (Alpha) "NOMAD_VERSION_NUM""
+#elif NVER == 2
+#define NOMAD_VERSION_STR "The Nomad (Beta) "NOMAD_VERSION_NUM""
+#elif NVER == 3
+#define NOMAD_VERSION_STR "The Nomad "NOMAD_VERSION_NUM""
+#endif
+#else
+#define NOMAD_VERSION_STR "The Nomad (Experimental) "NOMAD_VERSION_NUM""
+#endif
+
+#if !defined(NDEBUG) || !defined(RELEASE)
+#define _NOMAD_DEBUG
+#endif
+
+#if !defined(_WIN32) && !defined(__linux__)
+#   error UNSUPPORTED OS FOR NOMAD-ASCII!
 #endif
 
 #ifndef __cplusplus
@@ -41,21 +46,16 @@
 #   error COMPILE WITH C++17 OR HIGHER!
 #endif
 
-#ifdef _WIN32
-#define _NOMAD_32
-#elif defined(_WIN64)
-#define _NOMAD_64
-#endif
-
-#if defined(__GNUG__) || defined(__clang__) && !defined(_WIN32)
-#   if defined(__x86_64__) || defined(__amd64) || defined(__i686__)
+#if defined(__GNUG__) || defined(__clang__)
+#   if defined(__x86_64__) || defined(__amd64) || defined(__i686__) || defined(__x64__)
 #       define _NOMAD_64
 #   elif defined(__i586__) || defined(__i486__) || defined(__i386__)
 #       define _NOMAD_32
 #   else
 #       error UNKNOWN ARCHITECTURE!
 #   endif
-#elif defined(_MSVC_VER) && !defined(_NOMAD_64) && !defined(_NOMAD_32)
+#elif defined(_MSVC_VER)
+#   warning Microsoft Visual Studio is not the main supported compiler for nomadascii
 #   if defined(_M_X64)
 #       define _NOMAD_64
 #   elif defined(_M_X86)
@@ -67,13 +67,19 @@
 #   error UNSUPPORTED COMPILER!
 #endif
 
+#if defined(__GNUG__) || defined(__clang__)
+#   define WARN_RETN __attribute__((warn_unused_result))
+#elif defined(_MSVC)
+#   define WARN_RETN _Check_return
+#endif
+
 #include "nomaddef.h"
 
 #define __CFUNC__ extern "C"
 
 class Game;
 
-#ifdef __unix__
+#ifdef __linux__
 #   include <unistd.h>
 #   include <fcntl.h>
 #   include <sys/stat.h>
@@ -89,7 +95,7 @@ class Game;
 #   include <conio.h>
 #endif
 
-#ifdef __unix__
+#ifdef __linux__
 #   define UNIX_NOMAD
 #   ifdef REPLIT
 #   include <ncurses/ncurses.h>
@@ -103,45 +109,254 @@ class Game;
 #   include <ncursesw/ncurses.h>
 #   include <ncursesw/menu.h>
 #endif
-#ifndef REPLIT
-#include <mpg123.h>
-#include <out123.h>
-#include <syn123.h>
-#endif
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <chrono>
-#include <thread>
-#include <future>
-#include <mutex>
-#include <iostream>
+#include <stdarg.h>
 #include <sstream>
-#include <atomic>
-#include <vector>
-#include <algorithm>
 #include <functional>
+#include <vector>
+#include <array>
 #include <string>
+#include <iostream>
 #include <memory>
-#include <iomanip>
 #include <fstream>
-#include <pthread.h>
+#include <chrono>
+#include <future>
+#include <iomanip>
+#include <algorithm>
+#include <map>
 #include <alloca.h>
+#include <atomic>
+#include <mutex>
+#include <thread>
+#include <pthread.h>
 
-#ifdef _NOMAD_EXPERIMENTAL
-#include <curl/curl.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <net/if.h>
-#include <net/ethernet.h>
-#include <arpa/inet.h>
-#include <arpa/ftp.h>
-#include <sys/ioctl.h>
+enum
+{
+	SPR_WALL,
+	SPR_PLAYR,
+	SPR_WINDOW,
+	SPR_DOOR_STATIC,
+	SPR_LCABINET,
+	SPR_RCABINET,
+	SPR_DOOR_OPEN,
+	SPR_DOOR_CLOSE,
+	SPR_CHAIR,
+	SPR_TABLE,
+	SPR_MONEY,
+	SPR_PICKUP,
+	SPR_SECRET,
+	SPR_FLOOR_OUTSIDE,
+	SPR_FLOOR_INSIDE,
+	SPR_GATE_LEFT_DOOR,
+	SPR_GATE_RIGHT_DOOR,
+	SPR_COUNTER_LEFT,
+	SPR_COUNTER_RIGHT,
+	SPR_THIN_WALL,
+	SPR_TREE,
+	SPR_ROCKS,
+	SPR_BED,
+	SPR_WATER,
+	
+	NUM_SPRITES
+};
+
+constexpr char sprites[NUM_SPRITES] = {
+	'#', '@', '~', '_', '[', ']', '>', '<',
+	':', '+', '$', '!', '?', '.', '/', '\\',
+	')', '(', '=', '|', '&', '%', ';'
+};
+
+#ifdef _NOMAD_DEBUG
+#undef Z_Malloc
+#undef Z_Realloc
+#undef Z_Calloc
+#undef Z_Free
+#define Z_Malloc(size,tag,ptr) \
+	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s%i of size %i",__FILE__,__func__,__LINE__,size)
+#define Z_Realloc(ptr,nsize,tag) \
+	Zone_Realloc(ptr,nsize,tag,mainzone) LOG_DEBUG("Z_Realloc called from %s:%s:%i of size %i",__FILE__,__func__,__LINE__,size)
+#define Z_Calloc(ptr,nelem,elemsize) \
+	Zone_Calloc(ptr,nelem,elemsize,mainzone); LOG_DEBUG("Z_Calloc called from %s:%s:%i of size %i",__FILE__,__func__,__LINE__,size)
+#define Z_Free(ptr) \
+	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%i of size %i",__FILE__,__func__,__LINE__,size)
+
+#define NOMAD_ASSERT(expr,...) \
+	(static_cast<bool>(expr) ? void(0) : N_Error("%s:%s:%lu Assertion '%s' failed.", __FILE__,__func__,__LINE__,#expr))
+
+#define LOG_PROFILE() LOG_INFO("profiling %s:%s:%u",__FILE__,__func__,__LINE__);profiler p(__func__)
+#else
+#define LOG_PROFILE() profiler p(__func__)
+
+#define NOMAD_ASSERT(expr,...) \
+	(static_cast<bool>(expr) ? void(0) : N_Error(__VA_ARGS__))
 #endif
+
+#ifndef LOGGER_OUTFILE
+#define LOGGER_OUTFILE dbg_file
+#endif
+#ifndef LOGGER_PROFILE
+#define LOGGER_PROFILE p_file
+#endif
+
+#define MARKER() puts("marker"); exit(1)
+
+#ifdef _NOMAD_DEBUG
+#define LOG_DEBUG(...)                                  \
+{                                                       \
+	fprintf(LOGGER_OUTFILE, "[DEBUG](%s): ", __func__); \
+	fprintf(LOGGER_OUTFILE, __VA_ARGS__);               \
+	fprintf(LOGGER_OUTFILE, "\n");                      \
+}
+#else
+#define LOG_DEBUG(...)
+#endif
+#define DBG_LOG(...) LOG_DEBUG(__VA_ARGS__)
+
+#define TAG_TO_STR(x) \
+({char str[100]; \
+	switch (x) { \
+	case TAG_FREE: \
+		strcpy(str, "TAG_FREE"); \
+		break; \
+	case TAG_STATIC: \
+		strcpy(str, "TAG_STATIC"); \
+		break; \
+	case TAG_MISSION: \
+		strcpy(str, "TAG_MISSION"); \
+		break; \
+	case TAG_PURGELEVEL: \
+		strcpy(str, "TAG_PURGELEVEL"); \
+		break; \
+	case TAG_SCOPE: \
+		strcpy(str, "TAG_SCOPE"); \
+		break; \
+	}; \
+	str;})
+
+#define LOG_FREETAGS(lowtag, hightag, nblocks, bfreed)   \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"Zone Daemon Log:\n"                                 \
+	"\tlog type    => FREETAGS\n"                        \
+	"\tlowtag      => %s\n"                              \
+	"\thightag     => %s\n"                              \
+	"\tbytes freed => %i\n"                              \
+	"\tblocks freed=> %i\n",                             \
+	TAG_TO_STR(lowtag),                                  \
+	TAG_TO_STR(hightag), nblocks, bfreed);               \
+}
+
+#define LOG_HEAP()                                       \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"[Zone Daemon Log]\n"                                \
+	"\tzone id               => %i\n"                    \
+	"\tlog type              => HEAP_CHECK\n"            \
+	"\ttotal bytes allocated => %lu\n"                   \
+	"\ttotal bytes freed     => %lu\n"                   \
+	"\tnumber of memblocks   => %lu\n",                  \
+	GET_ZONE_ID(zone), log_size, free_size, numblocks);  \
+}
+
+#define LOG_ALLOC(ptr, tag, size)                        \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"[Zone Daemon Log]\n"                                \
+	"\tlog type        => ALLOCATION\n"                  \
+	"\tbytes allocated => %i\n"                          \
+	"\tblock tag       => %i\n"                          \
+	"\tuser pointer    => %p\n",                         \
+	size, tag, ptr);                                     \
+}
+#define LOG_DEALLOC(ptr, tag, size)                      \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"[Zone Daemon Log]\n"                                \
+	"\tlog type     => DEALLOCATION\n"                   \
+	"\tbytes freed  => %i\n"                             \
+	"\tblock tag    => %i\n"                             \
+	"\tuser pointer => %p\n",                            \
+	size, tag, ptr);                                     \
+}
+
+#define LOG_INFO(...)                                    \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"%s[INFO]%s(%s): ", C_GREEN, C_RESET, __func__);     \
+	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
+	fprintf(LOGGER_OUTFILE, "\n");                       \
+}
+#define LOG_WARN(...)                                    \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"%sWARNING:%s%s\n"                                   \
+	"\tfunction: %s\n"                                   \
+	"\twhat: ",                                          \
+		C_RED, C_RESET, C_YELLOW, __func__);             \
+	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
+	fprintf(LOGGER_OUTFILE, "%s\n", C_RESET);            \
+}
+#define LOG_ERROR(...)                                   \
+{                                                        \
+	fprintf(LOGGER_OUTFILE,                              \
+	"%sERROR:%s%s\n"                                     \
+	"\tfunction: %s\n"                                   \
+	"\twhat: ",                                          \
+		C_RED, C_RESET, C_YELLOW, __func__);             \
+	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
+	fprintf(LOGGER_OUTFILE, "%s\n", C_RESET);            \
+	exit(EXIT_FAILURE);                                  \
+}
+
+#define LOG_TRACE_VAR(var) LOG_DEBUG(#var " = %s (%s:%d)", std::to_string(var).c_str(), __FILE__, __LINE__)
+
+// pointer checks, they be givin' me them seggies
+#define NULL_CHECK 0
+#define PTR_CHECK(type, ptr)                                            \
+{                                                                       \
+	if (!ptr) {                                                         \
+		LOG_WARN("pointer %s was NULL!", #ptr);                         \
+	}                                                                   \
+}
+
+#define LOG_SAVEFILE()                                                  \
+{                                                                       \
+	fprintf(LOGGER_OUTFILE,                                             \
+	"<=== Beginning Save/Load Game Procedures ===>\n"                   \
+	"\tfile name:     %s\n"                                             \
+	"\tfile size:     %lu\n"                                            \
+	"\tlast accessed: %lu\n"                                            \
+	"\tlast modified: %lu\n",                                           \
+	svfile, svstat.st_size, svstat.st_atime, svstat.st_mtime);          \
+}
+
+struct profiler
+{
+	std::clock_t timer;
+	const char* function;
+	profiler(const char *__restrict func)
+	{
+		timer = std::clock();
+		fprintf(LOGGER_PROFILE, "%s%s[PROFILER START]%s: %s\n", C_BG_MAGENTA, C_WHITE, C_RESET, func);
+	}
+	~profiler()
+	{
+		std::clock_t end = std::clock();
+		nomadfloat_t time = (end - timer)/(nomadfloat_t)CLOCKS_PER_SEC;
+		fprintf(LOGGER_PROFILE,
+			"%s%s[PROFILER END]%s:\n"
+			"\tfunction: %s\n",
+			"\ttime: %f\n", C_BG_MAGENTA, C_WHITE, C_RESET, function, time);
+	}
+};
+
 
 /*
  * ISC License
@@ -160,19 +375,6 @@ class Game;
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
-/*
- * colors.h - single header colors in C
- * https://github.com/michaelfm1211/colors.h
- */
-
-#pragma once
-
-/*
- * Select Graphic Rendition parameters
- */
-
-// use a SGR parameter not supported by colors.h. ex: alternate fonts
 #define SGR_N(n) "\x1b["#n"m"
 
 #define SGR_RESET "\x1b[m"
@@ -284,91 +486,72 @@ class Game;
 #define C_RGB(r, g, b) "\x1b[38;2;"#r";"#g";"#b"m"
 #define C_BG_RGB(r, g, b) "\x1b[48;2;"#r";"#g";"#b"m"
 
-
-#if !defined(NDEBUG) && !defined(RELEASE)
-#include <assert.h>
-#define _NOMAD_DEBUG
-#endif
-
 extern FILE* dbg_file;
 extern FILE* p_file;
-#define LOGGER_OUTFILE dbg_file 
-#include "n_debug.h"
+#define LOGGER_OUTFILE dbg_file
 
-#define byte unsigned char
+inline char kbhit()
+{
+#ifdef __unix__
+	struct timeval tv;
+	fd_set fds;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	FD_ZERO(&fds);
+	FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
+	select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+	if ((FD_ISSET(STDIN_FILENO, &fds)))
+		return getc(stdin);
+	else
+		return -1;
+#elif defined(_WIN32)
+	if (_kbhit())
+		return _getch();
+	else
+		return -1;
+#endif
+}
 
-void N_Error(const char* err, ...);
-
-#ifndef _N_TYPES_
-#define _N_TYPES_
-
-// these types depend on your OS
-#ifdef UNIX_NOMAD
+#ifdef __unix__
 typedef __int128_t nomadllong_t;
 typedef int64_t nomadlong_t;
 typedef int32_t nomadint_t;
 typedef int16_t nomadshort_t;
+typedef int8_t nomadbyte_t;
 
-typedef uint64_t nomadsize_t;
-typedef int64_t nomadssize_t;
 typedef uint_fast8_t nomadenum_t;
 
 typedef __uint128_t nomadullong_t;
 typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
 typedef uint16_t nomadushort_t;
-
-typedef int8_t nomadbyte_t;
 typedef uint8_t nomadubyte_t;
-#elif defined(WIN32_NOMAD)
-typedef long long nomadllong_t;
+#elif defined(_WIN32)
+typedef INT128 nomadllong_t;
 typedef INT64 nomadlong_t;
 typedef INT32 nomadint_t;
 typedef INT16 nomadshort_t;
+typedef INT8 nomadbyte_t;
 
-typedef UINT64 nomadsize_t;
-typedef INT64 nomadssize_t;
 typedef UINT8 nomadenum_t;
 
-typedef unsigned long long nomadullong_t;
+typedef UINT128 nomadullong_t;
 typedef UINT64 nomadulong_t;
 typedef UINT32 nomaduint_t;
 typedef UINT16 nomadushort_t;
-
-typedef INT8 nomadbyte_t;
 typedef UINT8 nomadubyte_t;
 #endif
 
-typedef std::atomic<nomadlong_t>* atomic_ptr;
-typedef std::atomic<nomadulong_t>* atomic_uptr;
+#define byte i
+typedef unsigned char byte;
 
+typedef std::atomic<nomadulong_t>* atomic_uptr;
+typedef std::atomic<nomadlong_t>* atomic_ptr;
 typedef const char* nomad_cstr_t;
 typedef std::string nomad_str_t;
 
-#define nomad_fancy_var(mods, type) mods type
-
 #define nomadptr_t nomadlong_t huge*
-#define	nomaduptr_t nomadulong_t huge*
-
-#define NOMAD_VERSION_MAJOR _NOMAD_VERSION
-#define NOMAD_VERSION_MINOR _NOMAD_VERSION_UPDATE
-#define NOMAD_VERSION_PATCH _NOMAD_VERSION_PATCH
-#define NOMAD_UPDATE_NUM _NOMAD_VERSION_UPDATE
-
-#define NOMAD_VERSION (NOMAD_VERSION_MAJOR * 10000 \
-                     + NOMAD_VERSION_MINOR * 100 \
-                     + NOMAD_VERSION_PATCH)
-
-// these types don't depend on the arch
-typedef int8_t sprite_t;
-#ifdef NOMAD_DOUBLE
-typedef double nomadfloat_t;
-#else
-typedef float nomadfloat_t;
-#endif
-
-#define chtype chtype_small
-typedef sprite_t chtype;
+#define nomaduptr_t nomadulong_t huge*
 
 #ifdef __cplusplus
 typedef bool nomadbool_t;
@@ -376,6 +559,15 @@ typedef bool nomadbool_t;
 typedef enum{false = 0, true = 1} nomadbool_t;
 #endif
 
+typedef char sprite_t;
+
+#define chtype chtype_small
+typedef sprite_t chtype;
+
+#ifdef NOMAD_DOUBLE
+typedef double nomadfloat_t;
+#else
+typedef float nomadfloat_t;
 #endif
 
 constexpr uint8_t DIF_NOOB               = 0;
@@ -386,33 +578,251 @@ constexpr uint8_t DIF_BLACKDEATH         = 4;
 constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
 constexpr uint8_t NUMDIFS                = 6;
 
-inline char kb_hit()
+typedef std::atomic<nomadlong_t> point_t;
+typedef struct coord_s
 {
-#ifdef __unix__
-	struct timeval tv;
-	fd_set fds;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-	FD_ZERO(&fds);
-	FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
-	select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
-	if ((FD_ISSET(STDIN_FILENO, &fds))) {
-		return getc(stdin);
+	point_t y, x;
+	coord_s() : y(0), x(0) {}
+	coord_s(point_t _y, point_t _x)
+		: y(_y), x(_x)
+	{
 	}
-	else {
-		return -1;
+	coord_s(const coord_s &) = delete;
+	coord_s(coord_s &&) = default;
+	
+	inline nomadbool_t operator==(const coord_s& c) const {
+		return (y == c.y && x == c.x);
 	}
-#elif defined(_WIN32)
-	if (_kbhit()) return _getch();
-	else return -1;
-#endif
-}
+	inline nomadbool_t operator!=(const coord_s& c) const {
+		return (y != c.y && x != c.x);
+	}
+	inline nomadbool_t operator>=(const coord_s& c) const {
+		return (y >= c.y && x >= c.x);
+	}
+	inline nomadbool_t operator<=(const coord_s& c) const {
+		return (y <= c.y && x <= c.x);
+	}
+	inline nomadbool_t operator>(const coord_s& c) const {
+		return (y > c.y && x > c.x);
+	}
+	inline nomadbool_t operator<(const coord_s& c) const {
+		return (y < c.y && x < c.x);
+	}
+	inline nomadbool_t operator==(point_t& p) const {
+		return (y == p && x == p);
+	}
+	inline nomadbool_t operator!=(point_t& p) const {
+		return (y != p && x != p);
+	}
+	inline nomadbool_t operator>=(point_t& p) const {
+		return (y >= p && x >= p);
+	}
+	inline nomadbool_t operator<=(point_t& p) const {
+		return (y <= p && x <= p);
+	}
+	inline nomadbool_t operator>(point_t& p) const {
+		return (y > p && x > p);
+	}
+	inline nomadbool_t operator<(point_t& p) const {
+		return (y < p && x < p);
+	}
+	inline coord_s& operator=(const coord_s& c) {
+		y.store(c.y);
+		x.store(c.x);
+		return *this;
+	}
+	inline coord_s& operator=(point_t& p) {
+		y.store(p);
+		x.store(p);
+		return *this;
+	}
+	inline coord_s& operator++(void) {
+		++y;
+		++x;
+		return *this;
+	}
+	inline coord_s& operator--(void) {
+		--y;
+		--x;
+		return *this;
+	}
+	inline coord_s& operator+=(point_t& p) {
+		y += p;
+		x += p;
+		return *this;
+	}
+	inline coord_s& operator-=(point_t& p) {
+		y -= p;
+		x -= p;
+		return *this;
+	}
+	inline coord_s& operator*=(point_t& p) {
+		y *= p;
+		x *= p;
+		return *this;
+	}
+	inline coord_s& operator/=(point_t& p) {
+		y /= p;
+		x /= p;
+		return *this;
+	}
+	inline coord_s& operator+=(const coord_s& c) {
+		y += c.y;
+		x += c.x;
+		return *this;
+	}
+	inline coord_s& operator-=(const coord_s& c) {
+		y -= c.y;
+		x -= c.x;
+		return *this;
+	}
+	inline coord_s& operator*=(const coord_s& c) {
+		y *= c.y;
+		x *= c.x;
+		return *this;
+	}
+	inline coord_s& operator/=(const coord_s& c) {
+		y /= c.y;
+		x /= c.x;
+		return *this;
+	}
+	inline point_t& operator[](nomadenum_t i) {
+		switch (i) {
+		case 0: return y;
+		case 1: return x;
+		};
+		LOG_WARN("Invalid call to coord_s operator[], returning y");
+		return y;
+	}
+} coord_t;
 
+typedef struct area_s
+{
+	coord_t tl;
+	coord_t tr;
+	coord_t bl;
+	coord_t br;
+	area_s() : tl({0,0}), tr({0,0}), bl({0,0}), br({0,0}) {}
+	area_s(coord_t _tl, coord_t _tr, coord_t _bl, coord_t _br)
+		: tl(_tl), tr(_tr), bl(_bl), br(_br)
+	{
+	}
+	area_s(const area_s &) = delete;
+	area_s(area_s &&) = default;
+	
+	inline nomadbool_t operator==(const area_s& a) const {
+		return (tl == a.tl && tr == a.tl && bl == a.bl && br == a.br);
+	}
+	inline nomadbool_t operator>=(const area_s& a) const {
+		return (tl >= a.tl && tr >= a.tl && bl >= a.bl && br >= a.br);
+	}
+	inline nomadbool_t operator<=(const area_s& a) const {
+		return (tl <= a.tl && tr <= a.tl && bl <= a.bl && br <= a.br);
+	}
+	inline nomadbool_t operator!=(const area_s& a) const {
+		return (tl != a.tl && tr != a.tl && bl != a.bl && br != a.br);
+	}
+	inline nomadbool_t operator>(const area_s& a) const {
+		return (tl > a.tl && tr > a.tl && bl > a.bl && br > a.br);
+	}
+	inline nomadbool_t operator<(const area_s& a) const {
+		return (tl < a.tl && tr < a.tl && bl < a.bl && br < a.br);
+	}
+	inline area_s& operator++(void) {
+		++tl;
+		++tr;
+		++bl;
+		++br;
+		return *this;
+	}
+	inline area_s& operator--(void) {
+		--tl;
+		--tr;
+		--bl;
+		--br;
+		return *this;
+	}
+	inline area_s& operator+=(const area_s& a) {
+		tl += a.tl;
+		tr += a.tr;
+		bl += a.bl;
+		br += a.br;
+		return *this;
+	}
+	inline area_s& operator-=(const area_s& a) {
+		tl -= a.tl;
+		tr -= a.tr;
+		bl -= a.bl;
+		br -= a.br;
+		return *this;
+	}
+	inline area_s& operator*=(const area_s& a) {
+		tl *= a.tl;
+		tr *= a.tr;
+		bl *= a.bl;
+		br *= a.br;
+		return *this;
+	}
+	inline area_s& operator/=(const area_s& a) {
+		tl /= a.tl;
+		tr /= a.tr;
+		bl /= a.bl;
+		br /= a.br;
+		return *this;
+	}
+	inline area_s& operator+=(const point_t& p) {
+		tl += p;
+		tr += p;
+		bl += p;
+		br += p;
+		return *this;
+	}
+	inline area_s& operator-=(const point_t& p) {
+		tl -= p;
+		tr -= p;
+		bl -= p;
+		br -= p;
+		return *this;
+	}
+	inline area_s& operator*=(const point_t& p) {
+		tl *= p;
+		tr *= p;
+		bl *= p;
+		br *= p;
+		return *this;
+	}
+	inline area_s& operator/=(const point_t& p) {
+		tl /= p;
+		tr /= p;
+		bl /= p;
+		br /= p;
+		return *this;
+	}
+	inline coord_t& operator[](nomadenum_t i) {
+		switch (i) {
+		case 0: return tl;
+		case 1: return tr;
+		case 2: return bl;
+		case 3: return br;
+		};
+		LOG_WARN("Invalid call to area operator[], returning tl");
+		return tl;
+	}
+} area_t;
 
-namespace std {
-	size_t filelength(const char* filename);
-	size_t filelength(const std::string& filename);
-};
+typedef struct collider_s
+{
+	coord_t where;
+	nomaduint_t what;
+	void *ptr = (void *)NULL;
+	collider_s(coord_t& _where, nomaduint_t _what, void *_ptr)
+		: where(_where), what(_what), ptr(_ptr)
+	{
+	}
+	collider_s()
+	{
+	}
+} collider_t;
 
 enum dir : nomadenum_t
 {
@@ -423,132 +833,6 @@ enum dir : nomadenum_t
 	NUMDIRS,
 	D_NULL
 };
-
-enum : nomadenum_t
-{
-	A_TN, // true neutral
-	A_LG, // lawful good
-	A_LE, // lawful evil
-	A_CG, // chaotic good
-	A_CE, // chaotic evil
-	A_LN, // lawful neutral
-	A_CN, // chaotic neutral
-
-	NUMALIGNMENTS
-};
-
-typedef struct coord_s
-{
-	nomadshort_t y, x;
-    auto& operator[](nomadenum_t i) {
-        switch (i) {
-        case 0: return y;
-        case 1: return x;
-        };
-		LOG_WARN("Invalid call to coord_s operator[], returning y");
-		return y;
-    }
-	inline coord_s(nomadshort_t _y, nomadshort_t _x)
-		: y(_y), x(_x)
-	{
-	}
-	inline coord_s()
-	{
-	}
-	inline bool operator==(struct coord_s c) const {
-		return (x == c.x && y == c.y);
-	}
-	inline bool operator!=(struct coord_s c) const {
-		return (x != c.x && y != c.y);
-	}
-	inline bool operator>(struct coord_s c) const {
-		return (x > c.x && y > c.y);
-	}
-	inline bool operator<(struct coord_s c) const {
-		return (x < c.x && y < c.y);
-	}
-	inline bool operator>=(struct coord_s c) const {
-		return (x >= c.x && y >= c.y);
-	}
-	inline bool operator<=(struct coord_s c) const {
-		return (x <= c.x && y <= c.y);
-	}
-	inline coord_s& operator=(struct coord_s c) {
-		y = c.y;
-		x = c.x;
-		return *this;
-	}
-	inline coord_s& operator-=(struct coord_s c) {
-		y -= c.y;
-		x -= c.x;
-		return *this;
-	}
-	inline coord_s& operator-=(nomadshort_t c) {
-		y -= c;
-		x -= c;
-		return *this;
-	}
-	inline coord_s& operator+=(struct coord_s c) {
-		y += c.y;
-		x += c.x;
-		return *this;
-	}
-	inline coord_s& operator++(void) {
-		y++;
-		x++;
-		return *this;
-	}
-	inline coord_s& operator=(nomadshort_t c) {
-		y = c;
-		x = c;
-		return *this;
-	}
-	inline coord_s& operator--(void) {
-		y--;
-		x--;
-		return *this;
-	}
-} coord_t, vec2_t;
-
-typedef struct area_s
-{
-    coord_t tl;
-    coord_t tr;
-    coord_t bl;
-    coord_t br;
-    coord_t& operator[](nomadenum_t i) {
-        switch (i) {
-        case 0: return tl;
-        case 1: return tr;
-        case 2: return bl;
-        case 3: return br;
-        };
-		LOG_WARN("Invalid call to area operator[], returning tl");
-		return tl;
-    }
-	area_s(coord_t _tl, coord_t _tr, coord_t _bl, coord_t _br)
-		: tl(_tl), tr(_tr), bl(_bl), br(_br)
-	{
-	}
-	area_s()
-		: tl({0,0}), tr({0,0}), bl({0,0}), br({0,0})
-	{
-	}
-} area_t;
-
-typedef struct collider_s
-{
-	coord_t where;
-	nomaduint_t what;
-	void *ptr = nullptr;
-	collider_s(coord_t _where, nomaduint_t _what, void *_ptr)
-		: where(_where), what(_what), ptr(_ptr)
-	{
-	}
-	collider_s()
-	{
-	}
-} collider_t;
 
 typedef union floatint_u
 {
@@ -573,8 +857,8 @@ typedef union floatint_u
     	frac >>= E-23; \
 	else
 		frac <<= 23-E; \
-	return s<<31 | exp<<23 | frac; \
-})
+	nomadfloat_t a = s<<31 | exp<<23 | frac; \
+a;})
 #else
 #define float_to_fixed(x) ((nomadfixed_t)x)
 #define fixed_to_float(x) ((float)x)
@@ -680,14 +964,13 @@ inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2, i
 
 	const char* cmp1 = str1;
 	const char* cmp2 = str2;
-	int i = 0;
-	while (*cmp1++ && *cmp2++ && ++i < num) { if (*cmp1 != *cmp2) return false; }
+	while (*cmp1++ && *cmp2++ && --num) { if (*cmp1 != *cmp2) return false; }
 	return true;
 }
 inline char* N_strcpy(char *__restrict dest, const char *__restrict src)
 {
-	if (!dest || !src)
-		N_Error("dest or src == NULL for N_strcpy!");
+	if (!src)
+		N_Error("src == NULL for N_strcpy!");
 	
 	char *__restrict to = dest;
 	const char *__restrict from = src;
@@ -696,16 +979,29 @@ inline char* N_strcpy(char *__restrict dest, const char *__restrict src)
 	
 	return dest;
 }
+inline char* N_strcpy(char *__restrict dest, const char *__restrict src, int num)
+{
+	if (!src)
+		N_Error("src == NULL for N_strcpy!");
+	
+	char *__restrict to = dest;
+	const char *__restrict from = src;
+	while (*from && --num)
+		*to++ = *from++;
+	
+	return dest;
+}
 inline auto strtobool(const char* str) -> nomadbool_t { return strcmp(str, "true") ? true : false; };
 inline auto strtobool(const std::string& str) -> nomadbool_t { return str == "true" ? true : false; };
 inline auto booltostr(bool b) -> const char* { return b ? "true" : "false"; };
-collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game);
-nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c);
-inline nomadfloat_t Q_root(nomadfloat_t x);
-nomadint_t disBetweenOBJ(coord_t src, coord_t tar);
-coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t src);
-nomadbool_t inArea(area_t a, coord_t pos);
 
 using namespace std::literals::chrono_literals;
+
+nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c);
+nomadbool_t inArea(area_t& a, coord_t& pos);
+inline nomadfloat_t Q_root(nomadfloat_t x);
+coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t& src);
+nomadlong_t disBetweenOBJ(const coord_t& src, const coord_t& tar);
+collider_t G_CastRay(coord_t& endpoint, coord_t& startpoint, Game* const game);
 
 #endif
