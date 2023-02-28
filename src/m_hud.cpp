@@ -468,11 +468,11 @@ static inline void Hud_GetVMatrix()
 	endc.x = playr->pos.x + horz_fov;
 	memset(&playr->vmatrix, '#', sizeof(playr->vmatrix));
 	
-	nomadshort_t u, c;
+	nomadlong_t u, c;
 	u = c = 0;
 	Hud_InsertSprites();
-	for (nomadshort_t y = startc.y; y < endc.y; ++y) {
-		for (nomadshort_t x = startc.x; x < endc.x; ++x) {
+	for (nomadlong_t y = startc.y; y < endc.y; ++y) {
+		for (nomadlong_t x = startc.x; x < endc.x; ++x) {
 			playr->vmatrix[u][c] = game->c_map[y][x];
 			c++;
 		}
