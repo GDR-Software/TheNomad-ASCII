@@ -2,9 +2,9 @@ VERSION        = 0
 VERSION_UPDATE = 1
 VERSION_PATCH  = 2
 CC             = g++
-CFLAGS         = -std=c++17 -I/usr/include -s
+CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
-				/usr/lib/x86_64-linux-gnu/libpthread.a
+				/usr/lib/x86_64-linux-gnu/libpthread.a -lasound -lsndfile -logg -lopus
 O              = obj
 SDIR           = src
 EXE            = nomadascii
@@ -63,6 +63,7 @@ OBJS= \
 	$(O)/s_scripted.o \
 	$(O)/s_campaign.o \
 	$(O)/g_lvl.o \
+	$(O)/g_sound.o \
 
 DEBUG= \
 	$(O)/n_shared.debug.o \
@@ -95,7 +96,7 @@ DEBUG= \
 	$(O)/g_animation.debug.o \
 	$(O)/s_scripted.debug.o \
 	$(O)/s_campaign.debug.o \
-	$(O)/g_slf.debug.o \
+	$(O)/g_lvl.debug.o \
 
 ifdef debug
 all: $(EXE_DEBUG)
@@ -104,12 +105,12 @@ all: $(EXE)
 endif
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -Ofast $(OBJS) -o $(EXE) $(LDLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -s -Ofast $(OBJS) -o $(EXE) $(LDLIBS) $(LDFLAGS)
 $(EXE_DEBUG): $(DEBUG)
 	$(CC) $(CFLAGS) -Wall -Og -g $(DEBUG) $(LDFLAGS) -o $(EXE_DEBUG) $(LDLIBS)
 
 $(O)/%.o: $(SDIR)/%.cpp
-	$(CC) $(CFLAGS) -Wno-unused-result -Ofast -o $@ -c $<
+	$(CC) $(CFLAGS) -s -Wno-unused-result -Ofast -o $@ -c $<
 $(O)/%.debug.o: $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -Wpedantic -Og -g -o $@ -c $<
 

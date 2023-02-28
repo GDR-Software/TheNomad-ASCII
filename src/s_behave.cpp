@@ -18,11 +18,20 @@
 // DESCRIPTION:
 //  src/s_behave.cpp
 //----------------------------------------------------------
-#include "g_game.h"
-#include "s_mission.h"
-#include "g_rng.h"
-#include "p_npc.h"
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
 #include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
+#include "g_game.h"
+#include "g_rng.h"
+#include "s_mission.h"
 
 static Game* game;
 
@@ -179,13 +188,18 @@ void B_FleeArea(NPC* const npc)
 
 void B_KillBot(NPC* npc)
 {
-	PTR_CHECK(NULL_CHECK, npc);
 	for (std::vector<NPC*>::iterator it = game->b_Active.begin(); it != game->b_Active.end(); ++it) {
 		if ((*it) == npc) {
 			game->b_Active.erase(it);
 		}
 	}
 	Z_Free(npc);
+}
+
+void B_KillBot(std::vector<NPC*>::iterator npc)
+{
+	game->b_Active.erase(npc);
+	Z_Free(*npc);
 }
 
 void B_WeaponSmithInteract()

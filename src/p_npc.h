@@ -23,9 +23,6 @@
 
 #pragma comment
 
-#include "n_shared.h"
-#include "g_obj.h"
-
 #ifdef INITIAL_NPC_ACTIVE
 #undef INITIAL_NPC_ACTIVE
 #endif
@@ -101,6 +98,7 @@ public:
 };
 
 void B_BalanceBot(NPC* const npc);
+void B_KillBot(std::vector<NPC*>::iterator npc);
 void B_KillBot(NPC* npc);
 NPC* B_SpawnBot(void);
 

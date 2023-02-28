@@ -23,13 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
-#include "scf.h"
-#include "g_obj.h"
-#include "g_items.h"
-#include "g_map.h"
-#include "s_scripted.h"
-
 #define MAX_PLAYR_ITEMS 1000
 #define MAX_PLAYR_WPNS PLAYR_MAX_WPNS
 #define DASH_SPEED 5
@@ -60,9 +53,10 @@ public:
 	coord_t pos;
 	nomadenum_t sector_id;
 	Weapon P_wpns[MAX_PLAYR_WPNS];
-	Weapon* c_wpn = nullptr;
+	Weapon* c_wpn = (Weapon *)NULL;
 	nomadbool_t wpn_select = false;
 	nomadenum_t wpn_slot_current = 1;
+	std::shared_ptr<Level> c_lvl;
 	std::array<item_t, MAX_PLAYR_ITEMS> inv;
 	nomadint_t body_health[4];
 	entitystate_t pstate;

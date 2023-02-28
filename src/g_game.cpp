@@ -18,8 +18,17 @@
 // DESCRIPTION:
 //  src/g_game.cpp
 //----------------------------------------------------------
-#include "g_game.h"
+#include "n_shared.h"
+#include "g_obj.h"
+#include "s_scripted.h"
+#include "g_items.h"
+#include "p_npc.h"
+#include "g_mob.h"
+#include "g_map.h"
+#include "s_world.h"
 #include "scf.h"
+#include "g_playr.h"
+#include "g_game.h"
 
 nomaduint_t G_GetNumMobs(const Game* const game)
 {
@@ -35,9 +44,9 @@ Game::Game()
 {
 }
 
-#ifdef __unix__
 static void set_block(void)
 {
+#ifdef __unix__
 	struct termios ttystate;
 	
 	// get the terminal state
@@ -47,8 +56,8 @@ static void set_block(void)
 
 	// set the terminal attributes.
 	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-}
 #endif
+}
 
 Game::~Game()
 {
@@ -56,16 +65,20 @@ Game::~Game()
 	pthread_mutex_destroy(&mob_mutex);
 	pthread_mutex_destroy(&npc_mutex);
 	if (gamestate == GS_LEVEL) {
+#ifdef SIGTERM
 		pthread_kill(wthread, SIGTERM);
 		pthread_kill(mthread, SIGTERM);
 		pthread_kill(nthread, SIGTERM);
+#elif defined(SIGINT)
+		pthread_kill(wthread, SIGINT);
+		pthread_kill(mthread, SIGINT);
+		pthread_kill(nthread, SIGINT);
+#endif
 	}
 	delwin(screen);
 	attroff(COLOR_PAIR(0));
 	endwin();
-#ifdef UNIX_NOMAD
 	set_block();
-#endif
 	// now we delete any of the runtime-only resources
 	remove("Files/gamedata/RUNTIME/mapfile.txt");
 	W_KillWorld();

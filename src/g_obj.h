@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
-
 typedef enum : nomadenum_t
 {
 	ET_PLAYR,

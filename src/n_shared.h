@@ -126,9 +126,11 @@ class Game;
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <memory>
 #include <iomanip>
 #include <fstream>
 #include <pthread.h>
+#include <alloca.h>
 
 #ifdef _NOMAD_EXPERIMENTAL
 #include <curl/curl.h>
@@ -337,6 +339,9 @@ typedef INT8 nomadbyte_t;
 typedef UINT8 nomadubyte_t;
 #endif
 
+typedef std::atomic<nomadlong_t>* atomic_ptr;
+typedef std::atomic<nomadulong_t>* atomic_uptr;
+
 typedef const char* nomad_cstr_t;
 typedef std::string nomad_str_t;
 
@@ -468,6 +473,41 @@ typedef struct coord_s
 	inline bool operator<=(struct coord_s c) const {
 		return (x <= c.x && y <= c.y);
 	}
+	inline coord_s& operator=(struct coord_s c) {
+		y = c.y;
+		x = c.x;
+		return *this;
+	}
+	inline coord_s& operator-=(struct coord_s c) {
+		y -= c.y;
+		x -= c.x;
+		return *this;
+	}
+	inline coord_s& operator-=(nomadshort_t c) {
+		y -= c;
+		x -= c;
+		return *this;
+	}
+	inline coord_s& operator+=(struct coord_s c) {
+		y += c.y;
+		x += c.x;
+		return *this;
+	}
+	inline coord_s& operator++(void) {
+		y++;
+		x++;
+		return *this;
+	}
+	inline coord_s& operator=(nomadshort_t c) {
+		y = c;
+		x = c;
+		return *this;
+	}
+	inline coord_s& operator--(void) {
+		y--;
+		x--;
+		return *this;
+	}
 } coord_t, vec2_t;
 
 typedef struct area_s
@@ -580,6 +620,13 @@ typedef struct dim_s
 
 typedef int32_t nomadfixed_t;
 
+typedef union 
+{
+	nomadshort_t data[2];
+	nomadbyte_t bytes[4];
+} nomadfixed_u;
+
+
 class Menu
 {
 public:
@@ -599,7 +646,7 @@ inline auto strtodir(const char* str) -> nomadenum_t { return StrToDir(str); };
 inline auto difftostr(uint_fast8_t diff) -> const char* {
 	switch (diff) {
 	case DIF_NOOB: return "I AM A NOOB";
-	case DIF_RECRUIT: return "I Can Do Stuff";
+	case DIF_RECRUIT: return "I CAN do stuff";
 	case DIF_MERC: return "bring. It .ON!";
 	case DIF_NOMAD: return "Can't Touch This";
 	case DIF_BLACKDEATH: return "John Wick Junior";
@@ -616,7 +663,41 @@ inline auto strtodiff(const char* str) -> nomadenum_t {
 	else if (strstr(str, "DIF_MINORINCONVENIENCE")) return DIF_MINORINCONVENIENCE;
 	return NUMDIFS;
 };
+inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2)
+{
+	if (!str1 || !str2)
+		N_Error("str1 or str2 == NULL for N_strcmp!");
+	
+	const char* cmp1 = str1;
+	const char* cmp2 = str2;
+	while (*cmp1++ && *cmp2++) { if (*cmp1 != *cmp2) return false; }
+	return true;
+}
+inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2, int num)
+{
+	if (!str1 || !str2)
+		N_Error("str1 or str2 == NULL for N_strcmp!");
+
+	const char* cmp1 = str1;
+	const char* cmp2 = str2;
+	int i = 0;
+	while (*cmp1++ && *cmp2++ && ++i < num) { if (*cmp1 != *cmp2) return false; }
+	return true;
+}
+inline char* N_strcpy(char *__restrict dest, const char *__restrict src)
+{
+	if (!dest || !src)
+		N_Error("dest or src == NULL for N_strcpy!");
+	
+	char *__restrict to = dest;
+	const char *__restrict from = src;
+	while (*from)
+		*to++ = *from++;
+	
+	return dest;
+}
 inline auto strtobool(const char* str) -> nomadbool_t { return strcmp(str, "true") ? true : false; };
+inline auto strtobool(const std::string& str) -> nomadbool_t { return str == "true" ? true : false; };
 inline auto booltostr(bool b) -> const char* { return b ? "true" : "false"; };
 collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game);
 nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c);

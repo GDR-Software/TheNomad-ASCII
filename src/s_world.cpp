@@ -18,10 +18,19 @@
 // DESCRIPTION:
 //  src/s_world.cpp
 //----------------------------------------------------------
-#include "g_game.h"
-#include "s_world.h"
-#include "s_mission.h"
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
 #include "p_npc.h"
+#include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
+#include "g_game.h"
+#include "s_mission.h"
 #include "g_rng.h"
 
 static pthread_mutex_t world_mutex;
@@ -251,6 +260,10 @@ static inline void* M_Looper(void *arg)
 	return NULL;
 }
 
+static void M_CheckMobSpawners()
+{
+}
+
 static inline void* M_MissionLoop(void *arg)
 {
 	LOG_PROFILE();
@@ -269,25 +282,16 @@ static inline void* N_MissionLoop(void *arg)
 
 static void W_MissionLoop()
 {
+	if (playr->pmode != P_MODE_MISSION)
+		return;
+
 	LOG_PROFILE();
 	PTR_CHECK(NULL_CHECK, game);
 	pthread_mutex_lock(&world_mutex);
-//	if (playr->c_chapter.has_area_lock) {
-//		AreaLock_Check();
-//	}
-//	if (MOBS_ARE_DEAD(*playr->c_chapter)) {
-//		playr->pmode.store(P_MODE_ROAMING);
-//	}
-	if (playr->pmode == P_MODE_MISSION) {
-		pthread_create(&game->mthread, NULL, M_MissionLoop, NULL);
-		pthread_create(&game->nthread, NULL, N_MissionLoop, NULL);
-		
-		pthread_join(game->mthread, NULL);
-		pthread_join(game->nthread, NULL);
-	}
-	else {
-		return;
-	}
+	pthread_create(&game->mthread, NULL, M_MissionLoop, NULL);
+	pthread_create(&game->nthread, NULL, N_MissionLoop, NULL);
+	pthread_join(game->mthread, NULL);
+	pthread_join(game->nthread, NULL);
 	pthread_mutex_unlock(&world_mutex);
 }
 
@@ -305,111 +309,6 @@ static inline void M_Init(void)
 {
 	PTR_CHECK(NULL_CHECK, game);
     LOG_INFO("Initializing map data");
-#if 0 // no longer needed because of BFF files
-	char secbuffer[NUM_SECTORS][SECTOR_MAX_Y][SECTOR_MAX_X];
-	nomaduint_t y, x;
-	for (nomadenum_t i = 0; i < NUM_SECTORS; ++i) {
-		char path[180];
-		y = x = 0;
-		snprintf(path, sizeof(path), "Files/gamedata/MAP/mapsector_%hu.txt", i);
-		std::ifstream file(path, std::ios::in);
-		if (file.fail())
-			N_Error("M_Init: Could Not Open Mapsector File %hu!", i);
-		
-		assert(file.is_open());
-		DBG_LOG("Successfully opened file map file");
-		std::string line;
-		std::vector<std::string> buffer;
-		while (std::getline(file, line)) {
-			buffer.push_back(line);
-		};
-		for (y = 0; y < SECTOR_MAX_Y; ++y) {
-			for (x = 0; x < SECTOR_MAX_X; ++x) {
-				secbuffer[i][y][x] = buffer[y][x];
-			}
-		}
-		file.close();
-	}
-	FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
-	/*
-	076
-	185
-	234
-	*/
-	NOMAD_ASSERT(fp, "Could not create RUNTIME/mapfile.txt!");
-	assert(fp);
-	DBG_LOG("Successfully created RUNTIME/mapfile.txt");
-	for (y = 0; y < 80; ++y) {
-		for (x = 0; x < MAP_MAX_X; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; x++) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[0][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[7][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[6][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; x++) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[1][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[8][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[5][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[2][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[3][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", secbuffer[4][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	for (y = 0; y < 80; ++y) {
-		for (x = 0; x < MAP_MAX_X; ++x) {
-			fprintf(fp, "#");
-		}
-		fprintf(fp, "\n");
-	}
-	fclose(fp);
-	DBG_LOG("Successfully Closed RUNTIME/mapfile.txt");
-#endif
-//	G_CopyBufferToMap();
-//	I_InitBiomes();
 }
 
 void W_KillWorld()

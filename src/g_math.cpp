@@ -19,7 +19,17 @@
 //  src/g_math.cpp
 //----------------------------------------------------------
 #include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
 #include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
+#include "g_game.h"
 
 nomadbool_t inArea(area_t a, coord_t pos)
 {
@@ -112,19 +122,19 @@ inline nomadfloat_t Q_root(nomadfloat_t x)
 	nomadlong_t        i;								// The integer interpretation of x
 	nomadfloat_t       x_half = x * 0.5f;
 	nomadfloat_t       r_sqrt = x;
-#ifdef _NOMAD_DEBUG
+/*#ifdef _NOMAD_DEBUG
 	if (!(x > 0) || std::isnan(x) || std::isinf(x))
 		return std::numeric_limits<nomadfloat_t>::quiet_NaN();
 	
 	i = *reinterpret_cast<int64_t*>(&r_sqrt);
 	i = 0x5f375a86 - (i >> 1);
 	r_sqrt = *reinterpret_cast<nomadfloat_t*>(&i);
-#else
+#else*/
 	// trick c/c++, bit hack
 	i = *(nomadlong_t *)&r_sqrt;					    // oh yes, undefined behaviour, who gives a fuck?
 	i = 0x5f375a86 - (i >> 1);				            // weird magic base-16 nums
 	r_sqrt = *(nomadfloat_t *) &i;
-#endif
+//#endif
 	r_sqrt = r_sqrt * (threehalfs - (x_half * r_sqrt * r_sqrt)); // 1st Newton iteration
 	r_sqrt = r_sqrt * (threehalfs - (x_half * r_sqrt * r_sqrt)); // 2nd Newton iteration
 

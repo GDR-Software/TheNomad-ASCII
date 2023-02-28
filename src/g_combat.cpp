@@ -18,10 +18,18 @@
 // DESCRIPTION:
 //  src/g_combat.cpp
 //----------------------------------------------------------
-#include "g_game.h"
-#include "g_playr.h"
-#include "g_mob.h"
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
 #include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
+#include "g_game.h"
 #include "g_rng.h"
 #include "g_animation.h"
 
@@ -53,6 +61,24 @@ static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
 static inline void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
 	nomadenum_t spread)
 {
+	coord_t go = game->E_GetDir(dir);
+	coord_t tmp = pos;
+	coord_t amount = {0, 0};
+	nomadbool_t done = false;
+	
+	// shorten up the blast if it hit a wall
+	for (nomadshort_t i = 0; i < range && !done; ++i) {
+		tmp += go;
+		++amount;
+		switch (game->c_map[tmp.y][tmp.x]) {
+		case ' ':
+		case '.':
+			break;
+		default:
+			done = true;
+			break;
+		};
+	}
 	coord_t& tl = a->tl;
 	coord_t& tr = a->tr;
 	coord_t& bl = a->bl;
@@ -89,6 +115,22 @@ static inline void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, noma
 		br.x = pos.x + spread;
 		break;
 	};
+	if (disBetweenOBJ(tmp, pos) < range) {
+		switch (dir) {
+		case D_NORTH:
+			a->tl.y += amount.y;
+			break;
+		case D_WEST:
+			a->tl.x += amount.x;
+			break;
+		case D_SOUTH:
+			a->tl.y -= amount.y;
+			break;
+		case D_EAST:
+			a->tl.x -= amount.x;
+			break;
+		};
+	}
 }
 
 void P_DoGrenade(Weapon* const wpn)

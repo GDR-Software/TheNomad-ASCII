@@ -23,18 +23,12 @@
 
 #pragma once
 
-#include "n_shared.h"
-#include "g_zone.h"
-#include "s_scripted.h"
-#include "p_npc.h"
-#include "g_playr.h"
-#include "g_mob.h"
-#include "g_map.h"
-#include "s_world.h"
-
 #ifndef NOMAD_MAIN
 #define NOMAD_MAIN
 #endif
+
+class Playr;
+class Level;
 
 // used for loading the bff, tracking the progress // nope, not anymore
 constexpr auto NotFound = std::string::npos;
@@ -87,6 +81,9 @@ public:
 	char* biomenames[9];
 public: // map stuff
 	int8_t c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
+	std::shared_ptr<BFF> bff;
+	std::shared_ptr<Map> map_ptr;
+	std::shared_ptr<Level> lvlptr;
 public:
 	WINDOW* screen;
 	WINDOW* hudwin[NUMHUDLAYERS];

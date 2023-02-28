@@ -30,6 +30,8 @@
 	else if (zone==reserved) id = 1; \
 	else if (zone==cardinal) id = 2; \
 id;})
+
+#include "n_shared.h"
 #include "g_zone.h"
 
 //
@@ -65,32 +67,20 @@ __CFUNC__ void Z_KillHeap(void)
 	free(reserved);
 }
 
-static void Z_ResizeZone(memzone_t* zone, int nsize)
+static void Z_ResizeZone(memzone_t* zone)
 {
-	PTR_CHECK(NULL_CHECK, zone);
-	void *ptr = (void *)zone;
 	int osize = zone->size;
-	memzone_t *new_zone = (memzone_t *)((byte *)realloc(zone, nsize));
-	if (!new_zone)
-		N_Error("Z_ResizeZone: realloc failed!");
+	int nsize = zone->size * 2;
+	byte* memory = (byte *)malloc(zone->size);
+	memmove(memory, &zone, zone->size);
+	free(zone);
+	zone = (memzone_t *)((byte *)calloc(sizeof(byte) * nsize, sizeof(byte)));
+	if (!zone)
+		N_Error("Z_ResizeZone: calloc failed!");
 	else {
 		memblock_t *base;
-		LOG_INFO("resizing zone at %p of size %i to size %i at %p", ptr, osize, nsize, (void *)new_zone);
-		memcpy(&new_zone, &zone, zone->size);
-		zone = new_zone;
-		memblock_t* block;
 		zone->size = nsize;
-		zone->blocklist.next = 
-		zone->blocklist.prev = 
-		base = (memblock_t *)((byte *)zone+sizeof(memzone_t));
-		
-		zone->blocklist.user = (void *)zone;
-		zone->blocklist.tag = TAG_STATIC;
-		zone->rover = base;
-
-		base->prev = base->next = &zone->blocklist;
-		base->user = (void *)NULL;
-		base->size = zone->size - sizeof(memzone_t);
+		memmove(&zone, memory, osize);
 	}
 }
 
@@ -115,7 +105,7 @@ __CFUNC__ void Zone_Free(void *ptr, memzone_t* zone)
 		ptr = (void *)NULL;
 		return;
 #else
-		N_Error("Z_Free: trying to free a pointer without ZONEID!\n");
+		N_Error("Z_Free: trying to free a pointer without ZONEID!");
 #endif
 	}
 	free_size += block->size;
@@ -172,13 +162,13 @@ __CFUNC__ void Z_DumpHeap(void)
 			break;
 		}
 		if ((byte *)block+block->size != (byte *)block->next) {
-			N_Error("Z_DumpHeap: block size doesn't touch next block!\n");
+			N_Error("Z_DumpHeap: block size doesn't touch next block!");
 		}
 		if (block->next->prev != block) {
-			N_Error("Z_DumpHeap: next block doesn't have proper back linkage!\n");
+			N_Error("Z_DumpHeap: next block doesn't have proper back linkage!");
 		}
 		if (!block->user && !block->next->user) {
-			N_Error("Z_DumpHeap: two consecutive free blocks!\n");
+			N_Error("Z_DumpHeap: two consecutive free blocks!");
 		}
 	}
 }
@@ -222,6 +212,7 @@ memzone_t* ScopedBlock<T, size, tag>::GetMemzone() {
     };
     LOG_WARN("zone_id for ScopedBlock is invalid enum %i! killing object", zone_id);
     this->~ScopedBlock();
+	return (memzone_t*)NULL;
 }
 
 #ifdef TESTING
@@ -293,9 +284,6 @@ __CFUNC__ void Z_Init()
 	base->prev = base->next = &reserved->blocklist;
 	base->user = (void *)NULL;
 	base->size = reserved->size - sizeof(memzone_t);
-
-	printf("Allocated Zone From %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
-	LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
 }
 #endif
 
@@ -353,14 +341,14 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 	
 	do {
 		if (rover == start) {
-			// allowed to resize
-			if (zone == reserved) {
-				Z_ResizeZone(reserved, (reserved->size+size)+1024); // add a little kb extra
+			if (zone == reserved){
+				Z_ResizeZone(zone);
+				base = zone->rover;
+				rover = base;
+				start = base->prev;
 			}
 			else if (zone == mainzone) {
-				N_Error("Z_Malloc: failed on allocation of %i bytes because zone isn't\n"
-					"big enough! zone size: %i\n", size, mainzone->size);
-				return (void *)NULL;
+				N_Error("Z_Malloc: failed allocation of %i bytes because zone isn't big enough!", size);
 			}
 		}
 		if (rover->user) {
@@ -404,7 +392,7 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 	}
 	else {
 		if (tag >= TAG_PURGELEVEL) {
-			N_Error("Z_Malloc: an owner is required for purgable blocks\n");
+			N_Error("Z_Malloc: an owner is required for purgable blocks!");
 			return (void *)NULL;
 		}
 		// mark as in used, but unowned
@@ -483,6 +471,56 @@ __CFUNC__ void Zone_FreeTags(int lowtag, int hightag, memzone_t* zone)
 	LOG_FREETAGS(lowtag, hightag, numblocks, size);
 }
 
+// cleans all zone caches (only blocks from scope to free to unused)
+__CFUNC__ void Z_CleanCache(void)
+{
+	memblock_t* block;
+	for (block = mainzone->blocklist.next;; block = block->next) {
+		if (block->next == &mainzone->blocklist) {
+			break;
+		}
+		if ((byte *)block+block->size != (byte *)block->next) {
+			N_Error("Z_CleanCache(mainzone): block size doesn't touch next block!");
+		}
+		if (block->next->prev != block) {
+			N_Error("Z_CleanCache(mainzone): next block doesn't have proper back linkage!");
+		}
+		if (!block->user && !block->next->user) {
+			N_Error("Z_CleanCache(mainzone): two consecutive free blocks!");
+		}
+		switch (block->tag) {
+		case TAG_PURGELEVEL:
+		case TAG_SCOPE:
+			Zone_Free((byte *)block+sizeof(memblock_t), mainzone);
+			break;
+		default:
+			break;
+		};
+	}
+	for (block = reserved->blocklist.next;; block = block->next) {
+		if (block->next == &reserved->blocklist) {
+			break;
+		}
+		if ((byte *)block+block->size != (byte *)block->next) {
+			N_Error("Z_CleanCache(reserved): block size doesn't touch next block!");
+		}
+		if (block->next->prev != block) {
+			N_Error("Z_CleanCache(reserved): next block doesn't have proper back linkage!");
+		}
+		if (!block->user && !block->next->user) {
+			N_Error("Z_CleanCache(reserved): two consecutive free blocks!");
+		}
+		switch (block->tag) {
+		case TAG_PURGELEVEL:
+		case TAG_SCOPE:
+			Zone_Free((byte *)block+sizeof(memblock_t), reserved);
+			break;
+		default:
+			break;
+		};
+	}
+}
+
 __CFUNC__ void Zone_CheckHeap(memzone_t* zone)
 {
 	memblock_t* block;
@@ -493,13 +531,13 @@ __CFUNC__ void Zone_CheckHeap(memzone_t* zone)
 			break;
 		}
 		if ((byte *)block+block->size != (byte *)block->next) {
-			N_Error("Z_CheckHeap: block size doesn't touch next block!\n");
+			N_Error("Z_CheckHeap: block size doesn't touch next block!");
 		}
 		if (block->next->prev != block) {
-			N_Error("Z_CheckHeap: next block doesn't have proper back linkage!\n");
+			N_Error("Z_CheckHeap: next block doesn't have proper back linkage!");
 		}
 		if (!block->user && !block->next->user) {
-			N_Error("Z_CheckHeap: two consecutive free blocks!\n");
+			N_Error("Z_CheckHeap: two consecutive free blocks!");
 		}
 	}
 	LOG_INFO("heap check successful");
@@ -530,7 +568,7 @@ __CFUNC__ void Zone_ChangeUser(void *ptr, void *user, memzone_t* zone)
 	
 	block = (memblock_t *) ((byte *)ptr - sizeof(memblock_t));
 	if (block->id != ZONEID) {
-		N_Error("Z_ChangeUser: tried to change user for invalid block!\n");
+		N_Error("Z_ChangeUser: tried to change user for invalid block!");
 		return;
 	}
 	LOG_INFO("changing user of ptr %p to %p, old user was %p", ptr, user, block->user);

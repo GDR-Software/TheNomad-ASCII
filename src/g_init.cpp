@@ -18,8 +18,18 @@
 // DESCRIPTION:
 //  src/g_init.cpp
 //----------------------------------------------------------
+#include "n_shared.h"
+#include "scf.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "s_scripted.h"
+#include "g_items.h"
+#include "s_world.h"
+#include "g_map.h"
+#include "g_zone.h"
+#include "g_playr.h"
 #include "g_game.h"
-#include "g_bff.h"
 
 static nomadbool_t ncurses_on;
 static Game* gptr;
@@ -63,7 +73,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	game->difficulty = DIF_NOOB;
 	game->ticcount = 0;
 	char buf[256];
-	strncpy(game->bffname, "nomadmain.bffl", sizeof(game->bffname));
+	strncpy(game->bffname, "nomadmain.bff", sizeof(game->bffname));
 	strncpy(game->scfname, "default.scf", sizeof(game->scfname));
 	strncpy(game->svfile, "nomadsv.ngd", sizeof(game->svfile));
 	switch (_NOMAD_VERSION) {
@@ -110,7 +120,6 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	G_LoadBFF(game->bffname, game);
-	game->I_InitHUD();
 	G_InitEvents(game);
 	scf::G_LoadSCF(game->scfname);
 	puts("W_Init(): Initializing World Data...");
@@ -207,8 +216,8 @@ static inline void I_ProcessArgs(const std::vector<char*>& myargv)
 			scf::launch::ext_bff = true;
 			++i;
 			strncpy(gptr->bffname, myargv[i], sizeof(gptr->bffname));
-			if (!strstr(gptr->bffname, "nomadmain.bffl")) {
-				fprintf(stdout, "Using non-default BFFL file: %s\n", gptr->bffname);
+			if (!strstr(gptr->bffname, "nomadmain.bff")) {
+				fprintf(stdout, "Using non-default BFF file: %s\n", gptr->bffname);
 			}
 		}
 		else if (strstr(myargv[i], "-scf")) {

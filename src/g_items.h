@@ -23,9 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
-#include "g_map.h"
-
 enum
 {
 	W_SHOTTY_ADB,     // Asturion Double-Barreled
@@ -152,6 +149,7 @@ const char* GetWeaponNameFromId(nomaduint_t id);
 
 typedef struct
 {
+	const char* cmd;
 	const char* name;
 	nomaduint_t id;
 	nomaduint_t dmg;
@@ -199,7 +197,7 @@ typedef struct item_s
 	nomaduint_t item_cost;
 } item_t;
 
-extern const weapon_t wpninfo[NUMWEAPONS];
+extern std::vector<weapon_t> wpninfo;
 extern std::vector<item_t> iteminfo;
 
 class Weapon

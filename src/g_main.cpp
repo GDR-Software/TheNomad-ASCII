@@ -18,7 +18,15 @@
 // DESCRIPTION:
 //  src/g_main.cpp
 //----------------------------------------------------------
+#include "n_shared.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_items.h"
+#include "s_world.h"
+#include "g_map.h"
 #include "g_game.h"
+
 
 static Game* game;
 
@@ -27,6 +35,7 @@ void MainAssigner(Game* const gptr)
 	game = gptr;
 }
 
+#ifdef __unix__
 void signal_interrupt(int signum)
 {
 	if (game->gamestate != GS_TITLE && GS_MENU)
@@ -74,9 +83,11 @@ void signal_somethins_corrupt(int signum)
 #endif
 	exit(EXIT_FAILURE);
 }
+#endif
 
 static void set_nonblock(void)
 {
+#ifdef __unix__
 	struct termios ttystate;
 	
 	// get the terminal state
@@ -90,6 +101,7 @@ static void set_nonblock(void)
 	
 	// set the terminal attributes.
 	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+#endif
 }
 
 FILE* dbg_file;
@@ -124,6 +136,7 @@ void __attribute__((destructor)) debug_kill(void)
 	fclose(dbg_file);
 }
 
+#ifdef __unix__
 void signal_buss(int signum)
 {
 	if (game->gamestate != GS_TITLE && GS_MENU && GS_PAUSE)
@@ -137,6 +150,7 @@ void signal_buss(int signum)
 #endif
 	exit(EXIT_FAILURE);
 }
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -150,8 +164,8 @@ int main(int argc, char* argv[])
 	signal(SIGQUIT, signal_interrupt);
 	signal(SIGKILL, signal_interrupt);
 	signal(SIGBUS, signal_buss);
-	set_nonblock();
 #endif
+	set_nonblock();
 	mainLoop(argc, argv);
 	return 0;
 }

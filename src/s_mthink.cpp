@@ -18,10 +18,20 @@
 // DESCRIPTION:
 //  src/s_mthink.cpp
 //----------------------------------------------------------
-#include "g_rng.h"
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
 #include "g_game.h"
 #include "g_animation.h"
-#include "g_mob.h"
+#include "g_rng.h"
 
 static Game* game;
 
@@ -78,10 +88,12 @@ static mob_thinker thinkers[] = {
 // triggers if target is within mob's missile range && mob's state is set to S_MOB_FIGHT
 // for mobs with more than one missile attack, rng is used to determine which attack is used
 static mob_thinker missile_thinkers[] = {
+    NULL
 };
 
 // same as the missile_thinkers, but for melee-only attacks
 static mob_thinker melee_thinkers[] = {
+    NULL
 };
 
 struct mob_thinker2

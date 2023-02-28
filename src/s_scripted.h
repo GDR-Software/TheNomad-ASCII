@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "n_shared.h"
 
 #define MAX_CHAPTERS 100
 
@@ -38,9 +37,8 @@ typedef struct stage_s
 enum campaign_prog_t : uint64_t
 {
     S1C1_FROM_EAGLES_PEAK,
-    S1C2_TO_GUNS_N_GRENADES,
-    S1C3_INVASION_OF_GALAKAS,
-    S1C4_A_DUEL_WITH_DEATH,
+    S1C2_THE_ONLY_WAY_IN_IS_THROUGH,
+    NUM_STAGE1_MISSIONS,
 
     END_OF_CAMPAIGN
 };

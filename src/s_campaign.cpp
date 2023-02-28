@@ -1,8 +1,18 @@
-#include "g_game.h"
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
 #include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
+#include "g_game.h"
 
 static Game* game;
-
+static coord_t origin = coord_t(260, 260);
 constexpr float mob_mult_base = 1.5f;
 constexpr float playr_mult_base = 1.7f;
 constexpr float bot_mult_base = 1.4f;
@@ -52,65 +62,195 @@ inline auto chapter_highest_diff(chapter_t& chapter) -> const char*
     return (const char *)NULL;
 };
 
+static void G_StartupCampaign(nomadshort_t difficulty)
+{
+    if (difficulty == DIF_NOOB) {
+        for (auto& i : mobinfo) {
+            i.health >>= 1;
+            i.armor >>= 1;
+        }
+    }
+    else if (difficulty == DIF_NOMAD) {
+        for (auto& i : mobinfo) {
+            i.health <<= 1;
+            i.armor <<= 1;
+        }
+    }
+    else if (difficulty == DIF_BLACKDEATH) {
+        for (auto& i : mobinfo) {
+            i.health *= float_to_fixed(5.6f);
+            i.armor *= float_to_fixed(5.6f);
+        }
+    }
+    else if (difficulty == DIF_MINORINCONVENIENCE) {
+        for (auto& i : mobinfo) {
+            i.health *= float_to_fixed(5.666f);
+            i.armor *= float_to_fixed(5.666f);
+        }
+    }
+    game->difficulty = difficulty;
+    std::shared_ptr<Level>& lvl = game->bff->levels[0];
+    game->playr->pmode = P_MODE_MISSION;
+    char mapbuffer[9][120][120];
+    memset(mapbuffer, '#', sizeof(mapbuffer));
+    nomadshort_t y{}, x{};
+    memcpy(mapbuffer[8], lvl->lvl_map, sizeof(lvl->lvl_map));
+    for (std::vector<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
+        M_KillMob(it);
+    }
+    game->m_Active.clear();
+    for (auto* i : game->b_Active) {
+        Z_Free(i);
+    }
+    game->b_Active.clear();
+    FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
+	for (y = 0; y < 80; ++y) {
+		for (x = 0; x < MAP_MAX_X+160; ++x) {
+			fprintf(fp, "#");
+		}
+		fprintf(fp, "\n");
+	}
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; x++) {
+			fprintf(fp, "#");
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[0][y][x]);
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[7][y][x]);
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[6][y][x]);
+		}
+		for (x = 0; x < 80; ++x) {
+			fprintf(fp, "#");
+		}
+		fprintf(fp, "\n");
+	}
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; x++) {
+			fprintf(fp, "#");
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[1][y][x]);
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[8][y][x]);
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[5][y][x]);
+		}
+		for (x = 0; x < 80; ++x) {
+			fprintf(fp, "#");
+		}
+		fprintf(fp, "\n");
+	}
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; ++x) {
+			fprintf(fp, "#");
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[2][y][x]);
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[3][y][x]);
+		}
+		for (x = 0; x < SECTOR_MAX_X; ++x) {
+			fprintf(fp, "%c", mapbuffer[4][y][x]);
+		}
+		for (x = 0; x < 80; ++x) {
+			fprintf(fp, "#");
+		}
+		fprintf(fp, "\n");
+	}
+    for (y = 0; y < 80; ++y) {
+		for (x = 0; x < MAP_MAX_X+160; ++x) {
+			fprintf(fp, "#");
+		}
+		fprintf(fp, "\n");
+	}
+    NOMAD_ASSERT(fp, "failed to open Files/gamedata/RUNTIME/mapfile.txt!");
+    fclose(fp);
+}
+
+
 void G_CampaignSelect()
 {
+    MENU *menu;
+	nomadshort_t n_choices, i;
 	char c;	
     nomadshort_t selector = 0;
     nomadbool_t done = false;
     werase(game->screen);
 	init_pair(4, COLOR_RED, COLOR_BLACK);
 	init_pair(5, COLOR_CYAN, COLOR_BLACK);
-
-    const char *choices[] = {
-        "Mission 1: ",
-        (const char*)NULL
+    std::array<const char*, NUMDIFS> difs = {
+        difftostr(DIF_NOOB),
+        difftostr(DIF_RECRUIT),
+        difftostr(DIF_MERC),
+        difftostr(DIF_NOMAD),
+        difftostr(DIF_BLACKDEATH),
+        difftostr(DIF_MINORINCONVENIENCE)
     };
 
-    Menu menu(choices, " -> ");
+    n_choices = difs.size();
+    std::vector<ITEM*> item_ls;
+    item_ls.reserve(n_choices);
+    for(i = 0; i < n_choices; ++i) {
+        item_ls.emplace_back();
+        item_ls.back() = new_item(difs[i], (const char *)NULL);
+    }
+    item_ls.push_back((ITEM *)NULL);
+	menu = new_menu((ITEM **)item_ls.data());
+    if (!menu)
+		N_Error("failed to allocate ncurses menu memory!");
+    
+    set_menu_win(menu, game->screen);
+    set_menu_sub(menu, derwin(game->screen, 10, 45, 3, 1));
+	set_menu_format(menu, 10, 1);
+
+    set_menu_mark(menu, " -> ");
 
 	/* Print a border around the main window and print a title */
     box(game->screen, 0, 0);
     wattron(game->screen, COLOR_PAIR(5));
-    mvwprintw(game->screen, 1, 55, "[Mission Select]");
+    mvwprintw(game->screen, 1, 55, "SELECT DIFFICULTY");
     wattroff(game->screen, COLOR_PAIR(5));
 	mvwaddch(game->screen, 2, 46, '+');
 	mvwhline(game->screen, 2, 47, '-', 33);
 	mvwaddch(game->screen, 2, 80, '+');
     mvwaddch(game->screen, 1, 46, '|');
     mvwaddch(game->screen, 1, 80, '|');
-	mvwaddstr(game->screen, 2, 85, "[Mission Statistics]");
-    mvwprintw(game->screen, 3, 85, "Highest Difficulty: %s",
-        chapter_highest_diff(game->playr->c_stage->chapters[selector]));
-    mvwprintw(game->screen, 4, 85, "Completed: %s",
-        booltostr(game->playr->c_stage->chapters[selector].done));
     wrefresh(game->screen);
 	/* Post the menu */
-	post_menu(menu.menu);
+	post_menu(menu);
 	wrefresh(game->screen);
+    goto difselect;
+
+difselect:
 	while (1) {
-        mvwaddstr(game->screen, 2, 85, "[Mission Statistics]");
-        mvwprintw(game->screen, 3, 85, "Highest Difficulty: %s",
-            chapter_highest_diff(game->playr->c_stage->chapters[selector]));
-        mvwprintw(game->screen, 4, 85, "Completed: %s",
-            booltostr(game->playr->c_stage->chapters[selector].done));
         c = getc(stdin);
         switch (c) {
         case KEY_w: {
             --selector;
             if (selector < 0)
-                selector = game->playr->c_stage->chapters.size() - 1;
-            menu.DownItem();
+                selector = difs.size() - 1;
+            menu_driver(menu, REQ_UP_ITEM);
             break; }
         case KEY_s: {
             ++selector;
-            if (selector >= game->playr->c_stage->chapters.size())
+            if (selector >= difs.size())
                 selector = 0;
-            menu.DownItem();
+            menu_driver(menu, REQ_DOWN_ITEM);
             break; }
         case ctrl('x'):
         case KEY_q:
-            game->gamestate = GS_MENU;
             goto done;
+            break;
+        case '\n':
+        case KEY_SPACE:
+            G_StartupCampaign(selector);
             break;
         default:
             continue;
@@ -120,5 +260,10 @@ void G_CampaignSelect()
         std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 	}
 done:
-    unpost_menu(menu.menu);
+    game->gamestate = GS_MENU;
+    unpost_menu(menu);
+    for (nomaduint_t i = 0; i < n_choices; ++i) {
+		free_item(item_ls[i]);
+	}
+	free_menu(menu);
 }

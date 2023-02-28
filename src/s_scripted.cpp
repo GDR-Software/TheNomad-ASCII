@@ -1,6 +1,15 @@
 #include "n_shared.h"
-#include "g_game.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
 #include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
+#include "g_game.h"
 
 static void Run_S1C1(chapter_t& stage);
 static void Run_S1C2(chapter_t& stage);
@@ -30,10 +39,8 @@ static stage_t* c_stage;
 stage_t stages[NUMSTAGES] = {
     {"Tales From A Lost Land", NULL, false,
         {
-            {"From Eagle's Peak",      DIF_NOOB, S1C1_FROM_EAGLES_PEAK,    NULL, S1C2_TO_GUNS_N_GRENADES,  false, &stages[0]},
-            {"To Guns \'n\' Grenades", DIF_NOOB, S1C2_TO_GUNS_N_GRENADES,  NULL, S1C3_INVASION_OF_GALAKAS, false, &stages[0]},
-            {"Invasion of Galakas",    DIF_NOOB, S1C3_INVASION_OF_GALAKAS, NULL, S1C4_A_DUEL_WITH_DEATH,   false, &stages[0]},
-            {"A Duel With Death",      DIF_NOOB, S1C4_A_DUEL_WITH_DEATH,   NULL, END_OF_CAMPAIGN,          false, &stages[0]},
+            {"From Eagle's Peak",          DIF_NOOB, S1C1_FROM_EAGLES_PEAK,           NULL, S1C2_THE_ONLY_WAY_IN_IS_THROUGH, false, &stages[0]},
+            {"The Only Way in is Through", DIF_NOOB, S1C2_THE_ONLY_WAY_IN_IS_THROUGH, NULL, END_OF_CAMPAIGN,                 false, &stages[0]},
         },
     },
 };

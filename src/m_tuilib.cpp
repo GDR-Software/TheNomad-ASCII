@@ -18,6 +18,17 @@
 // DESCRIPTION:
 //  src/m_tuilib.cpp
 //----------------------------------------------------------
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
 #include "g_game.h"
 //#define OPENTL_IMPLEMENTATION
 //#include "tl.h"
@@ -52,7 +63,7 @@ Menu::Menu(const std::vector<std::string>& choices, const char* marker)
 Menu::Menu(const char** choices, const char* marker)
 {
 	nomaduint_t i;
-	for (i = 0;; ++i) { if (!choices[i]) break; }
+	for (i = 0;; ++i) { if (choices[i] == (const char *)NULL) break; }
 	nomaduint_t n_choices = i;
     item_ls = (ITEM **)Z_Malloc(n_choices * sizeof(ITEM *), TAG_STATIC, &item_ls);
     for(i = 0; i < n_choices; ++i)
@@ -74,8 +85,7 @@ Menu::Menu(const char** choices, const char* marker)
 Menu::~Menu()
 {
 	for (nomaduint_t i = 0;; ++i) {
-		if (item_ls[i] == (ITEM *)NULL)
-			break;
+		if (item_ls[i] == (ITEM *)NULL) break;
 		free_item(item_ls[i]);
 	}
 	Z_Free(item_ls);

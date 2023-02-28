@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
 
 #define MAX_VERT_FOV 24
 #define MAX_HORZ_FOV 88

@@ -18,8 +18,20 @@
 // DESCRIPTION:
 //  src/s_saveg.cpp
 //----------------------------------------------------------
+#include "n_shared.h"
+#include "g_obj.h"
+#include "s_scripted.h"
+#include "g_mob.h"
+#include "scf.h"
+#include "p_npc.h"
+#include "g_items.h"
+#include "g_map.h"
+#include "g_playr.h"
+#include "s_world.h"
+#include "g_zone.h"
 #include "g_game.h"
 
+#undef assert
 #undef byte
 #include "nlohmann/json.hpp"
 
@@ -53,12 +65,13 @@ void Game::G_SaveGame(const char* svfile)
 		{"version.patch", NOMAD_VERSION_PATCH},
 		{"nummobs", m_Active.size()},
 		{"numbots", b_Active.size()},
+		{"bffname", bffname},
 	};
 	G_ArchivePlayr(playr, data);
 	G_ArchiveMobs(m_Active, data);
 	G_ArchiveBots(b_Active, data);
 	std::ofstream file(svfile, std::ios::out | std::ios::trunc);
-	NOMAD_ASSERT(!file.fail(), "Failed to open save file %s!", svfile);
+	NOMAD_ASSERT(file.is_open(), "failed to open save file %s!", svfile);
 	file << data;
 	file.close();
 }
@@ -68,12 +81,26 @@ bool Game::G_LoadGame(const char* svfile)
 {
 	struct stat svstat;
 	if (stat(svfile, &svstat) == -1) {
-		N_Error("Failed to stat() save file!");
+		N_Error("failed to stat() save file!");
 	}
 	LOG_SAVEFILE();
 	std::ifstream file(svfile, std::ios::in);
 	json data = json::parse(file);
 	file.close();
+	const std::string &svbff = data["header"]["bffname"];
+	if (!N_strcmp(svbff.c_str(), bffname)) {
+		echo();
+		noraw();
+		nocbreak();
+		char c;
+		mvwaddstr(screen, getmaxy(screen) - 5, 0, "BFF file found in save file is different from current save file, this could lead to a crash");
+		mvwaddstr(screen, getmaxy(screen) - 4, 0, "Continue? [y/n]");
+		wrefresh(screen);
+		c = getc(stdin);
+		if (c != 'y') {
+			return false;
+		}
+	}
 	nomaduint_t nummobs = data["header"]["nummobs"];
 	nomaduint_t numbots = data["header"]["numbots"];
 	G_UnArchivePlayr(playr, data);

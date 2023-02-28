@@ -18,6 +18,17 @@
 // DESCRIPTION:
 //  src/g_loop.cpp
 //----------------------------------------------------------
+#include "n_shared.h"
+#include "scf.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "g_obj.h"
+#include "g_mob.h"
+#include "p_npc.h"
+#include "g_map.h"
+#include "s_scripted.h"
+#include "s_world.h"
+#include "g_playr.h"
 #include "g_game.h"
 
 #if !defined(TESTING)
@@ -58,6 +69,8 @@ static void settingsLoop(void);
 void mainLoop(int argc, char* argv[])
 {
 	Z_Init();
+	printf("Allocated Zone From %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
+	LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
 	PTR_CHECK(NULL_CHECK, game);
 	I_NomadInit(argc, argv, game);
@@ -245,6 +258,7 @@ static void levelLoop(void)
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
+//		Z_CleanCache();
 	};
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;

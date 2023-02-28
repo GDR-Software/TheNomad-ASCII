@@ -20,11 +20,19 @@
 //  mob spawner code, balancer, no mob thinker/action functions
 //  here, that's s_mthink
 //----------------------------------------------------------
-#include "g_mob.h"
-#include "g_game.h"
+#include "n_shared.h"
+#include "g_zone.h"
+#include "g_items.h"
+#include "s_scripted.h"
 #include "scf.h"
-#include "g_rng.h"
 #include "g_obj.h"
+#include "p_npc.h"
+#include "g_mob.h"
+#include "s_world.h"
+#include "g_map.h"
+#include "g_playr.h"
+#include "g_game.h"
+#include "g_rng.h"
 
 typedef struct mobgroup_s
 {

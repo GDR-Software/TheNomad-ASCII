@@ -23,9 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
-#include "g_mob.h"
-#include "p_npc.h"
 
 class Mob;
 

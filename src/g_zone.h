@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
 
 // size: 40 bytes...?
 typedef struct memblock_s
@@ -89,8 +88,8 @@ constexpr auto TAG_PURGELEVEL = 100;
 constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
 #ifndef TESTING
-static constexpr int heapsize = 30*1024*1024; // allocating 30 mb (mainzone size)
-static constexpr int reserved_size = 60*1024; // 60 KiB reserved memory
+static constexpr int heapsize = 50*1024*1024; // allocating 50 mb (mainzone size)
+static constexpr int reserved_size = 30*1024*1024; // 30 mb reserved memory
 static constexpr int cardinal_size = 25*1024*1024; // 25 mb for cardinal system
 #endif
 
@@ -105,6 +104,7 @@ __CFUNC__ void* Zone_Realloc(void *user, int nsize, int tag, memzone_t* zone);
 __CFUNC__ void* Zone_Calloc(void *user, int nelem, int elemsize, int tag, memzone_t* zone);
 __CFUNC__ void Zone_Free(void *ptr, memzone_t* zone);
 __CFUNC__ void Zone_ClearZone(memzone_t* zone);
+__CFUNC__ void Z_CleanCache(void);
 #ifndef TESTING
 __CFUNC__ int Zone_ZoneSize(memzone_t *zone);
 #endif
@@ -121,7 +121,7 @@ __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone);
 // mainzone allocations
 #define Z_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,mainzone)
 #define Z_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,mainzone)
-#define Z_Calloc(ptr,nelem,elemsize) Zone_Calloc(ptr,nelem,elemsize,mainzone)
+#define Z_Calloc(ptr,nelem,elemsize,tag) Zone_Calloc(ptr,nelem,elemsize,tag,mainzone)
 #define Z_Free(ptr) Zone_Free(ptr,mainzone)
 #define Z_ClearZone() Zone_ClearZone(mainzone)
 #ifndef TESTING

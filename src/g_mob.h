@@ -23,10 +23,6 @@
 
 #pragma once
 
-#include "n_shared.h"
-#include "g_playr.h"
-#include "g_obj.h"
-
 #define INITIAL_MOBS_ACTIVE 200
 #define MAX_MOBS_ACTIVE 200
 
@@ -88,7 +84,7 @@ typedef struct
 	mobj_t base_mob;
 } bossj_t;
 
-extern const mobj_t mobinfo[NUMMOBS];
+extern mobj_t mobinfo[NUMMOBS];
 extern const bossj_t bossinfo[];
 
 class Mob

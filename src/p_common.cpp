@@ -18,9 +18,14 @@
 // DESCRIPTION:
 //  src/p_common.cpp
 //----------------------------------------------------------
+#include "n_shared.h"
+#include "g_obj.h"
 #include "p_npc.h"
 #include "g_mob.h"
+#include "g_items.h"
 #include "g_rng.h"
+#include "g_map.h"
+#include "s_world.h"
 #include "g_game.h"
 
 void Game::E_MoveImmediate(coord_t* epos, nomadenum_t edir)

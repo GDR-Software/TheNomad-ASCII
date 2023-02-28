@@ -130,7 +130,6 @@
 #define NULL_CHECK 0
 #define PTR_CHECK(type, ptr)                                            \
 {                                                                       \
-	LOG_INFO("running pointer check %s on %s", #type, #ptr);            \
 	if (!ptr) {                                                         \
 		LOG_WARN("pointer %s was NULL!", #ptr);                         \
 	}                                                                   \
