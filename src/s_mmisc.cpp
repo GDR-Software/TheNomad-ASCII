@@ -67,8 +67,7 @@ static void M_GenGroup()
 	if (!leader) return; // max mob count has been met
 	leader->is_boss = false;
 	leader->c_mob = mob;
-	leader->mpos.y = origin.y;
-	leader->mpos.x = origin.x;
+	leader->mpos = origin;
 	leader->mstate = stateinfo[S_MOB_WANDER];
 	leader->mticker = leader->mstate.numticks;
 	leader->stepcounter &= 0;

@@ -199,7 +199,7 @@ static inline void Hud_DisplayLocation()
 	wmove(game->screen, 1, 8);
 	wclrtoeol(game->screen);
 	mvwprintw(game->screen, 1, 8, "Location/Biome: %s", name);
-	mvwprintw(game->screen, 2, 8, "Coords: (y) %hi, (x) %hi", playr->pos.y, playr->pos.x);
+	mvwprintw(game->screen, 2, 8, "Coords: (y) %li, (x) %li", playr->pos.y.load(), playr->pos.x.load());
 	mvwaddch(game->screen, 1, (getmaxx(game->screen) - 1), '#');
 }
 

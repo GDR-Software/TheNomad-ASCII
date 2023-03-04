@@ -31,6 +31,14 @@
 #define CURRENCY_COPPER        1
 #define CURRENCY_ZINC          0
 
+#define MOB_MORAL_PERIM        10
+#define MOB_SIGHT_WIDTH        4
+#define MOB_HEAR_PERIM         10
+
+#define ARMOR_STREET           0
+#define ARMOR_MILITARY         1
+#define ARMOR_MERC             2
+
 #define rightarm      playr->P_wpns[0]
 #define leftarm       playr->P_wpns[1]
 #define sidearm       playr->P_wpns[2]

@@ -34,28 +34,23 @@ enum : nomaduint_t
 	MT_GRUNT,
 
 	/* mythical/fantasy-style mobs */
-	MT_DRUID,
-	MT_SANDWURM,
 	
 	/* humanoid mobs */
 	MT_MERC,
-	MT_MERC_LEADER,
 	// galakas-soldiers
 	MT_SHOTTY,
 	MT_PISTOL, // technically the police
 	MT_GUNNER,
-	// nomads
-	MT_NOMAD_LEADER,
-	MT_NOMAD_WARRIOR,
 	
 	NUMMOBS,
 
 	MT_NULL
 };
 
+// 20
 typedef struct mobj_s
 {
-	const char* name;
+	constexpr const char* name;
 	sprite_t sprite;
 	nomadshort_t health;
 	nomadushort_t armor;
@@ -63,17 +58,15 @@ typedef struct mobj_s
 	entitytype_t etype;
 	nomadenum_t rng;
 	nomadenum_t chance_to_spawn;
-	nomadenum_t snd_tol, snd_area;
-	nomadenum_t smell_tol, smell_area;
 	nomadenum_t sight_range;
-	bool hasmelee;
-	bool hashitscan;
-	bool hasprojectile;
-	nomadushort_t melee_dmg;
-	nomadushort_t hitscan_dmg, hitscan_range;
-	nomadushort_t projectile_dmg, projectile_range;
-	const char* mlore;
-	const nomaduint_t* mdrops;
+	nomadbool_t hasmelee;
+	nomadbool_t hashitscan;
+	nomadbool_t hasprojectile;
+	nomadshort_t melee_dmg, melee_range;
+	nomadshort_t hitscan_dmg, hitscan_range;
+	nomadshort_t projectile_dmg, projectile_range;
+	constexpr const char* mlore;
+	const std::vector<nomaduint_t> mdrops;
 } mobj_t;
 
 typedef struct

@@ -79,10 +79,10 @@ std::vector<entitystate_t> stateinfo = {
 	{S_MOB_SPAWN,              ticrate_base,      S_MOB_IDLE}, // S_MOB_SPAWN
 	{S_MOB_WANDER,           ticrate_base*1,      S_MOB_IDLE}, // S_MOB_WANDER
 	{S_MOB_IDLE,             ticrate_base*2,    S_MOB_WANDER}, // S_MOB_IDLE
-	{S_MOB_CHASE,              ticrate_base,    S_MOB_WANDER}, // S_MOB_CHASE
-	{S_MOB_FIGHT,              ticrate_base,     S_MOB_CHASE}, // S_MOB_FIGHT
-	{S_MOB_FLEE,               ticrate_base,    S_MOB_WANDER}, // S_MOB_FLEE
-	{S_MOB_DEAD,               ticrate_base,      S_MOB_NULL}, // S_MOB_DEAD
+	{S_MOB_CHASE,            ticrate_base*5,    S_MOB_WANDER}, // S_MOB_CHASE
+	{S_MOB_FIGHT,            ticrate_base*4,     S_MOB_CHASE}, // S_MOB_FIGHT
+	{S_MOB_FLEE,             ticrate_base*6,    S_MOB_WANDER}, // S_MOB_FLEE
+	{S_MOB_DEAD,             ticrate_base*2,      S_MOB_NULL}, // S_MOB_DEAD
 	{S_PLAYR_NULL,                        1,   S_PLAYR_SPAWN}, // S_PLAYR_NULL
 	{S_PLAYR_SPAWN,                       2,    S_PLAYR_IDLE}, // S_PLAYR_SPAWN
 	{S_PLAYR_MOVE,                        5,    S_PLAYR_IDLE}, // S_PLAYR_MOVE
@@ -100,30 +100,51 @@ std::vector<entitystate_t> stateinfo = {
 //static constexpr const char* grunt_lore;
 
 
-// name, sprite, health, armor, mtype, etype, rng, chance-to-spawn, sndtol, sndarea,
-// smelltol, smellarea, sight range, hasmelee, hashitscan. hasprojectile, melee dmg,
-// hitscan dmg, hitscan range, projectile dmg, projectile range, mlore, mdrops
+// name, sprite, health, armor, mtype, etype, rng, chance-to-spawn, sight range,
+// hasmelee, hashitscan. hasprojectile, melee dmg, melee range, hitscan dmg,
+// hitscan range, projectile dmg, projectile range, mlore, mdrops
 mobj_t mobinfo[NUMMOBS] = {
 {
-	"Hulk\0",
-	'h',
+	"Hulk",
+	SPR('H'),
 	487,
 	56,
 	MT_HULK,
 	ET_MOB,
 	150,
 	44,
-
+	2, // kinda blind
+	true,
+	true,
+	true,
+	44,
+	4,
+	63,
+	14,
+	68,
+	26,
+	(const char *)NULL,
 },
 {
-	"Ravager\0",
-	'r',
+	"Ravager",
+	SPR('R'),
 	353,
 	40,
 	MT_RAVAGER,
 	ET_MOB,
 	43,
 	18,
+	25,
+	false,
+	true,
+	true,
+	0,
+	0,
+	21,
+	12,
+	32,
+	16,
+	(const char *)NULL,
 },
 {
 	"Grunt\0",
@@ -134,6 +155,17 @@ mobj_t mobinfo[NUMMOBS] = {
 	ET_MOB,
 	210,
 	89,
+	30,
+	true,
+	true,
+	false,
+	16,
+	4,
+	28,
+	14,
+	0,
+	0,
+	(const char *)NULL,
 },
 {
 	"Druid\0",

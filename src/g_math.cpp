@@ -83,7 +83,7 @@ collider_t G_CastRay(coord_t endpoint, coord_t startpoint, Game* const game)
 * another note: I thought up this algo in math class, freshmen year, when i should have been doing algebra,
 * but i have zero regrets
 */
-nomadint_t disBetweenOBJ(coord_t src, coord_t tar)
+nomadlong_t disBetweenOBJ(const coord_t& src, const coord_t& tar)
 {
 	if (src.y == tar.y) { // horizontal
 		return src.x > tar.x ? (src.x - tar.x) : (tar.x - src.x);

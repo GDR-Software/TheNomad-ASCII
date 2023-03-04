@@ -10,27 +10,25 @@
 #define NVER NOMAD_VERSION_MAJOR
 #define PATCH_NUM NOMAD_VERSION_PATCH
 
-#define NOMAD_VERSION_NUM "v"NOMAD_VERSION_MAJOR"."NOMAD_VERSION_MINOR"."NOMAD_VERSION_PATCH""
-
 #define NOMAD_VERSION (NOMAD_VERSION_MAJOR * 10000 \
                      + NOMAD_VERSION_MINOR * 100 \
                      + NOMAD_VERSION_PATCH)
 
 #ifndef NOMAD_EXPERIMENTAL
 #if NVER == 0
-#define NOMAD_VERSION_STR "The Nomad (Pre-Alpha) "NOMAD_VERSION_NUM""
+#define NOMAD_VERSION_STR "The Nomad (Pre-Alpha) v" NOMAD_VERSION_MAJOR "." NOMAD_VERSION_MINOR "." NOMAD_VERSION_PATCH ""
 #elif NVER == 1
-#define NOMAD_VERSION_STR "The Nomad (Alpha) "NOMAD_VERSION_NUM""
+#define NOMAD_VERSION_STR "The Nomad (Alpha) v" NOMAD_VERSION_MAJOR "." NOMAD_VERSION_MINOR "." NOMAD_VERSION_PATCH ""
 #elif NVER == 2
-#define NOMAD_VERSION_STR "The Nomad (Beta) "NOMAD_VERSION_NUM""
+#define NOMAD_VERSION_STR "The Nomad (Beta) v" NOMAD_VERSION_MAJOR "." NOMAD_VERSION_MINOR "." NOMAD_VERSION_PATCH""
 #elif NVER == 3
-#define NOMAD_VERSION_STR "The Nomad "NOMAD_VERSION_NUM""
+#define NOMAD_VERSION_STR "The Nomad v" NOMAD_VERSION_MAJOR "." NOMAD_VERSION_MINOR "." NOMAD_VERSION_PATCH ""
 #endif
 #else
-#define NOMAD_VERSION_STR "The Nomad (Experimental) "NOMAD_VERSION_NUM""
+#define NOMAD_VERSION_STR "The Nomad (Experimental) v" NOMAD_VERSION_MAJOR "." NOMAD_VERSION_MINOR "." NOMAD_VERSION_PATCH ""
 #endif
 
-#if !defined(NDEBUG) || !defined(RELEASE)
+#if !defined(NDEBUG) && !defined(RELEASE)
 #define _NOMAD_DEBUG
 #endif
 
@@ -137,6 +135,12 @@ class Game;
 #include <thread>
 #include <pthread.h>
 
+#ifdef RELEASE
+#ifdef _NOMAD_DEBUG
+#undef _NOMAD_DEBUG
+#endif
+#endif
+
 enum
 {
 	SPR_WALL,
@@ -163,15 +167,153 @@ enum
 	SPR_ROCKS,
 	SPR_BED,
 	SPR_WATER,
+	SPR_ROCKET,
 	
 	NUM_SPRITES
 };
 
-constexpr char sprites[NUM_SPRITES] = {
-	'#', '@', '~', '_', '[', ']', '>', '<',
-	':', '+', '$', '!', '?', '.', '/', '\\',
-	')', '(', '=', '|', '&', '%', ';'
+#define SPR(x) x
+
+constexpr const char sprites[NUM_SPRITES] = {
+	SPR('#'), SPR('@'), SPR('~'), SPR('_'), SPR('['), SPR(']'), SPR('>'), SPR('<'),
+	SPR(':'), SPR('+'), SPR('$'), SPR('!'), SPR('?'), SPR('.'), SPR('/'), SPR('\\'),
+	SPR(')'), SPR('('), SPR('='), SPR('|'), SPR('&'), SPR('%'), SPR(';'), SPR('*'),
 };
+
+void N_Error(const char *err, ...);
+
+/*
+ * ISC License
+ * 
+ * Copyright 2022 Michael M.
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+#define SGR_N(n) "\x1b["#n"m"
+
+#define SGR_RESET "\x1b[m"
+#define SGR_BOLD "\x1b[1m"
+#define SGR_FAINT "\x1b[2m"
+#define SGR_ITALIC "\x1b[3m"
+#define SGR_UNDER "\x1b[4m"
+#define SGR_BLINK "\x1b[5m"
+#define SGR_BLINK_RAPID "\x1b[6m"
+#define SGR_INVERT "\x1b[7m"
+#define SGR_HIDE "\x1b[8m"
+#define SGR_STRIKE "\x1b[9m"
+#define SGR_DEF_FONT "\x1b[10m"
+#define SGR_GOTHIC "\x1b[20m"
+#define SGR_2UNDER "\x1b[21m"
+#define SGR_DEF_WEIGHT "\x1b[22m"
+#define SGR_NO_ITALIC "\x1b[23m"
+#define SGR_NO_GOTHIC "\x1b[23m"
+#define SGR_NO_UNDER "\x1b[24m"
+#define SGR_NO_BLINK "\x1b[25m"
+#define SGR_MONOSPACE "\x1b[26m"
+#define SGR_NO_INVERT "\x1b[27m"
+#define SGR_NO_HIDE "\x1b[28m"
+#define SGR_NO_STRIKE "\x1b[29m"
+// there's a bunch of color related SGRs. they're under the C_ instead, but
+// everyting under here is already obscure anyway
+#define SGR_NO_MONOSPACE "\x1b[50m"
+#define SGR_FRAME "\x1b[51m"
+#define SGR_CIRCLE "\x1b[52m"
+#define SGR_OVER "\x1b[53m"
+#define SGR_NO_FRAME "\x1b[54m"
+#define SGR_NO_CIRCLE "\x1b[54m"
+#define SGR_NO_OVER "\x1b[55m"
+#define SGR_NO_FRAME "\x1b[54m"
+#define SGR_IDEO_UNDER "\x1b[60m"
+#define SGR_R_SIDE "\x1b[60m"
+#define SGR_IDEO_2UNDER "\x1b[61m"
+#define SGR_R_2SIDE "\x1b[61m"
+#define SGR_IDEO_OVER "\x1b[62m"
+#define SGR_L_SIDE "\x1b[62m"
+#define SGR_IDEO_2OVER "\x1b[63m"
+#define SGR_L_2SIDE "\x1b[63m"
+#define SGR_IDEO_STRESS "\x1b[64m"
+#define SGR_NO_IDEO "\x1b[65m"
+#define SGR_NO_SIDE "\x1b[65m"
+#define SGR_SUPER "\x1b[73m"
+#define SGR_SUB "\x1b[74m"
+#define SGR_NO_SUPER "\x1b[75m"
+#define SGR_NO_SUB "\x1b[75m"
+
+
+/*
+ * Colors
+ * Key:
+ * C_{color} = text color
+ * C_BR_{color} = bright text color
+ * C_BG_{color} = background color
+ * C_BG_BR_{color} = bright background color
+ */
+
+#define C_DEF "\x1b[39m"
+#define C_BG_DEF "\x1b[49m"
+
+#define C_BLACK "\x1b[30m"
+#define C_RED "\x1b[31m"
+#define C_GREEN "\x1b[32m"
+#define C_YELLOW "\x1b[33m"
+#define C_BLUE "\x1b[34m"
+#define C_MAGENTA "\x1b[35m"
+#define C_CYAN "\x1b[36m"
+#define C_WHITE "\x1b[37m"
+#define C_RESET "\x1b[0m"
+
+#define C_BR_BLACK "\x1b[90m"
+#define C_GRAY "\x1b[90m"
+#define C_BR_RED "\x1b[91m"
+#define C_BR_GREEN "\x1b[92m"
+#define C_BR_YELLOW "\x1b[93m"
+#define C_BR_BLUE "\x1b[94m"
+#define C_BR_MAGENTA "\x1b[95m"
+#define C_BR_CYAN "\x1b[96m"
+#define C_BR_WHITE "\x1b[97m"
+
+#define C_BG_BLACK "\x1b[40m"
+#define C_BG_RED "\x1b[41m"
+#define C_BG_GREEN "\x1b[42m"
+#define C_BG_YELLOW "\x1b[43m"
+#define C_BG_BLUE "\x1b[44m"
+#define C_BG_MAGENTA "\x1b[45m"
+#define C_BG_CYAN "\x1b[46m"
+#define C_BG_WHITE "\x1b[47m"
+
+#define C_BG_BR_BLACK "\x1b[100m"
+#define C_BG_GRAY "\x1b[100m"
+#define C_BG_BR_RED "\x1b[101m"
+#define C_BG_BR_GREEN "\x1b[102m"
+#define C_BG_BR_YELLOW "\x1b[103m"
+#define C_BG_BR_BLUE "\x1b[104m"
+#define C_BG_BR_MAGENTA "\x1b[105m"
+#define C_BG_BR_CYAN "\x1b[106m"
+#define C_BG_BR_WHITE "\x1b[107m"
+
+// select from the 256-color table. see table at:
+// https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+#define C_256(n) "\x1b[38;5;"#n"m"
+#define C_BG_256(n) "\x1b[48;5;"#n"m"
+
+// enter a RGB value
+#define C_RGB(r, g, b) "\x1b[38;2;"#r";"#g";"#b"m"
+#define C_BG_RGB(r, g, b) "\x1b[48;2;"#r";"#g";"#b"m"
+
+extern FILE* dbg_file;
+extern FILE* p_file;
+#define LOGGER_OUTFILE dbg_file
+
 
 #ifdef _NOMAD_DEBUG
 #undef Z_Malloc
@@ -349,148 +491,26 @@ struct profiler
 	~profiler()
 	{
 		std::clock_t end = std::clock();
-		nomadfloat_t time = (end - timer)/(nomadfloat_t)CLOCKS_PER_SEC;
+		float time = (end - timer)/(float)CLOCKS_PER_SEC;
 		fprintf(LOGGER_PROFILE,
 			"%s%s[PROFILER END]%s:\n"
-			"\tfunction: %s\n",
+			"\tfunction: %s\n"
 			"\ttime: %f\n", C_BG_MAGENTA, C_WHITE, C_RESET, function, time);
 	}
 };
 
+#define HALF           (.50)
+#define QUARER         (.25)
+#define THREE_QUARTERS (.33)
 
-/*
- * ISC License
- * 
- * Copyright 2022 Michael M.
- * 
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
- * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
- * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-#define SGR_N(n) "\x1b["#n"m"
+#undef abs
+template<typename T>
+inline int abs(T x)
+{
+	return x > 0 ? -x : x;
+}
 
-#define SGR_RESET "\x1b[m"
-#define SGR_BOLD "\x1b[1m"
-#define SGR_FAINT "\x1b[2m"
-#define SGR_ITALIC "\x1b[3m"
-#define SGR_UNDER "\x1b[4m"
-#define SGR_BLINK "\x1b[5m"
-#define SGR_BLINK_RAPID "\x1b[6m"
-#define SGR_INVERT "\x1b[7m"
-#define SGR_HIDE "\x1b[8m"
-#define SGR_STRIKE "\x1b[9m"
-#define SGR_DEF_FONT "\x1b[10m"
-#define SGR_GOTHIC "\x1b[20m"
-#define SGR_2UNDER "\x1b[21m"
-#define SGR_DEF_WEIGHT "\x1b[22m"
-#define SGR_NO_ITALIC "\x1b[23m"
-#define SGR_NO_GOTHIC "\x1b[23m"
-#define SGR_NO_UNDER "\x1b[24m"
-#define SGR_NO_BLINK "\x1b[25m"
-#define SGR_MONOSPACE "\x1b[26m"
-#define SGR_NO_INVERT "\x1b[27m"
-#define SGR_NO_HIDE "\x1b[28m"
-#define SGR_NO_STRIKE "\x1b[29m"
-// there's a bunch of color related SGRs. they're under the C_ instead, but
-// everyting under here is already obscure anyway
-#define SGR_NO_MONOSPACE "\x1b[50m"
-#define SGR_FRAME "\x1b[51m"
-#define SGR_CIRCLE "\x1b[52m"
-#define SGR_OVER "\x1b[53m"
-#define SGR_NO_FRAME "\x1b[54m"
-#define SGR_NO_CIRCLE "\x1b[54m"
-#define SGR_NO_OVER "\x1b[55m"
-#define SGR_NO_FRAME "\x1b[54m"
-#define SGR_IDEO_UNDER "\x1b[60m"
-#define SGR_R_SIDE "\x1b[60m"
-#define SGR_IDEO_2UNDER "\x1b[61m"
-#define SGR_R_2SIDE "\x1b[61m"
-#define SGR_IDEO_OVER "\x1b[62m"
-#define SGR_L_SIDE "\x1b[62m"
-#define SGR_IDEO_2OVER "\x1b[63m"
-#define SGR_L_2SIDE "\x1b[63m"
-#define SGR_IDEO_STRESS "\x1b[64m"
-#define SGR_NO_IDEO "\x1b[65m"
-#define SGR_NO_SIDE "\x1b[65m"
-#define SGR_SUPER "\x1b[73m"
-#define SGR_SUB "\x1b[74m"
-#define SGR_NO_SUPER "\x1b[75m"
-#define SGR_NO_SUB "\x1b[75m"
-
-
-/*
- * Colors
- * Key:
- * C_{color} = text color
- * C_BR_{color} = bright text color
- * C_BG_{color} = background color
- * C_BG_BR_{color} = bright background color
- */
-
-#define C_DEF "\x1b[39m"
-#define C_BG_DEF "\x1b[49m"
-
-#define C_BLACK "\x1b[30m"
-#define C_RED "\x1b[31m"
-#define C_GREEN "\x1b[32m"
-#define C_YELLOW "\x1b[33m"
-#define C_BLUE "\x1b[34m"
-#define C_MAGENTA "\x1b[35m"
-#define C_CYAN "\x1b[36m"
-#define C_WHITE "\x1b[37m"
-#define C_RESET "\x1b[0m"
-
-#define C_BR_BLACK "\x1b[90m"
-#define C_GRAY "\x1b[90m"
-#define C_BR_RED "\x1b[91m"
-#define C_BR_GREEN "\x1b[92m"
-#define C_BR_YELLOW "\x1b[93m"
-#define C_BR_BLUE "\x1b[94m"
-#define C_BR_MAGENTA "\x1b[95m"
-#define C_BR_CYAN "\x1b[96m"
-#define C_BR_WHITE "\x1b[97m"
-
-#define C_BG_BLACK "\x1b[40m"
-#define C_BG_RED "\x1b[41m"
-#define C_BG_GREEN "\x1b[42m"
-#define C_BG_YELLOW "\x1b[43m"
-#define C_BG_BLUE "\x1b[44m"
-#define C_BG_MAGENTA "\x1b[45m"
-#define C_BG_CYAN "\x1b[46m"
-#define C_BG_WHITE "\x1b[47m"
-
-#define C_BG_BR_BLACK "\x1b[100m"
-#define C_BG_GRAY "\x1b[100m"
-#define C_BG_BR_RED "\x1b[101m"
-#define C_BG_BR_GREEN "\x1b[102m"
-#define C_BG_BR_YELLOW "\x1b[103m"
-#define C_BG_BR_BLUE "\x1b[104m"
-#define C_BG_BR_MAGENTA "\x1b[105m"
-#define C_BG_BR_CYAN "\x1b[106m"
-#define C_BG_BR_WHITE "\x1b[107m"
-
-// select from the 256-color table. see table at:
-// https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-#define C_256(n) "\x1b[38;5;"#n"m"
-#define C_BG_256(n) "\x1b[48;5;"#n"m"
-
-// enter a RGB value
-#define C_RGB(r, g, b) "\x1b[38;2;"#r";"#g";"#b"m"
-#define C_BG_RGB(r, g, b) "\x1b[48;2;"#r";"#g";"#b"m"
-
-extern FILE* dbg_file;
-extern FILE* p_file;
-#define LOGGER_OUTFILE dbg_file
-
-inline char kbhit()
+inline char kb_hit()
 {
 #ifdef __unix__
 	struct timeval tv;
@@ -542,7 +562,6 @@ typedef UINT16 nomadushort_t;
 typedef UINT8 nomadubyte_t;
 #endif
 
-#define byte i
 typedef unsigned char byte;
 
 typedef std::atomic<nomadulong_t>* atomic_uptr;
@@ -559,7 +578,7 @@ typedef bool nomadbool_t;
 typedef enum{false = 0, true = 1} nomadbool_t;
 #endif
 
-typedef char sprite_t;
+typedef nomadbyte_t sprite_t;
 
 #define chtype chtype_small
 typedef sprite_t chtype;
@@ -578,16 +597,28 @@ constexpr uint8_t DIF_BLACKDEATH         = 4;
 constexpr uint8_t DIF_MINORINCONVENIENCE = 5;
 constexpr uint8_t NUMDIFS                = 6;
 
+#define DIF_HARDEST DIF_MINORINCONVENIENCE
+
 typedef std::atomic<nomadlong_t> point_t;
 typedef struct coord_s
 {
 	point_t y, x;
-	coord_s() : y(0), x(0) {}
-	coord_s(point_t _y, point_t _x)
-		: y(_y), x(_x)
+	inline coord_s() : y(0), x(0) {}
+	inline coord_s(point_t _y, point_t _x)
 	{
+		y.store(_y);
+		x.store(_x);
 	}
-	coord_s(const coord_s &) = delete;
+	inline coord_s(nomadlong_t _y, nomadlong_t _x)
+	{
+		y.store(_y);
+		x.store(_x);
+	}
+	inline coord_s(const coord_s& c)
+	{
+		y.store(c.y);
+		x.store(c.x);
+	}
 	coord_s(coord_s &&) = default;
 	
 	inline nomadbool_t operator==(const coord_s& c) const {
@@ -646,26 +677,6 @@ typedef struct coord_s
 		--x;
 		return *this;
 	}
-	inline coord_s& operator+=(point_t& p) {
-		y += p;
-		x += p;
-		return *this;
-	}
-	inline coord_s& operator-=(point_t& p) {
-		y -= p;
-		x -= p;
-		return *this;
-	}
-	inline coord_s& operator*=(point_t& p) {
-		y *= p;
-		x *= p;
-		return *this;
-	}
-	inline coord_s& operator/=(point_t& p) {
-		y /= p;
-		x /= p;
-		return *this;
-	}
 	inline coord_s& operator+=(const coord_s& c) {
 		y += c.y;
 		x += c.x;
@@ -674,16 +685,6 @@ typedef struct coord_s
 	inline coord_s& operator-=(const coord_s& c) {
 		y -= c.y;
 		x -= c.x;
-		return *this;
-	}
-	inline coord_s& operator*=(const coord_s& c) {
-		y *= c.y;
-		x *= c.x;
-		return *this;
-	}
-	inline coord_s& operator/=(const coord_s& c) {
-		y /= c.y;
-		x /= c.x;
 		return *this;
 	}
 	inline point_t& operator[](nomadenum_t i) {
@@ -754,48 +755,6 @@ typedef struct area_s
 		tr -= a.tr;
 		bl -= a.bl;
 		br -= a.br;
-		return *this;
-	}
-	inline area_s& operator*=(const area_s& a) {
-		tl *= a.tl;
-		tr *= a.tr;
-		bl *= a.bl;
-		br *= a.br;
-		return *this;
-	}
-	inline area_s& operator/=(const area_s& a) {
-		tl /= a.tl;
-		tr /= a.tr;
-		bl /= a.bl;
-		br /= a.br;
-		return *this;
-	}
-	inline area_s& operator+=(const point_t& p) {
-		tl += p;
-		tr += p;
-		bl += p;
-		br += p;
-		return *this;
-	}
-	inline area_s& operator-=(const point_t& p) {
-		tl -= p;
-		tr -= p;
-		bl -= p;
-		br -= p;
-		return *this;
-	}
-	inline area_s& operator*=(const point_t& p) {
-		tl *= p;
-		tr *= p;
-		bl *= p;
-		br *= p;
-		return *this;
-	}
-	inline area_s& operator/=(const point_t& p) {
-		tl /= p;
-		tr /= p;
-		bl /= p;
-		br /= p;
 		return *this;
 	}
 	inline coord_t& operator[](nomadenum_t i) {
@@ -877,9 +836,7 @@ static const char* DirToStr(nomadenum_t dir)
 	case D_SOUTH: return VAR_TO_STR(D_SOUTH);
 	case D_EAST: return VAR_TO_STR(D_EAST);
 	};
-	if (!false)
-		N_Error("Unknown/Invalid Entity Direction %hu!", dir);
-	return nullptr;
+	return (const char *)NULL;
 }
 static nomadenum_t StrToDir(const char* str)
 {
@@ -949,9 +906,6 @@ inline auto strtodiff(const char* str) -> nomadenum_t {
 };
 inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2)
 {
-	if (!str1 || !str2)
-		N_Error("str1 or str2 == NULL for N_strcmp!");
-	
 	const char* cmp1 = str1;
 	const char* cmp2 = str2;
 	while (*cmp1++ && *cmp2++) { if (*cmp1 != *cmp2) return false; }
@@ -959,9 +913,6 @@ inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2)
 }
 inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2, int num)
 {
-	if (!str1 || !str2)
-		N_Error("str1 or str2 == NULL for N_strcmp!");
-
 	const char* cmp1 = str1;
 	const char* cmp2 = str2;
 	while (*cmp1++ && *cmp2++ && --num) { if (*cmp1 != *cmp2) return false; }
@@ -969,9 +920,6 @@ inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2, i
 }
 inline char* N_strcpy(char *__restrict dest, const char *__restrict src)
 {
-	if (!src)
-		N_Error("src == NULL for N_strcpy!");
-	
 	char *__restrict to = dest;
 	const char *__restrict from = src;
 	while (*from)
@@ -981,9 +929,6 @@ inline char* N_strcpy(char *__restrict dest, const char *__restrict src)
 }
 inline char* N_strcpy(char *__restrict dest, const char *__restrict src, int num)
 {
-	if (!src)
-		N_Error("src == NULL for N_strcpy!");
-	
 	char *__restrict to = dest;
 	const char *__restrict from = src;
 	while (*from && --num)
@@ -991,9 +936,25 @@ inline char* N_strcpy(char *__restrict dest, const char *__restrict src, int num
 	
 	return dest;
 }
-inline auto strtobool(const char* str) -> nomadbool_t { return strcmp(str, "true") ? true : false; };
+inline auto strtobool(const char* str) -> nomadbool_t { return N_strcmp(str, "true") ? true : false; };
 inline auto strtobool(const std::string& str) -> nomadbool_t { return str == "true" ? true : false; };
 inline auto booltostr(bool b) -> const char* { return b ? "true" : "false"; };
+inline auto oppositedir(nomadenum_t dir) -> nomadenum_t
+{
+	switch(dir) {
+	case D_NORTH: return D_SOUTH;
+	case D_WEST: return D_EAST;
+	case D_SOUTH: return D_NORTH;
+	case D_EAST: return D_WEST;
+	};
+	return D_NORTH;
+};
+inline auto is_oppositedir(nomadenum_t dir, nomadenum_t cmp) -> nomadbool_t
+{
+	if ((dir == D_NORTH && cmp == D_SOUTH) || (dir == D_SOUTH && dir == D_NORTH)) return true;
+	else if ((dir == D_WEST && cmp == D_EAST) || (dir == D_EAST && cmp == D_WEST)) return true;
+	return false;
+};
 
 using namespace std::literals::chrono_literals;
 

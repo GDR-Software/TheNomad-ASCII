@@ -94,19 +94,14 @@ static unsigned long numblocks = 0;
 //
 __CFUNC__ void Zone_Free(void *ptr, memzone_t* zone)
 {
-	assert(ptr);
+	NOMAD_ASSERT(ptr, "Zone_Free: ptr given was NULL!");
 	memblock_t* block;
 	memblock_t* other;
 	
 	block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 	
 	if (block->id != ZONEID) {
-#ifndef _NOMAD_DEBUG
-		ptr = (void *)NULL;
-		return;
-#else
 		N_Error("Z_Free: trying to free a pointer without ZONEID!");
-#endif
 	}
 	free_size += block->size;
 	if (free_size > 10000) {
@@ -179,7 +174,7 @@ __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone)
 	memblock_t* block;
 	std::string filename = "Files/debug/heaplog_"+std::to_string(GET_ZONE_ID(zone))+".log";
 	FILE* fp = fopen(filename.c_str(), "w");
-	assert(fp);
+	NOMAD_ASSERT(fp, "Zone_FileDumpHeap: failed to open file!");
 	if (!fp)
 		return;
 	fprintf(fp, "zone size:%i   location:%p\n", zone->size, (void *)zone);
@@ -313,8 +308,8 @@ __CFUNC__ void Zone_ClearZone(memzone_t* zone)
 // from within the zone without calling malloc
 __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 {
-	assert(size > 0);
-	assert(tag > -1);
+	NOMAD_ASSERT(size > 0, "Zone_Malloc: size was 0");
+	NOMAD_ASSERT(tag > -1, "Zone_Malloc: tag given was invalid: %i", tag);
 	if (!user) {
 		LOG_WARN("NULL user pointer given to Z_Malloc, returning NULL");
 		return (void *)NULL;
@@ -374,7 +369,7 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 	
 	if (space > 64) {
 		userblock = (memblock_t *)((byte *)base+size);
-		assert(userblock);
+		NOMAD_ASSERT(userblock, "Zone_Malloc: userblock was NULL!");
 		userblock->size = space;
 		userblock->user = (void *)NULL;
 		userblock->tag = TAG_FREE;
