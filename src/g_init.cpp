@@ -66,8 +66,6 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	MainAssigner(game);
 	PlayrAssigner(game);
 	ncurses_on = false;
-	pthread_mutex_init(&game->mob_mutex, NULL);
-	pthread_mutex_init(&game->npc_mutex, NULL);
 	game->gamestate = GS_TITLE;
 	game->gamescreen = MENU_TITLE;
 	game->difficulty = DIF_NOOB;
@@ -163,7 +161,9 @@ void TUI_Init(Game* const game)
 	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45)
 		N_Error("Screen Too Small For nomadascii!");
 	// change this in the future, this game doesn't "require" colors
-	NOMAD_ASSERT(has_colors(), "Terminal Must Support Colors!");
+	if (has_colors() == FALSE)
+		N_Error("Terminal Must Support Colors!");
+	
 	start_color();
 	LOG_INFO("has_colors() = true");
 	ncurses_on = true;

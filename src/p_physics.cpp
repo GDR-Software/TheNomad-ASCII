@@ -32,7 +32,7 @@
 #include "g_game.h"
 
 // false if entity can walk, true if cannot
-nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game)
+nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t& from, Game* const game)
 {
 	coord_t pos = game->E_GetDir(dir);
 	switch (game->c_map[from.y+pos.y][from.x+pos.x]) {
@@ -80,7 +80,7 @@ void E_RangedCollider(coord_t start, nomaduint_t range, Game* const game, nomade
 	};
 }
 
-nomadbool_t G_CheckCollider(coord_t point, Game* const game, collider_t& c)
+nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c)
 {
 	c.where = point;
 	c.what = ET_AIR;

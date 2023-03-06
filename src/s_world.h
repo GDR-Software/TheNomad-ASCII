@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    std::atomic<nomadulong_t>* ticcount;
+    nomadulong_t* ticcount;
     nomadulong_t month;
     nomadulong_t year;
     nomadulong_t day;

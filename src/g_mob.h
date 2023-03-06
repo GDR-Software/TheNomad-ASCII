@@ -50,7 +50,7 @@ enum : nomaduint_t
 // 20
 typedef struct mobj_s
 {
-	constexpr const char* name;
+	const char* name;
 	sprite_t sprite;
 	nomadshort_t health;
 	nomadushort_t armor;
@@ -65,8 +65,12 @@ typedef struct mobj_s
 	nomadshort_t melee_dmg, melee_range;
 	nomadshort_t hitscan_dmg, hitscan_range;
 	nomadshort_t projectile_dmg, projectile_range;
-	constexpr const char* mlore;
+	const char* mlore;
 	const std::vector<nomaduint_t> mdrops;
+	inline mobj_s& operator=(const mobj_s& m) {
+		memcpy(&(*this), &m, sizeof(mobj_s));
+		return *this;
+	}
 } mobj_t;
 
 typedef struct
@@ -88,8 +92,8 @@ public:
 	bossj_t c_boss;
 	
 	nomadlong_t mticker;
-	std::atomic<nomadlong_t> health;
-	std::atomic<nomadlong_t> armor;
+	nomadint_t health;
+	nomadushort_t armor;
 	entityflag_t mobflags;
 
 	nomadenum_t mdir;

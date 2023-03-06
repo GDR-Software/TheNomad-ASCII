@@ -115,7 +115,7 @@ void Playr::P_Init()
 	name = "Test";
 	sprite = '@';
 	health = 100;
-	armor = 12;
+	armor = ARMOR_STREET;
 	pdir = D_NORTH;
 	lvl = 0;
 	coin = 0;
@@ -161,7 +161,6 @@ void P_ShowWeapons()
 
 void P_PauseMenu()
 {
-	pthread_join(game->wthread, NULL);
 	game->gamestate = GS_PAUSE;
 	game->gamescreen = MENU_PAUSE;
 }
@@ -324,9 +323,9 @@ void P_MoveN()
 	case '_':
 		P_DoorInteract(input);
 		break;
-	case '.':
 	case ' ':
-		playr->pos.y--;
+	case '.':
+		--playr->pos.y;
 		break;
 	case 'M':
 		B_MercMasterInteract();
@@ -336,7 +335,7 @@ void P_MoveN()
 		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-		else { playr->pos.y--; playr->pmode = P_MODE_ROAMING; }
+		else { --playr->pos.y; playr->pmode = P_MODE_ROAMING; }
 		break; }
 	case '=': // weapons smith table
 		B_WeaponSmithInteract();
@@ -353,7 +352,7 @@ void P_MoveW()
 		break;
 	case '.':
 	case ' ':
-		playr->pos.x--;
+		--playr->pos.x;
 		break;
 	case 'M': // the merc master's custom sprite
 		B_MercMasterInteract();
@@ -363,7 +362,7 @@ void P_MoveW()
 		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-		else { playr->pos.x--; playr->pmode = P_MODE_ROAMING; }
+		else { --playr->pos.x; playr->pmode = P_MODE_ROAMING; }
 		break; }
 	case '=': // weapons smith table
 		B_WeaponSmithInteract();
@@ -380,7 +379,7 @@ void P_MoveS()
 		break;
 	case '.':
 	case ' ':
-		playr->pos.y++;
+		++playr->pos.y;
 		break;
 	case 'M':
 		B_MercMasterInteract();
@@ -390,7 +389,7 @@ void P_MoveS()
 		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-		else { playr->pos.y++; playr->pmode = P_MODE_ROAMING; }
+		else { ++playr->pos.y; playr->pmode = P_MODE_ROAMING; }
 		break; }
 	case '=': // weapons smith table
 		B_WeaponSmithInteract();
@@ -407,7 +406,7 @@ void P_MoveE()
 		break;
 	case '.':
 	case ' ':
-		playr->pos.x++;
+		++playr->pos.x;
 		break;
 	case 'M':
 		B_MercMasterInteract();
@@ -417,7 +416,7 @@ void P_MoveE()
 		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
-		else { playr->pos.x++; playr->pmode = P_MODE_ROAMING; }
+		else { ++playr->pos.x; playr->pmode = P_MODE_ROAMING; }
 		break; }
 	case '=': // weapons smith table
 		B_WeaponSmithInteract();
@@ -429,6 +428,9 @@ void P_MoveE()
 
 void P_DashN()
 {
+	if (playr->pticker > -1)
+		return;
+	
 	nomadshort_t range = playr->pos.y - RDASH_SPEED;
 	nomadbool_t hit = false;
 	while (!hit) {
@@ -446,9 +448,13 @@ void P_DashN()
 		};
 		--playr->pos.y;
 	}
+	playr->pticker = ticrate_base*2;
 }
 void P_DashW()
 {
+	if (playr->pticker > -1)
+		return;
+	
 	nomadshort_t range = playr->pos.x - RDASH_SPEED;
 	nomadbool_t hit = false;
 	while (!hit) {
@@ -466,9 +472,13 @@ void P_DashW()
 		};
 		--playr->pos.x;
 	}
+	playr->pticker = ticrate_base*2;
 }
 void P_DashS()
 {
+	if (playr->pticker > -1)
+		return;
+	
 	nomadshort_t range = playr->pos.y + RDASH_SPEED;
 	nomadbool_t hit = false;
 	while (!hit) {
@@ -486,9 +496,13 @@ void P_DashS()
 		};
 		++playr->pos.y;
 	}
+	playr->pticker = ticrate_base*2;
 }
 void P_DashE()
 {
+	if (playr->pticker > -1)
+		return;
+	
 	nomadshort_t range = playr->pos.x + RDASH_SPEED;
 	nomadbool_t hit = false;
 	while (!hit) {
@@ -506,6 +520,7 @@ void P_DashE()
 		};
 		++playr->pos.x;
 	}
+	playr->pticker = ticrate_base*2;
 }
 
 void P_ChangeDirL()

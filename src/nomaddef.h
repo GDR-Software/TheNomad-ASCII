@@ -34,6 +34,17 @@
 #define MOB_MORAL_PERIM        10
 #define MOB_SIGHT_WIDTH        4
 #define MOB_HEAR_PERIM         10
+#define HULK_SNIFF_AREA        20
+#define PROJ_ROCKET            1
+#define SHOTTY_HITSCAN_WIDTH   4
+#define G_SpawnProjectile(a,b,c,d,e,f,g)
+
+#define M_HULK_SPRITE          'H'
+#define M_RAVAGER_SPRITE       'R'
+#define M_GRUNT_SPRITE         'z'
+#define M_PISTOL_SPRITE        'p'
+#define M_GUNNER_SPRITE        'g'
+#define M_SHOTTY_SPRITE        's'
 
 #define ARMOR_STREET           0
 #define ARMOR_MILITARY         1
@@ -110,9 +121,9 @@
 #define ARM_SB_STRING          "Sound Blaster"
 #define ARM_FT_STRING          "Flamethrower"
 
-#define SHOTTY_ADB_DAMAGE      45
-#define SHOTTY_FAB_DAMAGE      21
-#define SHOTTY_QS_DAMAGE       15
+#define SHOTTY_ADB_DAMAGE      89
+#define SHOTTY_FAB_DAMAGE      35
+#define SHOTTY_QS_DAMAGE       64
 #define SIDE_AUP_DAMAGE        33
 #define SIDE_BOS_DAMAGE        15
 #define SIDE_FUSION_DAMAGE     59

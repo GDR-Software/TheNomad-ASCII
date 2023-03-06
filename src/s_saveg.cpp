@@ -112,15 +112,13 @@ bool Game::G_LoadGame(const char* svfile)
 static void G_ArchivePlayr(const Playr* playr, json& data)
 {
 	LOG_INFO("Archiving game->playr data");
-	auto health = playr->health.load();
-	auto armor = playr->armor.load();
 	data["playr"] = {
 		{"name", playr->name},
 		{"pdir", playr->pdir},
-		{"health", health},
-		{"armor", armor},
-		{"pos.y", playr->pos.y.load()},
-		{"pos.x", playr->pos.x.load()},
+		{"health", playr->health},
+		{"armor", playr->armor},
+		{"pos.y", playr->pos.y},
+		{"pos.x", playr->pos.x},
 		{"wpn_slot_current", playr->wpn_slot_current},
 		{"pstate", playr->pstate.id},
 		{"pticker", playr->pticker},
@@ -156,16 +154,14 @@ static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
 		Mob* const mob = m_Active[i];
-		auto health = mob->health.load();
-		auto armor = mob->armor.load();
 		data[node_name] = {
 			{"sprite", (int8_t)mob->sprite},
-			{"health", health},
-			{"armor", armor},
+			{"health", mob->health},
+			{"armor", mob->armor},
 			{"mstate", mob->mstate.id},
 			{"mticker", mob->mticker},
-			{"mpos.y", mob->mpos.y.load()},
-			{"mpos.x", mob->mpos.x.load()},
+			{"mpos.y", mob->mpos.y},
+			{"mpos.x", mob->mpos.x},
 			{"mdir", mob->mdir}
 		};
 	}
@@ -205,15 +201,13 @@ static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data)
 	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
 		std::string node_name = "bot_"+std::to_string(i);
 		NPC* const npc = b_Active[i];
-		nomadlong_t health = npc->health.load();
-		nomadlong_t armor = npc->armor.load();
 		data[node_name] = {
-			{"health", health},
-			{"armor", armor},
+			{"health", npc->health},
+			{"armor", npc->armor},
 			{"sprite", (int8_t)npc->sprite},
 			{"btype", npc->c_npc.btype},
-			{"pos.y", npc->pos.y.load()},
-			{"pos.x", npc->pos.x.load()},
+			{"pos.y", npc->pos.y},
+			{"pos.x", npc->pos.x},
 			{"ndir", npc->ndir}
 		};
 	}

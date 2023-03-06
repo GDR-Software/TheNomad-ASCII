@@ -84,8 +84,8 @@ public:
 	nomadenum_t ndir;
 	entitystate_t nstate;
 	nomaduint_t nticker;
-	std::atomic<nomadlong_t> health;
-	std::atomic<nomadlong_t> armor;
+	nomadint_t health;
+	nomadushort_t armor;
 	sprite_t sprite;
 	nomadenum_t importance = BOT_RANDO; // var that helps determine whether or not an NPC should be MURDERED
 public:

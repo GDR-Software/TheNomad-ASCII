@@ -67,7 +67,7 @@ constexpr auto MENU_PAUSE     = 0x09;
 class Game
 {
 public:
-	std::atomic<nomadulong_t> ticcount;
+	nomadulong_t ticcount;
 	gamestate_t gamestate;
 	nomadenum_t gamescreen;
 	char bffname[256];
@@ -87,17 +87,6 @@ public: // map stuff
 public:
 	WINDOW* screen;
 	WINDOW* hudwin[NUMHUDLAYERS];
-public: // *** multithreading! ***
-	pthread_mutex_t mob_mutex;
-	pthread_mutex_t npc_mutex;
-	pthread_mutex_t playr_mutex;
-	pthread_t mthread;
-	pthread_t nthread;
-	pthread_t wthread;
-	pthread_t pthread;
-	pthread_t cthread; // thread specific the scripted encounters daemon
-	nomadlong_t hudtics;
-	std::atomic<nomaduint_t> pdmg; // amount of damage done to the player in a single tic
 public:
 	Game();
 	~Game();
@@ -143,12 +132,14 @@ void CampaignAssigner(Game* const gptr);
 nomaduint_t G_GetNumMobs(const Game* const game);
 nomaduint_t G_GetNumBots(const Game* const game);
 
+void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
+	nomadenum_t spread);
 void TUI_Init(Game* const game);
 void G_CampaignSelect();
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
 void W_Init(Game* const gptr);
-void* W_Loop(void *arg);
+void W_Loop();
 void mainLoop(int argc, char* argv[]);
 void Hud_Printf(const char* from, const char* msg, ...);
 void Hud_DisplayWpnSlot(nomadenum_t wpn_slot);

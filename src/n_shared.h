@@ -500,7 +500,7 @@ struct profiler
 };
 
 #define HALF           (.50)
-#define QUARER         (.25)
+#define QUARTER        (.25)
 #define THREE_QUARTERS (.33)
 
 #undef abs
@@ -599,25 +599,28 @@ constexpr uint8_t NUMDIFS                = 6;
 
 #define DIF_HARDEST DIF_MINORINCONVENIENCE
 
-typedef std::atomic<nomadlong_t> point_t;
+typedef nomadlong_t point_t;
 typedef struct coord_s
 {
 	point_t y, x;
-	inline coord_s() : y(0), x(0) {}
-	inline coord_s(point_t _y, point_t _x)
+	inline coord_s(const coord_s& c)
+		: y(c.y), x(c.x)
 	{
-		y.store(_y);
-		x.store(_x);
+	}
+	inline coord_s(nomadshort_t _y, nomadshort_t _x)
+		: y(_y), x(_x)
+	{
+	}
+	inline coord_s(nomadint_t _y, nomadint_t _x)
+		: y(_y), x(_x)
+	{
 	}
 	inline coord_s(nomadlong_t _y, nomadlong_t _x)
+		: y(_y), x(_x)
 	{
-		y.store(_y);
-		x.store(_x);
 	}
-	inline coord_s(const coord_s& c)
+	inline coord_s()
 	{
-		y.store(c.y);
-		x.store(c.x);
 	}
 	coord_s(coord_s &&) = default;
 	
@@ -658,13 +661,13 @@ typedef struct coord_s
 		return (y < p && x < p);
 	}
 	inline coord_s& operator=(const coord_s& c) {
-		y.store(c.y);
-		x.store(c.x);
+		y = c.y;
+		x = c.x;
 		return *this;
 	}
 	inline coord_s& operator=(point_t& p) {
-		y.store(p);
-		x.store(p);
+		y = p;
+		x = p;
 		return *this;
 	}
 	inline coord_s& operator++(void) {
@@ -959,7 +962,7 @@ inline auto is_oppositedir(nomadenum_t dir, nomadenum_t cmp) -> nomadbool_t
 using namespace std::literals::chrono_literals;
 
 nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c);
-nomadbool_t inArea(area_t& a, coord_t& pos);
+nomadbool_t inArea(const area_t& a, const coord_t& pos);
 inline nomadfloat_t Q_root(nomadfloat_t x);
 coord_t closestOBJ(const std::vector<coord_t>& coords, const coord_t& src);
 nomadlong_t disBetweenOBJ(const coord_t& src, const coord_t& tar);

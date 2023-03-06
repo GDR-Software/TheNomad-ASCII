@@ -139,7 +139,6 @@ void Game::M_GenMobs(void)
 	LOG_INFO("Generating mobs");
 	game = this;
 	MobAssigner(this);
-	NomadAssigner(this);
 	m_Active.reserve(MAX_MOBS_ACTIVE);
 }
 
@@ -147,6 +146,7 @@ Mob* M_SpawnMob(void)
 {
 	game->m_Active.emplace_back();
 	game->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
+	M_GenMob(game->m_Active.back());
 	return game->m_Active.back();
 }
 
@@ -171,18 +171,12 @@ void M_KillMob(Mob* mob)
 const char* MobTypeToStr(nomaduint_t mtype)
 {
 	switch (mtype) {
-	case MT_DRUID: return VAR_TO_STR(MT_DRUID);
-	case MT_SANDWURM: return VAR_TO_STR(MT_SANDWURM);
 	case MT_RAVAGER: return VAR_TO_STR(MT_RAVAGER);
 	case MT_PISTOL: return VAR_TO_STR(MT_PISTOL);
 	case MT_SHOTTY: return VAR_TO_STR(MT_SHOTTY);
 	case MT_GUNNER: return VAR_TO_STR(MT_GUNNER);
 	case MT_GRUNT: return VAR_TO_STR(MT_GRUNT);
 	case MT_HULK: return VAR_TO_STR(MT_HULK);
-	case MT_MERC: return VAR_TO_STR(MT_MERC);
-	case MT_MERC_LEADER: return VAR_TO_STR(MT_MERC_LEADER);
-	case MT_NOMAD_LEADER: return VAR_TO_STR(MT_NOMAD_LEADER);
-	case MT_NOMAD_WARRIOR: return VAR_TO_STR(MT_NOMAD_WARRIOR);
 	};
 	LOG_WARN("given mtype is invalid! returning \"Unknown Mob\"");
 	return "Unknown Mob";

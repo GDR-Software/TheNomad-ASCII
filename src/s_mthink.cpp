@@ -63,36 +63,34 @@ static mobthinker_t thinkers[] = {
 	{S_MOB_WANDER, M_WanderThink},
 	{S_MOB_CHASE,  M_ChasePlayr},
 	{S_MOB_FIGHT,  M_FightThink},
-	{S_MOB_FLEE,   M_FleeThink},
 	{S_MOB_DEAD,   M_DeadThink},
 };
 
 void M_FacePlayr(Mob* const actor)
 {
-	if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.sight_range) {
-		if (is_oppositedir(actor->mdir, game->playr->pdir))
-			return;
-		else if (actor->mdir == game->playr->pdir) // already facing
-			return;
-		else
-			actor->mdir = oppositedir(game->playr->pdir);
-	}
-    M_KillMob(actor);
+	if (game->playr->pos.y > actor->mpos.y)
+		actor->mdir = D_SOUTH;
+	if (game->playr->pos.x > actor->mpos.x)
+		actor->mdir = D_EAST;
+	if (game->playr->pos.y < actor->mpos.y)
+		actor->mdir = D_NORTH;
+	if (game->playr->pos.x < actor->mpos.x)
+		actor->mdir = D_WEST;
 }
 coord_t M_GetDir(nomadenum_t dir)
 {
     switch (dir) {
     case D_NORTH:
-        return coord_t(-1, 0);
+        return {-1, 0};
         break;
     case D_WEST:
-        return coord_t(0, -1);
+        return {0, -1};
         break;
     case D_SOUTH:
-        return coord_t(1, 0);
+        return {1, 0};
         break;
     case D_EAST:
-        return coord_t(0, 1);
+        return {0, 1};
         break;
     default:
         LOG_WARN("Unknown/invalid mob entity direction %hu, assigning default value of D_NORTH (not the ref)", dir);
@@ -113,48 +111,17 @@ void M_ChangeState(Mob* actor)
 
 void M_DoPlayrDamage(nomaduint_t damage)
 {
-	switch (game->difficulty) {
-	case DIF_NOOB:
-		damage /= 3; // we know what people play this difficulty, pussies
-		break;
-	case DIF_RECRUIT:
-		damage /= 2; // half it, somewhat of a step-up
-		break;
-	case DIF_MERC:
-		damage = damage;
-		break;
-	case DIF_NOMAD:
-		damage *= 2; // now we get to the actually hard stuff
-		break;
-	case DIF_BLACKDEATH:
-		damage >>= 1;
-		break;
-	case DIF_MINORINCONVENIENCE:
-		damage >>= 3; // why play this mode?
-		break;
-	};
-	
-	// account for armor
-	if (game->playr->armor == ARMOR_STREET)
-		damage *= QUARTER;
-	else if (game->playr->armor == ARMOR_MILITARY)
-		damage *= HALF;
-	else if (game->playr->armor == ARMOR_MERC)
-		damage *= THREE_QUARTERS;
-	else {
-		LOG_WARN("game->playr->armor was an invalid enum! assigned default val of ARMOR_STREET");
-		damage *= QUARTER;
-	}
 	game->playr->health -= damage;
 }
 
+#if 0
 nomadbool_t M_CheckMoral(const Mob* actor)
 {
-	area_t ally_perim;
-	ally_perim.tl = coord_t(actor->mpos.y - MOB_MORAL_PERIM, actor->mpos.x - MOB_MORAL_PERIM);
-	ally_perim.tr = coord_t(actor->mpos.y - MOB_MORAL_PERIM, actor->mpos.x + MOB_MORAL_PERIM);
-	ally_perim.bl = coord_t(actor->mpos.y + MOB_MORAL_PERIM, actor->mpos.x - MOB_MORAL_PERIM);
-	ally_perim.br = coord_t(actor->mpos.y + MOB_MORAL_PERIM, actor->mpos.x + MOB_MORAL_PERIM);
+	area_t ally_perim = {
+		{actor->mpos.y - MOB_MORAL_PERIM, actor->mpos.x - MOB_MORAL_PERIM},
+		{actor->mpos.y - MOB_MORAL_PERIM, actor->mpos.x + MOB_MORAL_PERIM},
+		{actor->mpos.y + MOB_MORAL_PERIM, actor->mpos.x - MOB_MORAL_PERIM},
+		{actor->mpos.y + MOB_MORAL_PERIM, actor->mpos.x + MOB_MORAL_PERIM}};
 	nomaduint_t total = 0;
 	for (const auto& i : game->m_Active) {
 		if (inArea(ally_perim, i->mpos)) {
@@ -168,10 +135,12 @@ nomadbool_t M_CheckMoral(const Mob* actor)
 		health_ok = actor->health < (actor->health * QUARTER); // less to make mobs on harder difficulties more agressive
 	
 	if (game->difficulty < DIF_BLACKDEATH)
-		return total > 4 && health_ok;
+		return total > 4 || health_ok;
 	else
-		return total > 2 && health_ok;
+		return total > 2 || health_ok;
 }
+#endif
+
 nomadbool_t M_SeePlayr(const Mob* actor)
 {
 	if (scf::launch::blindmobs && game->difficulty != DIF_HARDEST)
@@ -180,28 +149,28 @@ nomadbool_t M_SeePlayr(const Mob* actor)
     area_t see_perim;
     switch (actor->mdir) {
     case D_NORTH:
-    	see_perim.tl = coord_t(actor->mpos.y - actor->c_mob.sight_range, actor->mpos.x - MOB_SIGHT_WIDTH);
-    	see_perim.tr = coord_t(actor->mpos.y - actor->c_mob.sight_range, actor->mpos.x + MOB_SIGHT_WIDTH);
-    	see_perim.bl = coord_t(actor->mpos.y, actor->mpos.x - MOB_SIGHT_WIDTH);
-    	see_perim.br = coord_t(actor->mpos.y, actor->mpos.x + MOB_SIGHT_WIDTH);
+    	see_perim.tl = {actor->mpos.y - actor->c_mob.sight_range, actor->mpos.x - MOB_SIGHT_WIDTH};
+    	see_perim.tr = {actor->mpos.y - actor->c_mob.sight_range, actor->mpos.x + MOB_SIGHT_WIDTH};
+    	see_perim.bl = {actor->mpos.y, actor->mpos.x - MOB_SIGHT_WIDTH};
+    	see_perim.br = {actor->mpos.y, actor->mpos.x + MOB_SIGHT_WIDTH};
     	break;
     case D_WEST:
-    	see_perim.tl = coord_t(actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x - actor->c_mob.sight_range);
-    	see_perim.tr = coord_t(actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x);
-    	see_perim.bl = coord_t(actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x - actor->c_mob.sight_range);
-    	see_perim.br = coord_t(actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x);
+    	see_perim.tl = {actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x - actor->c_mob.sight_range};
+    	see_perim.tr = {actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x};
+    	see_perim.bl = {actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x - actor->c_mob.sight_range};
+    	see_perim.br = {actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x};
     	break;
     case D_SOUTH:
-    	see_perim.tl = coord_t(actor->mpos.y, actor->mpos.x - MOB_SIGHT_WIDTH);
-    	see_perim.tr = coord_t(actor->mpos.y, actor->mpos.x + MOB_SIGHT_WIDTH);
-    	see_perim.bl = coord_t(actor->mpos.y + actor->c_mob.sight_range, actor->mpos.x - MOB_SIGHT_WIDTH);
-    	see_perim.br = coord_t(actor->mpos.y + actor->c_mob.sight_range, actor->mpos.x + MOB_SIGHT_WIDTH);
+    	see_perim.tl = {actor->mpos.y, actor->mpos.x - MOB_SIGHT_WIDTH};
+    	see_perim.tr = {actor->mpos.y, actor->mpos.x + MOB_SIGHT_WIDTH};
+    	see_perim.bl = {actor->mpos.y + actor->c_mob.sight_range, actor->mpos.x - MOB_SIGHT_WIDTH};
+    	see_perim.br = {actor->mpos.y + actor->c_mob.sight_range, actor->mpos.x + MOB_SIGHT_WIDTH};
     	break;
     case D_EAST:
-    	see_perim.tl = coord_t(actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x);
-    	see_perim.tr = coord_t(actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x + actor->c_mob.sight_range);
-    	see_perim.bl = coord_t(actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x);
-    	see_perim.br = coord_t(actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x + actor->c_mob.sight_range);
+    	see_perim.tl = {actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x};
+    	see_perim.tr = {actor->mpos.y - MOB_SIGHT_WIDTH, actor->mpos.x + actor->c_mob.sight_range};
+    	see_perim.bl = {actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x};
+    	see_perim.br = {actor->mpos.y + MOB_SIGHT_WIDTH, actor->mpos.x + actor->c_mob.sight_range};
     	break;
     };
     return inArea(see_perim, game->playr->pos);
@@ -215,12 +184,12 @@ nomadbool_t M_CanMove(const Mob* actor)
     case sprites[SPR_DOOR_OPEN]:
         return true;
         break;
-    default:
+	default:
         return false;
         break;
     };
-    LOG_WARN("reached end of switch statement for this function");
-    return false;
+    LOG_WARN("reached end of switch statement for this function, returning true");
+    return true;
 }
 nomadbool_t M_NewMoveDir(Mob* actor)
 {
@@ -246,10 +215,10 @@ nomadbool_t M_HearPlayr(const Mob* actor)
 		return false;
 	
 	area_t perim;
-	perim.tl = coord_t(actor->mpos.y - MOB_HEAR_PERIM, actor->mpos.x - MOB_HEAR_PERIM);
-	perim.tr = coord_t(actor->mpos.y - MOB_HEAR_PERIM, actor->mpos.x + MOB_HEAR_PERIM);
-	perim.bl = coord_t(actor->mpos.y + MOB_HEAR_PERIM, actor->mpos.x - MOB_HEAR_PERIM);
-	perim.br = coord_t(actor->mpos.y + MOB_HEAR_PERIM, actor->mpos.x + MOB_HEAR_PERIM);
+	perim.tl = {actor->mpos.y - MOB_HEAR_PERIM, actor->mpos.x - MOB_HEAR_PERIM};
+	perim.tr = {actor->mpos.y - MOB_HEAR_PERIM, actor->mpos.x + MOB_HEAR_PERIM};
+	perim.bl = {actor->mpos.y + MOB_HEAR_PERIM, actor->mpos.x - MOB_HEAR_PERIM};
+	perim.br = {actor->mpos.y + MOB_HEAR_PERIM, actor->mpos.x + MOB_HEAR_PERIM};
 	return inArea(perim, game->playr->pos);
 }
 
@@ -259,7 +228,7 @@ nomadbool_t M_CheckHitscanRange(const Mob* actor)
 		return false;
 	
 	return disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.hitscan_range;
-};
+}
 nomadbool_t M_CheckMeleeRange(const Mob* actor)
 {
 	if (!actor->c_mob.hasmelee)
@@ -285,9 +254,6 @@ nomadbool_t M_CheckProjectileRange(const Mob* actor)
 void M_RunThinker(Mob* actor)
 {
     --actor->mticker;
-    if (actor->mticker < 0)
-    	M_ChangeState(actor);
-    
     for (const auto& i : thinkers) {
         if (actor->mstate.id == i.statenum) {
             (*i.funcptr)(actor);
@@ -295,38 +261,35 @@ void M_RunThinker(Mob* actor)
     }
 }
 
-void MobtAssigner(std::shared_ptr<Game>& gptr)
+void MobtAssigner(Game* const gptr)
 {
     game = gptr;
 }
 
-void M_DoMove(Mob* actor, nomadulong_t amount)
-{
-	coord_t pos = game->E_GetDir(actor->mdir);
-	while (--amount && M_CanMove(actor))
-		actor->mpos += pos;
-}
-
 void M_DoMove(Mob* actor)
 {
-	coord_t pos = game->E_GetDir(actor->mdir);
-	nomaduint_t amount = scf::mobspeed;
-	while (--amount && M_CanMove(actor))
-		actor->mpos += pos;
+	if (!M_CanMove(actor) && !M_NewMoveDir(actor))
+		return;
+	else {
+		coord_t pos = game->E_GetDir(actor->mdir);
+		actor->mpos.y += pos.y;
+		actor->mpos.x += pos.x;
+	}
 }
 
 void M_FollowPlayr(Mob* actor)
 {
+	if (!M_CanMove(actor))
+		return;
+
 	if (game->playr->pos.y > actor->mpos.y)
-		actor->mdir = D_SOUTH;
-	else if (game->playr->pos.x > actor->mpos.x)
-		actor->mdir = D_EAST;
+		actor->mpos.y += MOB_SPEED_STD;
 	else if (game->playr->pos.y < actor->mpos.y)
-		actor->mdir = D_NORTH;
+		actor->mpos.y -= MOB_SPEED_STD;
+	else if (game->playr->pos.x > actor->mpos.x)
+		actor->mpos.x += MOB_SPEED_STD;
 	else if (game->playr->pos.x < actor->mpos.x)
-		actor->mdir = D_WEST;
-	
-	M_DoMove(actor);
+		actor->mpos.x -= MOB_SPEED_STD;
 }
 
 void M_PlayrKnockBack(nomadshort_t amount, nomadenum_t mdir)
@@ -366,112 +329,101 @@ void M_SpawnThink(Mob* actor)
 
 void M_WanderThink(Mob* actor)
 {
-	if (actor->mticker < 0 && actor->c_mob.mtype != MT_HULK && game->difficulty != DIF_HARDEST) {
-		M_ChangeState(actor, S_MOB_IDLE);
-	}
-	// perform extra checks for hardest difficulty
-	else if (actor->mticker < 0 && actor->c_mob.mtype != MT_HULK && game->difficulty == DIF_HARDEST) {
-		if (!M_SeePlayr(actor) && !M_HearPlayr(actor)) {
-			M_ChangeState(actor, S_MOB_IDLE);
-		}
-		else if (M_HearPlayr(actor)) {
-			if (M_SeePlayr(actor))
-				M_ChangeState(actor, S_MOB_CHASE);
-			else
+	if (actor->mticker <= -1) {
+		if (actor->c_mob.mtype != MT_HULK && (P_Random() & 15) < 8) {
+			if (game->difficulty < DIF_HARDEST) {
+				M_ChangeState(actor, S_MOB_IDLE);
+			}
+			else if (game->difficulty == DIF_HARDEST) {
 				actor->mticker = actor->mstate.numticks;
+				actor->stepcounter = (P_Random() & 18)+3;
+			}
 		}
-	}
-	else if (actor->mticker < 0 && actor->c_mob.mtype == MT_HULK && game->difficulty == DIF_HARDEST) {
-		if (M_SeePlayr(actor) || M_HearPlayr(actor))
-			M_ChangeState(actor, S_MOB_CHASE);
-		else
+		else {
+			actor->stepcounter = (P_Random() & 18)+3;
 			actor->mticker = actor->mstate.numticks;
-	}
-	else if (actor->mticker < 0 && actor->c_mob.mtype == MT_HULK && game->difficulty != DIF_HARDEST) {
-		if ((P_Random() & 15) > 9) // small chance for sniffing action
-			M_HulkSniff(actor);
-	}
-	if (actor->stepcounter > -1) {
-		--actor->stepcounter;
-		M_DoMove(actor);
-	}
-	else {
-		if (!M_CanMove(actor)) {
-			M_NewMoveDir(actor);
 		}
-		actor->stepcounter = (P_Random() & 15) + 3;
 	}
-	nomadbool_t see = M_SeePlayr(actor);
-	nomadbool_t hear = M_HearPlayr(actor);
-	nomadbool_t melee = M_CheckMeleeRange(actor);
-	nomadbool_t hitscan = M_CheckHitscanRange(actor);
-	nomadbool_t proj = M_CheckProjectileRange(actor);
-	
-	if ((see || hear) && (melee || hitscan || proj)) {
-		M_ChangeState(actor, S_MOB_FIGHT);
+	--actor->stepcounter;
+	if (actor->stepcounter <= -1) {
+		M_DoMove(actor);
+		actor->stepcounter = (P_Random() & 18)+3;
 	}
-	if (disBetweenOBJ(actor->mpos, game->playr->pos) > 20 && actor->mstate.id != S_MOB_FIGHT) {
+	if (M_SeePlayr(actor)) {
+		actor->stepcounter = (P_Random() & 18)+3;
 		M_ChangeState(actor, S_MOB_CHASE);
+	}
+	else if (M_HearPlayr(actor) && !M_SeePlayr(actor)) {
+		actor->mticker = actor->mstate.numticks;
 	}
 }
 
 void M_IdleThink(Mob* actor)
 {
-	if (M_SeePlayr(actor)) {
-		if (M_CheckMeleeRange(actor)) {
-			M_ChangeState(actor, S_MOB_FIGHT);
+	actor->stepcounter = (P_Random() & 18)+3;
+	M_ChangeState(actor, S_MOB_WANDER);
+	if (actor->mticker <= -1) {
+		if (actor->c_mob.mtype == MT_HULK) {
+			actor->stepcounter = (P_Random() & 18)+3;
+			M_ChangeState(actor, S_MOB_WANDER);
 		}
-		else if (M_CheckHitscanRange(actor) || M_CheckProjectileRange(actor)
-		&& game->difficulty != DIF_HARDEST) {
-			M_ChangeState(actor, S_MOB_CHASE);
+		if (M_SeePlayr(actor)) {
+			if (M_CheckMeleeRange(actor)) {
+				M_ChangeState(actor, S_MOB_FIGHT);
+			}
+			else if (M_CheckHitscanRange(actor) || M_CheckProjectileRange(actor)
+			&& game->difficulty != DIF_HARDEST) {
+				actor->stepcounter = (P_Random() & 18)+3;
+				M_ChangeState(actor, S_MOB_CHASE);
+			}
+			else {
+				M_ChangeState(actor, S_MOB_FIGHT);
+			}
 		}
-		else {
-			M_ChangeState(actor, S_MOB_FIGHT);
+		if (M_HearPlayr(actor)) {
+			if (game->difficulty > DIF_NOMAD) {
+				actor->stepcounter = (P_Random() & 18)+3;
+				M_ChangeState(actor, S_MOB_CHASE);
+			}
+			else {
+				actor->stepcounter = (P_Random() & 18)+3;
+				M_ChangeState(actor, S_MOB_WANDER);
+			}
 		}
-	}
-	else if (M_HearPlayr(actor)) {
-		if (game->difficulty > DIF_NOMAD) {
-			M_ChangeState(actor, S_MOB_CHASE);
-		}
-	}
-	else {
-		actor->mticker = actor->mstate.numticks;
 	}
 }
 
 void M_ChasePlayr(Mob* actor)
 {
-	// check for flee
-	if (!M_CheckMoral(actor))
-		M_ChangeState(actor, S_MOB_FLEE);
-	
-	nomadbool_t see = M_SeePlayr(actor);
-	nomadbool_t hear = M_HearPlayr(actor);
-	nomadbool_t sane = actor->c_mob.mtype != MT_HULK || MT_GRUNT;
-	if (!see && !hear && sane) {
-		M_ChangeState(actor, S_MOB_IDLE);
-	}
-	else if (!see && !hear && !sane) {
-		M_ChangeState(actor, S_MOB_WANDER);
-	}
-	else if (see || hear) {
-		if (disBetweenOBJ(actor->mpos, game->playr->pos) <= 20) {
+	if (actor->mticker <= -1) {
+		M_FacePlayr(actor);
+		if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.hitscan_range || actor->c_mob.projectile_range || actor->c_mob.melee_range)
 			M_ChangeState(actor, S_MOB_FIGHT);
+		if (!M_SeePlayr(actor) && !M_HearPlayr(actor)) {
+			if (actor->c_mob.mtype == MT_HULK) {
+				actor->stepcounter = (P_Random() & 18)+3;
+				M_ChangeState(actor, S_MOB_WANDER);
+			}
 		}
-		else if (disBetweenOBJ(actor->mpos, game->playr->pos) <= 40) {
+		else {
 			actor->mticker = actor->mstate.numticks;
 		}
-		M_FollowPlayr(actor);
+		--actor->stepcounter;
+		if (actor->stepcounter <= -1) {
+			if (M_SeePlayr(actor))
+				M_FollowPlayr(actor);
+			else if (M_HearPlayr(actor))
+				actor->stepcounter = (P_Random() & 18)+3;
+
+			M_DoMove(actor);
+		}
 	}
 }
 
 void M_FightThink(Mob* actor)
 {
-	if (!M_CheckMoral(actor) && actor->health < (actor->c_mob.health*QUARTER)) {
-		M_ChangeState(actor, S_MOB_FLEE); // cowardice
-	}
-	if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.melee_range) {
-		if (M_SeePlayr(actor)) {
+	if (actor->mticker <= -1) {
+		if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.melee_range) {
 			switch (actor->c_mob.mtype) {
 			case MT_GUNNER:
 				M_PunchPlayr(actor);
@@ -487,14 +439,13 @@ void M_FightThink(Mob* actor)
 				break;
 			};
 		}
-	}
-	else if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.hitscan_range) {
-		if (M_SeePlayr(actor)) { // quickly check for line of sight before making an attack
+		else if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.hitscan_range) {
 			switch (actor->c_mob.mtype) {
 			case MT_GUNNER:
 				M_GunnerRapid(actor);
 				break;
 			case MT_PISTOL:
+				M_FacePlayr(actor);
 				M_DoPlayrDamage(actor->c_mob.hitscan_dmg);
 				break;
 			case MT_SHOTTY:
@@ -505,9 +456,7 @@ void M_FightThink(Mob* actor)
 				break;
 			};
 		}
-	}
-	else if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.projectile_range) {
-		if (M_SeePlayr(actor)) {
+		else if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.projectile_range) {
 			switch (actor->c_mob.mtype) {
 			case MT_GUNNER:
 				M_GunnerBarrage(actor);
@@ -515,14 +464,20 @@ void M_FightThink(Mob* actor)
 			case MT_RAVAGER:
 				M_RavMissiles(actor);
 				break;
-			case MT_HULK:
-				M_HulkCharge(actor);
-				break;
 			};
+		}
+		M_ChangeState(actor, S_MOB_CHASE);
+	}
+	else {
+		--actor->stepcounter;
+		if (actor->stepcounter <= -1) {
+			M_DoMove(actor);
+			actor->stepcounter = (P_Random() & 18)+3;
 		}
 	}
 }
 
+#if 0 // broken - mobs go flying if this in included
 void M_FleeThink(Mob* actor)
 {
 	if (actor->c_mob.mtype == MT_HULK) {
@@ -546,9 +501,10 @@ void M_FleeThink(Mob* actor)
 	// PANIC!!!
 	if (scaler < 2) {
 		actor->mdir = game->playr->pdir;
-		M_DoMove(actor, scf::mobspeed + 2); // add a little adrenaline boost in there
+		for (nomadbyte_t i = 0; i < 2; ++i) {M_DoMove(actor);} // add a little adrenaline boost in there
 	}
 }
+#endif
 
 void M_DeadThink(Mob* actor)
 {
@@ -558,7 +514,7 @@ void M_DeadThink(Mob* actor)
 //
 // M_Infight
 //
-void M_Infight(Mob* const actor, Mob* const actor)
+void M_Infight(Mob* const reactor, Mob* const inflictor)
 {
 }
 
@@ -576,8 +532,8 @@ void M_HulkCharge(Mob* const actor)
 	if (actor->stepcounter < ticrate_base)
 		M_ChangeState(actor, S_MOB_WANDER);
 	if ((actor->stepcounter % ticrate_base) == 0) {
-		M_DoMove(actor, 3);
-		switch (game->c_map[actor->mpos.y.load()+pos.y.load()][actor->mpos.x.load()+pos.x.load()]) {
+		for (nomadbyte_t i = 0; i < 3; ++i) {M_DoMove(actor);}
+		switch (game->c_map[actor->mpos.y+pos.y][actor->mpos.x+pos.x]) {
 		case sprites[SPR_WALL]:
 		case sprites[SPR_DOOR_STATIC]:
 		case sprites[SPR_DOOR_CLOSE]:
@@ -600,11 +556,11 @@ void M_HulkCharge(Mob* const actor)
 //
 void M_HulkSniff(Mob* actor)
 {
-	area_t a;
-	a.tl = coord_t(actor->mpos.y - HULK_SNIFF_AREA, actor->mpos.x - HULK_SNIFF_AREA);
-	a.tr = coord_t(actor->mpos.y - HULK_SNIFF_AREA, actor->mpos.x + HULK_SNIFF_AREA);
-	a.bl = coord_t(actor->mpos.y + HULK_SNIFF_AREA, actor->mpos.x - HULK_SNIFF_AREA);
-	a.br = coord_t(actor->mpos.y + HULK_SNIFF_AREA, actor->mpos.x + HULK_SNIFF_AREA);
+	area_t a = {
+		{actor->mpos.y - HULK_SNIFF_AREA, actor->mpos.x - HULK_SNIFF_AREA},
+		{actor->mpos.y - HULK_SNIFF_AREA, actor->mpos.x + HULK_SNIFF_AREA},
+		{actor->mpos.y + HULK_SNIFF_AREA, actor->mpos.x - HULK_SNIFF_AREA},
+		{actor->mpos.y + HULK_SNIFF_AREA, actor->mpos.x + HULK_SNIFF_AREA}};
 	
 	if (inArea(a, game->playr->pos)) // never rest
 		M_ChangeState(actor, S_MOB_CHASE);
@@ -618,10 +574,10 @@ void M_HulkSniff(Mob* actor)
 void M_RavBoost(Mob* actor)
 {
 	area_t boost_perim = {
-		coord_t(actor->mpos.y - 8, actor->mpos.x - 8),
-		coord_t(actor->mpos.y - 8, actor->mpos.x + 8),
-		coord_t(actor->mpos.y + 8, actor->mpos.x - 8),
-		coord_t(actor->mpos.y + 8, actor->mpos.x + 8)};
+		{actor->mpos.y - 8, actor->mpos.x - 8},
+		{actor->mpos.y - 8, actor->mpos.x + 8},
+		{actor->mpos.y + 8, actor->mpos.x - 8},
+		{actor->mpos.y + 8, actor->mpos.x + 8}};
 	for (auto* i : game->m_Active) {
 		
 	}
@@ -662,10 +618,10 @@ void M_GunnerBarrage(Mob* const actor)
         goto nosee;
 	
 	M_FacePlayr(actor);
-	a.tl = coord_t(actor->mpos.y.load() - 10, actor->mpos.x.load() - 10);
-	a.tr = coord_t(actor->mpos.y.load() - 10, actor->mpos.x.load() + 10);
-	a.bl = coord_t(actor->mpos.y.load() + 10, actor->mpos.x.load() - 10);
-	a.br = coord_t(actor->mpos.y.load() + 10, actor->mpos.x.load() + 10);
+	a.tl = {actor->mpos.y - 10, actor->mpos.x - 10};
+	a.tr = {actor->mpos.y - 10, actor->mpos.x + 10};
+	a.bl = {actor->mpos.y + 10, actor->mpos.x - 10};
+	a.br = {actor->mpos.y + 10, actor->mpos.x + 10};
 	numrockets = (P_Random() & 6) + 1;
 	while (--numrockets) {
 		if (inArea(a, game->playr->pos))
@@ -677,10 +633,10 @@ void M_GunnerBarrage(Mob* const actor)
 		M_ChangeState(actor, S_MOB_CHASE);
 
 nosee:
-	a.tl = coord_t(actor->mpos.y.load() - 15, actor->mpos.x.load() - 15);
-	a.tr = coord_t(actor->mpos.y.load() - 15, actor->mpos.x.load() + 15);
-	a.bl = coord_t(actor->mpos.y.load() + 15, actor->mpos.x.load() - 15);
-	a.br = coord_t(actor->mpos.y.load() + 15, actor->mpos.x.load() + 15);
+	a.tl = {actor->mpos.y - 15, actor->mpos.x - 15};
+	a.tr = {actor->mpos.y - 15, actor->mpos.x + 15};
+	a.bl = {actor->mpos.y + 15, actor->mpos.x - 15};
+	a.br = {actor->mpos.y + 15, actor->mpos.x + 15};
 	numrockets = (P_Random() & 9) + 1;
 	while (--numrockets) {
 		// punish the player for not moving quick and smart
@@ -751,12 +707,11 @@ void M_HammerSwing(Mob* const actor)
 	}
 	// ground-slam
 	else if (M_HearPlayr(actor) && disBetweenOBJ(actor->mpos, game->playr->pos) < 6) {
-		area_t knockback(
-			coord_t(actor->mpos.y - 5, actor->mpos.x - 5),
-			coord_t(actor->mpos.y - 5, actor->mpos.x + 5),
-			coord_t(actor->mpos.y + 5, actor->mpos.x - 5),
-			coord_t(actor->mpos.y + 5, actor->mpos.x + 5)
-		);
+		area_t knockback = {
+			{actor->mpos.y - 5, actor->mpos.x - 5},
+			{actor->mpos.y - 5, actor->mpos.x + 5},
+			{actor->mpos.y + 5, actor->mpos.x - 5},
+			{actor->mpos.y + 5, actor->mpos.x + 5}};
 		if (inArea(knockback, game->playr->pos)) {
 			M_DoPlayrDamage(actor->c_mob.melee_dmg);
 			M_PlayrKnockBack((P_Random() & 5)+1, actor->mdir);
@@ -793,8 +748,8 @@ void M_HammerDash(Mob* const actor)
 	coord_t pos = M_GetDir(actor->mdir);
 	nomadbool_t done = false;
 	nomaduint_t charge_bonus = 0;
-	for (nomadshort_t i = 0; i < actor->c_mob.hitscan_range && !done; ++i, charge_bonus += 2) {
-		switch (game->c_map[actor->mpos.y.load()][actor->mpos.x.load()]) {
+	for (nomadshort_t i = 0; i < actor->c_mob.hitscan_range && !done; ++i, actor->mpos += pos, charge_bonus += 2) {
+		switch (game->c_map[actor->mpos.y][actor->mpos.x]) {
 		case sprites[SPR_WINDOW]:
 		case sprites[SPR_DOOR_STATIC]:
 		case sprites[SPR_DOOR_CLOSE]:
@@ -810,4 +765,11 @@ void M_HammerDash(Mob* const actor)
 			break;
 		};
 	}
+}
+
+//
+// M_HulkSlap
+//
+void M_HulkSlap(Mob* const actor)
+{
 }

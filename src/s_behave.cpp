@@ -142,8 +142,6 @@ void Game::I_InitNPCs(void)
 	PTR_CHECK(NULL_CHECK, game);
 	b_Active.reserve(MAX_NPC_ACTIVE);
 	LOG_INFO("reserving %i NPC for b_Active", MAX_NPC_ACTIVE);
-	NomadAssigner(this);
-	MissionAssigner(this);
 	B_SpawnShopBots();
 //	B_GenNomadTribe();
 }

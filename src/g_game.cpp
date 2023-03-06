@@ -61,22 +61,7 @@ static void set_block(void)
 
 Game::~Game()
 {
-	pthread_mutex_destroy(&playr_mutex);
-	pthread_mutex_destroy(&mob_mutex);
-	pthread_mutex_destroy(&npc_mutex);
-	if (gamestate == GS_LEVEL) {
-#ifdef SIGTERM
-		pthread_kill(wthread, SIGTERM);
-		pthread_kill(mthread, SIGTERM);
-		pthread_kill(nthread, SIGTERM);
-#elif defined(SIGINT)
-		pthread_kill(wthread, SIGINT);
-		pthread_kill(mthread, SIGINT);
-		pthread_kill(nthread, SIGINT);
-#endif
-	}
 	delwin(screen);
-	attroff(COLOR_PAIR(0));
 	endwin();
 	set_block();
 	// now we delete any of the runtime-only resources

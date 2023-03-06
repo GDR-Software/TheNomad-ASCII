@@ -58,7 +58,7 @@ static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
 	return nullptr;
 }
 
-static inline void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
+void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
 	nomadenum_t spread)
 {
 	coord_t go = game->E_GetDir(dir);
@@ -71,8 +71,8 @@ static inline void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, noma
 		tmp += go;
 		++amount;
 		switch (game->c_map[tmp.y][tmp.x]) {
-		case ' ':
-		case '.':
+		case sprites[SPR_FLOOR_INSIDE]:
+		case sprites[SPR_FLOOR_OUTSIDE]:
 			break;
 		default:
 			done = true;
@@ -85,34 +85,22 @@ static inline void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, noma
 	coord_t& br = a->br;
 	switch (dir) {
 	case D_NORTH:
-		tl.y = pos.y - range;
-		tl.x = pos.x - spread;
-		tr.y = tl.y;
-		tr.x = pos.x + spread;
-		bl.y = pos.y;
-		bl.x = tl.x;
-		br.y = pos.y;
-		br.x = tr.x;
+		tl = {pos.y - range, pos.x - spread};
+		tr = {tl.y, pos.x + spread};
+		bl = {pos.y, tl.x};
+		br = {pos.y, tr.x};
 		break;
 	case D_WEST:
-		tl.y = pos.y - spread;
-		tl.x = pos.x - range;
-		tr.y = tl.y;
-		tr.x = pos.x;
-		bl.y = pos.y + spread;
-		bl.x = pos.x - range;
-		br.y = pos.y + spread;
-		br.x = tr.x;
+		tl = {pos.y - spread, pos.x - range};
+		tr = {tl.y, pos.x};
+		bl = {pos.y + spread, pos.x - range};
+		br = {pos.y + spread, tr.x};
 		break;
 	case D_SOUTH:
-		tl.y = pos.y;
-		tl.x = pos.x - spread;
-		tr.y = pos.y;
-		tr.x = pos.x + spread;
-		bl.y = pos.y + range;
-		bl.x = pos.x - spread;
-		br.y = pos.y + range;
-		br.x = pos.x + spread;
+		tl = {pos.y, pos.x - spread};
+		tr = {pos.y, pos.x + spread};
+		bl = {pos.y + range, pos.x - spread};
+		br = {pos.y + range, pos.x + spread};
 		break;
 	};
 	if (disBetweenOBJ(tmp, pos) < range) {
@@ -164,13 +152,8 @@ void P_ShootShotty(Weapon* const wpn)
 		if (inArea(a, i->mpos))
 			hit.push_back(i);
 	}
-	// divide the damage somewhat equally
-	nomaduint_t divvy = wpn->c_wpn.dmg / hit.size();
-	if (divvy < (wpn->c_wpn.dmg / 3)) // don't do really small damage
-		divvy += wpn->c_wpn.dmg >> 1; // add a bit of damage to the divvy
-
 	for (auto* const i : hit)
-		i->health -= divvy;
+		i->health -= playr->c_wpn->c_wpn.dmg;
 	
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
 	playr->pticker = playr->pstate.numticks;
@@ -186,26 +169,21 @@ void P_ShootSingle(Weapon* const wpn)
 	coord_t endpoint;
 	switch (playr->pdir) {
 	case D_NORTH:
-		endpoint.y = playr->pos.y - range;
-		endpoint.x = playr->pos.x;
+		endpoint = {playr->pos.y - range, playr->pos.x};
 		break;
 	case D_WEST:
-		endpoint.y = playr->pos.y;
-		endpoint.x = playr->pos.x - range;
+		endpoint = {playr->pos.y, playr->pos.x - range};
 		break;
 	case D_SOUTH:
-		endpoint.y = playr->pos.y + range;
-		endpoint.x = playr->pos.x;
+		endpoint = {playr->pos.y + range, playr->pos.x};
 		break;
 	case D_EAST:
-		endpoint.y = playr->pos.y;
-		endpoint.x = playr->pos.x + range;
+		endpoint = {playr->pos.y, playr->pos.x + range};
 		break;
 	default:
 		LOG_WARN("playr->pdir was invalid value %hu, setting to D_NORTH", playr->pdir);
 		playr->pdir = D_NORTH;
-		endpoint.y = playr->pos.y - range;
-		endpoint.x = playr->pos.x;
+		endpoint = {playr->pos.y - range, playr->pos.x};
 		break;
 	};
 	coord_t pos = game->E_GetDir(playr->pdir);

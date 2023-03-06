@@ -33,14 +33,12 @@
 #include "s_mission.h"
 #include "g_rng.h"
 
-static pthread_mutex_t world_mutex;
-
 #ifndef TESTING
 
 static Game* game;
 static Playr* playr;
 static World* world;
-static std::atomic<nomadulong_t>* gametics;
+static nomadulong_t* gametics;
 
 enum : nomadenum_t
 {
@@ -77,10 +75,9 @@ void W_Init(Game* const gptr)
 	playr = game->playr;
 
     M_Init();
-
-    pthread_mutex_init(&world_mutex, NULL);
 }
 
+#if 0
 settlement_t* World::GenHamlet(void)
 {
 	settlement_t* hamlet = (settlement_t *)Z_Malloc(sizeof(settlement_t), TAG_STATIC, &hamlet);
@@ -118,6 +115,7 @@ settlement_t* World::GenHamlet(void)
 	
 	return hamlet;
 }
+#endif
 
 static void W_MissionLoop(void);
 static void W_RoamingLoop(void);
@@ -137,20 +135,18 @@ static void W_RoamingLoop(void);
 // # of tics in a year
 #define ticrate_year               (ticrate_month_1+ticrate_month_2+ticrate_month_3)
 
-void* W_Loop(void *arg)
+void W_Loop()
 {
 	LOG_PROFILE();
-	
-	auto gtics = gametics->load();
 	// time still passes by even if the player isn't actively
-    if ((gtics % ticrate_lightoff) == 0) { // a single day has passed
+    if ((*gametics % ticrate_lightoff) == 0) { // a single day has passed
         if (!world->day) {
             world->day = true;
             ++world->time.day;
 		}
 	}
     // check if the month has changed
-    switch (gtics) {
+    switch (*gametics) {
     case ticrate_month_1:
         world->time.month = MONTH_MIDAUTUMN;
         break;
@@ -160,7 +156,7 @@ void* W_Loop(void *arg)
     case ticrate_month_3:
         world->time.month = MONTH_LONGSUMMER;
 		++world->time.year;
-        gametics->store(0); // reset the ticcount/timer
+        *gametics = 0; // reset the ticcount/timer
         break;
     default:
         break;
@@ -178,11 +174,7 @@ void* W_Loop(void *arg)
         LOG_WARN("called this function without pmode being roaming or mission");
         break;
     };
-    return NULL;
 }
-
-static inline void* N_Looper(void *arg);
-static inline void* M_Looper(void *arg);
 
 void P_Pickup(Weapon& wpn)
 {
@@ -208,91 +200,12 @@ static void W_RoamingLoop(void)
 {
 	LOG_PROFILE();
 	PTR_CHECK(NULL_CHECK, game);
-	pthread_mutex_lock(&world_mutex);
-	if (game->m_Active.size() < MAX_MOBS_ACTIVE) {
-		Mob* const mob = M_SpawnMob();
-		M_GenMob(mob);
-	}
-	if (game->b_Active.size() < MAX_NPC_ACTIVE) {
-		NPC* const npc = B_SpawnBot();
-		B_BalanceBot(npc);
-	}
-	pthread_create(&game->nthread, NULL, N_Looper, NULL);
-	pthread_create(&game->mthread, NULL, M_Looper, NULL);
-	pthread_join(game->nthread, NULL);
-	pthread_join(game->mthread, NULL);
-	pthread_mutex_unlock(&world_mutex);
-}
-
-
-static std::vector<NPC*>::iterator npc_it;
-static std::vector<Mob*>::iterator mob_it;
-
-static inline void* N_Looper(void* arg)
-{
-	LOG_PROFILE();
-	PTR_CHECK(NULL_CHECK, game);
-	pthread_mutex_lock(&game->npc_mutex);
-	for (npc_it = game->b_Active.begin(); npc_it != game->b_Active.end(); ++npc_it) {
-		--(*npc_it)->nticker;
-		if ((*npc_it)->nticker <= -1) {
-			(*npc_it)->nticker = 100;
-		}
-	}
-	pthread_mutex_unlock(&game->npc_mutex);
-	return NULL;
-}
-
-static inline void* M_Looper(void *arg)
-{
-	LOG_PROFILE();
-	PTR_CHECK(NULL_CHECK, game);
-	pthread_mutex_lock(&game->mob_mutex);
-	for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
-		Mob* mob = *mob_it;
-		if (mob->health < 0) {
-			M_KillMob(mob_it);
-		} else {
-			M_RunThinker(mob);
-		}
-	}
-	pthread_mutex_unlock(&game->mob_mutex);
-	return NULL;
-}
-
-static void M_CheckMobSpawners()
-{
-}
-
-static inline void* M_MissionLoop(void *arg)
-{
-	LOG_PROFILE();
-	pthread_mutex_lock(&game->mob_mutex);
-	pthread_mutex_unlock(&game->mob_mutex);
-	return NULL;
-}
-
-static inline void* N_MissionLoop(void *arg)
-{
-	LOG_PROFILE();
-	pthread_mutex_lock(&game->npc_mutex);
-	pthread_mutex_unlock(&game->npc_mutex);
-	return NULL;
 }
 
 static void W_MissionLoop()
 {
 	if (playr->pmode != P_MODE_MISSION)
 		return;
-
-	LOG_PROFILE();
-	PTR_CHECK(NULL_CHECK, game);
-	pthread_mutex_lock(&world_mutex);
-	pthread_create(&game->mthread, NULL, M_MissionLoop, NULL);
-	pthread_create(&game->nthread, NULL, N_MissionLoop, NULL);
-	pthread_join(game->mthread, NULL);
-	pthread_join(game->nthread, NULL);
-	pthread_mutex_unlock(&world_mutex);
 }
 
 void P_Teleport(coord_t pos)
@@ -314,7 +227,6 @@ static inline void M_Init(void)
 void W_KillWorld()
 {
 	Z_Free(world);
-	pthread_mutex_destroy(&world_mutex);
 }
 
 std::vector<const char*> settlement_lore = {

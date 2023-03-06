@@ -76,12 +76,12 @@ std::vector<npc_t> npcinfo = {
 
 std::vector<entitystate_t> stateinfo = {
 	{S_MOB_NULL,                          1,     S_MOB_SPAWN}, // S_MOB_NULL
-	{S_MOB_SPAWN,              ticrate_base,      S_MOB_IDLE}, // S_MOB_SPAWN
-	{S_MOB_WANDER,           ticrate_base*1,      S_MOB_IDLE}, // S_MOB_WANDER
+	{S_MOB_SPAWN,            ticrate_base*3,      S_MOB_IDLE}, // S_MOB_SPAWN
+	{S_MOB_WANDER,           ticrate_base*2,      S_MOB_IDLE}, // S_MOB_WANDER
 	{S_MOB_IDLE,             ticrate_base*2,    S_MOB_WANDER}, // S_MOB_IDLE
-	{S_MOB_CHASE,            ticrate_base*5,    S_MOB_WANDER}, // S_MOB_CHASE
-	{S_MOB_FIGHT,            ticrate_base*4,     S_MOB_CHASE}, // S_MOB_FIGHT
-	{S_MOB_FLEE,             ticrate_base*6,    S_MOB_WANDER}, // S_MOB_FLEE
+	{S_MOB_CHASE,            ticrate_base*3,    S_MOB_WANDER}, // S_MOB_CHASE
+	{S_MOB_FIGHT,            ticrate_base*2,     S_MOB_CHASE}, // S_MOB_FIGHT
+	{S_MOB_FLEE,             ticrate_base*3,    S_MOB_WANDER}, // S_MOB_FLEE
 	{S_MOB_DEAD,             ticrate_base*2,      S_MOB_NULL}, // S_MOB_DEAD
 	{S_PLAYR_NULL,                        1,   S_PLAYR_SPAWN}, // S_PLAYR_NULL
 	{S_PLAYR_SPAWN,                       2,    S_PLAYR_IDLE}, // S_PLAYR_SPAWN
@@ -105,8 +105,8 @@ std::vector<entitystate_t> stateinfo = {
 // hitscan range, projectile dmg, projectile range, mlore, mdrops
 mobj_t mobinfo[NUMMOBS] = {
 {
-	"Hulk",
-	SPR('H'),
+	"Hulk\0",
+	SPR(M_HULK_SPRITE),
 	487,
 	56,
 	MT_HULK,
@@ -126,8 +126,8 @@ mobj_t mobinfo[NUMMOBS] = {
 	(const char *)NULL,
 },
 {
-	"Ravager",
-	SPR('R'),
+	"Ravager\0",
+	SPR(M_RAVAGER_SPRITE),
 	353,
 	40,
 	MT_RAVAGER,
@@ -148,7 +148,7 @@ mobj_t mobinfo[NUMMOBS] = {
 },
 {
 	"Grunt\0",
-	'z',
+	SPR(M_GRUNT_SPRITE),
 	21,
 	11,
 	MT_GRUNT,
@@ -168,79 +168,67 @@ mobj_t mobinfo[NUMMOBS] = {
 	(const char *)NULL,
 },
 {
-	"Druid\0",
-	'd',
-	135,
-	42,
-	MT_DRUID,
-	ET_MOB,
-},
-{
-	"Sand Wurm\0",
-	'W',
-	3153,
-	35,
-	MT_SANDWURM,
-	ET_MOB,
-},
-{
-	"Mercenary\0",
-	'm',
-	233,
-	78,
-	MT_MERC,
-	ET_MOB,
-	30,
-	41,
-},
-{
 	"Pistol Guy\0",
-	'p',
+	SPR(M_PISTOL_SPRITE),
 	49,
 	18,
 	MT_PISTOL,
 	ET_MOB,
 	160,
 	95,
+	23,
+	true,
+	true,
+	false,
+	8,
+	1,
+	32,
+	10,
+	0,
+	0,
+	(const char *)NULL
 },
 {
 	"Shotgun Dude\0",
-	's',
+	SPR(M_SHOTTY_SPRITE),
 	111,
 	55,
 	MT_SHOTTY,
 	ET_MOB,
 	57,
 	66,
+	22,
+	false,
+	true,
+	false,
+	0,
+	0,
+	28,
+	12,
+	0,
+	0,
+	(const char *)NULL
 },
 {
 	"Heavy Gunner\0",
-	'g',
+	SPR(M_GUNNER_SPRITE),
 	245,
 	69,
 	MT_GUNNER,
 	ET_MOB,
 	111,
 	59,
-},
-{
-	"Nomadic Warrior\0",
-	'n',
-	389,
-	79,
-	MT_NOMAD_WARRIOR,
-	ET_MOB,
-	17,
-	9,
-},
-{
-	"Nomadic Leader\0",
-	'l',
-	644,
-	96,
-	MT_NOMAD_LEADER,
-	ET_MOB,
-	8
+	44,
+	false,
+	true,
+	true,
+	0,
+	0,
+	22,
+	34,
+	46,
+	14,
+	(const char *)NULL,
 }
 };
 

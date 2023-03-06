@@ -31,6 +31,10 @@
 #include "g_playr.h"
 #include "g_game.h"
 
+#define HEALTH_COLOR_GOOD 2
+#define HEALTH_COLOR_MED  3
+#define HEALTH_COLOR_CRIT 4
+
 static constexpr uint8_t vert_fov = MAX_VERT_FOV >> 1;
 static constexpr uint8_t horz_fov = MAX_HORZ_FOV >> 1;
 #define mapfile "Files/gamedata/RUNTIME/mapfile.txt"
@@ -105,7 +109,11 @@ void Game::I_InitHUD(void)
 	HudAssigner(this);
 	playr->pos = origin;
 	hudtics = 0;
-	hudbuffer = (char *)Z_Malloc(BUFFER_SIZE, TAG_STATIC, &hudbuffer);
+	hudbuffer = (char *)Z_Malloc(BUFFER_SIZE+1, TAG_STATIC, &hudbuffer);
+	memset(hudbuffer, 0, sizeof(hudbuffer));
+	init_pair(HEALTH_COLOR_GOOD, COLOR_GREEN, COLOR_WHITE);
+	init_pair(HEALTH_COLOR_MED, COLOR_YELLOW, COLOR_YELLOW);
+	init_pair(HEALTH_COLOR_CRIT, COLOR_RED, COLOR_RED);
 	Hud_GetVMatrix();
 }
 
@@ -132,15 +140,15 @@ void Game::G_DisplayHUD(void)
 static inline void Hud_InsertSprites()
 {
 	LOG_PROFILE();
-	for (const auto* i : game->b_Active) {
-		game->c_map[i->pos.y][i->pos.x] = i->sprite;
-	}
-	for (auto* i : game->m_Active) {
-		game->c_map[i->mpos.y][i->mpos.x] = i->sprite;
+//	for (const auto* i : game->b_Active) {
+//		game->c_map[i->pos.y][i->pos.x] = i->sprite;
+//	}
+	for (std::vector<Mob*>::const_iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
+		game->c_map[(*it)->mpos.y][(*it)->mpos.x] = (*it)->sprite;
 	}
 }
 
-static inline nomaduint_t B_GetSector(coord_t pos)
+static inline nomaduint_t B_GetSector(const coord_t& pos)
 {
 	// in sectors 0, 7, or 6
 	if (pos.y > 79 && pos.y < 200) {
@@ -199,7 +207,7 @@ static inline void Hud_DisplayLocation()
 	wmove(game->screen, 1, 8);
 	wclrtoeol(game->screen);
 	mvwprintw(game->screen, 1, 8, "Location/Biome: %s", name);
-	mvwprintw(game->screen, 2, 8, "Coords: (y) %li, (x) %li", playr->pos.y.load(), playr->pos.x.load());
+	mvwprintw(game->screen, 2, 8, "Coords: (y) %li, (x) %li", playr->pos.y, playr->pos.x);
 	mvwaddch(game->screen, 1, (getmaxx(game->screen) - 1), '#');
 }
 
@@ -282,21 +290,31 @@ static inline void Hud_DisplayBarVitals()
 	
 	// i think these colors won't display currently,
 	// TODO?
-	start_color();
-	init_pair(1, COLOR_WHITE, COLOR_GREEN);
-	attron(COLOR_PAIR(1));
-	for (i = 2; i < 29; ++i) {
+	nomadenum_t max;
+	if (playr->health > 75) {
+		max = 29;
+	}
+	else if (playr->health <= 75 && playr->health >= 40) {
+		max = 20;
+	}
+	else if (playr->health < 40 && playr->health >= 15) {
+		max = 10;
+	}
+	else if (playr->health < 15 && playr->health >= 5) {
+		max = 5;
+	}
+	else if (playr->health < 5) {
+		max = 3;
+	}
+	for (i = 2; i < max; ++i) {
 		mvwaddch(game->screen, 29, i, ':');
 	}
-	attroff(COLOR_PAIR(1));
 	mvwaddstr(game->screen, 30, 12, "<HEALTH>");
 
 	mvwaddch(game->screen, 31, 1, '[');
-	attron(COLOR_PAIR(1));
 	for (i = 2; i < 29; ++i) {
 		mvwaddch(game->screen, 31, i, ':');
 	}
-	attroff(COLOR_PAIR(1));
 	mvwaddch(game->screen, 31, 29, ']');
 	mvwaddstr(game->screen, 32, 11, " <ARMOUR>");
 }
@@ -345,6 +363,27 @@ void Hud_DisplayWpnSlot(nomadenum_t wpn_slot)
 	};
 }
 
+static inline void R_DrawPixel(nomadshort_t y, nomadshort_t x, nomadshort_t u, nomadshort_t c)
+{
+	if ((y < 23 && y > 2) && (x < 74 && x > 14)) {
+		wattroff(game->hudwin[HL_VMATRIX], A_DIM | A_INVIS);
+		wattron(game->hudwin[HL_VMATRIX], A_NORMAL);
+	}
+	else {
+		wattroff(game->hudwin[HL_VMATRIX], A_NORMAL);
+		wattron(game->hudwin[HL_VMATRIX], A_DIM | A_INVIS);
+	}
+	if (y == 12 && x == 44) {
+		mvwaddch(game->hudwin[HL_VMATRIX],
+			y, x, playr->sprite);
+	}
+	else {
+		mvwaddch(game->hudwin[HL_VMATRIX],
+			y, x, playr->vmatrix[u][c]);
+	}
+}
+
+
 static inline void Hud_DisplayVMatrix()
 {
 	Hud_GetVMatrix();
@@ -352,13 +391,7 @@ static inline void Hud_DisplayVMatrix()
 	werase(game->hudwin[HL_VMATRIX]);
 	for (nomaduint_t y = 0; y < MAX_VERT_FOV; ++y) {
 		for (nomaduint_t x = 0; x < MAX_HORZ_FOV; ++x) {
-			if (y == 12 && x == 44) {
-				mvwaddch(game->hudwin[HL_VMATRIX],
-					y, x, playr->sprite);
-			} else {
-				mvwaddch(game->hudwin[HL_VMATRIX],
-					y, x, playr->vmatrix[u][c]);
-			}
+			R_DrawPixel(y, x, u, c);
 			c++;
 		}
 		u++;
@@ -457,7 +490,7 @@ static inline void Hud_FilterVMatrix()
 
 static inline void Hud_GetVMatrix()
 {
-	LOG_PROFILE();
+//	LOG_PROFILE();
 	P_GetMapBuffer();
 	game->c_map[playr->pos.y][playr->pos.x] = playr->sprite;
 	coord_t startc;
@@ -466,13 +499,16 @@ static inline void Hud_GetVMatrix()
 	startc.x = playr->pos.x - horz_fov;
 	endc.y = playr->pos.y + vert_fov;
 	endc.x = playr->pos.x + horz_fov;
-	memset(&playr->vmatrix, '#', sizeof(playr->vmatrix));
+	memset(playr->vmatrix, '#', sizeof(playr->vmatrix));
 	
 	nomadlong_t u, c;
 	u = c = 0;
-	Hud_InsertSprites();
-	for (nomadlong_t y = startc.y; y < endc.y; ++y) {
-		for (nomadlong_t x = startc.x; x < endc.x; ++x) {
+	for (const auto* const i : game->m_Active) {
+		game->c_map[i->mpos.y][i->mpos.x] = i->sprite;
+	}
+//	Hud_InsertSprites();
+	for (nomadshort_t y = startc.y; y < endc.y; ++y) {
+		for (nomadshort_t x = startc.x; x < endc.x; ++x) {
 			playr->vmatrix[u][c] = game->c_map[y][x];
 			c++;
 		}

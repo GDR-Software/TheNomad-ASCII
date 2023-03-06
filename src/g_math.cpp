@@ -31,7 +31,7 @@
 #include "g_playr.h"
 #include "g_game.h"
 
-nomadbool_t inArea(area_t a, coord_t pos)
+nomadbool_t inArea(const area_t& a, const coord_t& pos)
 {
 	return (pos.y >= a.tl.y && pos.y <= a.br.y) && (pos.x >= a.tl.x && pos.x <= a.br.x);
 }

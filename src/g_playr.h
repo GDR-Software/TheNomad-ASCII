@@ -39,13 +39,19 @@ enum : nomadenum_t
 	P_MODE_SITTING
 };
 
+typedef union ammo_u
+{
+	nomadlong_t ammopool;
+	nomadint_t mags[2];
+} ammo_t;
+
 class Playr
 {
 public:
 	std::string name;
 	sprite_t sprite;
-	std::atomic<nomadlong_t> health;
-	std::atomic<nomadlong_t> armor;
+	nomadint_t health;
+	nomadenum_t armor;
 	nomadenum_t pdir = D_NORTH;
 	nomadushort_t lvl = 0;
 	nomadulong_t xp = 0;
@@ -64,6 +70,9 @@ public:
 	nomadenum_t lastmoved;
 	nomadlong_t pticker = 0;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
+	ammo_t ammunition;
+	nomadint_t *magazine = &ammunition.mags[0];
+	nomadint_t *reserve = &ammunition.mags[1];
 	stage_t* c_stage = nullptr;
 	chapter_t* c_chapter = nullptr;
 public:

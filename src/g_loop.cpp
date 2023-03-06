@@ -79,9 +79,6 @@ void mainLoop(int argc, char* argv[])
 	Z_FileDumpHeap();
 #endif
 	nomadushort_t c{};
-	start_color();
-	init_pair(0, COLOR_WHITE, COLOR_WHITE);
-	attron(COLOR_PAIR(0));
 	while (1) {
 		if (game->gamestate == GS_TITLE) {
 			werase(game->screen);
@@ -230,13 +227,15 @@ void LooperDelay(nomaduint_t numsecs)
 	loop_delay = numsecs;
 }
 
+static std::vector<Mob*>::iterator mob_it;
+
 static void levelLoop(void)
 {
 	assert(game && game->playr);
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
 	assert(game->hudwin[HL_VMATRIX]);
-	game->G_DisplayHUD();
 	werase(game->screen);
+	game->G_DisplayHUD();
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	while (game->gamestate == GS_LEVEL) {
 		if (loop_delay > 0) {
@@ -245,16 +244,22 @@ static void levelLoop(void)
 		}
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
+		if (game->m_Active.size() < 50) {
+			Mob* mob = M_SpawnMob();
+			M_GenMob(mob);
+		}
+		for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
+			if ((*mob_it)->health < 0) {
+				M_KillMob(mob_it);
+			}
+			else {
+				M_RunThinker(*mob_it);
+			}
+		}
 		// custom key-binds will be implemented in the future
-		pthread_create(&game->cthread, NULL, G_EventDaemon, NULL);
-		pthread_create(&game->wthread, NULL, W_Loop, NULL);
-		pthread_mutex_lock(&game->playr_mutex);
 		char c;
 		if ((c = kb_hit()) != -1 && !pmove_lock)
 			game->P_Ticker(c);
-		pthread_mutex_unlock(&game->playr_mutex);
-		pthread_join(game->cthread, NULL);
-		pthread_join(game->wthread, NULL);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
