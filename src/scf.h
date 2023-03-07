@@ -191,8 +191,8 @@ typedef void(*paction_t)();
 namespace scf {
 	extern nomadbool_t music_on;
 	extern nomadbool_t sfx_on;
-	extern nomadushort_t music_vol;
-	extern nomadushort_t sfx_vol;
+	extern nomadfloat_t music_vol;
+	extern nomadfloat_t sfx_vol;
 
 	extern nomadushort_t fov[2];
 	extern nomadushort_t mobspeed;
@@ -233,7 +233,7 @@ namespace scf {
 		kbExitToPause,
 		kbInteract,
 		
-#ifdef DEVMODE
+#ifdef _NOMAD_DEBUG
 		kbOpenCMD,
 #endif
 		
@@ -249,7 +249,50 @@ namespace scf {
 	} keybind_t;
 	
 	extern keybind_t kb_binds[NUMBINDS];
+	
+	namespace sounds {
+		enum
+		{
+			SFX_ADB_SHOT,
+			
+			NUMSFX
+		};
+		enum
+		{
+			ODST,
+			NUMMUSIC
+		};
+		extern std::string sfx_adb_shot;
+		extern std::string sfx_adb_reload;
+		extern std::string sfx_adb_jam;
+		extern std::string sfx_fab_shot;
+		extern std::string sfx_fab_reload;
+		extern std::string sfx_fab_jam;
+		extern std::string sfx_hb_melee;
+		extern std::string sfx_playr_hurt;
+		extern std::string sfx_playr_die;
+		
+		// mobs
+		extern std::string sfx_mpistol_die;
+		extern std::string sfx_mpistol_wakeup;
+		extern std::string sfx_mpistol_wander;
+		extern std::string sfx_mshotty_die;
+		extern std::string sfx_mshotty_wakeup;
+		extern std::string sfx_mshotty_wander;
+		extern std::string sfx_mhulk_die;
+		extern std::string sfx_mhulk_wakeup;
+		extern std::string sfx_mhulk_wander;
 
+		// random
+		extern std::string sfx_find_secret;
+		extern std::string sfx_pickup_ammo;
+		extern std::string sfx_pickup_shell;
+		extern std::string sfx_readyup;
+		extern std::string sfx_stab;
+		extern std::string sfx_gibb;
+		
+		constexpr uint16_t numsounds = NUMSFX;
+	};
 	namespace launch {
 		extern nomadbool_t fastmobs1;
 		extern nomadbool_t fastmobs2;
@@ -264,7 +307,7 @@ namespace scf {
 		extern nomadbool_t infinite_ammo;
 		extern nomadbool_t bottomless_clip;
 		extern nomadbool_t devmode;
-		static constexpr uint16_t numlaunchparams = 11;
+		constexpr uint16_t numlaunchparams = 11;
 	};
 	struct scfbind
     {

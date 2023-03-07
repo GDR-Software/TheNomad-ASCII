@@ -134,8 +134,6 @@ void Playr::P_Init()
     p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
 	c_wpn = &p_shotty;
 	memset(&body_health, 100, sizeof(body_health));
-	c_stage = &stages[0];
-	c_chapter = &c_stage->chapters[0];
 	for (auto& i : inv) {
 		i.name = (const char*)NULL;  
 	}
@@ -327,19 +325,10 @@ void P_MoveN()
 	case '.':
 		--playr->pos.y;
 		break;
-	case 'M':
-		B_MercMasterInteract();
-		break;
-	case '(':
-		B_BartenderInteract();
-		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
 		else { --playr->pos.y; playr->pmode = P_MODE_ROAMING; }
 		break; }
-	case '=': // weapons smith table
-		B_WeaponSmithInteract();
-		break;
 	default:
 		break;
 	};
@@ -354,19 +343,10 @@ void P_MoveW()
 	case ' ':
 		--playr->pos.x;
 		break;
-	case 'M': // the merc master's custom sprite
-		B_MercMasterInteract();
-		break;
-	case '(': // a bar sprite
-		B_BartenderInteract();
-		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
 		else { --playr->pos.x; playr->pmode = P_MODE_ROAMING; }
 		break; }
-	case '=': // weapons smith table
-		B_WeaponSmithInteract();
-		break;
 	default:
 		break;
 	};
@@ -381,19 +361,10 @@ void P_MoveS()
 	case ' ':
 		++playr->pos.y;
 		break;
-	case 'M':
-		B_MercMasterInteract();
-		break;
-	case '(':
-		B_BartenderInteract();
-		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
 		else { ++playr->pos.y; playr->pmode = P_MODE_ROAMING; }
 		break; }
-	case '=': // weapons smith table
-		B_WeaponSmithInteract();
-		break;
 	default:
 		break;
 	};
@@ -408,19 +379,10 @@ void P_MoveE()
 	case ' ':
 		++playr->pos.x;
 		break;
-	case 'M':
-		B_MercMasterInteract();
-		break;
-	case '(':
-		B_BartenderInteract();
-		break;
 	case ':': { // a chair/seat sprite
 		if (playr->pmode != P_MODE_SITTING) { P_ChairInteract(input); }
 		else { ++playr->pos.x; playr->pmode = P_MODE_ROAMING; }
 		break; }
-	case '=': // weapons smith table
-		B_WeaponSmithInteract();
-		break;
 	default:
 		break;
 	};

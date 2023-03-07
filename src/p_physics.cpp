@@ -100,13 +100,6 @@ nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c)
 			return true;
 		}
 	}
-	for (auto* i : game->b_Active) {
-		if (i->pos.y == point.y && i->pos.x == point.x) {
-			c.ptr = (void *)&i;
-			c.what = ET_NPC;
-			return true;
-		}
-	}
 	switch (game->c_map[point.y][point.x]) {
 	case '#':
 	case '_':

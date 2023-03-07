@@ -563,9 +563,8 @@ typedef UINT8 nomadubyte_t;
 #endif
 
 typedef unsigned char byte;
-
-typedef std::atomic<nomadulong_t>* atomic_uptr;
-typedef std::atomic<nomadlong_t>* atomic_ptr;
+typedef nomadulong_t nomadsize_t;
+typedef nomadlong_t nomadssize_t;
 typedef const char* nomad_cstr_t;
 typedef std::string nomad_str_t;
 
@@ -607,15 +606,7 @@ typedef struct coord_s
 		: y(c.y), x(c.x)
 	{
 	}
-	inline coord_s(nomadshort_t _y, nomadshort_t _x)
-		: y(_y), x(_x)
-	{
-	}
-	inline coord_s(nomadint_t _y, nomadint_t _x)
-		: y(_y), x(_x)
-	{
-	}
-	inline coord_s(nomadlong_t _y, nomadlong_t _x)
+	inline coord_s(point_t _y, point_t _x)
 		: y(_y), x(_x)
 	{
 	}

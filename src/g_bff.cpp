@@ -13,8 +13,67 @@
 #include "g_playr.h"
 #include "g_game.h"
 
+static Game* gptr;
+
+Level::~Level()
+{
+	for (auto* i : mspawners)
+		Z_Free(i);
+	for (auto* i : ispawners)
+		Z_Free(i);
+	for (auto* i : wspawners)
+		Z_Free(i);
+}
+
+void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff)
+{
+	std::copy(bff->spawners.begin(), bff->spawners.end(), std::back_inserter(spawners));
+	nomadshort_t y{}, x{};
+	for (auto& i : spawners) {
+		if (i->et_type == ET_MOB) {
+			mspawners.emplace_back();
+			mspawners.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &mspawners.back());
+			Mob* const mob = mspawners.back();
+			i->et_ptr = (void *)mob;
+			if (i->et_name == "MT_HULK") {
+				mob->c_mob = mobinfo[MT_HULK];
+			} else if (i->et_name == "MT_RAVAGER") {
+				mob->c_mob = mobinfo[MT_RAVAGER];
+			} else if (i->et_name == "MT_GRUNT") {
+				mob->c_mob = mobinfo[MT_GRUNT];
+			} else if (i->et_name == "MT_PISTOL") {
+				mob->c_mob = mobinfo[MT_PISTOL];
+			} else if (i->et_name == "MT_SHOTTY") {
+				mob->c_mob = mobinfo[MT_SHOTTY];
+			} else if (i->et_name == "MT_GUNNER") {
+				mob->c_mob = mobinfo[MT_GUNNER];
+			}
+		} else if (i->et_type == ET_PLAYR) {
+			i->et_name = "PLAYR";
+			pspawners.push_back(std::move(i));
+			i->et_ptr = (void *)gptr->playr;
+		}
+		char *marker = (char *)NULL;
+		for (y = 0; y < SECTOR_MAX_Y; ++y) {
+			for (x = 0; x < SECTOR_MAX_X; ++x) {
+				if (lvl_map[y][x] == i->marker) {
+					marker = &lvl_map[y][x];
+				}
+			}
+		}
+		if (!marker) {
+			N_Error("Level::G_LoadSpawners: failed to locate marker %c in level %s", i->marker, lvl_name.c_str());
+		}
+		i->pos = {y, x};
+		i->pos.y += 200;
+		i->pos.x += 200;
+		*marker = i->replacement;
+	}
+}
+
 void G_LoadBFF(const char* bffname, Game* const game)
 {
+	gptr = game;
 	printf("G_LoadBFF: loading bff file into memory...\n");
 	std::ifstream in(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"), std::ios::in);
 	NOMAD_ASSERT(in.is_open(), "failed to open bff file %s!", bffname);

@@ -38,10 +38,40 @@ static void SCF_ParseIdentifier(Lexer& lex, Token& tok, const std::string_view& 
 namespace scf {
     nomadbool_t music_on = false;
     nomadbool_t sfx_on = false;
-    nomadushort_t music_vol = 0;
-    nomadushort_t sfx_vol = 0;
+    nomadfloat_t music_vol = 0;
+    nomadfloat_t sfx_vol = 0;
     nomadushort_t mobspeed = MOB_SPEED_STD;
     nomadushort_t fov[2] = {MAX_VERT_FOV, MAX_HORZ_FOV};
+    namespace sounds {
+        std::string sfx_adb_shot       = "SFX/SHOTTYBLAST.wav";
+		std::string sfx_adb_reload     = "ADBRLD.wav";
+		std::string sfx_adb_jam        = "ADBJAM.wav";
+		std::string sfx_fab_shot       = "FABSHOT.wav";
+		std::string sfx_fab_reload     = "FABRLD.wav";
+		std::string sfx_fab_jam        = "FABJAM.wav";
+		std::string sfx_hb_melee       = "HBSWING.wav";
+		std::string sfx_playr_hurt     = "PLAYRGRUNT.wav";
+		std::string sfx_playr_die      = "PLAYRDIE.wav";
+		
+		// mobs
+		std::string sfx_mpistol_die    = "MPISTOLDIE.wav";
+		std::string sfx_mpistol_wakeup = "MPISTOLWU.wav";
+		std::string sfx_mpistol_wander = "MPISTOLWANDER.wav";
+		std::string sfx_mshotty_die    = "MSHOTTYDIE.wav";
+		std::string sfx_mshotty_wakeup = "MSHOTTYWU.wav";
+		std::string sfx_mshotty_wander = "MSHOTTYWANDER.wav";
+		std::string sfx_mhulk_die      = "MHULKDIE.wav";
+		std::string sfx_mhulk_wakeup   = "MHULKWU.wav";
+		std::string sfx_mhulk_wander   = "MHULKWANDER.wav";
+
+		// random
+		std::string sfx_find_secret;
+		std::string sfx_pickup_ammo;
+		std::string sfx_pickup_shell;
+		std::string sfx_readyup;
+		std::string sfx_stab;
+		std::string sfx_gibb;
+    };
     namespace launch {
         nomadbool_t fastmobs1 = false;
 		nomadbool_t fastmobs2 = false;

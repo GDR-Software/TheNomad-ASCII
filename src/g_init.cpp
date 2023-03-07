@@ -110,6 +110,8 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	puts(buf);
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	printf("I_NomadInit(): Initializing Game...\n");
+	puts("Snd_Init(): Initializing OpenAL and libsndfile audio libraries for audio...");
+	Snd_Init(game);
 	srand(time(NULL));
 	std::vector<char*> myargv;
 	for (nomadushort_t i = 0; i < argc; i++) {
@@ -118,10 +120,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	G_LoadBFF(game->bffname, game);
-	G_InitEvents(game);
 	scf::G_LoadSCF(game->scfname);
-	puts("W_Init(): Initializing World Data...");
-	W_Init(game);
 	TUI_Init(game);
 	nomadenum_t counter = 0;
 	waddstr(game->screen, companysplash);
@@ -178,7 +177,6 @@ static inline void E_Init(Game* const game)
 	LOG_INFO("Successfully Allocated game->playr");
 	game->playr->P_Init();
 	srand(time(NULL));
-	game->I_InitNPCs();
 	game->M_GenMobs();
 	MobtAssigner(game);
 }

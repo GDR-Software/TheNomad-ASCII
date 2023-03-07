@@ -50,14 +50,6 @@ static inline Mob* G_GetHitMob(nomadshort_t y, nomadshort_t x)
 	return nullptr;
 }
 
-static inline NPC* G_GetHitNPC(nomadshort_t y, nomadshort_t x)
-{
-	for (auto* i : game->b_Active) {
-		if (i->pos.y == y && i->pos.x == x) { return i; }
-	}
-	return nullptr;
-}
-
 void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
 	nomadenum_t spread)
 {
@@ -129,7 +121,6 @@ void P_DoGrenade(Weapon* const wpn)
 	coord_t& bl = explosion.bl;
 	coord_t& br = explosion.br;
 	std::vector<Mob*> m_hit;
-	std::vector<NPC*> b_hit;
 	for (auto* i : game->m_Active) {
 		if (inArea(explosion, i->mpos)) {
 			m_hit.push_back(i);
@@ -142,6 +133,13 @@ void P_ShootShotty(Weapon* const wpn)
 	if (playr->pticker > -1)
 		return;
 	
+	switch (wpn->c_wpn.id) {
+	case W_SHOTTY_ADB:
+		P_PlaySFX(scf::sounds::sfx_adb_shot.c_str());
+		break;
+	default:
+		break;
+	};
 	nomadenum_t spread = wpn->c_wpn.spread;
 	nomaduint_t range = wpn->c_wpn.range;
 	

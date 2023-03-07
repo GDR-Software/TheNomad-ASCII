@@ -244,6 +244,7 @@ static void levelLoop(void)
 		}
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
+		G_RunSound();
 		if (game->m_Active.size() < 50) {
 			Mob* mob = M_SpawnMob();
 			M_GenMob(mob);
@@ -258,7 +259,7 @@ static void levelLoop(void)
 		}
 		// custom key-binds will be implemented in the future
 		char c;
-		if ((c = kb_hit()) != -1 && !pmove_lock)
+		if ((c = kb_hit()) != -1)
 			game->P_Ticker(c);
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;

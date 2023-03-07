@@ -73,8 +73,6 @@ public:
 	ammo_t ammunition;
 	nomadint_t *magazine = &ammunition.mags[0];
 	nomadint_t *reserve = &ammunition.mags[1];
-	stage_t* c_stage = nullptr;
-	chapter_t* c_chapter = nullptr;
 public:
 	Playr(){}
 	~Playr(){}

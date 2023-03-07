@@ -45,12 +45,10 @@ static void G_ArchivePlayr(const Playr* playr, json& data);
 static void G_ArchiveWorld(const World* world, json& data);
 static void G_ArchiveWeapon(const Weapon* wpn, json& data);
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data);
-static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data);
 
 static void G_UnArchivePlayr(Playr* const playr, json& data);
 static void G_UnArchiveWeapon(Weapon* const wpn, json& data);
 static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t nummobs);
-static void G_UnArchiveBots(std::vector<NPC*>& b_Active, json& data, nomaduint_t numbots);
 
 void Game::G_SaveGame(const char* svfile)
 {
@@ -64,12 +62,10 @@ void Game::G_SaveGame(const char* svfile)
 		{"version.update", NOMAD_VERSION_MINOR},
 		{"version.patch", NOMAD_VERSION_PATCH},
 		{"nummobs", m_Active.size()},
-		{"numbots", b_Active.size()},
 		{"bffname", bffname},
 	};
 	G_ArchivePlayr(playr, data);
 	G_ArchiveMobs(m_Active, data);
-	G_ArchiveBots(b_Active, data);
 	std::ofstream file(svfile, std::ios::out | std::ios::trunc);
 	NOMAD_ASSERT(file.is_open(), "failed to open save file %s!", svfile);
 	file << data;
@@ -102,10 +98,8 @@ bool Game::G_LoadGame(const char* svfile)
 		}
 	}
 	nomaduint_t nummobs = data["header"]["nummobs"];
-	nomaduint_t numbots = data["header"]["numbots"];
 	G_UnArchivePlayr(playr, data);
 	G_UnArchiveMobs(m_Active, data, nummobs);
-	G_UnArchiveBots(b_Active, data, numbots);
 	return true;
 }
 
@@ -192,50 +186,5 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t
 		mob->mpos.y = data[node_name]["mpos.y"];
 		mob->mpos.x = data[node_name]["mpos.x"];
 		mob->mdir = data[node_name]["mdir"];
-	}
-}
-
-static void G_ArchiveBots(const std::vector<NPC*>& b_Active, json& data)
-{
-	LOG_INFO("Archiving b_Active bot data");
-	for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
-		std::string node_name = "bot_"+std::to_string(i);
-		NPC* const npc = b_Active[i];
-		data[node_name] = {
-			{"health", npc->health},
-			{"armor", npc->armor},
-			{"sprite", (int8_t)npc->sprite},
-			{"btype", npc->c_npc.btype},
-			{"pos.y", npc->pos.y},
-			{"pos.x", npc->pos.x},
-			{"ndir", npc->ndir}
-		};
-	}
-}
-static void G_UnArchiveBots(std::vector<NPC*>& b_Active, json& data, nomaduint_t numbots)
-{
-	LOG_INFO("unarchiving bot data from save file, numbots %iu", numbots);
-	if (numbots != b_Active.size()) {
-		LOG_INFO("numbots != b_Active.size(), re-doing b_Active vector");
-		for (nomaduint_t i = 0; i < b_Active.size(); ++i) {
-			Z_Free(b_Active.back());
-			b_Active.pop_back();
-		}
-		b_Active.reserve(numbots);
-		for (nomaduint_t i = 0; i < numbots; ++i) {
-			b_Active.emplace_back();
-			b_Active.back() = (NPC *)Z_Malloc(sizeof(NPC), TAG_STATIC, &b_Active.back());
-		}
-	}
-	for (nomaduint_t i = 0; i < numbots; ++i) {
-		std::string node_name = "bot_"+std::to_string(i);
-		NPC* const npc = b_Active[i];
-		npc->sprite = (int8_t)data[node_name]["sprite"];
-		npc->health = data[node_name]["health"];
-		npc->armor = data[node_name]["armor"];
-		npc->pos.y = data[node_name]["pos.y"];
-		npc->pos.x = data[node_name]["pos.x"];
-		npc->ndir = data[node_name]["ndir"];
-		npc->c_npc.btype = data[node_name]["btype"];
 	}
 }

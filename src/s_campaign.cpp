@@ -98,11 +98,6 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     for (std::vector<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
         M_KillMob(it);
     }
-    game->m_Active.clear();
-    for (auto* i : game->b_Active) {
-        Z_Free(i);
-    }
-    game->b_Active.clear();
     FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
 	for (y = 0; y < 80; ++y) {
 		for (x = 0; x < MAP_MAX_X+160; ++x) {

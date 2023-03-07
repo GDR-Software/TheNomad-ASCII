@@ -4,7 +4,7 @@ VERSION_PATCH  = 2
 CC             = g++
 CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include
 LDFLAGS        = /usr/lib/libmenu.a /usr/lib/libncurses.a \
-				/usr/lib/x86_64-linux-gnu/libpthread.a -lasound -lsndfile -logg -lopus
+				/usr/lib/x86_64-linux-gnu/libpthread.a -lsndfile -lopenal
 O              = obj
 SDIR           = src
 EXE            = nomadascii
@@ -32,67 +32,64 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS) $(OPTIMIZERS)
 
 OBJS= \
-	$(O)/n_shared.o \
-	$(O)/g_main.o \
+	$(O)/g_animation.o \
+	$(O)/g_bff.o \
+	$(O)/g_combat.o \
 	$(O)/g_game.o \
 	$(O)/g_init.o \
+	$(O)/g_items.o \
+	$(O)/g_loop.o \
+	$(O)/g_main.o \
+	$(O)/g_math.o \
+	$(O)/g_rng.o \
+	$(O)/g_sound.o \
+	$(O)/g_zone.o \
+	$(O)/info.o \
+	$(O)/m_hud.o \
+	$(O)/m_tuilib.o \
+	$(O)/m_inventory.o \
+	$(O)/n_cheats.o \
+	$(O)/n_shared.o \
+	$(O)/p_common.o \
+	$(O)/p_physics.o \
+	$(O)/p_playr.o \
+	$(O)/s_mmisc.o \
+	$(O)/s_campaign.o \
+	$(O)/s_mthink.o \
+	$(O)/s_saveg.o \
+	$(O)/s_world.o \
 	$(O)/scf.o \
 	$(O)/scf_lexer.o \
-	$(O)/s_saveg.o \
-	$(O)/g_zone.o \
-	$(O)/p_playr.o \
-	$(O)/p_common.o \
-	$(O)/info.o \
-	$(O)/s_mmisc.o \
-	$(O)/m_inventory.o \
-	$(O)/p_physics.o \
-	$(O)/g_loop.o \
-	$(O)/g_rng.o \
-	$(O)/m_tuilib.o \
-	$(O)/g_math.o \
-	$(O)/s_mthink.o \
-	$(O)/g_combat.o \
-	$(O)/g_items.o \
-	$(O)/s_world.o \
-	$(O)/g_bff.o \
-	$(O)/g_animation.o \
-	$(O)/s_scripted.o \
-	$(O)/s_campaign.o \
-	$(O)/g_lvl.o \
-	$(O)/g_sound.o \
-	$(O)/s_behave.o \
-	$(O)/m_hud.o \
 
 DEBUG= \
-	$(O)/n_shared.debug.o \
-	$(O)/g_main.debug.o \
-	$(O)/g_game.debug.o \
-	$(O)/g_init.debug.o \
-	$(O)/scf.debug.o \
-	$(O)/scf_lexer.debug.o \
-	$(O)/s_saveg.debug.o \
-	$(O)/g_zone.debug.o \
-	$(O)/p_playr.debug.o \
-	$(O)/p_common.debug.o \
-	$(O)/info.debug.o \
-	$(O)/s_mmisc.debug.o \
-	$(O)/m_hud.debug.o \
-	$(O)/m_inventory.debug.o \
-	$(O)/p_physics.debug.o \
-	$(O)/g_loop.debug.o \
-	$(O)/g_rng.debug.o \
-	$(O)/m_tuilib.debug.o \
-	$(O)/g_math.debug.o \
-	$(O)/s_mthink.debug.o \
-	$(O)/g_combat.debug.o \
-	$(O)/g_items.debug.o \
-	$(O)/s_world.debug.o \
-	$(O)/g_bff.debug.o \
-	$(O)/g_animation.debug.o \
-	$(O)/s_scripted.debug.o \
-	$(O)/s_campaign.debug.o \
-	$(O)/g_lvl.debug.o \
-	$(O)/s_behave.debug.o \
+	$(O)/g_animation.o \
+	$(O)/g_bff.o \
+	$(O)/g_combat.o \
+	$(O)/g_game.o \
+	$(O)/g_init.o \
+	$(O)/g_items.o \
+	$(O)/g_loop.o \
+	$(O)/g_main.o \
+	$(O)/g_math.o \
+	$(O)/g_rng.o \
+	$(O)/g_sound.o \
+	$(O)/g_zone.o \
+	$(O)/info.o \
+	$(O)/m_hud.o \
+	$(O)/m_tuilib.o \
+	$(O)/m_inventory.o \
+	$(O)/n_cheats.o \
+	$(O)/n_shared.o \
+	$(O)/p_common.o \
+	$(O)/p_physics.o \
+	$(O)/p_playr.o \
+	$(O)/s_mmisc.o \
+	$(O)/s_campaign.o \
+	$(O)/s_mthink.o \
+	$(O)/s_saveg.o \
+	$(O)/s_world.o \
+	$(O)/scf.o \
+	$(O)/scf_lexer.o \
 
 ifdef debug
 all: $(EXE_DEBUG)
@@ -101,12 +98,12 @@ all: $(EXE)
 endif
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -g -Ofast $(OBJS) -o $(EXE) $(LDLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -s -Ofast $(OBJS) -o $(EXE) $(LDLIBS) $(LDFLAGS)
 $(EXE_DEBUG): $(DEBUG)
 	$(CC) $(CFLAGS) -Wall -Og -g $(DEBUG) $(LDFLAGS) -o $(EXE_DEBUG) $(LDLIBS)
 
 $(O)/%.o: $(SDIR)/%.cpp
-	$(CC) $(CFLAGS) -g -Wno-unused-result -Ofast -o $@ -c $<
+	$(CC) $(CFLAGS) -s -Wno-unused-result -Ofast -o $@ -c $<
 $(O)/%.debug.o: $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -Wpedantic -Og -g -o $@ -c $<
 

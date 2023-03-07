@@ -77,7 +77,7 @@ public:
 	Playr* playr;
 	World* world;
 	std::vector<Mob*> m_Active;
-	std::vector<NPC*> b_Active;
+//	std::vector<NPC*> b_Active;
 	char* biomenames[9];
 public: // map stuff
 	int8_t c_map[MAP_MAX_Y+160][MAP_MAX_X+160];
@@ -109,8 +109,8 @@ public:
 	bool G_LoadGame(const char* svfile);
 	void G_SaveGame(const char* svfile);
 
-	npc_t N_MakeNPC(void);
-	void I_InitNPCs(void);
+//	npc_t N_MakeNPC(void);
+//	void I_InitNPCs(void);
 
 	inline coord_t E_TryMove(coord_t* epos, nomadenum_t* edir);
 	nomadenum_t E_GetFacing(coord_t current, coord_t orig);
@@ -125,8 +125,8 @@ void TUIAssigner(Game* const gptr);
 void LooperDelay(nomaduint_t numsecs);
 void MobtAssigner(Game* const gptr);
 void MobAssigner(Game* const gptr);
-void NPCAssigner(Game* const gptr);
-void NomadAssigner(Game* const gptr);
+//void NPCAssigner(Game* const gptr);
+//void NomadAssigner(Game* const gptr);
 void CampaignAssigner(Game* const gptr);
 
 nomaduint_t G_GetNumMobs(const Game* const game);
@@ -138,8 +138,8 @@ void TUI_Init(Game* const game);
 void G_CampaignSelect();
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
-void W_Init(Game* const gptr);
-void W_Loop();
+//void W_Init(Game* const gptr);
+//void W_Loop();
 void mainLoop(int argc, char* argv[]);
 void Hud_Printf(const char* from, const char* msg, ...);
 void Hud_DisplayWpnSlot(nomadenum_t wpn_slot);
@@ -148,6 +148,11 @@ void N_Error(const char* err, ...);
 nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);
 std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
 	nomadshort_t range, Game* const game);
+
+void G_RunSound();
+void P_PlaySFX(const char* filename);
+void M_PlaySFX(const char* filename);
+void Snd_Init(Game* const gptr);
 
 extern const char* logosplash;
 extern const char* companysplash;

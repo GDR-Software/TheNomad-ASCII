@@ -35,11 +35,6 @@ nomaduint_t G_GetNumMobs(const Game* const game)
 	return game->m_Active.size();
 }
 
-nomaduint_t G_GetNumBots(const Game* const game)
-{
-	return game->b_Active.size();
-}
-
 Game::Game()
 {
 }
@@ -66,6 +61,4 @@ Game::~Game()
 	set_block();
 	// now we delete any of the runtime-only resources
 	remove("Files/gamedata/RUNTIME/mapfile.txt");
-	W_KillWorld();
-	P_KillPlayr();
 }

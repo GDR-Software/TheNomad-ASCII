@@ -42,6 +42,8 @@ constexpr uint_fast8_t SECTOR_TECOG   = 8; // the eternal city of galakas
 #endif
 
 class Map;
+class Spawner;
+class BFF;
 
 class Level
 {
@@ -52,20 +54,23 @@ public:
 	std::string lvl_id;
 	std::shared_ptr<Map> map_link;
 	char lvl_map[120][120];
+	std::vector<std::shared_ptr<Spawner>> pspawners;
 	
 	std::vector<std::string> mobspawners;
 	std::vector<std::string> itemspawners;
 	std::vector<std::string> wpnspawners;
+	std::vector<std::shared_ptr<Spawner>> spawners;
 	
-	std::vector<mobj_t> mspawners;
-	std::vector<item_t> ispawners;
-	std::vector<weapon_t> wspawners;
+	std::vector<Mob*> mspawners;
+	std::vector<item_t*> ispawners;
+	std::vector<Weapon*> wspawners;
 public:
 	Level(){ memset(lvl_map, '.', sizeof(lvl_map)); }
 	Level(const Level &) = delete;
 	Level(Level &&) = default;
-	~Level(){}
+	~Level();
 	
+	void G_LoadSpawners(std::shared_ptr<BFF>& bff);
 	void G_LoadLevel()
 	{
 		char mapbuffer[520][520];
@@ -116,13 +121,66 @@ public:
 };
 
 #define FILE_NAME(x) std::string("Files/gamedata/BFF/nomadmain.bff/")+std::string(x)
-#undef assert
-#undef byte
 #define JSON_DIAGNOSTICS
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
-#undef assert
-#define assert(x)
+#include <sndfile.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+
+class Spawner
+{
+public:
+	void *et_ptr;
+	entitytype_t et_type;
+	std::string et_name;
+	sprite_t marker;
+	sprite_t replacement;
+	coord_t pos;
+public:
+	Spawner(){}
+	Spawner(const Spawner &) = delete;
+	Spawner(Spawner &&) = default;
+	~Spawner(){}
+};
+
+typedef enum
+{
+	SND_FILE_MP3,
+	SND_FILE_WAV,
+	SND_FILE_OGG
+} sndfile_t;
+
+class SoundFile
+{
+public:
+	std::string file;
+//	sndfile_t type : 8;
+	nomadbool_t sfx : 1;
+
+	std::vector<nomadshort_t> buffer;
+	SF_INFO fdata;
+public:
+	void Load(const std::string& filename, const std::string& dirpath)
+	{
+		file = filename;
+		std::string path = "Files/gamedata/BFF/"+dirpath+filename;
+		SNDFILE* sf = sf_open(path.c_str(), SFM_READ, &fdata);
+		if (!sf) {
+			N_Error("failed to open sound file %s! libsndfile message: %s", filename.c_str(), sf_strerror(sf));
+		}
+		nomadshort_t buf[4096];
+    	nomadsize_t read;
+    	while ((read = sf_read_short(sf, buf, ARRAY_SIZE(buf))) != 0) {
+    	    buffer.insert(buffer.end(), buf, buf + read);
+    	}
+    	sf_close(sf);
+	}
+	SoundFile(){}
+	SoundFile(const SoundFile &) = delete;
+	SoundFile(SoundFile &&) = default;
+	~SoundFile(){}
+};
 
 class BFF
 {
@@ -131,15 +189,54 @@ public:
 	std::string bffname;
 	std::string bffversion;
 	std::array<nomadint_t, 3> game_version;
-	
+	std::vector<std::shared_ptr<SoundFile>> sounds;
 	std::vector<std::shared_ptr<Level>> levels;
 	std::vector<std::shared_ptr<Map>> maps;
+	std::vector<std::shared_ptr<Spawner>> spawners;
 public:
 	void Init(const std::string& _dirpath)
 	{
 		dirpath = _dirpath;
 	}
 	~BFF(){}
+	void BFF_LoadSounds(json& data)
+	{
+		nomadint_t numsounds = scf::sounds::numsounds;
+		sounds.reserve(numsounds);
+		{
+			sounds.emplace_back(new SoundFile());
+			scf::sounds::sfx_adb_shot = data["data"]["sounds"]["sfx_adb_shot"];
+			std::shared_ptr<SoundFile>& snd = sounds.back();
+			snd->Load(scf::sounds::sfx_adb_shot, dirpath);
+		}
+	}
+	void BFF_LinkSpawners(json& data)
+	{
+		nomadint_t numspawners = data["data"]["numspawners"];
+		spawners.reserve(numspawners);
+		for (nomadint_t i = 0; i < numspawners; ++i) {
+			spawners.emplace_back(new Spawner());
+			std::shared_ptr<Spawner>& spawn = spawners.back();
+			std::string node_name = "spawner_"+std::to_string(i);
+			std::string et_type = data["data"]["spawners"][node_name]["entity"];
+			if (et_type == "ET_MOB") {
+				spawn->et_type = ET_MOB;
+			} else if (et_type == "ET_PLAYR") {
+				spawn->et_type = ET_PLAYR;
+			}
+			spawn->et_name = data["data"]["spawners"][node_name]["name"];
+			std::string marker = data["data"]["spawners"][node_name]["marker"];
+			if (marker.size() > 1) {
+				N_Error("BFF_LinkSpawners: cannot have a spawn marker greater than 1 character");
+			}
+			spawn->marker = marker[0];
+			std::string replace = data["data"]["spawners"][node_name]["replacement"];
+			if (replace.size() > 1) {
+				N_Error("BFF_LinkSpawners: cannot have a spawn replacement greater than 1 character");
+			}
+			spawn->replacement = replace[0];
+		}
+	}
 	void BFF_LoadLevels(json& data)
 	{
 		nomadint_t numlvls = data["levels"]["numlevels"];
