@@ -199,17 +199,6 @@ public:
 		dirpath = _dirpath;
 	}
 	~BFF(){}
-	void BFF_LoadSounds(json& data)
-	{
-		nomadint_t numsounds = scf::sounds::numsounds;
-		sounds.reserve(numsounds);
-		{
-			sounds.emplace_back(new SoundFile());
-			scf::sounds::sfx_adb_shot = data["data"]["sounds"]["sfx_adb_shot"];
-			std::shared_ptr<SoundFile>& snd = sounds.back();
-			snd->Load(scf::sounds::sfx_adb_shot, dirpath);
-		}
-	}
 	void BFF_LinkSpawners(json& data)
 	{
 		nomadint_t numspawners = data["data"]["numspawners"];

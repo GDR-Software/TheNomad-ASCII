@@ -56,6 +56,7 @@ static void set_block(void)
 
 Game::~Game()
 {
+	Snd_Kill();
 	delwin(screen);
 	endwin();
 	set_block();

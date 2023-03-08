@@ -135,6 +135,11 @@ class Game;
 #include <thread>
 #include <pthread.h>
 
+
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <sndfile.h>
+
 #ifdef RELEASE
 #ifdef _NOMAD_DEBUG
 #undef _NOMAD_DEBUG
@@ -321,13 +326,13 @@ extern FILE* p_file;
 #undef Z_Calloc
 #undef Z_Free
 #define Z_Malloc(size,tag,ptr) \
-	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s%i of size %i",__FILE__,__func__,__LINE__,size)
+	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s%u of size %i",__FILE__,__func__,__LINE__,size)
 #define Z_Realloc(ptr,nsize,tag) \
-	Zone_Realloc(ptr,nsize,tag,mainzone) LOG_DEBUG("Z_Realloc called from %s:%s:%i of size %i",__FILE__,__func__,__LINE__,size)
+	Zone_Realloc(ptr,nsize,tag,mainzone) LOG_DEBUG("Z_Realloc called from %s:%s:%u of size %i",__FILE__,__func__,__LINE__,size)
 #define Z_Calloc(ptr,nelem,elemsize) \
-	Zone_Calloc(ptr,nelem,elemsize,mainzone); LOG_DEBUG("Z_Calloc called from %s:%s:%i of size %i",__FILE__,__func__,__LINE__,size)
+	Zone_Calloc(ptr,nelem,elemsize,mainzone); LOG_DEBUG("Z_Calloc called from %s:%s:%u of size %i",__FILE__,__func__,__LINE__,size)
 #define Z_Free(ptr) \
-	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%i of size %i",__FILE__,__func__,__LINE__,size)
+	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%u",__FILE__,__func__,__LINE__)
 
 #define NOMAD_ASSERT(expr,...) \
 	(static_cast<bool>(expr) ? void(0) : N_Error("%s:%s:%lu Assertion '%s' failed.", __FILE__,__func__,__LINE__,#expr))

@@ -111,7 +111,6 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	printf("I_NomadInit(): Initializing Game...\n");
 	puts("Snd_Init(): Initializing OpenAL and libsndfile audio libraries for audio...");
-	Snd_Init(game);
 	srand(time(NULL));
 	std::vector<char*> myargv;
 	for (nomadushort_t i = 0; i < argc; i++) {
@@ -119,6 +118,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	}
 	I_ProcessArgs(myargv);
 	E_Init(game);
+	Snd_Init(game);
 	G_LoadBFF(game->bffname, game);
 	scf::G_LoadSCF(game->scfname);
 	TUI_Init(game);
@@ -143,7 +143,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 
 void TUI_Init(Game* const game)
 {
-	PTR_CHECK(NULL_CHECK, game);
+//	PTR_CHECK(NULL_CHECK, game);
 	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
 	setlocale(LC_ALL, "");
 	initscr();
@@ -153,8 +153,8 @@ void TUI_Init(Game* const game)
 	curs_set(0);
 	game->screen = newwin(34, 129, 0, 0);
 	stdscr = game->screen;
-	PTR_CHECK(NULL_CHECK, game->screen);
-	LOG_INFO("game->screen allocated successfully");
+//	PTR_CHECK(NULL_CHECK, game->screen);
+//	LOG_INFO("game->screen allocated successfully");
 	keypad(game->screen, TRUE);
 	
 	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45)
@@ -164,17 +164,19 @@ void TUI_Init(Game* const game)
 		N_Error("Terminal Must Support Colors!");
 	
 	start_color();
-	LOG_INFO("has_colors() = true");
+//	LOG_INFO("has_colors() = true");
 	ncurses_on = true;
 }
 
 static inline void E_Init(Game* const game)
 {
-	PTR_CHECK(NULL_CHECK, game);
+//	PTR_CHECK(NULL_CHECK, game);
 	puts("E_Init(): Initializing Entities...");
+	if (!mainzone)
+		N_Error("failed!");
 	game->playr = (Playr*)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
-	PTR_CHECK(NULL_CHECK, game->playr);
-	LOG_INFO("Successfully Allocated game->playr");
+//	PTR_CHECK(NULL_CHECK, game->playr);
+//	LOG_INFO("Successfully Allocated game->playr");
 	game->playr->P_Init();
 	srand(time(NULL));
 	game->M_GenMobs();

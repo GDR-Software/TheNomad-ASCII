@@ -135,7 +135,6 @@ void M_GenMob(Mob* const mob)
 
 void Game::M_GenMobs(void)
 {
-	LOG_PROFILE();
 	LOG_INFO("Generating mobs");
 	game = this;
 	MobAssigner(this);

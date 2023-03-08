@@ -16,9 +16,6 @@ src/threadpool.cpp
 nomadmain.bff
 nomadmain/
 
-# until i figure out how to do it with alsa without segging
-src/g_sound.cpp
-
 # random logs
 Files/debug/*
 # the resources (this is the literals money's worth)

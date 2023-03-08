@@ -74,9 +74,8 @@ void mainLoop(int argc, char* argv[])
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
 	PTR_CHECK(NULL_CHECK, game);
 	I_NomadInit(argc, argv, game);
+#ifndef _NOMAD_DEBUG
 	Z_CheckHeap();
-#ifdef _NOMAD_DEBUG
-	Z_FileDumpHeap();
 #endif
 	nomadushort_t c{};
 	while (1) {

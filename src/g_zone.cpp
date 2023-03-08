@@ -336,7 +336,7 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 	
 	do {
 		if (rover == start) {
-			if (zone == reserved){
+			if (zone == reserved) {
 				Z_ResizeZone(zone);
 				base = zone->rover;
 				rover = base;

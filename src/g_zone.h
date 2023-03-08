@@ -119,6 +119,7 @@ __CFUNC__ void Z_DumpHeap(void);
 __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone);
 
 // mainzone allocations
+//#ifndef _NOMAD_DEBUG
 #define Z_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,mainzone)
 #define Z_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,mainzone)
 #define Z_Calloc(ptr,nelem,elemsize,tag) Zone_Calloc(ptr,nelem,elemsize,tag,mainzone)
@@ -133,6 +134,7 @@ __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone);
 #define Z_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,mainzone)
 #define Z_ChangeTag(ptr,tag) Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,mainzone)
 #define Z_FileDumpHeap() Zone_FileDumpHeap(mainzone)
+//#endif
 
 // reserved allocations
 #define R_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,reserved)

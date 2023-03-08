@@ -139,7 +139,6 @@ void Game::G_DisplayHUD(void)
 
 static inline void Hud_InsertSprites()
 {
-	LOG_PROFILE();
 //	for (const auto* i : game->b_Active) {
 //		game->c_map[i->pos.y][i->pos.x] = i->sprite;
 //	}

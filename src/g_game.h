@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "g_sound.h"
+
 #ifndef NOMAD_MAIN
 #define NOMAD_MAIN
 #endif
@@ -149,9 +151,6 @@ nomadbool_t E_CloseCollider(nomadenum_t dir, coord_t from, Game* const game);
 std::vector<collider_t>& E_RangedCollider(nomadenum_t dir, coord_t from,
 	nomadshort_t range, Game* const game);
 
-void G_RunSound();
-void P_PlaySFX(const char* filename);
-void M_PlaySFX(const char* filename);
 void Snd_Init(Game* const gptr);
 
 extern const char* logosplash;

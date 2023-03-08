@@ -171,7 +171,7 @@ void P_UseWeapon()
 	case W_SHOTTY_FAB:
 	case W_SHOTTY_QS:
 		P_ShootShotty(playr->c_wpn);
-		Hud_Printf("System", "You shoot your shotgun");
+//		Hud_Printf("System", "You shoot your shotgun");
 		break;
 	case W_HPRIM_FUSION:
 	case W_HPRIM_HOSIG:

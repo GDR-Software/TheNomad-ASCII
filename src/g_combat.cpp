@@ -135,7 +135,7 @@ void P_ShootShotty(Weapon* const wpn)
 	
 	switch (wpn->c_wpn.id) {
 	case W_SHOTTY_ADB:
-		P_PlaySFX(scf::sounds::sfx_adb_shot.c_str());
+		P_PlaySFX(scf::sounds::sfx_adb_shot);
 		break;
 	default:
 		break;
