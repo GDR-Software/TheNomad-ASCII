@@ -110,7 +110,6 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	puts(buf);
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	printf("I_NomadInit(): Initializing Game...\n");
-	puts("Snd_Init(): Initializing OpenAL and libsndfile audio libraries for audio...");
 	srand(time(NULL));
 	std::vector<char*> myargv;
 	for (nomadushort_t i = 0; i < argc; i++) {
@@ -118,6 +117,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	}
 	I_ProcessArgs(myargv);
 	E_Init(game);
+	puts("Snd_Init(): Initializing OpenAL and libsndfile audio libraries for audio...");
 	Snd_Init(game);
 	G_LoadBFF(game->bffname, game);
 	scf::G_LoadSCF(game->scfname);
