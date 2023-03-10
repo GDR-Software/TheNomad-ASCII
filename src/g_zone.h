@@ -47,35 +47,6 @@ typedef struct
 	memblock_t* rover;
 } memzone_t;
 
-#define ZONE_ID_MAINZONE 0
-#define ZONE_ID_RESERVED 1
-#define ZONE_ID_CARDINAL 2
-
-template<typename T, int size, int tag>
-class ScopedBlock
-{
-private:
-    int zone_id;
-    T *__ptr;
-    memzone_t* GetMemzone();
-public:
-    ScopedBlock(T *ptr, int zoneid)
-        : zone_id(zoneid)
-    {
-        ptr = (T *)Zone_Malloc(size, tag, &ptr, GetMemzone());
-        __ptr = ptr;
-    }
-    ScopedBlock()
-    {
-    }
-    ~ScopedBlock()
-    {
-        Zone_Free(__ptr, GetMemzone());
-    }
-    inline T* operator->() { return __ptr; }
-    inline T& operator*() { return *__ptr; }
-    inline T& operator[](int i) { return __ptr[i]; }
-};
 
 extern memzone_t* mainzone; // the main zone that the game uses
 extern memzone_t* reserved; // zone where all the unused but stuff found in the bff will be alloced (slf data, extra maps)

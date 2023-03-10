@@ -69,18 +69,19 @@ __CFUNC__ void Z_KillHeap(void)
 
 static void Z_ResizeZone(memzone_t* zone)
 {
-	int osize = zone->size;
 	int nsize = zone->size * 2;
-	byte* memory = (byte *)malloc(zone->size);
-	memmove(memory, &zone, zone->size);
+	int osize = zone->size;
+	byte *old_zone = (byte *)calloc(sizeof(byte) * zone->size, sizeof(byte));
+	memmove(old_zone, zone, zone->size);
 	free(zone);
 	zone = (memzone_t *)((byte *)calloc(sizeof(byte) * nsize, sizeof(byte)));
-	if (!zone)
+	if (!zone) {
 		N_Error("Z_ResizeZone: calloc failed!");
+	}
 	else {
 		memblock_t *base;
 		zone->size = nsize;
-		memmove(&zone, memory, osize);
+		memmove(zone, old_zone, osize);
 	}
 }
 
@@ -94,7 +95,12 @@ static unsigned long numblocks = 0;
 //
 __CFUNC__ void Zone_Free(void *ptr, memzone_t* zone)
 {
-	NOMAD_ASSERT(ptr, "Zone_Free: ptr given was NULL!");
+	LOG_INFO("freeing up zone-allocated block memory within zone %i", GET_ZONE_ID(zone));
+	if (!ptr) {
+		LOG_WARN("pointer given is NULL, aborting. zoneid: %i", GET_ZONE_ID(zone));
+		return;
+	}
+	
 	memblock_t* block;
 	memblock_t* other;
 	
@@ -196,18 +202,6 @@ __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone)
 		}
 	}
 	fclose(fp);
-}
-
-template<typename T, int size, int tag>
-memzone_t* ScopedBlock<T, size, tag>::GetMemzone() {
-    switch (zone_id) {
-    case ZONE_ID_MAINZONE: return mainzone; break;
-    case ZONE_ID_RESERVED: return reserved; break;
-    case ZONE_ID_CARDINAL: return cardinal; break;
-    };
-    LOG_WARN("zone_id for ScopedBlock is invalid enum %i! killing object", zone_id);
-    this->~ScopedBlock();
-	return (memzone_t*)NULL;
 }
 
 #ifdef TESTING
@@ -343,7 +337,8 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 				start = base->prev;
 			}
 			else if (zone == mainzone) {
-				N_Error("Z_Malloc: failed allocation of %i bytes because zone isn't big enough!", size);
+				Z_ResizeZone(zone);
+//				N_Error("Z_Malloc: failed allocation of %i bytes because zone isn't big enough!", size);
 			}
 		}
 		if (rover->user) {

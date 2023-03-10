@@ -2,9 +2,9 @@ VERSION        = 0
 VERSION_UPDATE = 1
 VERSION_PATCH  = 2
 CC             = g++
-CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include
+CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include -finline-limit=10000000 # kinda stupid, yes, but SPEED IS KEY
 LDFLAGS        = /usr/lib/libmenu.a \
-				/usr/lib/x86_64-linux-gnu/libpthread.a -lsndfile -lasound
+				/usr/lib/x86_64-linux-gnu/libpthread.a -lsndfile /usr/local/lib/libopenal.a
 O              = obj
 SDIR           = src
 EXE            = nomadascii
@@ -23,10 +23,6 @@ endif
 
 .PHONY: all clean clean.exe clean.objs clean.debug
 
-OPTIMIZERS     = -finline-limit=10000 \
-				-ffast-math \
-				-frounding-math \
-
 ERRORS         = -Werror=type-limits \
 				-Werror=overflow \
 				-Werror=return-type \
@@ -35,11 +31,7 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_UPDATE=$(VERSION_UPDATE) \
 				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH)
 
-ifndef debug
-CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS) $(OPTIMIZERS)
-else
 CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS)
-endif
 
 OBJS= \
 	$(O)/g_animation.o \

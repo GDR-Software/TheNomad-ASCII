@@ -58,7 +58,7 @@ static inline void Hud_DisplayLocation();
 static nomadlong_t hudtics{};
 static std::string hudbuf;
 static constexpr uint16_t BUFFER_SIZE = 90;
-static char *hudbuffer;
+static char hudbuffer[BUFFER_SIZE];
 
 void Hud_Printf(const char* from, const char* msg, ...)
 {
@@ -109,7 +109,6 @@ void Game::I_InitHUD(void)
 	HudAssigner(this);
 	playr->pos = origin;
 	hudtics = 0;
-	hudbuffer = (char *)Z_Malloc(BUFFER_SIZE+1, TAG_STATIC, &hudbuffer);
 	memset(hudbuffer, 0, sizeof(hudbuffer));
 	init_pair(HEALTH_COLOR_GOOD, COLOR_GREEN, COLOR_WHITE);
 	init_pair(HEALTH_COLOR_MED, COLOR_YELLOW, COLOR_YELLOW);

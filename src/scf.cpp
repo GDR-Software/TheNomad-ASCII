@@ -43,7 +43,7 @@ namespace scf {
     nomadushort_t mobspeed = MOB_SPEED_STD;
     nomadushort_t fov[2] = {MAX_VERT_FOV, MAX_HORZ_FOV};
     namespace sounds {
-        std::string sfx_adb_shot       = "SFX/SHOTTYBLAST.wav";
+        std::string sfx_adb_shot       = "SHOTTYBLAST.wav";
 		std::string sfx_adb_reload     = "ADBRLD.wav";
 		std::string sfx_adb_jam        = "ADBJAM.wav";
 		std::string sfx_fab_shot       = "FABSHOT.wav";

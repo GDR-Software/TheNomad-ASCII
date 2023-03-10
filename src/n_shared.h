@@ -135,9 +135,8 @@ class Game;
 #include <thread>
 #include <pthread.h>
 
-
-#include <AL/al.h>
-#include <AL/alc.h>
+#include <ALsoft/al.h>
+#include <ALsoft/alc.h>
 #include <sndfile.h>
 
 #ifdef RELEASE
