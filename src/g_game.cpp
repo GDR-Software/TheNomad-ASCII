@@ -25,6 +25,7 @@
 #include "g_map.h"
 #include "s_world.h"
 #include "scf.h"
+#include "g_zone.h"
 #include "g_playr.h"
 #include "g_game.h"
 

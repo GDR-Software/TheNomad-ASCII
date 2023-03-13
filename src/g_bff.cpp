@@ -19,11 +19,11 @@ static Game* gptr;
 Level::~Level()
 {
 	for (auto* i : mspawners)
-		Z_Free(i);
+		Z_ChangeTag(i, TAG_PURGELEVEL);
 	for (auto* i : ispawners)
-		Z_Free(i);
+		Z_ChangeTag(i, TAG_PURGELEVEL);
 	for (auto* i : wspawners)
-		Z_Free(i);
+		Z_ChangeTag(i, TAG_PURGELEVEL);
 }
 
 void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])

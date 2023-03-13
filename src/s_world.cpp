@@ -58,13 +58,13 @@ void W_Init(Game* const gptr)
 	PTR_CHECK(NULL_CHECK, gptr);
     game = gptr;
     gametics = &game->ticcount;
-    world = (World *)Z_Malloc(sizeof(World), TAG_STATIC, &world); // this'll stay static until the player quits or changes the gamemode
+	world = (World *)Z_Malloc(sizeof(World), TAG_STATIC, &world);
     if (!world)
         N_Error("Failed to allocate memory to game->world!");
     PTR_CHECK(NULL_CHECK, world);
 	LOG_INFO("successfully allocted memory to game->world");
     game->world = world;
-    PTR_CHECK(NULL_CHECK, game->world);
+	PTR_CHECK(NULL_CHECK, game->world);
 	LOG_INFO("successfully assigned game->world ptr to this file's local world ptr");
 	LOG_INFO("setting up and initializing world.time structure variables");
 	world->time.ticcount = gametics;

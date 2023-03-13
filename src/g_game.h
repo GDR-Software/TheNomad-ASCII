@@ -66,6 +66,21 @@ constexpr auto MAP            = 0x07;
 constexpr auto MENU_SAVEFILES = 0x08;
 constexpr auto MENU_PAUSE     = 0x09;
 
+#if 0
+template<auto fn>
+struct ZoneDeleter {
+	template<typename _Tp>
+	constexpr void operator()(_Tp* arg) const { fn(arg); }
+};
+inline void free_playr(Playr *p) { Z_Free(p); }
+inline void free_world(World *w) { Z_Free(w); }
+
+namespace std {
+template<typename _Tp, auto fn>
+using zone_ptr = std::unique_ptr<_Tp, ZoneDeleter<fn>>;
+};
+#endif
+
 class Game
 {
 public:

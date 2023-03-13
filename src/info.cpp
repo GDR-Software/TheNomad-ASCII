@@ -19,6 +19,7 @@
 #include "n_shared.h"
 #include "g_items.h"
 #include "scf.h"
+#include "g_zone.h"
 #include "s_scripted.h"
 #include "g_obj.h"
 #include "g_mob.h"

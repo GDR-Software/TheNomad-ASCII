@@ -684,6 +684,8 @@ typedef struct area_s
 	}
 } area_t;
 
+#define CHECK_STD_VALID(arg) if (!arg.valid()) N_Error("%s: memory failure with variable %s", __func__, #arg)
+
 typedef struct collider_s
 {
 	coord_t where;

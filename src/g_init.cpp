@@ -170,13 +170,8 @@ void TUI_Init(Game* const game)
 
 static inline void E_Init(Game* const game)
 {
-//	PTR_CHECK(NULL_CHECK, game);
 	puts("E_Init(): Initializing Entities...");
-	if (!mainzone)
-		N_Error("failed!");
-	game->playr = (Playr*)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
-//	PTR_CHECK(NULL_CHECK, game->playr);
-//	LOG_INFO("Successfully Allocated game->playr");
+	game->playr = (Playr *)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
 	game->playr->P_Init();
 	srand(time(NULL));
 	game->M_GenMobs();

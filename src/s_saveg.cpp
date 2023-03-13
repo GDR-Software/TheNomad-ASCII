@@ -40,7 +40,6 @@ static constexpr auto svdir = "Files/gamedata/SVFILES/";
 using json = nlohmann::json;
 
 static void G_ArchivePlayr(const Playr* playr, json& data);
-static void G_ArchiveWorld(const World* world, json& data);
 static void G_ArchiveWeapon(const Weapon* wpn, json& data);
 static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data);
 

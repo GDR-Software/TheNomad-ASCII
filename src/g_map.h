@@ -148,7 +148,7 @@ public:
 	std::string dirpath;
 	std::string bffname;
 	std::string bffversion;
-	std::array<nomadint_t, 3> game_version;
+	eastl::array<nomadint_t, 3> game_version;
 	std::vector<std::shared_ptr<Level>> levels;
 	std::vector<std::shared_ptr<Map>> maps;
 	std::vector<std::shared_ptr<Spawner>> spawners;
