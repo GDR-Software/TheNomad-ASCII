@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/m_hud.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/m_hud.cpp
+//  HUD rendering and display code
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
@@ -31,9 +29,9 @@
 #include "g_playr.h"
 #include "g_game.h"
 
-#define HEALTH_COLOR_GOOD 2
-#define HEALTH_COLOR_MED  3
-#define HEALTH_COLOR_CRIT 4
+#define HEALTH_COLOR_GOOD 1
+#define HEALTH_COLOR_MED  2
+#define HEALTH_COLOR_CRIT 3
 
 static constexpr uint8_t vert_fov = MAX_VERT_FOV >> 1;
 static constexpr uint8_t horz_fov = MAX_HORZ_FOV >> 1;
@@ -54,6 +52,15 @@ static inline void Hud_DisplayCompass();
 static inline void Hud_DisplayVMatrix();
 static inline void Hud_DisplayWeapons();
 static inline void Hud_DisplayLocation();
+static inline const char* Hud_ArmorToStr(nomadenum_t armor)
+{
+	switch (armor) {
+	case ARMOR_STREET: return "Street-Grade";
+	case ARMOR_MILITARY: return "Military-Grade";
+	case ARMOR_MERC: return "Mercenary's Armor";
+	};
+	return "Unknown Armor";
+}
 
 static nomadlong_t hudtics{};
 static std::string hudbuf;
@@ -110,9 +117,6 @@ void Game::I_InitHUD(void)
 	playr->pos = origin;
 	hudtics = 0;
 	memset(hudbuffer, 0, sizeof(hudbuffer));
-	init_pair(HEALTH_COLOR_GOOD, COLOR_GREEN, COLOR_WHITE);
-	init_pair(HEALTH_COLOR_MED, COLOR_YELLOW, COLOR_YELLOW);
-	init_pair(HEALTH_COLOR_CRIT, COLOR_RED, COLOR_RED);
 	Hud_GetVMatrix();
 }
 
@@ -120,10 +124,10 @@ void Game::G_DisplayHUD(void)
 {
 	nomadenum_t i, a;
 	Hud_DisplayLocation();
-	Hud_DisplayConsole();
 	Hud_DisplayBarVitals();
 	Hud_DisplayBodyVitals();
 	Hud_DisplayCompass();
+	Hud_DisplayConsole();
 	Hud_DisplayWeapons();
 	Hud_DisplayVMatrix();
 	for (a = 1; a < 7; ++a) {
@@ -286,35 +290,24 @@ static inline void Hud_DisplayBarVitals()
 	mvwaddch(game->screen, 29, 1, '[');
 	mvwaddch(game->screen, 29, 29, ']');
 	
-	// i think these colors won't display currently,
-	// TODO?
-	nomadenum_t max;
-	if (playr->health > 75) {
-		max = 29;
-	}
-	else if (playr->health <= 75 && playr->health >= 40) {
-		max = 20;
-	}
-	else if (playr->health < 40 && playr->health >= 15) {
-		max = 10;
-	}
-	else if (playr->health < 15 && playr->health >= 5) {
-		max = 5;
-	}
-	else if (playr->health < 5) {
-		max = 3;
-	}
-	for (i = 2; i < max; ++i) {
+	init_pair(HEALTH_COLOR_GOOD, COLOR_GREEN, COLOR_BLACK);
+	init_pair(HEALTH_COLOR_MED, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(HEALTH_COLOR_CRIT, COLOR_RED, COLOR_BLACK);
+	nomadenum_t health_color;
+	if (playr->health > 75)
+		health_color = HEALTH_COLOR_GOOD;
+	else if (playr->health < 76 && playr->health > 24)
+		health_color = HEALTH_COLOR_MED;
+	else if (playr->health < 25)
+		health_color = HEALTH_COLOR_CRIT;
+
+	wattron(game->screen, COLOR_PAIR(health_color));
+	for (i = 2; i < 29; ++i) {
 		mvwaddch(game->screen, 29, i, ':');
 	}
-	mvwaddstr(game->screen, 30, 12, "<HEALTH>");
-
-	mvwaddch(game->screen, 31, 1, '[');
-	for (i = 2; i < 29; ++i) {
-		mvwaddch(game->screen, 31, i, ':');
-	}
-	mvwaddch(game->screen, 31, 29, ']');
-	mvwaddstr(game->screen, 32, 11, " <ARMOUR>");
+	wattroff(game->screen, COLOR_PAIR(health_color));
+	mvwaddstr(game->screen, 30, 12,  "<HEALTH>");
+	mvwprintw(game->screen, 32, 2, "ARMOR: %s", Hud_ArmorToStr(playr->armor));
 }
 
 static inline void Hud_DisplayWeapons()
@@ -331,6 +324,11 @@ static inline void Hud_DisplayWeapons()
 	mvwaddch(game->screen, 7, 126, ']');
 	mvwaddstr(game->screen, 8,  97, "[Weapon In Hand]:");
 	mvwaddstr(game->screen, 9,  97, playr->c_wpn->c_wpn.name);
+	mvwaddstr(game->screen, 11, 97, "[Ammunition]:");
+	mvwprintw(game->screen, 12, 97, "Shotgun Shells: %i", playr->ammunition[AT_SHELL]);
+	mvwprintw(game->screen, 13, 97, "Bullets: %i", playr->ammunition[AT_BULLET]);
+	mvwprintw(game->screen, 14, 97, "Fusion Metals: %i", playr->ammunition[AT_FUSION]);
+	mvwprintw(game->screen, 15, 97, "Plasma Batteries: %i", playr->ammunition[AT_PLASMA]);
 }
 
 void Hud_DisplayWpnSlot(nomadenum_t wpn_slot)
@@ -363,14 +361,14 @@ void Hud_DisplayWpnSlot(nomadenum_t wpn_slot)
 
 static inline void R_DrawPixel(nomadshort_t y, nomadshort_t x, nomadshort_t u, nomadshort_t c)
 {
-	if ((y < 23 && y > 2) && (x < 74 && x > 14)) {
-		wattroff(game->hudwin[HL_VMATRIX], A_DIM | A_INVIS);
-		wattron(game->hudwin[HL_VMATRIX], A_NORMAL);
-	}
-	else {
-		wattroff(game->hudwin[HL_VMATRIX], A_NORMAL);
-		wattron(game->hudwin[HL_VMATRIX], A_DIM | A_INVIS);
-	}
+//	if ((y < 23 && y > 2) && (x < 74 && x > 14)) {
+//		wattroff(game->hudwin[HL_VMATRIX], A_DIM | A_INVIS);
+//		wattron(game->hudwin[HL_VMATRIX], A_NORMAL);
+//	}
+//	else {
+//		wattroff(game->hudwin[HL_VMATRIX], A_NORMAL);
+//		wattron(game->hudwin[HL_VMATRIX], A_DIM | A_INVIS);
+//	}
 	if (y == 12 && x == 44) {
 		mvwaddch(game->hudwin[HL_VMATRIX],
 			y, x, playr->sprite);
@@ -504,6 +502,9 @@ static inline void Hud_GetVMatrix()
 	for (const auto* const i : game->m_Active) {
 		game->c_map[i->mpos.y][i->mpos.x] = i->sprite;
 	}
+//	for (const auto* const i : game->items) {
+//		game->c_map[i->pos.y][i->pos.x] = sprites[SPR_PICKUP];
+//	}
 //	Hud_InsertSprites();
 	for (nomadshort_t y = startc.y; y < endc.y; ++y) {
 		for (nomadshort_t x = startc.x; x < endc.x; ++x) {

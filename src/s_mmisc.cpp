@@ -1,22 +1,19 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/s_mmisc.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/s_mmisc.cpp
 //  mob spawner code, balancer, no mob thinker/action functions
 //  here, that's s_mthink
 //----------------------------------------------------------
@@ -36,7 +33,7 @@
 
 typedef struct mobgroup_s
 {
-	Mob** m_Active;
+	std::vector<Mob*> m_Active;
 	Mob* leader;
 	area_t area;
 	nomadenum_t sector;
@@ -150,11 +147,40 @@ Mob* M_SpawnMob(void)
 }
 
 //
-// M_KillMob(): deallocates/kills mob
+// M_SpawnDrops: spawns the list of a newly killed mob's drops
+//
+static void M_SpawnDrops(const std::vector<nomaduint_t>& droplist, const coord_t& pos)
+{
+	coord_t spawnpos;
+	nomadenum_t dir = P_Random() & 1;
+	switch (dir) {
+	case 0:
+		spawnpos.y = pos.y - P_Random() & 5;
+		break;
+	case 1:
+		spawnpos.x = pos.y + P_Random() & 5;
+		break;
+	};
+	dir = P_Random() & 1;
+	switch (dir) {
+	case 0:
+		spawnpos.x = pos.x - P_Random() & 5;
+		break;
+	case 1:
+		spawnpos.x = pos.x + P_Random() & 5;
+		break;
+	};
+	nomaduint_t index = P_Random() & droplist.size();
+	G_SpawnItem(droplist[index], TICRATE_INFINITE, spawnpos);
+}
+
+//
+// M_KillMob: deallocates/kills mob
 //
 void M_KillMob(std::vector<Mob*>::iterator mob)
 {
 	game->m_Active.erase(mob);
+	M_SpawnDrops((*mob)->c_mob.mdrops, (*mob)->mpos);
 	Z_Free(*mob);
 }
 void M_KillMob(Mob* mob)
@@ -164,6 +190,7 @@ void M_KillMob(Mob* mob)
 			game->m_Active.erase(it);
 		}
 	}
+	M_SpawnDrops(mob->c_mob.mdrops, mob->mpos);
 	Z_Free(mob);
 }
 
@@ -177,6 +204,6 @@ const char* MobTypeToStr(nomaduint_t mtype)
 	case MT_GRUNT: return VAR_TO_STR(MT_GRUNT);
 	case MT_HULK: return VAR_TO_STR(MT_HULK);
 	};
-	LOG_WARN("given mtype is invalid! returning \"Unknown Mob\"");
+	LOG_WARN("MobTypeToStr mtype is invalid! returning \"Unknown Mob\"");
 	return "Unknown Mob";
 }

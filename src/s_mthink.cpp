@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/s_mthink.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/s_mthink.cpp
+//  mob-thinker funcs
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
@@ -100,17 +98,34 @@ coord_t M_GetDir(nomadenum_t dir)
 }
 void M_ChangeState(Mob* actor, state_t newstate)
 {
+	switch (newstate) {
+	case S_MOB_WANDER:
+	case S_MOB_FIGHT:
+	case S_MOB_CHASE:
+		actor->stepcounter = (P_Random() & 18)+5;
+		break;
+	};
     actor->mstate = stateinfo[newstate];
-    actor->mticker = actor->mstate.numticks;    
+    actor->mticker = actor->mstate.numticks;
 }
 void M_ChangeState(Mob* actor)
 {
+	switch (actor->mstate.next) {
+	case S_MOB_WANDER:
+	case S_MOB_FIGHT:
+	case S_MOB_CHASE:
+		actor->stepcounter = (P_Random() & 18)+5;
+		break;
+	};
 	actor->mstate = stateinfo[actor->mstate.next];
 	actor->mticker = actor->mstate.numticks;
 }
 
 void M_DoPlayrDamage(nomaduint_t damage)
 {
+//	if (damage < 20)
+		P_PlaySFX(scf::sounds::sfx_playr_hurt_0);
+	
 	game->playr->health -= damage;
 }
 
@@ -179,10 +194,13 @@ nomadbool_t M_CanMove(const Mob* actor)
 {
     coord_t pos = M_GetDir(actor->mdir);
     switch (game->c_map[actor->mpos.y+pos.y][actor->mpos.x+pos.x]) {
-    case sprites[SPR_FLOOR_OUTSIDE]:
-    case sprites[SPR_FLOOR_INSIDE]:
-    case sprites[SPR_DOOR_OPEN]:
-        return true;
+//    case sprites[SPR_FLOOR_OUTSIDE]:
+//    case sprites[SPR_FLOOR_INSIDE]:
+//    case sprites[SPR_DOOR_OPEN]:
+    case ' ':
+	case '.':
+	case '<':
+	    return true;
         break;
 	default:
         return false;
@@ -198,9 +216,12 @@ nomadbool_t M_NewMoveDir(Mob* actor)
         actor->mdir = P_Random() & 3;
         coord_t pos = M_GetDir(actor->mdir);
         switch (game->c_map[actor->mpos.y+pos.y][actor->mpos.x+pos.x]) {
-        case sprites[SPR_FLOOR_OUTSIDE]:
-    	case sprites[SPR_FLOOR_INSIDE]:
-    	case sprites[SPR_DOOR_OPEN]:
+//        case sprites[SPR_FLOOR_OUTSIDE]:
+//    	case sprites[SPR_FLOOR_INSIDE]:
+//    	case sprites[SPR_DOOR_OPEN]:
+		case ' ':
+		case '.':
+		case '<':
             return true;
             break;
         default: break;
@@ -250,17 +271,6 @@ nomadbool_t M_CheckProjectileRange(const Mob* actor)
 }
 
 
-
-void M_RunThinker(Mob* actor)
-{
-    --actor->mticker;
-    for (const auto& i : thinkers) {
-        if (actor->mstate.id == i.statenum) {
-            (*i.funcptr)(actor);
-        }
-    }
-}
-
 void MobtAssigner(Game* const gptr)
 {
     game = gptr;
@@ -268,8 +278,10 @@ void MobtAssigner(Game* const gptr)
 
 void M_DoMove(Mob* actor)
 {
-	if (!M_CanMove(actor) && !M_NewMoveDir(actor))
+	if (!M_CanMove(actor) && !M_NewMoveDir(actor)) {
+		LOG_WARN("MOB CANNOT MOVE!!");
 		return;
+	}
 	else {
 		coord_t pos = game->E_GetDir(actor->mdir);
 		actor->mpos.y += pos.y;
@@ -290,6 +302,8 @@ void M_FollowPlayr(Mob* actor)
 		actor->mpos.x += MOB_SPEED_STD;
 	else if (game->playr->pos.x < actor->mpos.x)
 		actor->mpos.x -= MOB_SPEED_STD;
+	
+	actor->stepcounter = (P_Random() & 18)+5;
 }
 
 void M_PlayrKnockBack(nomadshort_t amount, nomadenum_t mdir)
@@ -311,12 +325,23 @@ void M_PlayrKnockBack(nomadshort_t amount, nomadenum_t mdir)
 	M_DoPlayrDamage(damage);
 }
 
+void M_RunThinker(Mob* actor)
+{
+    --actor->mticker;
+    for (const auto& i : thinkers) {
+        if (actor->mstate.id == i.statenum) {
+            (*i.funcptr)(actor);
+        }
+    }
+}
+
 void M_NullThink(Mob* actor)
 {
-    if (actor->mticker <= -1)
-        M_ChangeState(actor, S_MOB_SPAWN);
-    else
-        return;
+	M_ChangeState(actor, S_MOB_IDLE);
+//    if (actor->mticker <= -1)
+//        M_ChangeState(actor, S_MOB_SPAWN);
+//    else
+//        return;
 }
 
 void M_SpawnThink(Mob* actor)
@@ -330,41 +355,39 @@ void M_SpawnThink(Mob* actor)
 void M_WanderThink(Mob* actor)
 {
 	if (actor->mticker <= -1) {
-		if (actor->c_mob.mtype != MT_HULK && (P_Random() & 15) < 8) {
-			if (game->difficulty < DIF_HARDEST) {
+		if (actor->c_mob.mtype != MT_HULK && (P_Random() & 15) < 5) {
+			if (game->difficulty < DIF_NOMAD) {
 				M_ChangeState(actor, S_MOB_IDLE);
 			}
-			else if (game->difficulty == DIF_HARDEST) {
+			else if (game->difficulty > DIF_MERC) {
 				actor->mticker = actor->mstate.numticks;
-				actor->stepcounter = (P_Random() & 18)+3;
+				actor->stepcounter = (P_Random() & 18)+5;
 			}
 		}
 		else {
-			actor->stepcounter = (P_Random() & 18)+3;
+			actor->stepcounter = (P_Random() & 18)+5;
 			actor->mticker = actor->mstate.numticks;
 		}
 	}
-	--actor->stepcounter;
-	if (actor->stepcounter <= -1) {
-		M_DoMove(actor);
-		actor->stepcounter = (P_Random() & 18)+3;
-	}
-	if (M_SeePlayr(actor)) {
-		actor->stepcounter = (P_Random() & 18)+3;
-		M_ChangeState(actor, S_MOB_CHASE);
-	}
-	else if (M_HearPlayr(actor) && !M_SeePlayr(actor)) {
-		actor->mticker = actor->mstate.numticks;
+	else {
+		--actor->stepcounter;
+		if (actor->stepcounter <= -1) {
+			M_DoMove(actor);
+			actor->stepcounter = (P_Random() & 18)+5;
+		}
+		if (M_SeePlayr(actor)) {
+			M_ChangeState(actor, S_MOB_CHASE);
+		}
+		else if (M_HearPlayr(actor) && !M_SeePlayr(actor)) {
+			actor->mticker = actor->mstate.numticks;
+		}
 	}
 }
 
 void M_IdleThink(Mob* actor)
 {
-	actor->stepcounter = (P_Random() & 18)+3;
-	M_ChangeState(actor, S_MOB_WANDER);
 	if (actor->mticker <= -1) {
 		if (actor->c_mob.mtype == MT_HULK) {
-			actor->stepcounter = (P_Random() & 18)+3;
 			M_ChangeState(actor, S_MOB_WANDER);
 		}
 		if (M_SeePlayr(actor)) {
@@ -373,7 +396,6 @@ void M_IdleThink(Mob* actor)
 			}
 			else if (M_CheckHitscanRange(actor) || M_CheckProjectileRange(actor)
 			&& game->difficulty != DIF_HARDEST) {
-				actor->stepcounter = (P_Random() & 18)+3;
 				M_ChangeState(actor, S_MOB_CHASE);
 			}
 			else {
@@ -382,11 +404,9 @@ void M_IdleThink(Mob* actor)
 		}
 		if (M_HearPlayr(actor)) {
 			if (game->difficulty > DIF_NOMAD) {
-				actor->stepcounter = (P_Random() & 18)+3;
 				M_ChangeState(actor, S_MOB_CHASE);
 			}
 			else {
-				actor->stepcounter = (P_Random() & 18)+3;
 				M_ChangeState(actor, S_MOB_WANDER);
 			}
 		}
@@ -397,25 +417,30 @@ void M_ChasePlayr(Mob* actor)
 {
 	if (actor->mticker <= -1) {
 		M_FacePlayr(actor);
-		if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.hitscan_range || actor->c_mob.projectile_range || actor->c_mob.melee_range)
+		if (disBetweenOBJ(actor->mpos, game->playr->pos) <= actor->c_mob.hitscan_range
+		|| actor->c_mob.projectile_range
+		|| actor->c_mob.melee_range) {
 			M_ChangeState(actor, S_MOB_FIGHT);
+		}
 		if (!M_SeePlayr(actor) && !M_HearPlayr(actor)) {
 			if (actor->c_mob.mtype == MT_HULK) {
-				actor->stepcounter = (P_Random() & 18)+3;
 				M_ChangeState(actor, S_MOB_WANDER);
 			}
 		}
 		else {
 			actor->mticker = actor->mstate.numticks;
 		}
+	}
+	else {
 		--actor->stepcounter;
 		if (actor->stepcounter <= -1) {
-			if (M_SeePlayr(actor))
+			if (M_SeePlayr(actor)) {
 				M_FollowPlayr(actor);
-			else if (M_HearPlayr(actor))
-				actor->stepcounter = (P_Random() & 18)+3;
-
-			M_DoMove(actor);
+			}
+			else if (M_HearPlayr(actor)) {
+				actor->stepcounter = (P_Random() & 18)+5;
+				M_DoMove(actor);
+			}
 		}
 	}
 }
@@ -467,13 +492,6 @@ void M_FightThink(Mob* actor)
 			};
 		}
 		M_ChangeState(actor, S_MOB_CHASE);
-	}
-	else {
-		--actor->stepcounter;
-		if (actor->stepcounter <= -1) {
-			M_DoMove(actor);
-			actor->stepcounter = (P_Random() & 18)+3;
-		}
 	}
 }
 

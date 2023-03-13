@@ -1,22 +1,19 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/p_playr.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/p_playrs.cpp
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
@@ -94,8 +91,84 @@ static void P_DoorInteract(nomadint_t input)
 		break;
 	};
 }
-static void P_NPCInteract();
-static void P_ItemInteract();
+
+#define ITEM_AMMO   0
+#define ITEM_WEAPON 1
+#define ITEM_HEALTH 2
+#define ITEM_ARMOR  3
+
+static void P_ItemInteract(nomadint_t input)
+{
+	nomadbool_t done = false;
+	item_t *ptr = NULL;
+	std::vector<item_t*>::iterator it;
+	for (it = game->items.begin(); it != game->items.end(); ++it) {
+		if (input == KEY_w &&
+		(playr->pos.y - 1 == (*it)->pos.y && playr->pos.x == (*it)->pos.x)) {
+			ptr = *it;
+			break;
+		}
+		else if (input == KEY_a &&
+		(playr->pos.y == (*it)->pos.y && playr->pos.x - 1 == (*it)->pos.x)) {
+			ptr = *it;
+			break;
+		}
+		else if (input == KEY_s &&
+		(playr->pos.y + 1 == (*it)->pos.y && playr->pos.x == (*it)->pos.x)) {
+			ptr = *it;
+			break;
+		}
+		else if (input == KEY_d &&
+		(playr->pos.y == (*it)->pos.y && playr->pos.x + 1 == (*it)->pos.x)) {
+			ptr = *it;
+			break;
+		}
+	}
+	if (!ptr) {
+		LOG_WARN("P_ItemInteract called but could not pair item_t* with an element in game->items, aborting");
+		return;
+	}
+	switch (ptr->item_id) {
+	case I_SHELL_BOX:
+		Hud_Printf("System", "You picked up a Box of Shotgun Shells");
+		playr->ammunition[AT_SHELL] += SHELL_BOX_NUM;
+		if (playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX)
+			playr->ammunition[AT_SHELL] = PLAYR_SHELL_MAX;
+		break;
+	case I_SHELL_PACK:
+		Hud_Printf("System", "You picked up a Pack of Shotgun Shells");
+		playr->ammunition[AT_SHELL] += SHELL_PACK_NUM;
+		if (playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX)
+			playr->ammunition[AT_SHELL] = PLAYR_SHELL_MAX;
+		break;
+	case I_BULLET_BOX:
+		Hud_Printf("System", "You picked up a Box of Bullets");
+		playr->ammunition[AT_BULLET] += BULLET_BOX_NUM;
+		if (playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX)
+			playr->ammunition[AT_BULLET] = PLAYR_BULLET_MAX;
+		break;
+	case I_BULLET_PACK:
+		Hud_Printf("System", "You picked up a Pack of Bullets");
+		playr->ammunition[AT_BULLET] += BULLET_PACK_NUM;
+		if (playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX)
+			playr->ammunition[AT_BULLET] = PLAYR_BULLET_MAX;
+		break;
+//	case I_BANDAGE:
+//	case I_HEALTH_SMALL:
+//	case I_HEALTH_NORM:
+//	case I_HEALTH_LARGE:
+//
+//		break;
+//	case I_FLAK:
+//	case I_ARMOR_STREET:
+//	case I_ARMOR_MILITARY:
+//	case I_ARMOR_MERC:
+//
+//		break;
+	};
+	game->items.erase(it);
+	Z_Free(ptr);
+}
 static void P_RugInteract();
 static void P_BedInteract();
 static void P_ChestInteract();
@@ -112,8 +185,8 @@ void Playr::P_Init()
 	playr = this;
 	CombatAssigner(game);
 	ItemAssigner(game);
-	name = "Test";
-	sprite = '@';
+//	name = "Test";
+	sprite = SPR('@');
 	health = 100;
 	armor = ARMOR_STREET;
 	pdir = D_NORTH;
@@ -123,6 +196,7 @@ void Playr::P_Init()
 	sector_id = 0;
 	pstate = stateinfo[S_PLAYR_NULL];
 	pticker = 0;
+	
 	pmode = P_MODE_ROAMING;
 	wpn_slot_current = 1;
 	p_rightarm.c_wpn = wpninfo[W_ARM_HB];
@@ -133,7 +207,11 @@ void Playr::P_Init()
     p_heavyprimary.c_wpn = wpninfo[W_HPRIM_RAG13];
     p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
 	c_wpn = &p_shotty;
-	memset(&body_health, 100, sizeof(body_health));
+	ammunition[AT_SHELL] = 2;
+	ammunition[AT_BULLET] = 0;
+	ammunition[AT_PLASMA] = 0;
+	ammunition[AT_FUSION] = 0;
+	N_memset(&body_health.front(), 100, body_health.size());
 	for (auto& i : inv) {
 		i.name = (const char*)NULL;  
 	}
@@ -180,7 +258,7 @@ void P_UseWeapon()
 //		P_ShootSingle(*wpn);
 		break;
 	default: {
-		LOG_WARN("unknown/invalid weapon id %hu, returning without using weapon", playr->c_wpn->c_wpn.id);
+		LOG_WARN("P_UseWeapon unknown/invalid weapon id %hu, returning without using weapon", playr->c_wpn->c_wpn.id);
 		break; }
 	};
 }
@@ -321,6 +399,9 @@ void P_MoveN()
 	case '_':
 		P_DoorInteract(input);
 		break;
+	case sprites[SPR_PICKUP]:
+		P_ItemInteract(input);
+		break;
 	case ' ':
 	case '.':
 		--playr->pos.y;
@@ -338,6 +419,9 @@ void P_MoveW()
 	switch (game->c_map[playr->pos.y][playr->pos.x - 1]) {
 	case '_':
 		P_DoorInteract(input);
+		break;
+	case sprites[SPR_PICKUP]:
+		P_ItemInteract(input);
 		break;
 	case '.':
 	case ' ':
@@ -357,6 +441,9 @@ void P_MoveS()
 	case '_':
 		P_DoorInteract(input);
 		break;
+	case sprites[SPR_PICKUP]:
+		P_ItemInteract(input);
+		break;
 	case '.':
 	case ' ':
 		++playr->pos.y;
@@ -375,6 +462,9 @@ void P_MoveE()
 	case '_':
 		P_DoorInteract(input);
 		break;
+	case sprites[SPR_PICKUP]:
+		P_ItemInteract(input);
+		break;
 	case '.':
 	case ' ':
 		++playr->pos.x;
@@ -388,107 +478,93 @@ void P_MoveE()
 	};
 }
 
+static nomadbool_t P_CanMove(coord_t& pos)
+{
+	switch (game->c_map[playr->pos.y+pos.y][playr->pos.x+pos.x]) {
+	case sprites[SPR_FLOOR_INSIDE]:
+	case sprites[SPR_FLOOR_OUTSIDE]:
+		return true;
+		break;
+	case sprites[SPR_PICKUP]:
+		P_ItemInteract(input);
+		return false;
+		break;
+	default:
+		return false;
+		break;
+	};
+	return false;
+}
+
 void P_DashN()
 {
 	if (playr->pticker > -1)
 		return;
 	
-	nomadshort_t range = playr->pos.y - RDASH_SPEED;
-	nomadbool_t hit = false;
-	while (!hit) {
-		if (playr->pos.y == range) break;
-		switch (game->c_map[playr->pos.y][playr->pos.x]) {
-		case '#': // destructible environments will be added in the future
-		case '_':
-			hit = true;
+//	nomadshort_t range = playr->pos.y - RDASH_SPEED;
+	coord_t pos = game->E_GetDir(playr->pdir);
+	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
+		if (!P_CanMove(pos))
 			break;
-		case ' ':
-		case '.':
-			break;
-		default:
-			break;
-		};
-		--playr->pos.y;
+		else
+			--playr->pos.y;
 	}
-	playr->pticker = ticrate_base*2;
+	playr->pstate = stateinfo[S_PLAYR_DASH];
+	playr->pticker = playr->pstate.numticks;
 }
 void P_DashW()
 {
 	if (playr->pticker > -1)
 		return;
 	
-	nomadshort_t range = playr->pos.x - RDASH_SPEED;
-	nomadbool_t hit = false;
-	while (!hit) {
-		if (playr->pos.x == range) break;
-		switch (game->c_map[playr->pos.y][playr->pos.x]) {
-		case '#': // destructible environments will be added in the future
-		case '_':
-			hit = true;
+//	nomadshort_t range = playr->pos.x - RDASH_SPEED;
+	coord_t pos = game->E_GetDir(playr->pdir);
+	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
+		if (!P_CanMove(pos))
 			break;
-		case ' ':
-		case '.':
-			break;
-		default:
-			break;
-		};
-		--playr->pos.x;
+		else
+			--playr->pos.x;
 	}
-	playr->pticker = ticrate_base*2;
+	playr->pstate = stateinfo[S_PLAYR_DASH];
+	playr->pticker = playr->pstate.numticks;
 }
 void P_DashS()
 {
 	if (playr->pticker > -1)
 		return;
 	
-	nomadshort_t range = playr->pos.y + RDASH_SPEED;
-	nomadbool_t hit = false;
-	while (!hit) {
-		if (playr->pos.y == range) break;
-		switch (game->c_map[playr->pos.y][playr->pos.x]) {
-		case '#': // destructible environments will be added in the future
-		case '_':
-			hit = true;
+//	nomadshort_t range = playr->pos.y - RDASH_SPEED;
+	coord_t pos = game->E_GetDir(playr->pdir);
+	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
+		if (!P_CanMove(pos))
 			break;
-		case ' ':
-		case '.':
-			break;
-		default:
-			break;
-		};
-		++playr->pos.y;
+		else
+			++playr->pos.y;
 	}
-	playr->pticker = ticrate_base*2;
+	playr->pstate = stateinfo[S_PLAYR_DASH];
+	playr->pticker = playr->pstate.numticks;
 }
 void P_DashE()
 {
 	if (playr->pticker > -1)
 		return;
 	
-	nomadshort_t range = playr->pos.x + RDASH_SPEED;
-	nomadbool_t hit = false;
-	while (!hit) {
-		if (playr->pos.x == range) break;
-		switch (game->c_map[playr->pos.y][playr->pos.x]) {
-		case '#': // destructible environments will be added in the future
-		case '_':
-			hit = true;
+//	nomadshort_t range = playr->pos.y - RDASH_SPEED;
+	coord_t pos = game->E_GetDir(playr->pdir);
+	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
+		if (!P_CanMove(pos))
 			break;
-		case ' ':
-		case '.':
-			break;
-		default:
-			break;
-		};
-		++playr->pos.x;
+		else
+			++playr->pos.x;
 	}
-	playr->pticker = ticrate_base*2;
+	playr->pstate = stateinfo[S_PLAYR_DASH];
+	playr->pticker = playr->pstate.numticks;
 }
 
 void P_ChangeDirL()
 {
 	if (playr->pdir > NUMDIRS) {
-		LOG_WARN("playr->pdir > NUMDIRS! assigning it to D_NORTH");
+		LOG_WARN("P_ChangeDirL playr->pdir > NUMDIRS! assigning it to D_NORTH");
 		playr->pdir = D_NORTH;
 	}
 	for (nomadshort_t y = 1; y < 4; ++y) {
@@ -507,7 +583,7 @@ void P_ChangeDirL()
 void P_ChangeDirR()
 {
 	if (playr->pdir > NUMDIRS) {
-		LOG_WARN("playr->pdir > NUMDIRS! assigning it to D_NORTH");
+		LOG_WARN("P_ChangeDirR playr->pdir > NUMDIRS! assigning it to D_NORTH");
 		playr->pdir = D_NORTH;
 	}
 	for (nomadshort_t y = 1; y < 4; ++y) {

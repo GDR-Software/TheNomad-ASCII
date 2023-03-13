@@ -79,6 +79,7 @@ public:
 	Playr* playr;
 	World* world;
 	std::vector<Mob*> m_Active;
+	std::vector<item_t*> items;
 //	std::vector<NPC*> b_Active;
 	char* biomenames[9];
 public: // map stuff

@@ -2,9 +2,10 @@ VERSION        = 0
 VERSION_UPDATE = 1
 VERSION_PATCH  = 2
 CC             = g++
-CFLAGS         = -std=c++17 -I/usr/include -I/usr/local/include -finline-limit=10000000 # kinda stupid, yes, but SPEED IS KEY
+CFLAGS         = -std=c++17 -Isrc -I/usr/include -I/usr/local/include -march=native -finline-limit=10000000 # kinda stupid, yes, but SPEED IS KEY
 LDFLAGS        = /usr/lib/libmenu.a \
-				/usr/lib/x86_64-linux-gnu/libpthread.a -lsndfile /usr/local/lib/libopenal.a
+				/usr/lib/x86_64-linux-gnu/libpthread.a -lsndfile /usr/local/lib/libopenal.a \
+				libEASTL.a
 O              = obj
 SDIR           = src
 EXE            = nomadascii

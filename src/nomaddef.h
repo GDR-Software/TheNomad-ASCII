@@ -1,24 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/nomaddef.h
-//  general macros and defines that aren't really specific to
-//  this game. Big 'ol header
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/nomaddef.h
+//  big 'ol header of macros and #defines
 //----------------------------------------------------------
 #ifndef __NOMADDEF__
 #define __NOMADDEF__
@@ -72,6 +68,8 @@
 #define p_melee2        P_wpns[8]
 #define p_melee3        P_wpns[9]
 
+// not really infinite, but how's this gonna run out?
+#define TICRATE_INFINITE       (std::numeric_limits<nomaduint_t>::max()*ticrate_base)
 #define PLAYR_MAX_WEIGHT       1000
 #define PLAYR_MAX_WPNS         10
 #define PLAYR_NAME_MAX_LEN     100
@@ -89,11 +87,18 @@
 #define SHELLBOX_STRING        "box of shotgun shells"
 #define BULLET_STRING          "magazine of bullets"
 #define BULLETBOX_STRING       "box of bullets"
+#define SHELL_PACK_NUM         8
+#define SHELL_BOX_NUM          16
+#define BULLET_PACK_NUM        10
+#define BULLET_BOX_NUM         50
+#define PLAYR_SHELL_MAX        36
+#define PLAYR_BULLET_MAX       180
 
 #define GAIN_HEALTH(x)         "You gained "x" health"
 #define GAIN_ARMOR(x)          "You gained "x" armor"
-#define PICKUP_AMMO(x)         "You picked up "x"!"
-#define PICKUP_WEAPON(x)       "You got the "x"!"
+#define PICKUP_ITEM(x)         "You picked up a "x""
+#define PICKUP_AMMO(x)         "You picked up a "x""
+#define PICKUP_WEAPON(x)       "You got the "x""
 
 #define SHOTTY_ADB_STRING      "Asturion Double-Barrel"
 #define SHOTTY_FAB_STRING      "Full-Auto Bitch"
@@ -267,11 +272,13 @@
 #define ARM_SB_COST            25
 #define ARM_FT_COST            3
 
-// timed in-game delays (tickers)
-#define FULL_TIC               (ticrate_base)
-#define HALF_TIC               (ticrate_base>>1)
-#define QUARTER_TIC            (ticrate_base/4)
+// timed in-game delays (tickers/tics)
 #define FRACTION_TICKER(frac)  (ticrate_base*(frac))
+#define FULL_TIC               (ticrate_base)
+#define HALF_TIC               (ticrate_base/2)
+#define QUARTER_TIC            (ticrate_base/4)
+#define FOURTH_TIC             FRACTION_TICKER(.75f)
+
 #define TICKER(numtics)        (ticrate_base*numtics)
 
 #define PLAYR_SHOOT_TICKER     FRACTION_TICKER(3/5)

@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/g_combat.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_combat.cpp
+//  general-use combat functions
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
@@ -128,15 +126,36 @@ void P_DoGrenade(Weapon* const wpn)
 	}
 }
 
+static nomadenum_t P_GetWpnIndex(Weapon* const wpn)
+{
+	for (nomadenum_t i = 0; i < MAX_PLAYR_WPNS; ++i) {
+		if (wpn == &playr->P_wpns[i]) {
+			return i;
+		}
+	}
+	return 0;
+}
+
 void P_ShootShotty(Weapon* const wpn)
 {
 	if (playr->pticker > -1)
 		return;
 	
+	if (playr->ammunition[AT_SHELL] < 1) {
+		P_PlaySFX(scf::sounds::sfx_dry_fire[0]);
+		return;
+	}
 	switch (wpn->c_wpn.id) {
 	case W_SHOTTY_ADB:
 		P_PlaySFX(scf::sounds::sfx_adb_shot);
+		playr->ammunition[AT_SHELL] -= 2;
+		if (playr->ammunition[AT_SHELL] < 0)
+			playr->ammunition[AT_SHELL] = 0;
 		break;
+//	case W_SHOTTY_FAB:
+//	case W_SHOTTY_QS:
+//		P_PlaySFX(scf::sounds::sfx_fab_shot);
+//		--playr->ammunition[AT_SHELL].pool;
 	default:
 		break;
 	};

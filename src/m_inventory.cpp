@@ -40,31 +40,30 @@ void InvAssigner(Game* const gptr)
     playr = game->playr;
 }
 
-#define SORT_ABC      0b0000000000 // sort the inventory alphabetically
-#define SORT_PRICEY   0b0000000001 // sort based on monetary value
-#define SORT_WEIGHT   0b0000000010 // sort based on high-to-low weight
+#define SORT_ABC      (nomadubyte_t)0b0000000000 // sort the inventory alphabetically
+#define SORT_PRICEY   (nomadubyte_t)0b0000000001 // sort based on monetary value
+#define SORT_WEIGHT   (nomadubyte_t)0b0000000010 // sort based on high-to-low weight
 
-inline void Inv_DisplayMercMissions(const std::vector<Mission>& m_ls);
+inline void Inv_DisplayMercMissions(const eastl::vector<Mission>& m_ls);
 inline void Inv_DisplayItems();
 
 static inline void Inv_SortItemsABC(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
-        [](const item_t& a, const item_t& b){ return a.name < b.name; } );
+        [&](const item_t& a, const item_t& b){ return a.name < b.name; } );
 }
 static inline void Inv_SortItemPricey(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
-        [](const item_t& a, const item_t& b){ return a.item_cost < b.item_cost; } );
+        [&](const item_t& a, const item_t& b){ return a.item_cost < b.item_cost; } );
 }
 static inline void Inv_SortItemsWeight(void)
 {
     std::sort(playr->inv.begin(), playr->inv.end(),
-        [](const item_t& a, const item_t& b){ return a.item_weight < b.item_cost; });
+        [&](const item_t& a, const item_t& b){ return a.item_weight < b.item_cost; });
 }
 inline void Inv_SortItems(nomadenum_t sorter)
 {
-    
     switch (sorter) {
     case SORT_ABC:
         Inv_SortItemsABC();

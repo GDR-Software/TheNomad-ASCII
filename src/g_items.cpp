@@ -84,6 +84,15 @@ const char* GetWeaponNameFromId(nomaduint_t id)
 	return nullptr;
 }
 
+void G_SpawnItem(nomaduint_t itemid, nomadlong_t ticker, coord_t& pos)
+{
+    game->items.emplace_back();
+    game->items.back() = (item_t *)Z_Malloc(sizeof(item_t), TAG_STATIC, &game->items.back());
+    *game->items.back() = iteminfo[itemid];
+    game->items.back()->ticker = ticker;
+    game->items.back()->pos = pos;
+}
+
 money_t currency_convert(money_t from, nomadenum_t to)
 {
     if (from.type == to)

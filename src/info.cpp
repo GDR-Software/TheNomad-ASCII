@@ -1,22 +1,19 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/info.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/info.cpp
 //  this is where all the boiled-into-the-binaries takes place
 //----------------------------------------------------------
 #include "n_shared.h"
@@ -86,6 +83,7 @@ std::vector<entitystate_t> stateinfo = {
 	{S_PLAYR_NULL,                        1,   S_PLAYR_SPAWN}, // S_PLAYR_NULL
 	{S_PLAYR_SPAWN,                       2,    S_PLAYR_IDLE}, // S_PLAYR_SPAWN
 	{S_PLAYR_MOVE,                        5,    S_PLAYR_IDLE}, // S_PLAYR_MOVE
+	{S_PLAYR_DASH,           ticrate_base*2,    S_PLAYR_IDLE}, // S_PLAYR_DASH
 	{S_PLAYR_IDLE,                        3,    S_PLAYR_IDLE}, // S_PLAYR_IDLE
 	{S_PLAYR_SHOOT,                       6,    S_PLAYR_IDLE}, // S_PLAYR_SHOOT
 	{S_PLAYR_MELEE,                       8,    S_PLAYR_IDLE}, // S_PLAYR_MELEE
@@ -124,6 +122,9 @@ mobj_t mobinfo[NUMMOBS] = {
 	68,
 	26,
 	(const char *)NULL,
+	{
+		I_HEALTH_NORM
+	}
 },
 {
 	"Ravager\0",
@@ -145,6 +146,9 @@ mobj_t mobinfo[NUMMOBS] = {
 	32,
 	16,
 	(const char *)NULL,
+	{
+		I_HEALTH_NORM
+	}
 },
 {
 	"Grunt\0",
@@ -166,6 +170,10 @@ mobj_t mobinfo[NUMMOBS] = {
 	0,
 	0,
 	(const char *)NULL,
+	{
+		I_BANDAGE,
+		I_FLAK
+	}
 },
 {
 	"Pistol Guy\0",
@@ -180,13 +188,18 @@ mobj_t mobinfo[NUMMOBS] = {
 	true,
 	true,
 	false,
-	8,
+	5,
 	1,
-	32,
-	10,
+	7,
+	12,
 	0,
 	0,
-	(const char *)NULL
+	(const char *)NULL,
+	{
+		I_BULLET_BOX,
+		I_BULLET_PACK,
+//		I_PRIM_RAG15
+	}
 },
 {
 	"Shotgun Dude\0",
@@ -203,11 +216,17 @@ mobj_t mobinfo[NUMMOBS] = {
 	false,
 	0,
 	0,
-	28,
-	12,
+	14,
+	9,
 	0,
 	0,
-	(const char *)NULL
+	(const char *)NULL,
+	{
+//		I_SHOTTY_ADB,
+		I_SHELL_BOX,
+		I_SHELL_PACK,
+//		I_SHOTTY_QS
+	}
 },
 {
 	"Heavy Gunner\0",
@@ -229,6 +248,11 @@ mobj_t mobinfo[NUMMOBS] = {
 	46,
 	14,
 	(const char *)NULL,
+	{
+		I_BULLET_BOX,
+		I_BULLET_PACK,
+//		I_PRIM_AK77
+	}
 }
 };
 
@@ -302,18 +326,18 @@ coord_t botpos[] = {
 
 // name, id, weight, cost
 std::vector<item_t> iteminfo = {
-	{"Small Health Pack",     I_HEALTH_SMALL,   6,  13},
-	{"Medium Health Pack",    I_HEALTH_NORM,    11, 45},
-	{"Large Health Pack",     I_HEALTH_LARGE,   16, 88},
-	{"Bandage",               I_BANDAGE,        4,  8},
-	{"Street-Grade Armor",    I_ARMOR_STREET,   12, 5},
-	{"Militarty-Grade Armor", I_ARMOR_MILITARY, 24, 26},
-	{"Mercenary's Armor",     I_ARMOR_MERC,     39, 69},
-	{"Piece of Flak",         I_FLAK,           9,  5},
-	{"Shotgun Shells (6)",    I_SHELL_PACK,     4,  16},
-	{"Bullets (15)",          I_BULLET_PACK,    6,  13},
-	{"Box of Shotgun Shells", I_SHELL_BOX,      16, 54},
-	{"Box of Bullets",        I_BULLET_BOX,     18, 43},
+	{"Small Health Pack",     I_HEALTH_SMALL,   6,  13, 0},
+	{"Medium Health Pack",    I_HEALTH_NORM,    11, 45, 0},
+	{"Large Health Pack",     I_HEALTH_LARGE,   16, 88, 0},
+	{"Bandage",               I_BANDAGE,        4,  8,  0},
+	{"Street-Grade Armor",    I_ARMOR_STREET,   12, 5,  0},
+	{"Militarty-Grade Armor", I_ARMOR_MILITARY, 24, 26, 0},
+	{"Mercenary's Armor",     I_ARMOR_MERC,     39, 69, 0},
+	{"Piece of Flak",         I_FLAK,           9,  5,  0},
+	{"Shotgun Shells (6)",    I_SHELL_PACK,     4,  16, 0},
+	{"Bullets (15)",          I_BULLET_PACK,    6,  13, 0},
+	{"Box of Shotgun Shells", I_SHELL_BOX,      16, 54, 0},
+	{"Box of Bullets",        I_BULLET_BOX,     18, 43, 0},
 };
 
 const char* logosplash =

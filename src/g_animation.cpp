@@ -13,18 +13,15 @@
 #include "g_animation.h"
 
 static Game* game;
-static pthread_mutex_t pushmutex, loopmutex;
 
 static void A_Kill()
 {
-    pthread_mutex_destroy(&loopmutex);
 }
 
 void A_Init(Game* const gptr)
 {
     game = gptr;
-    atexit(A_Kill);
-    pthread_mutex_init(&loopmutex, NULL);
+//    atexit(A_Kill);
 }
 
 typedef struct animation_s
@@ -77,9 +74,9 @@ void A_PushAnimation(nomadlong_t numtics, animatorb_t anim, NPC* npc)
     animators.push_back({numtics, anim, npc});
 }
 
-void* A_Loop(void *arg)
+void A_Loop()
 {
-    pthread_mutex_lock(&loopmutex);
+//    pthread_mutex_lock(&loopmutex);
     std::vector<animation_t>::iterator it;
     for (it = animators.begin(); it != animators.end(); ++it) {
         --it->numtics;
@@ -101,6 +98,6 @@ void* A_Loop(void *arg)
         if (it->numtics <= -1) banimators.erase(it);
         else (*it->banim)(it->npc);
     }
-    pthread_mutex_unlock(&loopmutex);
-    return NULL;
+//    pthread_mutex_unlock(&loopmutex);
+//    return NULL;
 }

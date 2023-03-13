@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/scf.h
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/scf.h
+//  config file header
 //----------------------------------------------------------
 #ifndef __SCF__
 #define __SCF__
@@ -262,36 +260,45 @@ namespace scf {
 			ODST,
 			NUMMUSIC
 		};
-		extern std::string sfx_adb_shot;
-		extern std::string sfx_adb_reload;
-		extern std::string sfx_adb_jam;
-		extern std::string sfx_fab_shot;
-		extern std::string sfx_fab_reload;
-		extern std::string sfx_fab_jam;
-		extern std::string sfx_hb_melee;
-		extern std::string sfx_playr_hurt;
-		extern std::string sfx_playr_die;
+		constexpr const char* sfx_adb_shot       = "SHOTTYBLAST.wav";
+		constexpr const char* sfx_adb_reload     = "ADBRLD.wav";
+		constexpr const char* sfx_adb_jam        = "ADBJAM.wav";
+		constexpr const char* sfx_fab_shot       = "FABSHOT.wav";
+		constexpr const char* sfx_fab_reload     = "FABRLD.wav";
+		constexpr const char* sfx_fab_jam        = "FABJAM.wav";
+		constexpr const char* sfx_hb_melee       = "HBSWING.wav";
+		constexpr const char* sfx_playr_hurt_0   = "PLGRNT0.wav";
+		constexpr const char* sfx_playr_hurt_1   = "PLGRNT1.wav";
+		constexpr const char* sfx_playr_hurt_2   = "PLGRNT2.wav";
+		constexpr const char* sfx_playr_die      = "PLDIE.wav";
 		
 		// mobs
-		extern std::string sfx_mpistol_die;
-		extern std::string sfx_mpistol_wakeup;
-		extern std::string sfx_mpistol_wander;
-		extern std::string sfx_mshotty_die;
-		extern std::string sfx_mshotty_wakeup;
-		extern std::string sfx_mshotty_wander;
-		extern std::string sfx_mhulk_die;
-		extern std::string sfx_mhulk_wakeup;
-		extern std::string sfx_mhulk_wander;
+		constexpr const char* sfx_mpistol_die    = "MPISTOLDIE.wav";
+		constexpr const char* sfx_mpistol_wakeup = "MPISTOLWU.wav";
+		constexpr const char* sfx_mpistol_wander = "MPISTOLWANDER.wav";
+		constexpr const char* sfx_mshotty_die    = "MSHOTTYDIE.wav";
+		constexpr const char* sfx_mshotty_wakeup = "MSHOTTYWU.wav";
+		constexpr const char* sfx_mshotty_wander = "MSHOTTYWANDER.wav";
+		constexpr const char* sfx_mhulk_die      = "MHULKDIE.wav";
+		constexpr const char* sfx_mhulk_wakeup   = "MHULKWU.wav";
+		constexpr const char* sfx_mhulk_wander   = "MHULKWANDER.wav";
 
 		// random
-		extern std::string sfx_find_secret;
-		extern std::string sfx_pickup_ammo;
-		extern std::string sfx_pickup_shell;
-		extern std::string sfx_readyup;
-		extern std::string sfx_stab;
-		extern std::string sfx_gibb;
+		constexpr const char* sfx_find_secret    = "PLFINDSECRET.wav";
+		constexpr const char* sfx_pickup_ammo    = "PLGETAMMO.wav";
+		constexpr const char* sfx_pickup_shell   = "PLGETSHELL.wav";
+		constexpr const char* sfx_readyup        = "PLRDYUP.wav";
+		constexpr const char* sfx_stab           = "GSTAB.wav";
+		constexpr const char* sfx_gibb           = "GGIBB.wav";
+
+		constexpr nomadubyte_t numdryfire = 3;
+		constexpr const char* sfx_dry_fire[numdryfire] = {
+			"PLDRYFIRE0.wav",
+			"PLDRYFIRE1.wav",
+			"PLDRYFIRE2.wav"
+		};
 		
-		constexpr uint16_t numsounds = NUMSFX;
+		constexpr nomadushort_t numsounds = NUMSFX;
 	};
 	namespace launch {
 		extern nomadbool_t fastmobs1;

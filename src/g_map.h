@@ -1,22 +1,19 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/g_map.h
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_map.h
 //----------------------------------------------------------
 #ifndef _G_MAP_
 #define _G_MAP_
@@ -70,7 +67,7 @@ public:
 	Level(Level &&) = default;
 	~Level();
 	
-	void G_LoadSpawners(std::shared_ptr<BFF>& bff);
+	void G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120]);
 	void G_LoadLevel()
 	{
 		char mapbuffer[520][520];
@@ -90,7 +87,7 @@ public:
 class Sector
 {
 public:
-	std::array<std::array<char, 120>, 120> sector_map;
+	eastl::array<eastl::array<char, 120>, 120> sector_map;
 	std::string sector_name;
 	std::string sector_id;
 	nomadint_t sector_num = 0;
@@ -114,10 +111,10 @@ public:
 	std::vector<std::shared_ptr<Level>> levels;
 	std::vector<std::shared_ptr<Sector>> sectors;
 public:
-	Map(){}
-	Map(const Map &) = delete;
+	Map() = default;
+	Map(const Map &) = default;
 	Map(Map &&) = default;
-	~Map(){}
+	~Map() = default;
 };
 
 #define FILE_NAME(x) std::string("Files/gamedata/BFF/nomadmain.bff/")+std::string(x)
@@ -138,49 +135,12 @@ public:
 	sprite_t replacement;
 	coord_t pos;
 public:
-	Spawner(){}
-	Spawner(const Spawner &) = delete;
+	Spawner() = default;
+	Spawner(const Spawner &) = default;
 	Spawner(Spawner &&) = default;
-	~Spawner(){}
+	~Spawner() = default;
 };
 
-typedef enum
-{
-	SND_FILE_MP3,
-	SND_FILE_WAV,
-	SND_FILE_OGG
-} sndfile_t;
-
-class SoundFile
-{
-public:
-	std::string file;
-//	sndfile_t type : 8;
-	nomadbool_t sfx : 1;
-
-	std::vector<nomadshort_t> buffer;
-	SF_INFO fdata;
-public:
-	void Load(const std::string& filename, const std::string& dirpath)
-	{
-		file = filename;
-		std::string path = "Files/gamedata/BFF/"+dirpath+filename;
-		SNDFILE* sf = sf_open(path.c_str(), SFM_READ, &fdata);
-		if (!sf) {
-			N_Error("failed to open sound file %s! libsndfile message: %s", filename.c_str(), sf_strerror(sf));
-		}
-		nomadshort_t buf[4096];
-    	nomadsize_t read;
-    	while ((read = sf_read_short(sf, buf, ARRAY_SIZE(buf))) != 0) {
-    	    buffer.insert(buffer.end(), buf, buf + read);
-    	}
-    	sf_close(sf);
-	}
-	SoundFile(){}
-	SoundFile(const SoundFile &) = delete;
-	SoundFile(SoundFile &&) = default;
-	~SoundFile(){}
-};
 
 class BFF
 {
@@ -189,7 +149,6 @@ public:
 	std::string bffname;
 	std::string bffversion;
 	std::array<nomadint_t, 3> game_version;
-	std::vector<std::shared_ptr<SoundFile>> sounds;
 	std::vector<std::shared_ptr<Level>> levels;
 	std::vector<std::shared_ptr<Map>> maps;
 	std::vector<std::shared_ptr<Spawner>> spawners;
@@ -198,10 +157,10 @@ public:
 	{
 		dirpath = _dirpath;
 	}
-	~BFF(){}
+	~BFF() = default;
 	void BFF_LinkSpawners(json& data)
 	{
-		nomadint_t numspawners = data["data"]["numspawners"];
+		nomadint_t numspawners = data["data"]["spawners"]["numspawners"];
 		spawners.reserve(numspawners);
 		for (nomadint_t i = 0; i < numspawners; ++i) {
 			spawners.emplace_back(new Spawner());
@@ -301,7 +260,7 @@ public:
 //				std::ifstream file(FILE_NAME(filename), std::ios::in);
 //				//NOMAD_ASSERT(file.is_open(), "failed to open map intro screen %s!", filename.c_str());
 //				std::string line;
-//				while (std::getline(file, line)) { ptr->intro_screen.push_back(line); }
+//				while (eastl::getline(file, line)) { ptr->intro_screen.push_back(line); }
 //				file.close();
 //			}
 //			{
@@ -309,7 +268,7 @@ public:
 //				std::ifstream file(FILE_NAME(filename), std::ios::in);
 //				//NOMAD_ASSERT(file.is_open(), "failed to open map end screen %s!", filename.c_str());
 //				std::string line;
-//				while (std::getline(file, line)) { ptr->exit_screen.push_back(line); }
+//				while (eastl::getline(file, line)) { ptr->exit_screen.push_back(line); }
 //				file.close();
 //			}
 		}

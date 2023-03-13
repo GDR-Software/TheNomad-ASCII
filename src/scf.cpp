@@ -1,22 +1,21 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/scf.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/scf.cpp
+//  parsing config files that inputs directly into the game,
+//  effectively settings
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
@@ -42,36 +41,6 @@ namespace scf {
     nomadfloat_t sfx_vol = 0;
     nomadushort_t mobspeed = MOB_SPEED_STD;
     nomadushort_t fov[2] = {MAX_VERT_FOV, MAX_HORZ_FOV};
-    namespace sounds {
-        std::string sfx_adb_shot       = "SHOTTYBLAST.wav";
-		std::string sfx_adb_reload     = "ADBRLD.wav";
-		std::string sfx_adb_jam        = "ADBJAM.wav";
-		std::string sfx_fab_shot       = "FABSHOT.wav";
-		std::string sfx_fab_reload     = "FABRLD.wav";
-		std::string sfx_fab_jam        = "FABJAM.wav";
-		std::string sfx_hb_melee       = "HBSWING.wav";
-		std::string sfx_playr_hurt     = "PLAYRGRUNT.wav";
-		std::string sfx_playr_die      = "PLAYRDIE.wav";
-		
-		// mobs
-		std::string sfx_mpistol_die    = "MPISTOLDIE.wav";
-		std::string sfx_mpistol_wakeup = "MPISTOLWU.wav";
-		std::string sfx_mpistol_wander = "MPISTOLWANDER.wav";
-		std::string sfx_mshotty_die    = "MSHOTTYDIE.wav";
-		std::string sfx_mshotty_wakeup = "MSHOTTYWU.wav";
-		std::string sfx_mshotty_wander = "MSHOTTYWANDER.wav";
-		std::string sfx_mhulk_die      = "MHULKDIE.wav";
-		std::string sfx_mhulk_wakeup   = "MHULKWU.wav";
-		std::string sfx_mhulk_wander   = "MHULKWANDER.wav";
-
-		// random
-		std::string sfx_find_secret;
-		std::string sfx_pickup_ammo;
-		std::string sfx_pickup_shell;
-		std::string sfx_readyup;
-		std::string sfx_stab;
-		std::string sfx_gibb;
-    };
     namespace launch {
         nomadbool_t fastmobs1 = false;
 		nomadbool_t fastmobs2 = false;

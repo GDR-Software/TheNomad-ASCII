@@ -56,6 +56,7 @@ typedef enum : nomaduint_t
 	S_PLAYR_NULL, // in the menus
 	S_PLAYR_SPAWN, // just spawned in
 	S_PLAYR_MOVE, // player is moving
+	S_PLAYR_DASH, // dash ability
 	S_PLAYR_IDLE, // player is standing still
 	S_PLAYR_SHOOT,
 	S_PLAYR_MELEE,

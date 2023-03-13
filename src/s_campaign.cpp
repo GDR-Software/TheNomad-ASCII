@@ -1,3 +1,21 @@
+//----------------------------------------------------------
+//
+// Copyright (C) GDR Games 2022-2023
+//
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
+// Free Software Foundation.
+//
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/s_campaign.cpp
+//  really just the initializers for running levels
+//----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
 #include "g_zone.h"
@@ -62,8 +80,13 @@ inline auto chapter_highest_diff(chapter_t& chapter) -> const char*
     return (const char *)NULL;
 };
 
+static nomadbool_t inlvl = false;
+
 static void G_StartupCampaign(nomadshort_t difficulty)
 {
+    if (inlvl)
+        return;
+    
     if (difficulty == DIF_NOOB) {
         for (auto& i : mobinfo) {
             i.health >>= 1;
@@ -72,24 +95,24 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     }
     else if (difficulty == DIF_NOMAD) {
         for (auto& i : mobinfo) {
-            i.health <<= 1;
-            i.armor <<= 1;
+            i.health *= 1.5;
+            i.armor *= 1.5;
         }
     }
     else if (difficulty == DIF_BLACKDEATH) {
         for (auto& i : mobinfo) {
-            i.health *= float_to_fixed(5.6f);
-            i.armor *= float_to_fixed(5.6f);
+            i.health *= 2;
+            i.armor *= 2;
         }
     }
     else if (difficulty == DIF_MINORINCONVENIENCE) {
         for (auto& i : mobinfo) {
-            i.health *= float_to_fixed(5.666f);
-            i.armor *= float_to_fixed(5.666f);
+            i.health <<= 2;
+            i.armor <<= 2;
         }
     }
     game->difficulty = difficulty;
-    std::shared_ptr<Level>& lvl = game->bff->levels[0];
+    std::shared_ptr<Level> lvl = game->bff->levels[0];
     game->playr->pmode = P_MODE_MISSION;
     char mapbuffer[9][120][120];
     memset(mapbuffer, '#', sizeof(mapbuffer));
@@ -98,6 +121,8 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     for (std::vector<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
         M_KillMob(it);
     }
+    lvl->G_LoadSpawners(game->bff, mapbuffer);
+    LOG_INFO("Initializing spawners");
     FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
 	for (y = 0; y < 80; ++y) {
 		for (x = 0; x < MAP_MAX_X+160; ++x) {
@@ -167,6 +192,7 @@ static void G_StartupCampaign(nomadshort_t difficulty)
 	}
     NOMAD_ASSERT(fp, "failed to open Files/gamedata/RUNTIME/mapfile.txt!");
     fclose(fp);
+    inlvl = true;
 }
 
 

@@ -1,3 +1,21 @@
+//----------------------------------------------------------
+//
+// Copyright (C) GDR Games 2022-2023
+//
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
+// Free Software Foundation.
+//
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_sound.cpp
+//  plays sounds
+//----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
 #include "g_zone.h"
@@ -24,10 +42,10 @@ enum
 	NUMSNDBOOLS
 };
 
-#pragma pack(push, 1)
+//#pragma pack(push, 1)
 typedef struct nomadsnd_s
 {
-	nomadbool_t bools[NUMSNDBOOLS];
+	//nomadbool_t bools[NUMSNDBOOLS];
 	ALuint buffer;
 	ALuint source;
 	std::vector<nomadshort_t> rdbuf;
@@ -40,23 +58,28 @@ typedef struct nomadsnd_s
     nomadbool_t has_buffer = false;
     nomadbool_t buffer_bound = false;
 } nomadsnd_t;
-#pragma pack(pop)
+//#pragma pack(pop)
 
-#pragma pack(push, 1)
-typedef struct sound_s
+class Sound
 {
+public:
 	ALCdevice* device;
 	ALCcontext* context;
 	ALenum error;
 	
 	nomadsnd_t* snd_list;
 	nomadsnd_t* music;
-} sound_t;
-#pragma pack(pop)
+	std::mutex lock;
+public:
+	void S_FreeSound(nomadsnd_t* ptr);
+	void S_AllocMusic(const char* name);
+	void S_AllocSFX(const char* name);
+};
+
 
 #define alCall(x)\
 	x; if ((snd->error = alGetError()) != AL_NO_ERROR) N_Error("[OpenAL Error] %s, %u: %s",__func__,__LINE__,alStrError())
-static sound_t* snd;
+static Sound* snd;
 static nomadbool_t* sfx_on = &scf::sfx_on;
 static nomadbool_t* music_on = &scf::music_on;
 static nomadbool_t snd_on;
@@ -79,14 +102,7 @@ static const char* alStrError()
 #define SND_TYPE_MUSIC 0
 #define SND_TYPE_SFX   1
 
-inline void S_FreeBuffer(nomadsnd_t* const ptr);
-inline void S_FreeSource(nomadsnd_t* const ptr);
-inline void S_AllocBuffer(nomadsnd_t* const ptr);
-inline void S_AllocSource(nomadsnd_t* const ptr);
-inline void S_BindBuffer(nomadsnd_t* const ptr);
-inline void S_UnbindBuffer(nomadsnd_t* const ptr);
-
-void S_AllocMusic(const char* name)
+void Sound::S_AllocMusic(const char* name)
 {
 	if (!(*music_on)) {
 		LOG_INFO("scf::music_on == false, ignoring call");
@@ -99,20 +115,19 @@ void S_AllocMusic(const char* name)
     strcat(path, game->bffname);
     strcat(path, "/MUSIC/");
     strcat(path, name);
-    snd->music = new nomadsnd_t;
-    if (!snd->music) {
+    music = (nomadsnd_t *)Z_Malloc(sizeof(nomadsnd_t), TAG_STATIC, &music);
+    if (!music) {
         N_Error("S_AllocMusic: memory allocation failed");
     }
-    nomadsnd_t* music = snd->music;
     music->prev = NULL;
-    music->next = snd->snd_list;
-    snd->snd_list->prev = music;
+    music->next = snd_list;
+    snd_list->prev = music;
 	SF_INFO fdata;
 	SNDFILE* sf = sf_open(path, SFM_READ, &fdata);
     Z_ChangeTag(path, TAG_PURGELEVEL);
 	if (!sf) {
-		LOG_WARN("sf_open: failed to create read-only audio file stream for %s, aborting", path);
-        Z_Free(snd->music);
+		LOG_WARN("Sound::S_AllocMusic failed to create read-only audio file stream for %s with sf_open, aborting", path);
+        Z_ChangeTag(music, TAG_PURGELEVEL);
 		return;
 	}
     nomadshort_t *buffer = new nomadshort_t[sizeof(nomadshort_t) * 4096];
@@ -122,30 +137,30 @@ void S_AllocMusic(const char* name)
     memset(buffer, 0, sizeof(nomadshort_t) * 4096);
 	nomadsize_t read;
 	while ((read = sf_read_short(sf, buffer, 4096 * sizeof(nomadshort_t))) != 0) {
-		snd->music->rdbuf.insert(snd->music->rdbuf.end(), buffer, buffer + read);
+		music->rdbuf.insert(music->rdbuf.end(), buffer, buffer + read);
 	}
-    delete[] buffer;
+	delete[] buffer;
     alGenSources(1, &music->source);
     alGenBuffers(1, &music->buffer);
-	alBufferData(snd->music->buffer, fdata.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
-		&snd->music->rdbuf.front(), snd->music->rdbuf.size() * sizeof(nomadshort_t), fdata.samplerate);
+	alBufferData(music->buffer, fdata.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
+		&music->rdbuf.front(), music->rdbuf.size() * sizeof(nomadshort_t), fdata.samplerate);
 	alSourcei(music->source, AL_BUFFER, music->buffer);
-    snd->music->has_played = false;
+    music->has_played = false;
     music->has_buffer = true;
     music->has_source = true;
     music->buffer_bound = true;
 }
 
-void S_AllocSFX(const std::string& name)
+void Sound::S_AllocSFX(const char* name)
 {
 	nomadsnd_t* end;
-	if (snd->snd_list->rdbuf.size() < 1) {
-		end = snd->snd_list;
+	if (snd_list->rdbuf.size() < 1) {
+		end = snd_list;
 	}
 	else {
-		for (nomadsnd_t *it = snd->snd_list;; it = it->next) {
+		for (nomadsnd_t *it = snd_list;; it = it->next) {
 			if (it->next == NULL) {
-				it->next = new nomadsnd_t;
+				it->next = (nomadsnd_t *)Z_Malloc(sizeof(nomadsnd_t), TAG_STATIC, &it->next);
                 if (!it->next) {
                     N_Error("S_AllocSFX: memory allocation failed");
                 }
@@ -165,14 +180,14 @@ void S_AllocSFX(const std::string& name)
     strcpy(path, "Files/gamedata/BFF/");
     strcat(path, game->bffname);
     strcat(path, "/SFX/");
-    strcat(path, name.c_str());
+    strcat(path, name);
 	
 	SF_INFO fdata;
 	SNDFILE* sf = sf_open(path, SFM_READ, &fdata);
     Z_ChangeTag(path, TAG_PURGELEVEL);
 	if (!sf) {
-		LOG_WARN("sf_open: failed to open audio file stream for %s, aborting", path);
-		Z_Free(end->next);
+		LOG_WARN("Sound::S_AllocSFX failed to open audio file stream for %s with sf_open, aborting", path);
+		Z_ChangeTag(end->next, TAG_PURGELEVEL);
 		return;
 	}
 	
@@ -185,7 +200,7 @@ void S_AllocSFX(const std::string& name)
 	while ((read = sf_read_short(sf, buffer, 4096 * sizeof(nomadshort_t))) != 0) {
 		end->rdbuf.insert(end->rdbuf.end(), buffer, buffer + read);
 	}
-    delete[] buffer;
+	delete[] buffer;
 	
     alGenSources(1, &end->source);
     alGenBuffers(1, &end->buffer);
@@ -202,23 +217,23 @@ void S_AllocSFX(const std::string& name)
 	end->next = NULL;
 }
 
-void P_PlaySFX(const std::string& name)
+void P_PlaySFX(const char* name)
 {
 	if (!(*sfx_on))
 		return;
 	
-	S_AllocSFX(name);
+	snd->S_AllocSFX(name);
 }
 
-void S_FreeSound(nomadsnd_t *ptr)
+void Sound::S_FreeSound(nomadsnd_t* ptr)
 {
     if (!ptr) {
         return;
     }
-	if (ptr->prev == NULL && ptr->next == NULL && ptr != snd->snd_list) {
+	if (ptr->prev == NULL && ptr->next == NULL && ptr != snd_list) {
 		N_Error("S_FreeSound: ptr has improper linkage");
 	}
-	if (ptr == snd->snd_list) {
+	if (ptr == snd_list) {
 		ptr->has_played = false;
         alSourcei(ptr->source, AL_BUFFER, 0);
         alDeleteBuffers(1, &ptr->buffer);
@@ -226,10 +241,11 @@ void S_FreeSound(nomadsnd_t *ptr)
         ptr->has_buffer = false;
         ptr->has_source = false;
         ptr->buffer_bound = false;
+		Z_ChangeTag(ptr, TAG_PURGELEVEL);
 	}
-	else if (ptr != snd->snd_list && ptr != snd->music) {
+	else if (ptr != snd_list && ptr != music) {
 		if (!ptr->prev) {
-			LOG_WARN("ptr->prev == NULL, ptr != snd->snd_list && ptr != snd->music, improper linkage");
+			LOG_WARN("Sound::S_FreeSound: ptr->prev == NULL, ptr != snd->snd_list && ptr != snd->music, improper linkage");
 			N_Error("S_FreeSound: ptr->prev has improper linkage");
 		}
         alSourcei(ptr->source, AL_BUFFER, 0);
@@ -241,18 +257,18 @@ void S_FreeSound(nomadsnd_t *ptr)
         if (ptr->next) {
             ptr->next->prev = ptr->prev;
         }
-        delete ptr;
+		Z_ChangeTag(ptr, TAG_PURGELEVEL);
 	}
-	else if (ptr == snd->music) {
+	else if (ptr == music) {
 		if (!ptr->next) {
-			LOG_WARN("ptr->next == NULL, ptr == snd->music, improper linkage");
+			LOG_WARN("Sound::S_FreeSound: ptr->next == NULL, ptr == snd->music, improper linkage");
 			N_Error("S_FreeSound: ptr->next has improper linkage");
 		}
 		ptr->has_played = false;
 		alSourcei(ptr->source, AL_BUFFER, 0);
         alDeleteBuffers(1, &ptr->buffer);
         alDeleteSources(1, &ptr->source);
-        delete ptr;
+    	Z_ChangeTag(ptr, TAG_PURGELEVEL);
 	}
 }
 
@@ -265,20 +281,19 @@ void Snd_Kill()
 			if (state == AL_PLAYING && it->has_played) {
 				alSourceStop(it->source);
 			}
-            if (it->has_buffer) {
-                if (it->buffer_bound) {
-                    alSourcei(it->source, AL_BUFFER, 0);
-                }
-                alDeleteBuffers(1, &it->buffer);
-            }
-            alDeleteSources(1, &it->source);
+	        if (it->has_buffer) {
+	            if (it->buffer_bound) {
+	                alSourcei(it->source, AL_BUFFER, 0);
+	            }
+	            alDeleteBuffers(1, &it->buffer);
+	        }
+	        alDeleteSources(1, &it->source);
 		}
-        delete it;
+	    Z_Free(it);
 	}
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(snd->context);
 	alcCloseDevice(snd->device);
-    delete snd;
 }
 
 void S_PlayMusic(const char* name)
@@ -286,11 +301,12 @@ void S_PlayMusic(const char* name)
     if (!(*music_on))
         return;
     
-    S_AllocMusic(name);
+    snd->S_AllocMusic(name);
 }
 
 void G_RunSound()
 {
+	std::scoped_lock lock{snd->lock};
 	// deal with the music data first
 	if (*music_on && snd->music->has_buffer && snd->music->has_source) {
 		nomadsnd_t* music = snd->music;
@@ -304,7 +320,7 @@ void G_RunSound()
             alSourcePlay(music->source);
         }
         else if (state != AL_PLAYING && music->has_played) {
-            S_FreeSound(music);
+            snd->S_FreeSound(music);
         }
 	}
 	if (!(*sfx_on))
@@ -318,7 +334,7 @@ void G_RunSound()
             alSourcePlay(it->source);
         }
         else if (state != AL_PLAYING && it->has_played) {
-            S_FreeSound(it);
+            snd->S_FreeSound(it);
         }
         else {
             continue;
@@ -328,7 +344,7 @@ void G_RunSound()
 
 static void S_PreAllocate()
 {
-	snd->snd_list = new nomadsnd_t;
+	snd->snd_list = (nomadsnd_t *)Z_Malloc(sizeof(nomadsnd_t), TAG_STATIC, &snd->snd_list);
     if (!snd->snd_list) {
         N_Error("S_PreAllocate: memory allocation failed");
     }
@@ -348,15 +364,17 @@ void Snd_Init(Game* const gptr)
     playr = game->playr;
 	*sfx_on = false;
 	*music_on = false;
-	snd = new sound_t;
+	snd = (Sound *)Z_Malloc(sizeof(Sound), TAG_STATIC, &snd);
     if (!snd) {
-        N_Error("Snd_Init: memory allocation failed");
+		fprintf(stderr, "Snd_Init: failed memory allocation for sound, aborting.\n");
+		Z_Free(snd);
+		return;
     }
 	snd->device = alcOpenDevice(NULL);
 	if (!snd->device) {
 		fprintf(stderr, "alcOpenDevice: failed to initialize device, OpenALC Error: %s\n",
 			alcGetString(snd->device, alcGetError(snd->device)));
-		delete snd;
+		Z_Free(snd);
 		return;
 	}
 	snd->context = alcCreateContext(snd->device, NULL);
@@ -364,7 +382,7 @@ void Snd_Init(Game* const gptr)
 		fprintf(stderr, "alcCreateContext: failed to initialize context, OpenALC Error: %s\n",
 			alcGetString(snd->device, alcGetError(snd->device)));
 		alcCloseDevice(snd->device);
-		delete snd;
+		Z_Free(snd);
 		return;
 	}
 	alcMakeContextCurrent(snd->context);
@@ -374,7 +392,7 @@ void Snd_Init(Game* const gptr)
 			alcGetString(snd->device, alcGetError(snd->device)));
 		alcDestroyContext(snd->context);
 		alcCloseDevice(snd->device);
-		delete snd;
+		Z_Free(snd);
 		return;
 	}
 	*sfx_on = true;

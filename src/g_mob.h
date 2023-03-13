@@ -1,22 +1,19 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/g_mob.h
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_mob.h
 //----------------------------------------------------------
 #ifndef _G_MOB_
 #define _G_MOB_
@@ -50,7 +47,7 @@ enum : nomaduint_t
 // 20
 typedef struct mobj_s
 {
-	const char* name;
+	const char name[80];
 	sprite_t sprite;
 	nomadshort_t health;
 	nomadushort_t armor;
@@ -71,6 +68,10 @@ typedef struct mobj_s
 		memcpy(&(*this), &m, sizeof(mobj_s));
 		return *this;
 	}
+	inline mobj_s() = default;
+	inline mobj_s(const mobj_s &) = default;
+	inline mobj_s(mobj_s &&) = default;
+	inline ~mobj_s() = default;
 } mobj_t;
 
 typedef struct
@@ -102,8 +103,8 @@ public:
 	entitystate_t mstate;
 	nomadshort_t stepcounter;
 public:
-	Mob(){}
-	~Mob(){}
+	Mob() = default;
+	~Mob() = default;
 	Mob& operator=(const Mob &mob) {
 		memcpy(&(*this), &mob, sizeof(Mob));
 		return *this;

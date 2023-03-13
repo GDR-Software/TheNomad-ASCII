@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/g_loop.cpp
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_loop.cpp
+//  main gameplay loop
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
@@ -227,6 +225,7 @@ void LooperDelay(nomaduint_t numsecs)
 }
 
 static std::vector<Mob*>::iterator mob_it;
+static std::vector<item_t*>::iterator item_it;
 
 static void levelLoop(void)
 {
@@ -241,19 +240,23 @@ static void levelLoop(void)
 			std::this_thread::sleep_for(std::chrono::seconds(loop_delay));
 			loop_delay = 0;
 		}
+		std::thread snd_thread(G_RunSound);
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
-		G_RunSound();
-		if (game->m_Active.size() < 50) {
-			Mob* mob = M_SpawnMob();
-			M_GenMob(mob);
-		}
+		snd_thread.join();
 		for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
 			if ((*mob_it)->health < 0) {
 				M_KillMob(mob_it);
 			}
 			else {
 				M_RunThinker(*mob_it);
+			}
+		}
+		for (item_it = game->items.begin(); item_it != game->items.end(); ++item_it) {
+			--(*item_it)->ticker;
+			if ((*item_it)->ticker <= -1) {
+				game->items.erase(item_it);
+				Z_Free(*item_it);
 			}
 		}
 		// custom key-binds will be implemented in the future
@@ -263,7 +266,7 @@ static void levelLoop(void)
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
-//		Z_CleanCache();
+//		Z_FreeTags(TAG_PURGELEVEL, TAG_SCOPE);
 	};
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;

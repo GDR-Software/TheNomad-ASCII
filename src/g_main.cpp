@@ -35,14 +35,19 @@ void MainAssigner(Game* const gptr)
 	game = gptr;
 }
 
-#ifdef __unix__
+#ifndef __unix__
+#define signal(sig,handle)
+#endif
+
 void signal_interrupt(int signum)
 {
+#ifdef __unix__
 	if (game->gamestate != GS_TITLE && GS_MENU)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
 	puts("Killing Proccess, Exit Success!");
 	exit(EXIT_SUCCESS);
+#endif
 }
 
 void signal_seggy(int signum)
@@ -66,7 +71,7 @@ void signal_unnatural_demise(int signum)
 #ifndef RELEASE
 	puts("Received Signal Abort");
 #else
-	puts("The Game Object Was KIA'd By Strange & Mysterious Forces Beyond Our Knowledege...");
+	puts("The game object was KIA'd by strange & mysterious forces beyond Our knowledege...");
 #endif
 	exit(EXIT_FAILURE);
 }
@@ -79,11 +84,10 @@ void signal_somethins_corrupt(int signum)
 #ifndef RELEASE
 	printf("Received Signal Corruption\n");
 #else
-	puts("Somethin's Gotten Corrupt... I Don't Know What, But This Thing is Corrupt, Your Fault, Perhaps?");
+	puts("Somethin's gotten corrupt... I don't know what, but this thing is corrupt... Your fault, perhaps?");
 #endif
 	exit(EXIT_FAILURE);
 }
-#endif
 
 static void set_nonblock(void)
 {
@@ -136,26 +140,23 @@ void __attribute__((destructor)) debug_kill(void)
 	fclose(dbg_file);
 }
 
-#ifdef __unix__
 void signal_buss(int signum)
 {
 	if (game->gamestate != GS_TITLE && GS_MENU && GS_PAUSE)
 		delwin(game->hudwin[HL_VMATRIX]);
 	game->~Game();
 #ifdef RELEASE
-	LOG_WARN("RECIEVED SIGNAL SIGBUS!");
+	LOG_WARN("RECIEVED SIGNAL SIGBUS! ABORT! ABORT!");
 	puts("Attempted to access invalid memory address (sigbus)");
 #else
 	puts("signal SIGBUS recieved");
 #endif
 	exit(EXIT_FAILURE);
 }
-#endif
 
 int main(int argc, char* argv[])
 {
 	LOG_INFO("starting up game");
-#ifdef UNIX_NOMAD
 	signal(SIGINT, signal_interrupt);
 	signal(SIGSEGV, signal_seggy);
 	signal(SIGTERM, signal_interrupt);
@@ -164,7 +165,7 @@ int main(int argc, char* argv[])
 	signal(SIGQUIT, signal_interrupt);
 	signal(SIGKILL, signal_interrupt);
 	signal(SIGBUS, signal_buss);
-#endif
+	
 	set_nonblock();
 	mainLoop(argc, argv);
 	return 0;

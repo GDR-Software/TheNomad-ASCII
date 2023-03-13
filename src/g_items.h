@@ -195,10 +195,30 @@ typedef struct item_s
 
 	// in gold coins
 	nomaduint_t item_cost;
+
+	nomadlong_t ticker = 0;
+	coord_t pos{0,0};
 } item_t;
 
 extern std::vector<weapon_t> wpninfo;
 extern std::vector<item_t> iteminfo;
+
+typedef enum : nomadenum_t
+{
+	AT_SHELL,
+	AT_BULLET,
+	AT_PLASMA,
+	AT_FUSION,
+
+	NUMAMMOTYPES
+} ammotype_t;
+
+typedef struct ammopool_s
+{
+	nomadlong_t pool;
+	ammotype_t type;
+} ammopool_t;
+
 
 class Weapon
 {
@@ -218,6 +238,7 @@ public:
 	}
 };
 
+void G_SpawnItem(nomaduint_t itemid, nomadlong_t ticker, coord_t& pos);
 void CombatAssigner(Game* const gptr);
 void ItemAssigner(Game* const gptr);
 void P_ShootShotty(Weapon* const wpn);

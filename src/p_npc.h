@@ -45,10 +45,6 @@ typedef enum : nomadenum_t
 	NUMBOTTYPES
 } bot_t;
 
-enum : nomadushort_t
-{
-};
-
 typedef struct
 {
 	nomadushort_t personality;
@@ -98,7 +94,7 @@ public:
 };
 
 void B_BalanceBot(NPC* const npc);
-void B_KillBot(std::vector<NPC*>::iterator npc);
+void B_KillBot(eastl::vector<NPC*>::iterator npc);
 void B_KillBot(NPC* npc);
 NPC* B_SpawnBot(void);
 

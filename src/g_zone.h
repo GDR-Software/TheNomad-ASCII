@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/g_zone.h
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_zone.h
+//  header for the zone allocation daemon
 //----------------------------------------------------------
 #ifndef _Z_ZONE_
 #define _Z_ZONE_
@@ -59,7 +57,7 @@ constexpr auto TAG_PURGELEVEL = 100;
 constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
 #ifndef TESTING
-static constexpr int heapsize = 50*1024*1024; // allocating 50 mb (mainzone size)
+static constexpr int heapsize = 62*1024*1024; // allocating 62 mb (mainzone size)
 static constexpr int reserved_size = 30*1024*1024; // 30 mb reserved memory
 static constexpr int cardinal_size = 25*1024*1024; // 25 mb for cardinal system
 #endif
@@ -89,23 +87,60 @@ __CFUNC__ void Z_DumpHeap(void);
 #endif
 __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone);
 
+#define GET_ZONE_ID(zone) \
+({int id; \
+	if (zone==mainzone) id = 0; \
+	else if (zone==reserved) id = 1; \
+	else if (zone==cardinal) id = 2; \
+id;})
+
 // mainzone allocations
-//#ifndef _NOMAD_DEBUG
-#define Z_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,mainzone)
-#define Z_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,mainzone)
-#define Z_Calloc(ptr,nelem,elemsize,tag) Zone_Calloc(ptr,nelem,elemsize,tag,mainzone)
-#define Z_Free(ptr) Zone_Free(ptr,mainzone)
+#if 0
+#define LOG_BLOCK(ptr,zone)                               \
+{                                                         \
+	fprintf(LOGGER_OUTFILE,                               \
+	"[Zone Daemon Log]\n"                                 \
+	"\tzone id               => %i\n"                     \
+	"\tlog type              => BLOCK_LOG\n"              \
+	"\tblock name            => %s\n"                     \
+	"\tblock bytes alloc'd   => %i\n"                     \
+	"\tblock tag             => %i\n",                    \
+	GET_ZONE_ID(zone),#ptr,                               \
+	((memblock_t*)((byte*)ptr-sizeof(memblock_t)))->size, \
+	((memblock_t*)((byte*)ptr-sizeof(memblock_t)))->tag); \
+}
+#else
+#define LOG_BLOCK(ptr,zone)
+#endif
+
+#define Z_FileDumpHeap() Zone_FileDumpHeap(mainzone)
 #define Z_ClearZone() Zone_ClearZone(mainzone)
 #ifndef TESTING
 #define Z_ZoneSize() Zone_ZoneSize(mainzone)
 #endif
+#define Z_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,mainzone)
+#ifndef _NOMAD_DEBUG
+#define Z_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,mainzone)
+#define Z_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,mainzone)
+#define Z_Calloc(ptr,nelem,elemsize,tag) Zone_Calloc(ptr,nelem,elemsize,tag,mainzone)
+#define Z_Free(ptr) Zone_Free(ptr,mainzone)
 #define Z_ChangeUser(ptr,user) Zone_ChangeUser(ptr,user,mainzone)
 #define Z_FreeTags(lowtag,hightag) Zone_FreeTags(lowtag,hightag,mainzone)
 #define Z_CheckHeap() Zone_CheckHeap(mainzone)
-#define Z_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,mainzone)
 #define Z_ChangeTag(ptr,tag) Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,mainzone)
-#define Z_FileDumpHeap() Zone_FileDumpHeap(mainzone)
-//#endif
+#else
+
+#define Z_Malloc(size,tag,ptr) \
+	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,ptr,size,#ptr)
+#define Z_Free(ptr) \
+	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,#ptr)
+#define Z_ChangeTag(ptr,tag) \
+	Z_ChangeTag2(ptr,tag,mainzone,__FILE__,__LINE__,mainzone); LOG_DEBUG("Z_ChangeTag called from %s:%s:%u, name: %s, newtag: %s",__FILE__,__func__,__LINE__,#ptr,#tag)
+#define Z_ChangeUser(ptr,user) \
+	Zone_ChangeUser(ptr,user); LOG_DEBUG("Z_ChangeUser called from %s:%s:%u, name %s, new user: %s",__FILE__,__func__,__LINE__,#ptr,#user)
+#define Z_FreeTags(lowtag,hightag) \
+	Zone_FreeTags(lowtag,hightag); LOG_DEBUG("Z_FreeTags called from %s:%s:%u, lowtag: %s, hightag %s",__FILE__,__func__,__LINUX__,#lowtag,#hightag)
+#endif
 
 // reserved allocations
 #define R_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,reserved)
@@ -138,5 +173,46 @@ __CFUNC__ void Zone_FileDumpHeap(memzone_t* zone);
 #define C_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,cardinal)
 #define C_ChangeTag(ptr,tag) Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,cardinal)
 #define C_FileDumpHeap() Zone_FileDumpHeap(cardinal)
+
+// the usual operator allocaters, linker was giving me hell, so I just grabbed the stuff
+// from the source code, modified it a bit, the slapped it in here
+
+#if 0
+inline void *operator new(unsigned long size)
+{
+    if (size == 0)
+        size = 1;
+
+    void *ptr;
+    while ((ptr = malloc(size)) == NULL) {
+        std::new_handler nh = std::get_new_handler();
+        if (nh)
+            nh();
+        else
+            N_Error("memory allocation failed");
+    }
+    return ptr;
+}
+inline void operator delete(void *ptr)
+{
+    if (!ptr) {
+        LOG_WARN("gave NULL pointer to operator ::delete, aborting");
+        return;
+    }
+    free(ptr);
+}
+inline void *operator new[](unsigned long size)
+{
+    return ::operator new(size);
+}
+inline void operator delete[](void *ptr)
+{
+    ::operator delete(ptr);
+}
+inline void operator delete[](void *ptr, unsigned long)
+{
+    ::operator delete[](ptr);
+}
+#endif
 
 #endif

@@ -1,22 +1,20 @@
 //----------------------------------------------------------
 //
-// Copyright (C) SIGAAMDAD 2022-2023
+// Copyright (C) GDR Games 2022-2023
 //
-// This source is available for distribution and/or modification
-// only under the terms of the SACE Source Code License as
-// published by SIGAAMDAD. All rights reserved
-//
-// The source is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of FITNESS FOR A PARTICLAR PURPOSE. See the SACE
-// Source Code License for more details. If you, however do not
-// want to use the SACE Source Code License, then you must use
-// this source as if it were to be licensed under the GNU General
-// Public License (GPL) version 2.0 or later as published by the
+// This source code is available for distribution and/or
+// modification under the terms of either the Apache License
+// v2.0 as published by the Apache Software Foundation, or
+// the GNU General Public License v2.0 as published by the
 // Free Software Foundation.
 //
-// DESCRIPTION:
-//  src/g_playr.h
+// This source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. If you are using this code for personal,
+// non-commercial/monetary gain, you may use either of the
+// licenses permitted, otherwise, you must use the GNU GPL v2.0.
+//
+// DESCRIPTION: src/g_playr.h
+//  player class
 //----------------------------------------------------------
 #ifndef _G_PLAYR_
 #define _G_PLAYR_
@@ -37,18 +35,13 @@ enum : nomadenum_t
 	P_MODE_SHOPPING,
 	P_MODE_MISSION,
 	P_MODE_SITTING
-};
+};	
 
-typedef union ammo_u
-{
-	nomadlong_t ammopool;
-	nomadint_t mags[2];
-} ammo_t;
 
 class Playr
 {
 public:
-	std::string name;
+//	std::string name;
 	sprite_t sprite;
 	nomadint_t health;
 	nomadenum_t armor;
@@ -64,18 +57,18 @@ public:
 	nomadenum_t wpn_slot_current = 1;
 	std::shared_ptr<Level> c_lvl;
 	std::array<item_t, MAX_PLAYR_ITEMS> inv;
-	nomadint_t body_health[4];
+	std::array<nomadint_t, 4> body_health;
 	entitystate_t pstate;
 	nomadenum_t pmode;
 	nomadenum_t lastmoved;
 	nomadlong_t pticker = 0;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
-	ammo_t ammunition;
-	nomadint_t *magazine = &ammunition.mags[0];
-	nomadint_t *reserve = &ammunition.mags[1];
+	std::array<nomadint_t, NUMAMMOTYPES> ammunition;
 public:
-	Playr(){}
-	~Playr(){}
+	Playr() = default;
+	~Playr() = default;
+	Playr(const Playr &) = default;
+	Playr(Playr &&) = default;
 	Playr& operator=(const Playr& playr) {
 		memcpy(&(*this), &playr, sizeof(Playr));
 		return *this;

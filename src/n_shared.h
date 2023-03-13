@@ -77,73 +77,9 @@
 
 class Game;
 
-#ifdef __linux__
-#   include <unistd.h>
-#   include <fcntl.h>
-#   include <sys/stat.h>
-#   include <sys/mman.h>
-#   include <termios.h>
-#   include <signal.h>
-#   include <dlfcn.h>
-#elif defined(_WIN32)
-#   define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
-#   pragma comment(lib, "libloaderapi2")
-#   include <libloaderapi2.h>
-#   include <conio.h>
-#endif
+#include "n_pch.h"
 
-#ifdef __linux__
-#   define UNIX_NOMAD
-#   ifdef REPLIT
-#   include <ncurses/ncurses.h>
-#   include <ncurses/menu.h>
-#   else
-#   include <ncurses.h>
-#   include <menu.h>
-#   endif
-#elif defined(_WIN32)
-#   define WIN32_NOMAD
-#   include <ncursesw/ncurses.h>
-#   include <ncursesw/menu.h>
-#endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
-#include <stdarg.h>
-#include <sstream>
-#include <functional>
-#include <vector>
-#include <array>
-#include <string>
-#include <iostream>
-#include <memory>
-#include <fstream>
-#include <chrono>
-#include <future>
-#include <iomanip>
-#include <algorithm>
-#include <map>
-#include <alloca.h>
-#include <atomic>
-#include <mutex>
-#include <thread>
-#include <pthread.h>
-
-#include <ALsoft/al.h>
-#include <ALsoft/alc.h>
-#include <sndfile.h>
-
-#ifdef RELEASE
-#ifdef _NOMAD_DEBUG
-#undef _NOMAD_DEBUG
-#endif
-#endif
+#include "n_stdlib.h"
 
 enum
 {
@@ -318,21 +254,7 @@ extern FILE* dbg_file;
 extern FILE* p_file;
 #define LOGGER_OUTFILE dbg_file
 
-
 #ifdef _NOMAD_DEBUG
-#undef Z_Malloc
-#undef Z_Realloc
-#undef Z_Calloc
-#undef Z_Free
-#define Z_Malloc(size,tag,ptr) \
-	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s%u of size %i",__FILE__,__func__,__LINE__,size)
-#define Z_Realloc(ptr,nsize,tag) \
-	Zone_Realloc(ptr,nsize,tag,mainzone) LOG_DEBUG("Z_Realloc called from %s:%s:%u of size %i",__FILE__,__func__,__LINE__,size)
-#define Z_Calloc(ptr,nelem,elemsize) \
-	Zone_Calloc(ptr,nelem,elemsize,mainzone); LOG_DEBUG("Z_Calloc called from %s:%s:%u of size %i",__FILE__,__func__,__LINE__,size)
-#define Z_Free(ptr) \
-	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%u",__FILE__,__func__,__LINE__)
-
 #define NOMAD_ASSERT(expr,...) \
 	(static_cast<bool>(expr) ? void(0) : N_Error("%s:%s:%lu Assertion '%s' failed.", __FILE__,__func__,__LINE__,#expr))
 
@@ -354,11 +276,11 @@ extern FILE* p_file;
 #define MARKER() puts("marker"); exit(1)
 
 #ifdef _NOMAD_DEBUG
-#define LOG_DEBUG(...)                                  \
-{                                                       \
-	fprintf(LOGGER_OUTFILE, "[DEBUG](%s): ", __func__); \
-	fprintf(LOGGER_OUTFILE, __VA_ARGS__);               \
-	fprintf(LOGGER_OUTFILE, "\n");                      \
+#define LOG_DEBUG(...)                         \
+{                                              \
+	fprintf(LOGGER_OUTFILE, "%s: ", __func__); \
+	fprintf(LOGGER_OUTFILE, __VA_ARGS__);      \
+	fprintf(LOGGER_OUTFILE, "\n");             \
 }
 #else
 #define LOG_DEBUG(...)
@@ -390,11 +312,11 @@ extern FILE* p_file;
 {                                                        \
 	fprintf(LOGGER_OUTFILE,                              \
 	"Zone Daemon Log:\n"                                 \
-	"\tlog type    => FREETAGS\n"                        \
-	"\tlowtag      => %s\n"                              \
-	"\thightag     => %s\n"                              \
-	"\tbytes freed => %i\n"                              \
-	"\tblocks freed=> %i\n",                             \
+	"\tlog type              => FREETAGS\n"              \
+	"\tlowtag                => %s\n"                    \
+	"\thightag               => %s\n"                    \
+	"\tbytes freed           => %i\n"                    \
+	"\tblocks freed          => %i\n",                   \
 	TAG_TO_STR(lowtag),                                  \
 	TAG_TO_STR(hightag), nblocks, bfreed);               \
 }
@@ -415,20 +337,20 @@ extern FILE* p_file;
 {                                                        \
 	fprintf(LOGGER_OUTFILE,                              \
 	"[Zone Daemon Log]\n"                                \
-	"\tlog type        => ALLOCATION\n"                  \
-	"\tbytes allocated => %i\n"                          \
-	"\tblock tag       => %i\n"                          \
-	"\tuser pointer    => %p\n",                         \
+	"\tlog type              => ALLOCATION\n"            \
+	"\tbytes allocated       => %i\n"                    \
+	"\tblock tag             => %i\n"                    \
+	"\tuser pointer          => %p\n",                   \
 	size, tag, ptr);                                     \
 }
 #define LOG_DEALLOC(ptr, tag, size)                      \
 {                                                        \
 	fprintf(LOGGER_OUTFILE,                              \
 	"[Zone Daemon Log]\n"                                \
-	"\tlog type     => DEALLOCATION\n"                   \
-	"\tbytes freed  => %i\n"                             \
-	"\tblock tag    => %i\n"                             \
-	"\tuser pointer => %p\n",                            \
+	"\tlog type              => DEALLOCATION\n"          \
+	"\tbytes freed           => %i\n"                    \
+	"\tblock tag             => %i\n"                    \
+	"\tuser pointer          => %p\n",                   \
 	size, tag, ptr);                                     \
 }
 
@@ -442,10 +364,7 @@ extern FILE* p_file;
 #define LOG_WARN(...)                                    \
 {                                                        \
 	fprintf(LOGGER_OUTFILE,                              \
-	"%sWARNING:%s%s\n"                                   \
-	"\tfunction: %s\n"                                   \
-	"\twhat: ",                                          \
-		C_RED, C_RESET, C_YELLOW, __func__);             \
+	"\x1b[31mWARNING:\x1b[0m\x1b[38;5;11m ");            \
 	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
 	fprintf(LOGGER_OUTFILE, "%s\n", C_RESET);            \
 }
@@ -455,7 +374,7 @@ extern FILE* p_file;
 	"%sERROR:%s%s\n"                                     \
 	"\tfunction: %s\n"                                   \
 	"\twhat: ",                                          \
-		C_RED, C_RESET, C_YELLOW, __func__);             \
+		C_RED, C_RESET, "\x1b[38;5;11m", __func__);      \
 	fprintf(LOGGER_OUTFILE, __VA_ARGS__);                \
 	fprintf(LOGGER_OUTFILE, "%s\n", C_RESET);            \
 	exit(EXIT_FAILURE);                                  \
@@ -506,13 +425,6 @@ struct profiler
 #define HALF           (.50)
 #define QUARTER        (.25)
 #define THREE_QUARTERS (.33)
-
-#undef abs
-template<typename T>
-inline int abs(T x)
-{
-	return x > 0 ? -x : x;
-}
 
 inline char kb_hit()
 {
@@ -680,6 +592,11 @@ typedef struct coord_s
 		x += c.x;
 		return *this;
 	}
+	inline coord_s& operator+=(point_t p) {
+		y += p;
+		x += p;
+		return *this;
+	}
 	inline coord_s& operator-=(const coord_s& c) {
 		y -= c.y;
 		x -= c.x;
@@ -690,7 +607,7 @@ typedef struct coord_s
 		case 0: return y;
 		case 1: return x;
 		};
-		LOG_WARN("Invalid call to coord_s operator[], returning y");
+		LOG_WARN("Invalid call to point_t& coord_s::operator[], returning y, i = %hu", i);
 		return y;
 	}
 } coord_t;
@@ -762,7 +679,7 @@ typedef struct area_s
 		case 2: return bl;
 		case 3: return br;
 		};
-		LOG_WARN("Invalid call to area operator[], returning tl");
+		LOG_WARN("Invalid call to coord_t& area_s::operator[], returning tl, i = %hu", i);
 		return tl;
 	}
 } area_t;
@@ -902,38 +819,7 @@ inline auto strtodiff(const char* str) -> nomadenum_t {
 	else if (strstr(str, "DIF_MINORINCONVENIENCE")) return DIF_MINORINCONVENIENCE;
 	return NUMDIFS;
 };
-inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2)
-{
-	const char* cmp1 = str1;
-	const char* cmp2 = str2;
-	while (*cmp1++ && *cmp2++) { if (*cmp1 != *cmp2) return false; }
-	return true;
-}
-inline bool N_strcmp(const char *__restrict str1, const char *__restrict str2, int num)
-{
-	const char* cmp1 = str1;
-	const char* cmp2 = str2;
-	while (*cmp1++ && *cmp2++ && --num) { if (*cmp1 != *cmp2) return false; }
-	return true;
-}
-inline char* N_strcpy(char *__restrict dest, const char *__restrict src)
-{
-	char *__restrict to = dest;
-	const char *__restrict from = src;
-	while (*from)
-		*to++ = *from++;
-	
-	return dest;
-}
-inline char* N_strcpy(char *__restrict dest, const char *__restrict src, int num)
-{
-	char *__restrict to = dest;
-	const char *__restrict from = src;
-	while (*from && --num)
-		*to++ = *from++;
-	
-	return dest;
-}
+
 inline auto strtobool(const char* str) -> nomadbool_t { return N_strcmp(str, "true") ? true : false; };
 inline auto strtobool(const std::string& str) -> nomadbool_t { return str == "true" ? true : false; };
 inline auto booltostr(bool b) -> const char* { return b ? "true" : "false"; };
