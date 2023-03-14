@@ -75,18 +75,10 @@ void Hud_Printf(const char* from, const char* msg, ...)
 	va_start(argptr, msg);
 	vsnprintf(hudbuffer, BUFFER_SIZE, msg, argptr);
 	va_end(argptr);
-#if 0
-	wmove(game->screen, 30, 31);
-	wclrtoeol(game->screen);
-	wrefresh(game->screen);
-#endif
 	for (nomadshort_t i = 0; i < BUFFER_SIZE; ++i) {
 		mvwaddch(game->screen, 30, i+36, ' ');
 	}
 	mvwprintw(game->screen, 30, 32, "[%s]: %s", from, hudbuffer);
-#if 0
-	mvwaddch(game->screen, 30, 128, '#');
-#endif
 }
 
 static inline void Hud_DisplayConsole()
