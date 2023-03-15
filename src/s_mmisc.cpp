@@ -174,13 +174,34 @@ static void M_SpawnDrops(const std::vector<nomaduint_t>& droplist, const coord_t
 	G_SpawnItem(droplist[index], TICRATE_INFINITE, spawnpos);
 }
 
+nomadbool_t M_FindMobAt(coord_t pos)
+{
+	for (auto* i : game->m_Active) {
+		if (i->mpos == pos) {
+			return true;
+			break;
+		}
+	}
+	return false;
+}
+Mob* M_MobAt(coord_t pos)
+{
+	for (auto* i : game->m_Active) {
+		if (i->mpos == pos) {
+			return i;
+			break;
+		}
+	}
+	return (Mob *)NULL;
+}
+
 //
 // M_KillMob: deallocates/kills mob
 //
 void M_KillMob(std::vector<Mob*>::iterator mob)
 {
 	game->m_Active.erase(mob);
-	M_SpawnDrops((*mob)->c_mob.mdrops, (*mob)->mpos);
+//	M_SpawnDrops((*mob)->c_mob.mdrops, (*mob)->mpos);
 	Z_Free(*mob);
 }
 void M_KillMob(Mob* mob)

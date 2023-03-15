@@ -32,8 +32,9 @@
 #define MOB_HEAR_PERIM         10
 #define HULK_SNIFF_AREA        20
 #define PROJ_ROCKET            1
+#define PROJ_ROCKET_DMG        35
+#define PROJ_KNIFE             2
 #define SHOTTY_HITSCAN_WIDTH   4
-#define G_SpawnProjectile(a,b,c,d,e,f,g)
 
 #define M_HULK_SPRITE          'H'
 #define M_RAVAGER_SPRITE       'R'

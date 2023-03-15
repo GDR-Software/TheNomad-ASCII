@@ -131,11 +131,11 @@ id;})
 #else
 
 #define Z_Malloc(size,tag,ptr) \
-	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,ptr,size,#ptr)
+	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,#ptr)
 #define Z_Free(ptr) \
 	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,#ptr)
 #define Z_ChangeTag(ptr,tag) \
-	Z_ChangeTag2(ptr,tag,mainzone,__FILE__,__LINE__,mainzone); LOG_DEBUG("Z_ChangeTag called from %s:%s:%u, name: %s, newtag: %s",__FILE__,__func__,__LINE__,#ptr,#tag)
+	Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,mainzone); LOG_DEBUG("Z_ChangeTag called from %s:%s:%u, name: %s, newtag: %s",__FILE__,__func__,__LINE__,#ptr,#tag)
 #define Z_ChangeUser(ptr,user) \
 	Zone_ChangeUser(ptr,user); LOG_DEBUG("Z_ChangeUser called from %s:%s:%u, name %s, new user: %s",__FILE__,__func__,__LINE__,#ptr,#user)
 #define Z_FreeTags(lowtag,hightag) \
@@ -214,5 +214,104 @@ inline void operator delete[](void *ptr, unsigned long)
     ::operator delete[](ptr);
 }
 #endif
+
+template<typename T>
+struct linked_list
+{
+public:
+	struct linked_list_element
+	{
+		void *element;
+		linked_list_element* next;
+		linked_list_element* prev;
+	};
+	typedef linked_list_element* iterator;
+private:
+	linked_list_element *ptr_list;
+	linked_list<T>::iterator end;
+	linked_list<T>::iterator begin;
+public:
+	linked_list() {
+		ptr_list = (linked_list_element*)Z_Malloc(sizeof(linked_list_element), TAG_STATIC, &ptr_list);
+		end = (linked_list_element*)Z_Malloc(sizeof(linked_list_element), TAG_STATIC, &end);
+		ptr_list->next = end;
+		end->next = NULL;
+		end->next = NULL;
+		ptr_list->prev = NULL;
+	}
+	~linked_list() {
+		for (linked_list_element* it = ptr_list;; it = it->next) {
+			if (it == end) {
+				break;
+			}
+			Z_Free(it);
+		}
+		Z_Free(end);
+	}
+	inline nomadsize_t size() const {
+		nomadsize_t len = 0;
+		for (linked_list_element *it = ptr_list; it->next != end; it = it->next) {
+			++len;
+		}
+		return len;
+	}
+	inline void push_back(T& i) {
+		linked_list_element* it;
+		for (it = ptr_list;; it = it->next) {
+			if (it->next == end) {
+				break;
+			}
+		}
+		it->next = (linked_list_element*)Z_Malloc(sizeof(linked_list_element), TAG_STATIC, &it->next);
+		it->next->element = (void *)&i;
+		it->next->next = end;
+		it->next->prev = it;
+	}
+	inline T& operator[](nomadsize_t i) {
+#ifdef _NOMAD_DEBUG
+		NOMAD_ASSERT(i > size(), "attempting to access element greater than the size of linked_list");
+#endif
+		linked_list_element *it;
+		nomadsize_t index = 0;
+		for (it = ptr_list; index < i; it = it->next, ++index) {
+			if (it == NULL) {
+				break;
+			}
+		}
+		return *static_cast<T*>(it->element);
+	}
+	inline void pop_back() {
+		linked_list_element *back;
+		for (back = ptr_list; back->next != end; back = back->next);
+		back->prev->next = end;
+		Z_Free(back);
+	}
+	inline void pop_front() {
+		linked_list_element *front = ptr_list->next;
+		Z_Free(ptr_list);
+		ptr_list = front;
+	}
+//	inline void erase(nomadsize_t index) {
+//		
+//	}
+	inline void erase(linked_list_element* ptr) {
+		if (ptr->next == end) {
+			pop_back();
+		}
+		else {
+			ptr->prev->next = ptr->next;
+			ptr->next->prev = ptr->prev;
+			Z_Free(ptr);
+		}
+	}
+	inline void clear() {
+		for (linked_list_element *it = ptr_list; it != end; it = it->next) {
+			Z_Free(it);
+		}
+	}
+	inline linked_list<T>::iterator front() {
+		return ptr_list;
+	}
+};
 
 #endif

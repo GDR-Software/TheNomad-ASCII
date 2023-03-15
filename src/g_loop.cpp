@@ -245,13 +245,9 @@ static void levelLoop(void)
 		game->G_DisplayHUD();
 		snd_thread.join();
 		for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
-			if ((*mob_it)->health < 0) {
-				M_KillMob(mob_it);
-			}
-			else {
-				M_RunThinker(*mob_it);
-			}
+			M_RunThinker(*mob_it, mob_it);
 		}
+		#if 0
 		for (item_it = game->items.begin(); item_it != game->items.end(); ++item_it) {
 			--(*item_it)->ticker;
 			if ((*item_it)->ticker <= -1) {
@@ -259,6 +255,7 @@ static void levelLoop(void)
 				Z_Free(*item_it);
 			}
 		}
+		#endif
 		// custom key-binds will be implemented in the future
 		char c;
 		if ((c = kb_hit()) != -1)

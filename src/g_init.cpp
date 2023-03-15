@@ -131,6 +131,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 		++counter;
 	}
 	counter = 0;
+#if 0
 	werase(game->screen);
 	waddstr(game->screen, logosplash);
 	wrefresh(game->screen);
@@ -139,6 +140,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 		std::this_thread::sleep_for(1s);
 		++counter;
 	}
+#endif
 }
 
 void TUI_Init(Game* const game)
@@ -173,6 +175,7 @@ static inline void E_Init(Game* const game)
 	puts("E_Init(): Initializing Entities...");
 	game->playr = (Playr *)Z_Malloc(sizeof(Playr), TAG_STATIC, &game->playr);
 	game->playr->P_Init();
+	PhysicsAssigner(game);
 	srand(time(NULL));
 	game->M_GenMobs();
 	MobtAssigner(game);

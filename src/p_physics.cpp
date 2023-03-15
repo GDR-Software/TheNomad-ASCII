@@ -115,3 +115,75 @@ nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c)
 	};
 	return false;
 }
+
+static Game* game;
+static Playr* playr;
+static std::vector<proj_t*>* proj_list;
+
+void PhysicsAssigner(Game* const gptr)
+{
+	game = gptr;
+	playr = game->playr;
+	proj_list = &game->proj_list;
+}
+
+void G_SpawnProjectile(proj_t& proj)
+{
+	proj_list->emplace_back();
+	proj_list->back() = (proj_t *)Z_Malloc(sizeof(proj_t), TAG_STATIC, &proj_list->back());
+	*proj_list->back() = proj;
+}
+
+void G_SpawnProjectile(proj_t proj)
+{
+	proj_list->emplace_back();
+	proj_list->back() = (proj_t *)Z_Malloc(sizeof(proj_t), TAG_STATIC, &proj_list->back());
+	*proj_list->back() = proj;
+}
+static void G_FreeProjectile(std::vector<proj_t*>::iterator ptr)
+{
+	if (!(*ptr)) {
+		LOG_WARN("G_FreeProjectile called on a nullptr, aborting");
+		return;
+	}
+	proj_list->erase(ptr);
+	Z_Free(*ptr);
+}
+
+static void G_ProjHitEntity(std::vector<proj_t*>::iterator it)
+{
+	proj_t* ptr = *it;
+	if (playr->pos == ptr->pos) {
+		switch (ptr->type) {
+		case PROJ_ROCKET:
+			if (ptr->et_owner == ET_MOB)
+				playr->health -= PROJ_ROCKET_DMG;
+			else
+				G_FreeProjectile(it);
+			break;
+		};
+	}
+	else if (M_FindMobAt(ptr->pos)) {
+	}
+}
+
+void G_RunProjectiles()
+{
+	for (std::vector<proj_t*>::iterator it = proj_list->begin(); it != proj_list->end(); it++) {
+		proj_t* ptr = *it;
+		ptr->pos += ptr->speed;
+		switch (game->c_map[ptr->pos.y][ptr->pos.x]) {
+		case ' ':
+		case '.':
+			break;
+		case '#':
+		case sprites[SPR_DOOR_CLOSE]:
+		case '~':
+		case '_':
+			break;
+		default:
+//			G_ProjHitEntity(it);
+			break;
+		};
+	}
+}

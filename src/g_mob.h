@@ -111,11 +111,13 @@ public:
 	}
 };
 
+nomadbool_t M_FindMobAt(coord_t pos);
+Mob* M_MobAt(coord_t pos);
 void M_GenMob(Mob* const mob);
 void M_CheckMobs();
 
 // s_mthink functions
-void M_RunThinker(Mob* const actor);
+void M_RunThinker(Mob* const actor, std::vector<Mob*>::iterator it);
 void M_NullThink(Mob* actor);
 void M_SpawnThink(Mob* actor);
 void M_WanderThink(Mob* actor);

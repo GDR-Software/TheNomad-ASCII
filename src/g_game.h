@@ -81,6 +81,29 @@ using zone_ptr = std::unique_ptr<_Tp, ZoneDeleter<fn>>;
 };
 #endif
 
+typedef struct proj_s
+{
+	void *owner;
+	entitytype_t et_owner;
+	coord_t pos;
+	nomadenum_t type;
+	nomadenum_t speed = 1;
+
+	inline proj_s& operator=(const proj_s& p) {
+		memcpy(&(*this), &p, sizeof(proj_s));
+		return *this;
+	}
+
+	inline proj_s(void *_owner, entitytype_t _et_owner, coord_t _pos, nomadenum_t _type, nomadenum_t _speed)
+		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed)
+	{
+	}
+	inline proj_s() = default;
+	inline proj_s(proj_s &&) = default;
+	inline proj_s(const proj_s &) = delete;
+	inline ~proj_s() = default;
+} proj_t;
+
 class Game
 {
 public:
@@ -94,6 +117,7 @@ public:
 	Playr* playr;
 	World* world;
 	std::vector<Mob*> m_Active;
+	std::vector<proj_t*> proj_list;
 	std::vector<item_t*> items;
 //	std::vector<NPC*> b_Active;
 	char* biomenames[9];
@@ -139,6 +163,10 @@ public:
 	void G_SaveRecentSlot(void);
 };
 
+void PhysicsAssigner(Game* const gptr);
+void G_SpawnProjectile(proj_t& proj);
+void G_SpawnProjectile(proj_t proj);
+void G_RunProjectiles(void);
 void TUIAssigner(Game* const gptr);
 void LooperDelay(nomaduint_t numsecs);
 void MobtAssigner(Game* const gptr);

@@ -325,12 +325,15 @@ void M_PlayrKnockBack(nomadshort_t amount, nomadenum_t mdir)
 	M_DoPlayrDamage(damage);
 }
 
-void M_RunThinker(Mob* actor)
+void M_RunThinker(Mob* actor, std::vector<Mob*>::iterator it)
 {
     --actor->mticker;
-    for (const auto& i : thinkers) {
+    if (actor->health < 0) {
+		M_KillMob(actor);
+	}
+	for (const auto& i : thinkers) {
         if (actor->mstate.id == i.statenum) {
-            (*i.funcptr)(actor);
+            i.funcptr(actor);
         }
     }
 }
@@ -749,8 +752,6 @@ void M_RavMissiles(Mob* const actor)
 	coord_t pos = M_GetDir(actor->mdir);
 	nomadbyte_t num_missiles = 4;
 	while (--num_missiles) {
-		G_SpawnProjectile({ (void *)actor, ET_MOB, PROJ_ROCKET, actor->mpos, actor->c_mob.projectile_range,
-			actor->mdir, sprites[SPR_ROCKET] });
 	}
 }
 

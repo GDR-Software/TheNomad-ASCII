@@ -169,8 +169,9 @@ void P_ShootShotty(Weapon* const wpn)
 		if (inArea(a, i->mpos))
 			hit.push_back(i);
 	}
-	for (auto* const i : hit)
+	for (auto* const i : hit) {
 		i->health -= playr->c_wpn->c_wpn.dmg;
+	}
 	
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
 	playr->pticker = playr->pstate.numticks;

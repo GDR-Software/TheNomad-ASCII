@@ -207,8 +207,8 @@ void Playr::P_Init()
     p_heavyprimary.c_wpn = wpninfo[W_HPRIM_RAG13];
     p_shotty.c_wpn = wpninfo[W_SHOTTY_ADB];
 	c_wpn = &p_shotty;
-	ammunition[AT_SHELL] = 2;
-	ammunition[AT_BULLET] = 0;
+	ammunition[AT_SHELL] = PLAYR_SHELL_MAX;
+	ammunition[AT_BULLET] = PLAYR_BULLET_MAX;
 	ammunition[AT_PLASMA] = 0;
 	ammunition[AT_FUSION] = 0;
 	N_memset(&body_health.front(), 100, body_health.size());
