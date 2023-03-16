@@ -88,14 +88,14 @@ nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c)
 	
 	if (point == game->playr->pos) {
 		c.what = ET_PLAYR;
-		c.ptr = (void *)&game->playr;
+		c.ptr = (void *)game->playr;
 		return true;
 	}
 
 	// always check the entity positions before checking the pint
-	for (auto* i : game->m_Active) {
-		if (i->mpos.y == point.y && i->mpos.x == point.x) {
-			c.ptr = (void *)&i;
+	for(linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) { 
+		if (it->val->mpos.y == point.y && it->val->mpos.x == point.x) {
+			c.ptr = (void *)it->val;
 			c.what = ET_MOB;
 			return true;
 		}
@@ -118,7 +118,7 @@ nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c)
 
 static Game* game;
 static Playr* playr;
-static std::vector<proj_t*>* proj_list;
+static linked_list<proj_t>* proj_list;
 
 void PhysicsAssigner(Game* const gptr)
 {
@@ -127,32 +127,23 @@ void PhysicsAssigner(Game* const gptr)
 	proj_list = &game->proj_list;
 }
 
-void G_SpawnProjectile(proj_t& proj)
-{
-	proj_list->emplace_back();
-	proj_list->back() = (proj_t *)Z_Malloc(sizeof(proj_t), TAG_STATIC, &proj_list->back());
-	*proj_list->back() = proj;
-}
-
 void G_SpawnProjectile(proj_t proj)
 {
 	proj_list->emplace_back();
-	proj_list->back() = (proj_t *)Z_Malloc(sizeof(proj_t), TAG_STATIC, &proj_list->back());
-	*proj_list->back() = proj;
+	proj_list->back() = proj;
 }
-static void G_FreeProjectile(std::vector<proj_t*>::iterator ptr)
+static void G_FreeProjectile(linked_list<proj_t>::iterator ptr)
 {
-	if (!(*ptr)) {
+	if (ptr == NULL) {
 		LOG_WARN("G_FreeProjectile called on a nullptr, aborting");
 		return;
 	}
-	proj_list->erase(ptr);
-	Z_Free(*ptr);
+	proj_list->free_node(ptr);
 }
 
-static void G_ProjHitEntity(std::vector<proj_t*>::iterator it)
+static void G_ProjHitEntity(linked_list<proj_t>::iterator it)
 {
-	proj_t* ptr = *it;
+	proj_t* ptr = &it->val;
 	if (playr->pos == ptr->pos) {
 		switch (ptr->type) {
 		case PROJ_ROCKET:
@@ -169,8 +160,8 @@ static void G_ProjHitEntity(std::vector<proj_t*>::iterator it)
 
 void G_RunProjectiles()
 {
-	for (std::vector<proj_t*>::iterator it = proj_list->begin(); it != proj_list->end(); it++) {
-		proj_t* ptr = *it;
+	for (linked_list<proj_t>::iterator it = proj_list->begin(); it->next != proj_list->end(); it = it->next) {
+		proj_t* ptr = &it->val;
 		ptr->pos += ptr->speed;
 		switch (game->c_map[ptr->pos.y][ptr->pos.x]) {
 		case ' ':

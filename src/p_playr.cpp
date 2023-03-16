@@ -18,12 +18,12 @@
 #include "n_shared.h"
 #include "scf.h"
 #include "g_obj.h"
+#include "g_zone.h"
 #include "g_mob.h"
 #include "p_npc.h"
 #include "g_items.h"
 #include "s_world.h"
 #include "g_map.h"
-#include "g_zone.h"
 #include "s_scripted.h"
 #include "g_playr.h"
 #include "g_game.h"
@@ -101,26 +101,27 @@ static void P_ItemInteract(nomadint_t input)
 {
 	nomadbool_t done = false;
 	item_t *ptr = NULL;
-	std::vector<item_t*>::iterator it;
-	for (it = game->items.begin(); it != game->items.end(); ++it) {
+	linked_list<item_t*>::iterator i;
+	for (i = game->items.begin(); i != game->items.end(); i = i->next) {
+		item_t *it = i->val;
 		if (input == KEY_w &&
-		(playr->pos.y - 1 == (*it)->pos.y && playr->pos.x == (*it)->pos.x)) {
-			ptr = *it;
+		(playr->pos.y - 1 == it->pos.y && playr->pos.x == it->pos.x)) {
+			ptr = it;
 			break;
 		}
 		else if (input == KEY_a &&
-		(playr->pos.y == (*it)->pos.y && playr->pos.x - 1 == (*it)->pos.x)) {
-			ptr = *it;
+		(playr->pos.y == it->pos.y && playr->pos.x - 1 == it->pos.x)) {
+			ptr = it;
 			break;
 		}
 		else if (input == KEY_s &&
-		(playr->pos.y + 1 == (*it)->pos.y && playr->pos.x == (*it)->pos.x)) {
-			ptr = *it;
+		(playr->pos.y + 1 == it->pos.y && playr->pos.x == it->pos.x)) {
+			ptr = it;
 			break;
 		}
 		else if (input == KEY_d &&
-		(playr->pos.y == (*it)->pos.y && playr->pos.x + 1 == (*it)->pos.x)) {
-			ptr = *it;
+		(playr->pos.y == it->pos.y && playr->pos.x + 1 == it->pos.x)) {
+			ptr = it;
 			break;
 		}
 	}
@@ -166,7 +167,7 @@ static void P_ItemInteract(nomadint_t input)
 //
 //		break;
 	};
-	game->items.erase(it);
+	game->items.free_node(i);
 	Z_Free(ptr);
 }
 static void P_RugInteract();

@@ -40,6 +40,7 @@ void CombatAssigner(Game* const gptr)
 	playr = game->playr;
 }
 
+#if 0
 static inline Mob* G_GetHitMob(nomadshort_t y, nomadshort_t x)
 {
 	for (auto* i : game->m_Active) {
@@ -47,6 +48,7 @@ static inline Mob* G_GetHitMob(nomadshort_t y, nomadshort_t x)
 	}
 	return nullptr;
 }
+#endif
 
 void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
 	nomadenum_t spread)
@@ -118,10 +120,12 @@ void P_DoGrenade(Weapon* const wpn)
 	coord_t& tr = explosion.tr;
 	coord_t& bl = explosion.bl;
 	coord_t& br = explosion.br;
-	std::vector<Mob*> m_hit;
-	for (auto* i : game->m_Active) {
+	linked_list<Mob*> m_hit;
+	m_hit.init();
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+		Mob* const i = it->val;
 		if (inArea(explosion, i->mpos)) {
-			m_hit.push_back(i);
+			m_hit.push_node(i);
 		}
 	}
 }
@@ -164,14 +168,17 @@ void P_ShootShotty(Weapon* const wpn)
 	
 	area_t a;
 	G_GetShottyArea(&a, playr->pdir, playr->pos, range, spread);
-	std::vector<Mob*> hit;
-	for (auto *i : game->m_Active) {
-		if (inArea(a, i->mpos))
-			hit.push_back(i);
+	linked_list<Mob*> hit;
+	hit.init();
+	linked_list<Mob*>::iterator it;
+	for (it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+		Mob* const actor = it->val;
+		if (inArea(a, actor->mpos)) {
+			hit.push_node(actor);
+		}
 	}
-	for (auto* const i : hit) {
-		i->health -= playr->c_wpn->c_wpn.dmg;
-	}
+	for (it = hit.begin(); it->next != hit.end(); it = it->next)
+		it->val->health -= wpn->c_wpn.dmg;
 	
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
 	playr->pticker = playr->pstate.numticks;
@@ -205,12 +212,14 @@ void P_ShootSingle(Weapon* const wpn)
 		break;
 	};
 	coord_t pos = game->E_GetDir(playr->pdir);
-	for (nomadshort_t y = playr->pos.y; y != endpoint.y; y += pos.y) {
-		for (nomadshort_t x = playr->pos.x; x != endpoint.x; x += pos.x) {
-			for (auto* i : game->m_Active) {
-				if (i->mpos == coord_t(y, x)) {
-					i->health -= wpn->c_wpn.dmg;
-					goto done; // only one hit target allowed (armor piercing in the future'll override this)
+	nomadshort_t y, x;
+	for (y = playr->pos.y; y != endpoint.y; y += pos.y) {
+		for (x = playr->pos.x; x != endpoint.x; x += pos.x) {
+			for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+				Mob* const actor = it->val;
+				if (actor->mpos == coord_t(y, x)) {
+					actor->health -= wpn->c_wpn.dmg;
+					goto done;
 				}
 			}
 		}

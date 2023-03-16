@@ -58,9 +58,9 @@ public:
 	std::vector<std::string> wpnspawners;
 	std::vector<std::shared_ptr<Spawner>> spawners;
 	
-	std::vector<Mob*> mspawners;
-	std::vector<item_t*> ispawners;
-	std::vector<Weapon*> wspawners;
+	linked_list<Mob*> mspawners{};
+	linked_list<item_t*> ispawners{};
+	linked_list<Weapon*> wspawners{};
 public:
 	Level(){ memset(lvl_map, '.', sizeof(lvl_map)); }
 	Level(const Level &) = delete;
@@ -68,18 +68,7 @@ public:
 	~Level();
 	
 	void G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120]);
-	void G_LoadLevel()
-	{
-		char mapbuffer[520][520];
-		memset(mapbuffer, '#', sizeof(mapbuffer));
-		for (nomadshort_t y = 0; y < SECTOR_MAX_Y; ++y) {
-			for (nomadshort_t x = 0; x < SECTOR_MAX_X; ++x) {
-				
-			}
-		}
-		FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
-		fclose(fp);
-	}
+	void G_LoadLevel();
 	void G_ShowIntro();
 	void G_ShowExit();
 };

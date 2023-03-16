@@ -19,12 +19,12 @@
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "scf.h"
+#include "g_zone.h"
 #include "g_obj.h"
 #include "g_items.h"
 #include "s_scripted.h"
 #include "g_mob.h"
 #include "p_npc.h"
-#include "g_zone.h"
 #include "g_map.h"
 #include "s_world.h"
 #include "g_playr.h"

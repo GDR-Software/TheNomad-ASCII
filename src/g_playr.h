@@ -63,7 +63,7 @@ public:
 	nomadenum_t lastmoved;
 	nomadlong_t pticker = 0;
 	char vmatrix[MAX_VERT_FOV*2][MAX_HORZ_FOV*2];
-	std::array<nomadint_t, NUMAMMOTYPES> ammunition;
+	eastl::array<nomadint_t, NUMAMMOTYPES> ammunition;
 public:
 	Playr() = default;
 	~Playr() = default;

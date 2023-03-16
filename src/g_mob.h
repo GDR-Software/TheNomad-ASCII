@@ -117,7 +117,7 @@ void M_GenMob(Mob* const mob);
 void M_CheckMobs();
 
 // s_mthink functions
-void M_RunThinker(Mob* const actor, std::vector<Mob*>::iterator it);
+void M_RunThinker(linked_list<Mob*>::iterator it);
 void M_NullThink(Mob* actor);
 void M_SpawnThink(Mob* actor);
 void M_WanderThink(Mob* actor);
@@ -130,7 +130,7 @@ void M_FleeThink(Mob* actor);
 // s_mmisc functions
 Mob* M_SpawnMob(void);
 const char* MobTypeToStr(nomaduint_t mtype);
-void M_KillMob(std::vector<Mob*>::iterator mob);
+void M_KillMob(linked_list<Mob*>::iterator mob);
 void M_KillMob(Mob* mob);
 
 //extern const mstate_t mstates[NUMMOBSTATES];

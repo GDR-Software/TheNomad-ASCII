@@ -112,6 +112,15 @@ enum
 	NUM_SPRITES
 };
 
+#define is_template_type(var,type) constexpr (std::is_integral<var>::value && !std::is_same<var, type>::value)
+#define is_var_type(var,type) constexpr (std::is_integral<decltype(x)>::value && !std::is_same<decltype(x), type>::value)
+#if 0
+#define is_same_type(a, b)  __builtin_types_compatible_p(typeof(a), typeof(b))
+#define is_pointer_or_array(p)  (__builtin_classify_type(p) == 5)
+#define decay(p)  (&*__builtin_choose_expr(is_pointer_or_array(p), p, NULL))
+#define is_pointer(p)  is_same_type(p, decay(p))
+#endif
+
 #define SPR(x) x
 
 constexpr const char sprites[NUM_SPRITES] = {

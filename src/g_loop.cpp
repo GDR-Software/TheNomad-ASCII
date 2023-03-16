@@ -224,8 +224,8 @@ void LooperDelay(nomaduint_t numsecs)
 	loop_delay = numsecs;
 }
 
-static std::vector<Mob*>::iterator mob_it;
-static std::vector<item_t*>::iterator item_it;
+static linked_list<Mob*>::iterator mob_it;
+static linked_list<item_t*>::iterator item_it;
 
 static void levelLoop(void)
 {
@@ -244,14 +244,14 @@ static void levelLoop(void)
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		snd_thread.join();
-		for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); ++mob_it) {
-			M_RunThinker(*mob_it, mob_it);
+		for (mob_it = game->m_Active.begin(); mob_it->next != game->m_Active.end(); mob_it->next) {
+			M_RunThinker(mob_it);
 		}
 		#if 0
-		for (item_it = game->items.begin(); item_it != game->items.end(); ++item_it) {
+		for (item_it = game->items.begin(); item_it->next != game->items.end(); ++item_it) {
 			--(*item_it)->ticker;
 			if ((*item_it)->ticker <= -1) {
-				game->items.erase(item_it);
+				game->items.free_node(item_it);
 				Z_Free(*item_it);
 			}
 		}

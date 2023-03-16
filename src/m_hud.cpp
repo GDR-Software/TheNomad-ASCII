@@ -137,9 +137,9 @@ static inline void Hud_InsertSprites()
 //	for (const auto* i : game->b_Active) {
 //		game->c_map[i->pos.y][i->pos.x] = i->sprite;
 //	}
-	for (std::vector<Mob*>::const_iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
-		game->c_map[(*it)->mpos.y][(*it)->mpos.x] = (*it)->sprite;
-	}
+//	for (std::vector<Mob*>::const_iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
+//		game->c_map[(*it)->mpos.y][(*it)->mpos.x] = (*it)->sprite;
+//	}
 }
 
 static inline nomaduint_t B_GetSector(const coord_t& pos)
@@ -491,8 +491,8 @@ static inline void Hud_GetVMatrix()
 	
 	nomadlong_t u, c;
 	u = c = 0;
-	for (const auto* const i : game->m_Active) {
-		game->c_map[i->mpos.y][i->mpos.x] = i->sprite;
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+		game->c_map[it->val->mpos.y][it->val->mpos.x] = it->val->sprite;
 	}
 //	for (const auto* const i : game->items) {
 //		game->c_map[i->pos.y][i->pos.x] = sprites[SPR_PICKUP];

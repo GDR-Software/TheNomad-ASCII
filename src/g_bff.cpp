@@ -18,12 +18,9 @@ static Game* gptr;
 
 Level::~Level()
 {
-	for (auto* i : mspawners)
-		Z_ChangeTag(i, TAG_PURGELEVEL);
-	for (auto* i : ispawners)
-		Z_ChangeTag(i, TAG_PURGELEVEL);
-	for (auto* i : wspawners)
-		Z_ChangeTag(i, TAG_PURGELEVEL);
+	mspawners.clear();
+	wspawners.clear();
+	ispawners.clear();
 }
 
 void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
@@ -45,7 +42,7 @@ void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
 	// game->m_Active is expected to be completely empty at this time
 	if (gptr->m_Active.size() > 0) {
 		LOG_WARN("G_StartupCampaign hasn't yet cleared game->m_Active, doing so now");
-		for (std::vector<Mob*>::iterator it = gptr->m_Active.begin(); it != gptr->m_Active.end(); ++it) {
+		for (linked_list<Mob*>::iterator it = gptr->m_Active.begin(); it->next != gptr->m_Active.end(); it = it->next) {
 			M_KillMob(it);
 		}
 		gptr->m_Active.clear();

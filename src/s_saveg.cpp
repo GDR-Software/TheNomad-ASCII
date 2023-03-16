@@ -18,6 +18,7 @@
 //----------------------------------------------------------
 #include "n_shared.h"
 #include "g_obj.h"
+#include "g_zone.h"
 #include "s_scripted.h"
 #include "g_mob.h"
 #include "scf.h"
@@ -26,7 +27,6 @@
 #include "g_map.h"
 #include "g_playr.h"
 #include "s_world.h"
-#include "g_zone.h"
 #include "g_game.h"
 
 #undef assert
@@ -41,11 +41,11 @@ using json = nlohmann::json;
 
 static void G_ArchivePlayr(const Playr* playr, json& data);
 static void G_ArchiveWeapon(const Weapon* wpn, json& data);
-static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data);
+static void G_ArchiveMobs(const linked_list<Mob*>& m_Active, json& data);
 
 static void G_UnArchivePlayr(Playr* const playr, json& data);
 static void G_UnArchiveWeapon(Weapon* const wpn, json& data);
-static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t nummobs);
+static void G_UnArchiveMobs(linked_list<Mob*>& m_Active, json& data, nomaduint_t nummobs);
 
 void Game::G_SaveGame(const char* svfile)
 {
@@ -139,12 +139,13 @@ static void G_UnArchivePlayr(Playr* const playr, json& data)
 	playr->pdir = data["playr"]["pdir"];
 }
 
-static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
+static void G_ArchiveMobs(const linked_list<Mob*>& m_Active, json& data)
 {
 	LOG_INFO("Archiving m_Active mob data");
+	linked_list<Mob*>::const_iterator it = m_Active.begin();
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
-		Mob* const mob = m_Active[i];
+		Mob* const mob = it->val;
 		data[node_name] = {
 			{"sprite", (int8_t)mob->sprite},
 			{"health", mob->health},
@@ -155,26 +156,27 @@ static void G_ArchiveMobs(const std::vector<Mob*>& m_Active, json& data)
 			{"mpos.x", mob->mpos.x},
 			{"mdir", mob->mdir}
 		};
+		it = it->next;
 	}
 }
-static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t nummobs)
+static void G_UnArchiveMobs(linked_list<Mob*>& m_Active, json& data, nomaduint_t nummobs)
 {
 	LOG_INFO("unarchiving mob data from save file, nummobs: %iu", nummobs);
 	if (nummobs != m_Active.size()) {
 		LOG_INFO("nummobs != m_Active.size(), re-doing m_Active vector");
 		for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 			Z_Free(m_Active.back());
-			m_Active.pop_back();
+			m_Active.pop_node();
 		}
-		m_Active.reserve(nummobs);
 		for (nomaduint_t i = 0; i < nummobs; ++i) {
 			m_Active.emplace_back();
 			m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &m_Active.back());
 		}
 	}
-	for (nomaduint_t i = 0; i < nummobs; ++i) {
+	linked_list<Mob*>::iterator it = m_Active.begin();
+	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
-		Mob* const mob = m_Active[i];
+		Mob* const mob = it->val;
 		mob->sprite = (int8_t)data[node_name]["sprite"];
 		mob->health = data[node_name]["health"];
 		mob->armor = data[node_name]["armor"];
@@ -183,5 +185,6 @@ static void G_UnArchiveMobs(std::vector<Mob*>& m_Active, json& data, nomaduint_t
 		mob->mpos.y = data[node_name]["mpos.y"];
 		mob->mpos.x = data[node_name]["mpos.x"];
 		mob->mdir = data[node_name]["mdir"];
+		it = it->next;
 	}
 }

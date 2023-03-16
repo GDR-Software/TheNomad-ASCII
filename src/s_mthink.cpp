@@ -325,11 +325,12 @@ void M_PlayrKnockBack(nomadshort_t amount, nomadenum_t mdir)
 	M_DoPlayrDamage(damage);
 }
 
-void M_RunThinker(Mob* actor, std::vector<Mob*>::iterator it)
+void M_RunThinker(linked_list<Mob*>::iterator it)
 {
+	Mob* const actor = it->val;
     --actor->mticker;
     if (actor->health < 0) {
-		M_KillMob(actor);
+		M_KillMob(it);
 	}
 	for (const auto& i : thinkers) {
         if (actor->mstate.id == i.statenum) {
@@ -338,7 +339,7 @@ void M_RunThinker(Mob* actor, std::vector<Mob*>::iterator it)
     }
 }
 
-void M_NullThink(Mob* actor)
+void M_NullThink(Mob* const actor)
 {
 	M_ChangeState(actor, S_MOB_IDLE);
 //    if (actor->mticker <= -1)
@@ -347,7 +348,7 @@ void M_NullThink(Mob* actor)
 //        return;
 }
 
-void M_SpawnThink(Mob* actor)
+void M_SpawnThink(Mob* const actor)
 {
     if (actor->mticker > -1)
         return;
@@ -599,8 +600,8 @@ void M_RavBoost(Mob* actor)
 		{actor->mpos.y - 8, actor->mpos.x + 8},
 		{actor->mpos.y + 8, actor->mpos.x - 8},
 		{actor->mpos.y + 8, actor->mpos.x + 8}};
-	for (auto* i : game->m_Active) {
-		
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
+
 	}
 }
 

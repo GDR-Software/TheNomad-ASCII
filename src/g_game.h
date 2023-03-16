@@ -90,7 +90,11 @@ typedef struct proj_s
 	nomadenum_t speed = 1;
 
 	inline proj_s& operator=(const proj_s& p) {
-		memcpy(&(*this), &p, sizeof(proj_s));
+		owner = p.owner;
+		et_owner = p.et_owner;
+		pos = p.pos;
+		type = p.type;
+		speed = p.speed;
 		return *this;
 	}
 
@@ -116,9 +120,9 @@ public:
 	nomadenum_t difficulty;
 	Playr* playr;
 	World* world;
-	std::vector<Mob*> m_Active;
-	std::vector<proj_t*> proj_list;
-	std::vector<item_t*> items;
+	linked_list<Mob*> m_Active{};
+	linked_list<proj_t> proj_list{};
+	linked_list<item_t*> items{};
 //	std::vector<NPC*> b_Active;
 	char* biomenames[9];
 public: // map stuff

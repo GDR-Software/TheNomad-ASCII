@@ -21,13 +21,13 @@
 #include "n_shared.h"
 #include "scf.h"
 #include "g_obj.h"
+#include "g_zone.h"
 #include "g_mob.h"
 #include "p_npc.h"
 #include "s_scripted.h"
 #include "g_items.h"
 #include "s_world.h"
 #include "g_map.h"
-#include "g_zone.h"
 #include "g_playr.h"
 #include "g_game.h"
 
@@ -115,6 +115,9 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	for (nomadushort_t i = 0; i < argc; i++) {
 		myargv.push_back(argv[i]);
 	}
+	game->m_Active.init();
+	game->proj_list.init();
+	game->items.init();
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	puts("Snd_Init(): Initializing OpenAL and libsndfile audio libraries for audio...");
