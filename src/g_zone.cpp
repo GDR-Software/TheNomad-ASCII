@@ -71,18 +71,40 @@ static void Z_ResizeZone(memzone_t* zone)
 {
 	int nsize = zone->size * 2;
 	int osize = zone->size;
-	byte *old_zone = (byte *)malloc(zone->size);
-	memmove(old_zone, zone, zone->size);
-	free(zone);
-	zone = (memzone_t *)((byte *)malloc(nsize));
-	if (!zone) {
-		N_Error("Z_ResizeZone: calloc failed!");
+	memzone_t* newzone = (memzone_t*)((byte*)malloc(nsize));
+	if (newzone == NULL) {
+		N_Error("Z_ResizeZone: memory allocation failed");
 	}
-	else {
-		memblock_t *base;
-		zone->size = nsize;
-		LOG_INFO("resized zone size: %i", zone->size);
-		memmove(zone, old_zone, osize);
+	newzone->size = nsize;
+	memblock_t* base;
+	newzone->blocklist.next = 
+	newzone->blocklist.prev = 
+	base = (memblock_t *)((byte *)newzone+sizeof(memzone_t));
+
+	newzone->blocklist.user = (void *)newzone;
+	newzone->blocklist.tag = TAG_STATIC;
+	newzone->rover = base;
+	
+	base->prev = base->next = &newzone->blocklist;
+	base->user = (void *)NULL;
+	base->size = newzone->size - sizeof(memzone_t);
+	
+	for (memblock_t* it = zone->blocklist.next;; it = it->next) {
+		if (it == &zone->blocklist) {
+			break;
+		}
+		Zone_Malloc(it->size, it->tag, it->user, newzone);
+	}
+	free(zone);
+	zone = (memzone_t*)((byte*)malloc(newzone->size));
+	if (zone == NULL) {
+		N_Error("Z_ResizeZone: memory allocation failed");
+	}
+	for (memblock_t* it = newzone->blocklist.next;; it = it->next) {
+		if (it == &zone->blocklist) {
+			break;
+		}
+		Zone_Malloc(it->size, it->tag, it->user, zone);
 	}
 }
 
@@ -291,20 +313,25 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 	memblock_t* base;
 	memblock_t* start;
 	int space;
-
+#if 0
+	++size;
+#else
 	size = (size + MEM_ALIGN - 1) & ~(MEM_ALIGN - 1);
-	
+#endif	
 	// accounting for header size
 	size += sizeof(memblock_t);
 	
 	base = zone->rover;
 	
 	// checking behind the rover
-	if (!base->prev->user)
-		base = base->prev;
+	if (base->prev != NULL) {
+		if (!base->prev->user)
+			base = base->prev;
+	}
 	
 	rover = base;
 	start = base->prev;
+	Zone_CheckHeap(zone);
 	
 	do {
 		if (rover == start) {
@@ -315,11 +342,12 @@ __CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone)
 				start = base->prev;
 			}
 			else if (zone == mainzone) {
-				Z_ResizeZone(zone);
-//				N_Error("Z_Malloc: failed allocation of %i bytes because zone isn't big enough!", size);
+				LOG_WARN("Z_Malloc: failed allocation of %i bytes because zone wasn't big enough, zone size: %i", size, zone->size);
+				return NULL;
+//				N_Error("Z_Malloc: failed allocation of %i bytes because zone wasn't big enough, zone size: %i", size, zone->size);
 			}
 		}
-		if (rover->user) {
+		if (rover->user != NULL) {
 			if (rover->tag < TAG_PURGELEVEL) {
 				// hit a block that can't be purged, so move the base past it
 				base = rover = rover->next;

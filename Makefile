@@ -15,6 +15,9 @@ ifdef sound
 CFLAGS += -DNOMAD_ASCII_SOUND -DSOUND_OPENAL
 endif
 
+ifdef careful
+CFLAGS += -D_GLIBCXX_DEBUG
+endif
 ifndef debug
 CFLAGS += -DRELEASE
 LDFLAGS += /usr/lib/libncurses.a
@@ -30,7 +33,7 @@ ERRORS         = -Werror=type-limits \
 
 DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_UPDATE=$(VERSION_UPDATE) \
-				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH)
+				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH) \
 
 CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS)
 
@@ -166,7 +169,7 @@ clean:
 clean.exe:
 	rm $(EXE)
 clean.debug:
-	rm $(EXE_DEBUG)
 	rm -rf $(DEBUG)
+	rm $(EXE_DEBUG)
 clean.objs:
 	rm -rf $(OBJS)

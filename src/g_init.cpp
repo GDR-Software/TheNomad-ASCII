@@ -115,9 +115,10 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	for (nomadushort_t i = 0; i < argc; i++) {
 		myargv.push_back(argv[i]);
 	}
-	game->m_Active.init();
-	game->proj_list.init();
-	game->items.init();
+	mobj_t* mob = mobbackup;
+	for (auto& i : mobinfo) {
+		*mob++ = i;
+	}
 	I_ProcessArgs(myargv);
 	E_Init(game);
 	puts("Snd_Init(): Initializing OpenAL and libsndfile audio libraries for audio...");

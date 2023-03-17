@@ -176,7 +176,7 @@ static void M_SpawnDrops(const std::vector<nomaduint_t>& droplist, const coord_t
 
 nomadbool_t M_FindMobAt(coord_t pos)
 {
-	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 		if (it->val->mpos == pos) {
 			return true;
 			break;
@@ -186,7 +186,7 @@ nomadbool_t M_FindMobAt(coord_t pos)
 }
 Mob* M_MobAt(coord_t pos)
 {
-	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 		if (it->val->mpos == pos) {
 			return it->val;
 			break;
@@ -200,7 +200,7 @@ Mob* M_MobAt(coord_t pos)
 //
 void M_KillMob(linked_list<Mob*>::iterator mob)
 {
-	game->m_Active.free_node(mob);
+	game->m_Active.erase(mob);
 //	M_SpawnDrops((*mob)->c_mob.mdrops, (*mob)->mpos);
 	Z_Free(mob->val);
 }
@@ -208,7 +208,7 @@ void M_KillMob(Mob* mob)
 {
 	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
 		if (it->val == mob) {
-			game->m_Active.free_node(it);
+			game->m_Active.erase(it);
 		}
 	}
 //	M_SpawnDrops(mob->c_mob.mdrops, mob->mpos);

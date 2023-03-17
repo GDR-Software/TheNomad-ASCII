@@ -226,7 +226,7 @@ public:
 				if (y > 119) {
 					break;
 				}
-				for (x = 0; x < 120; ++x) {
+				for (x = 0; x < line.size(); ++x) {
 					lvl->lvl_map[y][x] = line[x];
 				}
 				++y;

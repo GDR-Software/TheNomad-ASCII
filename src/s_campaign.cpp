@@ -70,7 +70,7 @@ nomadfixed_t G_CalcMobMult()
     return (nomadfixed_t)0;
 }
 
-inline auto chapter_highest_diff(chapter_t& chapter) -> const char*
+inline auto chapter_highest_diff(const chapter_t& chapter) -> const char*
 {
     if (!chapter.done || chapter.highest_completed == NUMDIFS)
         return "Uncompleted";
@@ -81,6 +81,17 @@ inline auto chapter_highest_diff(chapter_t& chapter) -> const char*
 };
 
 static nomadbool_t inlvl = false;
+
+mobj_t mobbackup[NUMMOBS]={0};
+
+static void G_SetMobStats(nomadshort_t difficulty)
+{
+    // counter the known DOOM bug
+//    mobj_t* mob = mobbackup;
+//    for (auto& i : mobinfo) {
+//        i = *mob++;
+//    }
+}
 
 static void G_StartupCampaign(nomadshort_t difficulty)
 {
@@ -121,6 +132,7 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
         M_KillMob(it);
     }
+    game->m_Active.clear();
     lvl->G_LoadSpawners(game->bff, mapbuffer);
     LOG_INFO("Initializing spawners");
     FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
@@ -193,6 +205,7 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     NOMAD_ASSERT(fp, "failed to open Files/gamedata/RUNTIME/mapfile.txt!");
     fclose(fp);
     inlvl = true;
+    game->gamestate = GS_LEVEL;
 }
 
 

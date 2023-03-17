@@ -523,6 +523,28 @@ constexpr uint8_t NUMDIFS                = 6;
 
 #define DIF_HARDEST DIF_MINORINCONVENIENCE
 
+struct filestream
+{
+	FILE* fp;
+	filestream(const std::string& filename, const char* mode)
+		: fp(fopen(filename.c_str(), mode))
+	{
+		if (!fp) {
+			N_Error("failed to open file with name %s", filename.c_str());
+		}
+	}
+	filestream(const char* filename, const char* mode)
+		: fp(fopen(filename, mode))
+	{
+		if (!fp) {
+			N_Error("failed to open file with name %s", filename);
+		}
+	}
+	~filestream() noexcept { fclose(fp); }
+	inline char getc(void) const noexcept
+	{ return ::getc(fp); }
+};
+
 typedef nomadlong_t point_t;
 typedef struct coord_s
 {

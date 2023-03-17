@@ -57,9 +57,9 @@ constexpr auto TAG_PURGELEVEL = 100;
 constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
 
 #ifndef TESTING
-static constexpr int heapsize = 62*1024*1024; // allocating 62 mb (mainzone size)
-static constexpr int reserved_size = 30*1024*1024; // 30 mb reserved memory
-static constexpr int cardinal_size = 25*1024*1024; // 25 mb for cardinal system
+static nomadsize_t heapsize = 1000*1024*1024; // allocating 100 mb (mainzone size)
+static int reserved_size = 30*1024*1024; // 30 mb reserved memory
+static int cardinal_size = 25*1024*1024; // 25 mb for cardinal system
 #endif
 
 #ifdef TESTING
@@ -219,185 +219,258 @@ template<typename T>
 class linked_list
 {
 public:
-	struct linked_list_node
+	class linked_list_node
 	{
+	public:
+		T val;
+		linked_list_node *next;
+		linked_list_node *prev;
+	public:
 		linked_list_node() = default;
-		~linked_list_node() = default;
 		linked_list_node(const linked_list_node &) = delete;
 		linked_list_node(linked_list_node &&) = default;
-		T val;
-		linked_list_node *next = NULL;
-		linked_list_node *prev = NULL;
-		inline T* operator->(void)
-		{ return val; }
-		inline T& operator*(void)
-		{ return *val; }
-		inline bool operator!(void)
-		{ return val; }
-		inline T& operator[](size_t i)
-		{ return val[i]; }
-		inline bool operator==(const T* const Tp) const
-		{ return val == Tp; }
-		inline bool operator==(const linked_list_node& node) const
-		{ return (val == node.val && next == node.next && prev == node.prev); }
-		inline bool operator==(const linked_list_node* node) const
-		{ return (val == node->val && next == node->next && prev == node->prev); }
+		~linked_list_node() = default;
+		inline linked_list_node& operator++(int) noexcept
+		{
+			next->next->prev = this;
+			next->prev = prev;
+			next->next = this;
+			prev->next = next;
+			return *this;
+		}
+		inline linked_list_node& operator++() noexcept
+		{
+			next->next->prev = this;
+			next->prev = prev;
+			next->next = this;
+			prev->next = next;
+			return *this;
+		}
 	};
-	typedef linked_list_node *node;
+	
+	typedef linked_list_node* node;
 	typedef linked_list_node list_node;
-	typedef const linked_list_node *const_iterator;
-	typedef linked_list_node *iterator;
+	typedef linked_list_node* iterator;
+	typedef const linked_list_node* const_iterator;
+private:
+	linked_list<T>::node ptr_list = NULL;
+	std::size_t _size = 0;
 	
-	linked_list<T>::list_node ptr_list;
-	int _size = 0;
-	void init()
-	{
-		ptr_list.next =
-		ptr_list.prev = &ptr_list;
-		_size = 0;
+	linked_list<T>::node alloc_node(void) {
+		linked_list<T>::node ptr = (linked_list<T>::node)Z_Malloc(
+			sizeof(linked_list<T>::list_node), TAG_STATIC, &ptr);
+		if (ptr == NULL)
+			N_Error("linked_list::alloc_node: memory allocation failed");
+		
+		return ptr;
 	}
-	linked_list()
-	{
-		ptr_list.next =
-		ptr_list.prev =
-		&ptr_list;
-	}
-
-	~linked_list()
-	{
-		for (linked_list<T>::iterator it = ptr_list.next; it->next != &ptr_list; it = it->next) {
-			Z_Free(it);
-		}
-	}
-	linked_list(const linked_list &) = delete;
-	linked_list(linked_list &&) = default;
-	
-	inline linked_list<T>::const_iterator begin() const
-	{ return ptr_list.next; }
-	inline linked_list<T>::const_iterator end() const
-	{ return &ptr_list; }
-	inline linked_list<T>::iterator begin()
-	{ return ptr_list.next; }
-	inline linked_list<T>::iterator end()
-	{ return &ptr_list; }
-	inline void clear(void)
-	{
-		for (linked_list<T>::iterator it = begin(); it->next != end(); it = it->next) {
-			Z_Free(it);
-		}
-	}
-	inline void free_node(linked_list<T>::iterator ptr)
-	{
-		if (!ptr) {
-			LOG_WARN("called free_node will a nullptr, aborting");
+	void dealloc_node(linked_list<T>::node ptr) noexcept {
+		if (ptr == NULL)
 			return;
-		}
-		if (ptr->prev == NULL && ptr->next == NULL) {
-			N_Error("linked_list::free_node: list_node has improper next and prev linkage");
-		}
-		if (ptr->next == &ptr_list && ptr->prev != &ptr_list) { // end of the list
-			ptr->prev->next = &ptr_list;
-		}
-		else if (ptr->next != &ptr_list && ptr->prev == &ptr_list) { // beginning of the list
-			ptr->next->prev = &ptr_list;
-			ptr->prev->next = ptr->next;
-		}
-		else if (ptr->next != &ptr_list && ptr->prev != &ptr_list) { // somewhere in the middle
-			if (ptr->prev == NULL) {
-				N_Error("linked_list::free_node: list_node has improper prev linkage");
-			}
-			else if (ptr->next == NULL) {
-				N_Error("linked_list::free_node: list_node has improper next linkage");
-			}
-			ptr->prev->next = ptr->next;
-			ptr->next->prev = ptr->prev;
-		}
-	    Z_Free(ptr);
+		Z_Free(ptr);
+	}
+public:
+	linked_list() noexcept = default;
+	~linked_list() noexcept
+	{
+		if (ptr_list == NULL || begin() == NULL)
+			return;
+
+		for (linked_list<T>::iterator it = begin(); it != end(); it = it->next)
+			dealloc_node(it);
+	}
+	linked_list(linked_list &&) = default;
+	linked_list(const linked_list &) = default;
+	
+	// memory management
+	inline void clear(void) noexcept
+	{
+		if (ptr_list == NULL)
+			return;
+		
+		for (linked_list<T>::iterator it = begin(); it != end(); it = it->next)
+			dealloc_node(it);
+	}
+	inline void free_node(linked_list<T>::node ptr) noexcept
+	{
+		if (ptr == NULL)
+			return;
+		
+		ptr->prev->next = ptr->next;
+		ptr->next->prev = ptr->prev;
+		dealloc_node(ptr);
 		--_size;
 	}
-	inline void pop_node()
+	inline void pop_back() noexcept
 	{
-		free_node(ptr_list.prev);
-	}
-	inline linked_list<T>::node push_node(void)
-	{
-	    linked_list<T>::node ptr = (linked_list<T>::node)Z_Malloc(sizeof(linked_list<T>::list_node), TAG_STATIC, &ptr);
-		if (ptr_list.prev == &ptr_list && ptr_list.next == &ptr_list) {
-			ptr->prev = &ptr_list;
-			ptr->next = &ptr_list;
-			ptr_list.prev = ptr;
-			ptr_list.next = ptr;
-		}
-		else {
-			if (!ptr_list.prev->prev) {
-				ptr_list.prev->prev = (linked_list<T>::node)Z_Malloc(sizeof(linked_list<T>::list_node), TAG_STATIC,
-					&ptr_list.prev->prev);
-			}
-			ptr_list.prev->prev->next = ptr;
-			ptr_list.prev = ptr;
-			ptr->next = &ptr_list;
-			ptr->prev = ptr_list.prev->prev;
-		}
-		++_size;
-		return ptr;
-	}
-	inline linked_list<T>::node push_node(T i)
-	{
-		linked_list<T>::node ptr = (linked_list<T>::node)Z_Malloc(sizeof(linked_list<T>::list_node), TAG_STATIC, &ptr);
+		if (ptr_list == NULL)
+			return;
 		
-		if (ptr_list.prev == &ptr_list && ptr_list.next == &ptr_list) {
-			ptr->prev = &ptr_list;
-			ptr->next = &ptr_list;
-			ptr_list.prev = ptr;
-			ptr_list.next = ptr;
-		}
-		else {
-			ptr_list.prev->prev->next = ptr;
-			ptr_list.prev = ptr;
-			ptr->next = &ptr_list;
-			ptr->prev = ptr_list.prev->prev;
-		}
-		++_size;
-		return ptr;
+		linked_list<T>::node endptr = back_node();
+		endptr->prev->next = NULL;
+		dealloc_node(endptr);
+		--_size;
 	}
-	inline linked_list<T>::node push_node(T& i)
+	inline void erase(linked_list<T>::node ptr) noexcept
 	{
-		linked_list<T>::node ptr = (linked_list<T>::node)Z_Malloc(sizeof(linked_list<T>::list_node), TAG_STATIC, &ptr);
+		if (ptr == NULL || ptr_list == NULL)
+			return;
 		
-		if (std::is_pointer<T>::value)
-			ptr->val = i;
-
-		if (ptr_list.prev == &ptr_list && ptr_list.next == &ptr_list) {
-			ptr->prev = &ptr_list;
-			ptr->next = &ptr_list;
-			ptr_list.prev = ptr;
-			ptr_list.next = ptr;
+		if (ptr == front_node())
+			pop_front();
+		else if (ptr == back_node())
+			pop_back();
+		else
+			free_node(ptr);
+	}
+	inline void pop_front() noexcept
+	{
+		linked_list<T>::node frontptr = front_node();
+		if (frontptr->next != NULL) {
+			frontptr->next->prev = NULL;
+			frontptr = frontptr->next;
+			ptr_list = frontptr;
+		}
+		dealloc_node(ptr_list);
+		--_size;
+	}
+	inline linked_list<T>::node push_back(void) noexcept
+	{
+		linked_list<T>::node ptr;
+		if (ptr_list == NULL) {
+			ptr_list = alloc_node();
+			ptr = ptr_list;
+			ptr_list->prev = NULL;
 		}
 		else {
-			ptr_list.prev->prev->next = ptr;
-			ptr_list.prev = ptr;
-			ptr->next = &ptr_list;
-			ptr->prev = ptr_list.prev->prev;
+			ptr = alloc_node();
+			linked_list<T>::node endptr = back_node();
+			endptr->next = ptr;
+			ptr->prev = endptr;
 		}
+		ptr->next = NULL;
 		++_size;
 		return ptr;
 	}
-	inline void emplace_back()
-	{ push_node(); }
-	inline T& back()
-	{ return ptr_list.prev->val; }
-	inline T& front()
-	{ return ptr_list.next->val; }
-	inline int size(void) const
-	{ return _size; }
+	inline linked_list<T>::node emplace_back(void) noexcept
+	{ return push_back(); }
 	
-	inline void for_each(linked_list<T>::iterator begin_it, linked_list<T>::iterator end_it,
-		void(*func)(linked_list<T>::iterator))
+	// random algos
+	inline void swap_nodes(linked_list<T>::iterator iter1, linked_list<T>::iterator iter2) noexcept
 	{
-		for (linked_list<T>::iterator it = begin(); it->next != end(); it = it->next) {
-			func(it);
+		if (ptr_list == NULL || iter1 == NULL || iter2 == NULL)
+			return;
+		
+		if (iter1 == front_node())
+			iter1->next->prev = iter2;
+		else if (iter1 == back_node())
+			iter1->prev->next = iter2;
+		else {
+			iter1->prev->next = iter2;
+			iter1->next->prev = iter2;
 		}
+		
+		if (iter2 == front_node())
+			iter2->next->prev = iter1;
+		else if (iter2 == back_node())
+			iter2->prev->next = iter1;
+		else {
+			iter2->prev->next = iter1;
+			iter2->next->prev = iter1;
+		}
+	}
+	linked_list<T>::node find_node(linked_list<T>::iterator begin_it, std::size_t n,
+		const T &val) noexcept
+	{
+		if (ptr_list == NULL || begin_it == NULL || n == 0)
+			return NULL;
+		
+		for (linked_list<T>::iterator it = begin_it; --n; it = it->next) {
+			if (it->val == val) return it;
+		}
+		return ptr_list;
+	}
+	inline void erase_n(linked_list<T>::iterator begin_it, std::size_t n) noexcept
+	{
+		if (begin_it == NULL || ptr_list == NULL || n == 0)
+			return;
+		
+		for (linked_list<T>::iterator it = begin_it; --n; it = it->next)
+			erase(it);
+	}
+	inline void erase_range(linked_list<T>::iterator begin_it, linked_list<T>::iterator end_it) noexcept
+	{
+		if (begin_it == NULL || end_it == NULL || ptr_list == NULL)
+			return;
+		
+		for (linked_list<T>::iterator it = begin_it; it != end_it; it = it->next)
+			erase(it);
+	}
+
+	// iterators/access
+	inline T& operator[](std::size_t index) noexcept
+	{
+		if (ptr_list == NULL || index > _size) {
+			LOG_WARN("ptr_list is NULL or index > _size in linked_list::operator[]");
+			return 0;
+		}
+		
+		linked_list<T>::iterator it = begin();
+		while (--index && it != end())
+			it = it->next;
+		
+		return it->val;
+	}
+	inline std::size_t size(void) const noexcept
+	{ return _size; }
+	inline linked_list<T>::iterator begin(void) {
+		if (ptr_list == NULL)
+			LOG_WARN("ptr_list is NULL in linked_list::begin");
+		
+		return ptr_list;
+	}
+	inline linked_list<T>::iterator end(void) {
+		if (ptr_list == NULL) {
+			LOG_WARN("ptr_list is NULL in linked_list::end");
+			return NULL;
+		}
+		
+		linked_list<T>::iterator _endptr;
+		for (_endptr = begin();; _endptr = _endptr->next) {
+			if (_endptr == NULL) break;
+		}
+		return _endptr;
+	}
+	inline linked_list<T>::node back_node(void) {
+		if (ptr_list == NULL) {
+			LOG_WARN("ptr_list is NULL in linked_list::back_node");
+			return NULL;
+		}
+		linked_list<T>::node _endptr;
+		for (_endptr = begin();; _endptr = _endptr->next) {
+			if (_endptr->next == NULL) break;
+		}
+		return _endptr;
+	}
+	inline linked_list<T>::node front_node(void) {
+		if (ptr_list == NULL)
+			LOG_WARN("ptr_list is NULL in linked_list::front_node");
+		
+		return ptr_list;
+	}
+	inline T& back(void) noexcept {
+		if (ptr_list == NULL)
+			LOG_WARN("ptr_list is NULL in linked_list::back");
+		
+		return back_node()->val;
+	}
+	inline T& front(void) noexcept {
+		if (ptr_list == NULL)
+			LOG_WARN("ptr_list is NULL in linked_list::front");
+
+		return front_node()->val;
 	}
 };
+
 
 #endif

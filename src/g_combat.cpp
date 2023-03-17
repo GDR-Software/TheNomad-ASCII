@@ -121,11 +121,11 @@ void P_DoGrenade(Weapon* const wpn)
 	coord_t& bl = explosion.bl;
 	coord_t& br = explosion.br;
 	linked_list<Mob*> m_hit;
-	m_hit.init();
-	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 		Mob* const i = it->val;
 		if (inArea(explosion, i->mpos)) {
-			m_hit.push_node(i);
+			m_hit.emplace_back();
+			m_hit.back() = i;
 		}
 	}
 }
@@ -169,15 +169,15 @@ void P_ShootShotty(Weapon* const wpn)
 	area_t a;
 	G_GetShottyArea(&a, playr->pdir, playr->pos, range, spread);
 	linked_list<Mob*> hit;
-	hit.init();
 	linked_list<Mob*>::iterator it;
-	for (it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+	for (it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 		Mob* const actor = it->val;
 		if (inArea(a, actor->mpos)) {
-			hit.push_node(actor);
+			hit.emplace_back();
+			hit.back() = actor;
 		}
 	}
-	for (it = hit.begin(); it->next != hit.end(); it = it->next)
+	for (it = hit.begin(); it != hit.end(); it = it->next)
 		it->val->health -= wpn->c_wpn.dmg;
 	
 	playr->pstate = stateinfo[S_PLAYR_SHOOT];
@@ -215,7 +215,7 @@ void P_ShootSingle(Weapon* const wpn)
 	nomadshort_t y, x;
 	for (y = playr->pos.y; y != endpoint.y; y += pos.y) {
 		for (x = playr->pos.x; x != endpoint.x; x += pos.x) {
-			for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
+			for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 				Mob* const actor = it->val;
 				if (actor->mpos == coord_t(y, x)) {
 					actor->health -= wpn->c_wpn.dmg;

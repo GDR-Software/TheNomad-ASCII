@@ -389,19 +389,31 @@ static inline void Hud_DisplayVMatrix()
 
 static inline void P_GetMapBuffer()
 {
+#if 0
 	std::ifstream file(mapfile, std::ios::in);
 	if (file.fail()) {
 		N_Error("Could Not Open File %s", mapfile);
 	}
 	std::string line;
-	nomaduint_t y = 0;
-	while (std::getline(file, line)) {
-		for (nomaduint_t x = 0; x < line.size(); ++x) {
-			game->c_map[y][x] = line[x];
+#endif
+	filestream fp(mapfile, "r");
+	nomaduint_t y = 0, x = 0;
+	char c = fp.getc();
+	while (c != EOF) {
+		if (c == '\n') { ++y; x = 0; }
+		else {
+			game->c_map[y][x] = c;
+			++x;
 		}
-		y++;
-	};
-	file.close();
+		c = fp.getc();
+	}
+//	while (std::getline(file, line)) {
+//		for (nomaduint_t x = 0; x < line.size(); ++x) {
+//			game->c_map[y][x] = line[x];
+//		}
+//		y++;
+//	};
+//	file.close();
 }
 
 static inline nomadbool_t inbuilding(nomadshort_t y, nomadshort_t x)
@@ -491,8 +503,10 @@ static inline void Hud_GetVMatrix()
 	
 	nomadlong_t u, c;
 	u = c = 0;
-	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it->next != game->m_Active.end(); it = it->next) {
-		game->c_map[it->val->mpos.y][it->val->mpos.x] = it->val->sprite;
+	if (game->m_Active.size() > 0) {
+		for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
+			game->c_map[it->val->mpos.y][it->val->mpos.x] = it->val->sprite;
+		}
 	}
 //	for (const auto* const i : game->items) {
 //		game->c_map[i->pos.y][i->pos.x] = sprites[SPR_PICKUP];

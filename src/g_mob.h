@@ -83,6 +83,7 @@ typedef struct
 } bossj_t;
 
 extern mobj_t mobinfo[NUMMOBS];
+extern mobj_t mobbackup[NUMMOBS];
 extern const bossj_t bossinfo[];
 
 class Mob

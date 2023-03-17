@@ -33,7 +33,7 @@
 #undef byte
 #include "nlohmann/json.hpp"
 
-static constexpr auto svdir = "Files/gamedata/SVFILES/";
+static constexpr const char* svdir = "Files/gamedata/SVFILES/";
 
 #define MAGIC_XOR 300
 
@@ -41,7 +41,7 @@ using json = nlohmann::json;
 
 static void G_ArchivePlayr(const Playr* playr, json& data);
 static void G_ArchiveWeapon(const Weapon* wpn, json& data);
-static void G_ArchiveMobs(const linked_list<Mob*>& m_Active, json& data);
+static void G_ArchiveMobs(linked_list<Mob*>& m_Active, json& data);
 
 static void G_UnArchivePlayr(Playr* const playr, json& data);
 static void G_UnArchiveWeapon(Weapon* const wpn, json& data);
@@ -139,10 +139,10 @@ static void G_UnArchivePlayr(Playr* const playr, json& data)
 	playr->pdir = data["playr"]["pdir"];
 }
 
-static void G_ArchiveMobs(const linked_list<Mob*>& m_Active, json& data)
+static void G_ArchiveMobs(linked_list<Mob*>& m_Active, json& data)
 {
 	LOG_INFO("Archiving m_Active mob data");
-	linked_list<Mob*>::const_iterator it = m_Active.begin();
+	linked_list<Mob*>::iterator it = m_Active.begin();
 	for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 		std::string node_name = "mob_"+std::to_string(i);
 		Mob* const mob = it->val;
@@ -166,7 +166,7 @@ static void G_UnArchiveMobs(linked_list<Mob*>& m_Active, json& data, nomaduint_t
 		LOG_INFO("nummobs != m_Active.size(), re-doing m_Active vector");
 		for (nomaduint_t i = 0; i < m_Active.size(); ++i) {
 			Z_Free(m_Active.back());
-			m_Active.pop_node();
+			m_Active.pop_back();
 		}
 		for (nomaduint_t i = 0; i < nummobs; ++i) {
 			m_Active.emplace_back();

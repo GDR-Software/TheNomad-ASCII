@@ -67,14 +67,11 @@ static void settingsLoop(void);
 void mainLoop(int argc, char* argv[])
 {
 	Z_Init();
-	printf("Allocated Zone From %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
-	LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
+//	printf("Allocated Zone From %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
+//	LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
 	PTR_CHECK(NULL_CHECK, game);
 	I_NomadInit(argc, argv, game);
-#ifndef _NOMAD_DEBUG
-	Z_CheckHeap();
-#endif
 	nomadushort_t c{};
 	while (1) {
 		if (game->gamestate == GS_TITLE) {
@@ -236,26 +233,15 @@ static void levelLoop(void)
 	game->G_DisplayHUD();
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	while (game->gamestate == GS_LEVEL) {
-		if (loop_delay > 0) {
-			std::this_thread::sleep_for(std::chrono::seconds(loop_delay));
-			loop_delay = 0;
-		}
 		std::thread snd_thread(G_RunSound);
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		snd_thread.join();
-		for (mob_it = game->m_Active.begin(); mob_it->next != game->m_Active.end(); mob_it->next) {
-			M_RunThinker(mob_it);
-		}
-		#if 0
-		for (item_it = game->items.begin(); item_it->next != game->items.end(); ++item_it) {
-			--(*item_it)->ticker;
-			if ((*item_it)->ticker <= -1) {
-				game->items.free_node(item_it);
-				Z_Free(*item_it);
+		if (game->m_Active.size() > 0) {
+			for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); mob_it = mob_it->next) {
+				M_RunThinker(mob_it);
 			}
 		}
-		#endif
 		// custom key-binds will be implemented in the future
 		char c;
 		if ((c = kb_hit()) != -1)
@@ -263,7 +249,6 @@ static void levelLoop(void)
 		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
-//		Z_FreeTags(TAG_PURGELEVEL, TAG_SCOPE);
 	};
 	delwin(game->hudwin[HL_VMATRIX]);
 	return;

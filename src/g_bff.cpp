@@ -42,10 +42,10 @@ void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
 	// game->m_Active is expected to be completely empty at this time
 	if (gptr->m_Active.size() > 0) {
 		LOG_WARN("G_StartupCampaign hasn't yet cleared game->m_Active, doing so now");
-		for (linked_list<Mob*>::iterator it = gptr->m_Active.begin(); it->next != gptr->m_Active.end(); it = it->next) {
+		for (linked_list<Mob*>::iterator it = gptr->m_Active.begin(); it != gptr->m_Active.end(); it = it->next) {
 			M_KillMob(it);
+			gptr->m_Active.erase(it);
 		}
-		gptr->m_Active.clear();
 	}
 	std::vector<marker> markers;
 	for (auto &i : spawners) {
