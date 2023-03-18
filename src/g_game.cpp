@@ -57,7 +57,7 @@ Game::~Game()
 {
 	delwin(screen);
 	endwin();
-	set_block();
+//	set_block();
 	// now we delete any of the runtime-only resources
 	remove("Files/gamedata/RUNTIME/mapfile.txt");
 }

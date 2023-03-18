@@ -84,7 +84,7 @@ coord_t Game::E_GetDir(nomadenum_t dir)
 		coords.x = 1;
 		break;
 	default:
-		N_Error("Unknown/Invalid Direction For Entity!");
+		coords.y = -1;//probably D_NULL, assign default value of D_NORTH
 		break;
 	};
 	return coords;

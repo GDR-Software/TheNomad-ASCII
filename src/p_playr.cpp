@@ -483,6 +483,8 @@ static nomadbool_t P_CanMove(coord_t& pos)
 {
 	switch (game->c_map[playr->pos.y+pos.y][playr->pos.x+pos.x]) {
 	case sprites[SPR_FLOOR_INSIDE]:
+		return true;
+		break;
 	case sprites[SPR_FLOOR_OUTSIDE]:
 		return true;
 		break;
@@ -497,13 +499,24 @@ static nomadbool_t P_CanMove(coord_t& pos)
 	return false;
 }
 
+static inline nomadenum_t P_GetInputDir()
+{
+	switch (input) {
+	case KEY_AT:	return D_NORTH;
+	case KEY_EP:	return D_WEST;
+	case KEY_HASH:	return D_SOUTH;
+	case KEY_DOLLAR:return D_EAST;
+	};
+	return D_NULL;
+}
+
 void P_DashN()
 {
-	if (playr->pticker > -1)
-		return;
-	
 //	nomadshort_t range = playr->pos.y - RDASH_SPEED;
-	coord_t pos = game->E_GetDir(playr->pdir);
+	nomadenum_t dir = P_GetInputDir();
+	coord_t pos = game->E_GetDir(dir);
+	if (!P_CanMove(pos))
+		return;
 	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
 		if (!P_CanMove(pos))
 			break;
@@ -515,11 +528,11 @@ void P_DashN()
 }
 void P_DashW()
 {
-	if (playr->pticker > -1)
-		return;
-	
 //	nomadshort_t range = playr->pos.x - RDASH_SPEED;
-	coord_t pos = game->E_GetDir(playr->pdir);
+	nomadenum_t dir = P_GetInputDir();
+	coord_t pos = game->E_GetDir(dir);
+	if (!P_CanMove(pos))
+		return;
 	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
 		if (!P_CanMove(pos))
 			break;
@@ -531,11 +544,11 @@ void P_DashW()
 }
 void P_DashS()
 {
-	if (playr->pticker > -1)
-		return;
-	
 //	nomadshort_t range = playr->pos.y - RDASH_SPEED;
-	coord_t pos = game->E_GetDir(playr->pdir);
+	nomadenum_t dir = P_GetInputDir();
+	coord_t pos = game->E_GetDir(dir);
+	if (!P_CanMove(pos))
+		return;
 	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
 		if (!P_CanMove(pos))
 			break;
@@ -547,11 +560,11 @@ void P_DashS()
 }
 void P_DashE()
 {
-	if (playr->pticker > -1)
-		return;
-	
 //	nomadshort_t range = playr->pos.y - RDASH_SPEED;
-	coord_t pos = game->E_GetDir(playr->pdir);
+	nomadenum_t dir = P_GetInputDir();
+	coord_t pos = game->E_GetDir(dir);
+	if (!P_CanMove(pos))
+		return;
 	for (nomadshort_t i = 0; i < RDASH_SPEED; ++i) {
 		if (!P_CanMove(pos))
 			break;

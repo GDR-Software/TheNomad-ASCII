@@ -122,10 +122,9 @@ void P_DoGrenade(Weapon* const wpn)
 	coord_t& br = explosion.br;
 	linked_list<Mob*> m_hit;
 	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
-		Mob* const i = it->val;
-		if (inArea(explosion, i->mpos)) {
+		if (inArea(explosion, it->val->mpos)) {
 			m_hit.emplace_back();
-			m_hit.back() = i;
+			m_hit.back() = it->val;
 		}
 	}
 }
@@ -171,10 +170,9 @@ void P_ShootShotty(Weapon* const wpn)
 	linked_list<Mob*> hit;
 	linked_list<Mob*>::iterator it;
 	for (it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
-		Mob* const actor = it->val;
-		if (inArea(a, actor->mpos)) {
+		if (inArea(a, it->val->mpos)) {
 			hit.emplace_back();
-			hit.back() = actor;
+			hit.back() = it->val;
 		}
 	}
 	for (it = hit.begin(); it != hit.end(); it = it->next)

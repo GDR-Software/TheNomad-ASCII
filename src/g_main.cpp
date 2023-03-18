@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 	signal(SIGKILL, signal_interrupt);
 	signal(SIGBUS, signal_buss);
 	
-	set_nonblock();
+	//set_nonblock();
 	mainLoop(argc, argv);
 	return 0;
 }

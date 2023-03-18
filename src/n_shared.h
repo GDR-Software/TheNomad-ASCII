@@ -305,8 +305,6 @@ extern FILE* p_file;
 	case TAG_STATIC: \
 		strcpy(str, "TAG_STATIC"); \
 		break; \
-	case TAG_MISSION: \
-		strcpy(str, "TAG_MISSION"); \
 		break; \
 	case TAG_PURGELEVEL: \
 		strcpy(str, "TAG_PURGELEVEL"); \
@@ -314,8 +312,11 @@ extern FILE* p_file;
 	case TAG_SCOPE: \
 		strcpy(str, "TAG_SCOPE"); \
 		break; \
+	case TAG_CACHE: \
+		strcpy(str, "TAG_CACHE"); \
+		break; \
 	}; \
-	str;})
+str;})
 
 #define LOG_FREETAGS(lowtag, hightag, nblocks, bfreed)   \
 {                                                        \

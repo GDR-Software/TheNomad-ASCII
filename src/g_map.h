@@ -82,10 +82,10 @@ public:
 	nomadint_t sector_num = 0;
 	std::shared_ptr<Map> map_link;
 public:
-	Sector(){}
+	Sector() = default;
 	Sector(const Sector &) = delete;
 	Sector(Sector &&) = default;
-	~Sector(){}
+	~Sector() = default;
 };
 
 class Map
@@ -129,7 +129,6 @@ public:
 	Spawner(Spawner &&) = default;
 	~Spawner() = default;
 };
-
 
 class BFF
 {
@@ -287,7 +286,7 @@ public:
 			const std::string node_name = "lvl_"+std::to_string(i);
 			const std::string mapname = data["levels"][node_name]["map"];
 			std::shared_ptr<Map>* ptr = nullptr;
-			std::shared_ptr<Level>& lvl = levels[i];
+			std::shared_ptr<Level> lvl = levels[i];
 			for (auto& m : maps) {
 				if (m->map_id == mapname) {
 					ptr = &m;

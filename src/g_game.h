@@ -121,7 +121,7 @@ public:
 	Playr* playr;
 	World* world;
 	linked_list<Mob*> m_Active{};
-	linked_list<proj_t> proj_list{};
+	linked_list<proj_t*> proj_list{};
 	linked_list<item_t*> items{};
 //	std::vector<NPC*> b_Active;
 	char* biomenames[9];

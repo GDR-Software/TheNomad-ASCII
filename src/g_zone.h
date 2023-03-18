@@ -21,199 +21,101 @@
 
 #pragma once
 
-
-// size: 40 bytes...?
-typedef struct memblock_s
-{
-	int size;
-	int tag;
-	int id;
-	void* user;
+enum {
+	TAG_FREE = 0,
+	TAG_STATIC = 1,
+	TAG_PURGELEVEL = 100,
+	TAG_SCOPE = 101,
+	TAG_CACHE = 102,
 	
-	struct memblock_s* next;
-	struct memblock_s* prev;
-} memblock_t;
+	NUMTAGS
+};
 
-typedef struct
-{
-	// total bytes allocated, including the sizeof memzone_t
-	int size;
-
-	// start/end cap for the linked list of blocks
-	memblock_t blocklist;
-	// the block pointer
-	memblock_t* rover;
-} memzone_t;
-
-
-extern memzone_t* mainzone; // the main zone that the game uses
-extern memzone_t* reserved; // zone where all the unused but stuff found in the bff will be alloced (slf data, extra maps)
-extern memzone_t* cardinal; // zone where the cardinal system lies
-
-constexpr auto TAG_FREE       = 0;
-constexpr auto TAG_STATIC     = 1; // stays allocated for the entire execution time
-constexpr auto TAG_MISSION    = 2;
-constexpr auto TAG_PURGELEVEL = 100;
-constexpr auto TAG_SCOPE      = 101; // only meant to last a single scope
-
-#ifndef TESTING
-static nomadsize_t heapsize = 1000*1024*1024; // allocating 100 mb (mainzone size)
-static int reserved_size = 30*1024*1024; // 30 mb reserved memory
-static int cardinal_size = 25*1024*1024; // 25 mb for cardinal system
-#endif
-
-#ifdef TESTING
-__CFUNC__ void Z_Init(int size); // only inits mainzone
+#ifdef _NOMAD_DEBUG
+#define LOG_CALL(func) LOG_DEBUG("%s called from %s:%s:%iu",func,_FILE__,__func__,__LINE__)
 #else
-__CFUNC__ void Z_Init(); // inits all zones
+#define LOG_CALL(func)
 #endif
 
-__CFUNC__ void* Zone_Malloc(int size, int tag, void* user, memzone_t* zone);
-__CFUNC__ void* Zone_Realloc(void *user, int nsize, int tag, memzone_t* zone);
-__CFUNC__ void* Zone_Calloc(void *user, int nelem, int elemsize, int tag, memzone_t* zone);
-__CFUNC__ void Zone_Free(void *ptr, memzone_t* zone);
-__CFUNC__ void Zone_ClearZone(memzone_t* zone);
-__CFUNC__ void Z_CleanCache(void);
-#ifndef TESTING
-__CFUNC__ int Zone_ZoneSize(memzone_t *zone);
-#endif
-__CFUNC__ void Zone_ChangeUser(void *ptr, void *user, memzone_t *zone);
-__CFUNC__ void Zone_FreeTags(int lowtag, int hightag, memzone_t *zone);
-__CFUNC__ void Zone_CheckHeap(memzone_t *zone);
-__CFUNC__ void Zone_ChangeTag2 (void *ptr, int tag, const char *file, int line, memzone_t *zone);
-#ifdef TESTING
-// only allowed for the mainzone
-__CFUNC__ void Z_DumpHeap(void);
-#endif
-__CFUNC__ void Zone_FileDumpHeap(memzone_t* zone);
+extern "C" void Z_Init();
 
-#define GET_ZONE_ID(zone) \
-({int id; \
-	if (zone==mainzone) id = 0; \
-	else if (zone==reserved) id = 1; \
-	else if (zone==cardinal) id = 2; \
-id;})
+extern "C" void Z_FreeTags(nomadubyte_t lowtag, nomadubyte_t hightag);
+extern "C" void Z_CleanCache();
+extern "C" void Z_CheckHeap();
+extern "C" void Z_ChangeUser(void *user, void *ptr);
+extern "C" void Z_ChangeTag(void *ptr, nomadubyte_t tag);
+extern "C" void Z_ChangeTag2(void *ptr, nomadubyte_t tag, const char *file, nomaduint_t line);
+extern "C" nomaduint_t Z_ZoneSize();
+extern "C" void *Z_Malloc(nomaduint_t size, nomadubyte_t tag, void *user);
+extern "C" void *Z_Realloc(void *user, nomaduint_t nsize);
+extern "C" void *Z_Calloc(void *user, nomaduint_t nelem, nomaduint_t elemsize, nomadubyte_t tag);
+extern "C" void Z_Free(void *ptr);
 
-// mainzone allocations
+template<typename T>
+class zone_ptr
+{
+private:
+	T *ptr;
+public:
+	zone_ptr(T *_ptr) noexcept
+		: ptr(_ptr) { }
+	template<typename... Args>
+	zone_ptr(T *_ptr, Args&&... args) noexcept
+		: ptr(_ptr)
+	{
+		new (ptr) T(std::forward<Args>(args)...);
+	}
+	zone_ptr(const zone_ptr &) noexcept = default;
+	zone_ptr(zone_ptr &&) noexcept = default;
+
+	constexpr zone_ptr(std::nullptr_t) noexcept : zone_ptr(){}
+	constexpr zone_ptr() noexcept = default;
+
+	~zone_ptr()
+	{
+		ptr->~T();
+		Z_Free(ptr);
+	}
+
+	inline zone_ptr& operator=(const zone_ptr &) noexcept = default;
+	inline T* operator->(void) noexcept { return ptr; }
+};
+
+// broken - dont use
 #if 0
-#define LOG_BLOCK(ptr,zone)                               \
-{                                                         \
-	fprintf(LOGGER_OUTFILE,                               \
-	"[Zone Daemon Log]\n"                                 \
-	"\tzone id               => %i\n"                     \
-	"\tlog type              => BLOCK_LOG\n"              \
-	"\tblock name            => %s\n"                     \
-	"\tblock bytes alloc'd   => %i\n"                     \
-	"\tblock tag             => %i\n",                    \
-	GET_ZONE_ID(zone),#ptr,                               \
-	((memblock_t*)((byte*)ptr-sizeof(memblock_t)))->size, \
-	((memblock_t*)((byte*)ptr-sizeof(memblock_t)))->tag); \
-}
-#else
-#define LOG_BLOCK(ptr,zone)
-#endif
-
-#define Z_FileDumpHeap() Zone_FileDumpHeap(mainzone)
-#define Z_ClearZone() Zone_ClearZone(mainzone)
-#ifndef TESTING
-#define Z_ZoneSize() Zone_ZoneSize(mainzone)
-#endif
-#define Z_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,mainzone)
-#ifndef _NOMAD_DEBUG
-#define Z_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,mainzone)
-#define Z_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,mainzone)
-#define Z_Calloc(ptr,nelem,elemsize,tag) Zone_Calloc(ptr,nelem,elemsize,tag,mainzone)
-#define Z_Free(ptr) Zone_Free(ptr,mainzone)
-#define Z_ChangeUser(ptr,user) Zone_ChangeUser(ptr,user,mainzone)
-#define Z_FreeTags(lowtag,hightag) Zone_FreeTags(lowtag,hightag,mainzone)
-#define Z_CheckHeap() Zone_CheckHeap(mainzone)
-#define Z_ChangeTag(ptr,tag) Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,mainzone)
-#else
-
-#define Z_Malloc(size,tag,ptr) \
-	Zone_Malloc(size,tag,ptr,mainzone); LOG_DEBUG("Z_Malloc called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,#ptr)
-#define Z_Free(ptr) \
-	Zone_Free(ptr,mainzone); LOG_DEBUG("Z_Free called from %s:%s:%u, name: %s",__FILE__,__func__,__LINE__,#ptr)
-#define Z_ChangeTag(ptr,tag) \
-	Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,mainzone); LOG_DEBUG("Z_ChangeTag called from %s:%s:%u, name: %s, newtag: %s",__FILE__,__func__,__LINE__,#ptr,#tag)
-#define Z_ChangeUser(ptr,user) \
-	Zone_ChangeUser(ptr,user); LOG_DEBUG("Z_ChangeUser called from %s:%s:%u, name %s, new user: %s",__FILE__,__func__,__LINE__,#ptr,#user)
-#define Z_FreeTags(lowtag,hightag) \
-	Zone_FreeTags(lowtag,hightag); LOG_DEBUG("Z_FreeTags called from %s:%s:%u, lowtag: %s, hightag %s",__FILE__,__func__,__LINUX__,#lowtag,#hightag)
-#endif
-
-// reserved allocations
-#define R_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,reserved)
-#define R_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,reserved)
-#define R_Calloc(ptr,nelem,elemsize) Zone_Calloc(ptr,nelem,elemsize,reserved)
-#define R_Free(ptr) Zone_Free(ptr,reserved)
-#define R_ClearZone() Zone_ClearZone(reserved)
-#ifndef TESTING
-#define R_ZoneSize() Zone_ZoneSize(reserved)
-#endif
-#define R_ChangeUser(ptr,user) Zone_ChangeUser(ptr,user,reserved)
-#define R_FreeTags(lowtag,hightag) Zone_FreeTags(lowtag,hightag,reserved)
-#define R_CheckHeap() Zone_CheckHeap(reserved)
-#define R_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,reserved)
-#define R_ChangeTag(ptr,tag) Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,reserved)
-#define R_FileDumpHeap() Zone_FileDumpHeap(reserved)
-
-// cardinal system allocations
-#define C_Malloc(size,tag,ptr) Zone_Malloc(size,tag,ptr,cardinal)
-#define C_Realloc(ptr,nsize,tag) Zone_Realloc(ptr,nsize,tag,cardinal)
-#define C_Calloc(ptr,nelem,elemsize) Zone_Calloc(ptr,nelem,elemsize,cardinal)
-#define C_Free(ptr) Zone_Free(ptr,cardinal)
-#define C_ClearZone() Zone_ClearZone(cardinal)
-#ifndef TESTING
-#define C_ZoneSize() Zone_ZoneSize(cardinal)
-#endif
-#define C_ChangeUser(ptr,user) Zone_ChangeUser(ptr,user,cardinal)
-#define C_FreeTags(lowtag,hightag) Zone_FreeTags(lowtag,hightag,cardinal)
-#define C_CheckHeap() Zone_CheckHeap(cardinal)
-#define C_ChangeTag2(ptr,tag,file,line) Zone_ChangeTag2(ptr,tag,file,line,cardinal)
-#define C_ChangeTag(ptr,tag) Zone_ChangeTag2(ptr,tag,__FILE__,__LINE__,cardinal)
-#define C_FileDumpHeap() Zone_FileDumpHeap(cardinal)
-
-// the usual operator allocaters, linker was giving me hell, so I just grabbed the stuff
-// from the source code, modified it a bit, the slapped it in here
-
-#if 0
-inline void *operator new(unsigned long size)
+template<typename T, typename... Args>
+inline T* make_ptr<T>(Args&&... args)
 {
-    if (size == 0)
-        size = 1;
+	T* ptr = static_cast<T*>(Z_Malloc(sizeof(T), TAG_STATIC, NULL));
+	new (ptr) T(std::forward<Args>(args)...);
+	return ptr;
+}
 
-    void *ptr;
-    while ((ptr = malloc(size)) == NULL) {
-        std::new_handler nh = std::get_new_handler();
-        if (nh)
-            nh();
-        else
-            N_Error("memory allocation failed");
+template <class T>
+struct nomad_allocator
+{
+	nomad_allocator() noexcept { }
+
+	typedef T value_type;
+    template <class U>
+    constexpr nomad_allocator(const nomad_allocator<U>&) noexcept { }
+
+    [[nodiscard]] T* allocate(std::size_t n) {
+        if (n > std::numeric_limits<std::size_t>::max() / sizeof(T))
+            throw std::bad_array_new_length();
+        if (auto p = static_cast<T*>(Z_Malloc(n * sizeof(T), TAG_STATIC, NULL))) {
+            return p;
+        }
+
+        throw std::bad_alloc();
     }
-    return ptr;
-}
-inline void operator delete(void *ptr)
-{
-    if (!ptr) {
-        LOG_WARN("gave NULL pointer to operator ::delete, aborting");
-        return;
-    }
-    free(ptr);
-}
-inline void *operator new[](unsigned long size)
-{
-    return ::operator new(size);
-}
-inline void operator delete[](void *ptr)
-{
-    ::operator delete(ptr);
-}
-inline void operator delete[](void *ptr, unsigned long)
-{
-    ::operator delete[](ptr);
-}
+
+	void deallocate(T* p, std::size_t n) noexcept {
+	    Z_Free(p);
+	}
+};
 #endif
+
 
 template<typename T>
 class linked_list
@@ -252,13 +154,14 @@ public:
 	typedef linked_list_node list_node;
 	typedef linked_list_node* iterator;
 	typedef const linked_list_node* const_iterator;
+	typedef std::size_t size_type;
 private:
 	linked_list<T>::node ptr_list = NULL;
 	std::size_t _size = 0;
 	
 	linked_list<T>::node alloc_node(void) {
 		linked_list<T>::node ptr = (linked_list<T>::node)Z_Malloc(
-			sizeof(linked_list<T>::list_node), TAG_STATIC, &ptr);
+			sizeof(linked_list<T>::list_node), TAG_STATIC, NULL);
 		if (ptr == NULL)
 			N_Error("linked_list::alloc_node: memory allocation failed");
 		
@@ -356,6 +259,11 @@ public:
 	{ return push_back(); }
 	
 	// random algos
+	inline void swap(linked_list& list)
+	{
+		if (list.ptr_list == NULL || ptr_list == NULL)
+			return;
+	}
 	inline void swap_nodes(linked_list<T>::iterator iter1, linked_list<T>::iterator iter2) noexcept
 	{
 		if (ptr_list == NULL || iter1 == NULL || iter2 == NULL)

@@ -14,6 +14,33 @@
 #include "g_game.h"
 #include "g_rng.h"
 
+typedef enum
+{
+	demo, // demo - the first version, most buggy, will always be free
+	shareware, // the stuff that's distributed for free but with much more content than the demo
+	commercial, // the official paid-for version
+
+	unknown // invalid type
+} bfftype_t;
+
+// only the official nomadascii bffs use this struct
+typedef struct defined_bff_t
+{
+	const char* fname;
+	bfftype_t type;
+	const char* rname;
+};
+
+static defined_bff_t defined_bffs[] = {
+	{"nomadmain.bff",  commercial, "The Nomad: Tales From a Lost Land"},
+	{"nomadshare.bff", shareware,  "The Nomad (Shareware)"},
+	{"nomaddemo.bff",  demo,       "The Nomad (Demo)"},
+	{"bloodburne.bff", commercial, "Bloodburne: World War 3"},
+	{"phantomsix.bff", commercial, "The Phantom Six"},
+	{"bbshare.bff",    shareware,  "Bloodburne (Shareware Version)"},
+	{"psshare.bff",    shareware,  "The Phantom Six (Shareware Version)"},
+};
+
 static Game* gptr;
 
 Level::~Level()
@@ -43,9 +70,9 @@ void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
 	if (gptr->m_Active.size() > 0) {
 		LOG_WARN("G_StartupCampaign hasn't yet cleared game->m_Active, doing so now");
 		for (linked_list<Mob*>::iterator it = gptr->m_Active.begin(); it != gptr->m_Active.end(); it = it->next) {
-			M_KillMob(it);
-			gptr->m_Active.erase(it);
+			Z_Free(it->val);
 		}
+		gptr->m_Active.clear();
 	}
 	std::vector<marker> markers;
 	for (auto &i : spawners) {
@@ -61,7 +88,7 @@ void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
 		for (auto& m : markers) {
 			if (i->et_type == ET_MOB) {
 				gptr->m_Active.emplace_back();
-				gptr->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &gptr->m_Active.back());
+				gptr->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, NULL);
 				Mob* const mob = gptr->m_Active.back();
 				i->et_ptr = (void *)mob;
 				for (auto& s : mobinfo) {

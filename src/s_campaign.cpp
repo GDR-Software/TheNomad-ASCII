@@ -130,7 +130,7 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     nomadshort_t y{}, x{};
     memcpy(mapbuffer[8], lvl->lvl_map, sizeof(lvl->lvl_map));
     for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
-        M_KillMob(it);
+        Z_Free(it->val);
     }
     game->m_Active.clear();
     lvl->G_LoadSpawners(game->bff, mapbuffer);

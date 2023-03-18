@@ -67,8 +67,6 @@ static void settingsLoop(void);
 void mainLoop(int argc, char* argv[])
 {
 	Z_Init();
-//	printf("Allocated Zone From %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
-//	LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
 	game = (Game *)Z_Malloc(sizeof(Game), TAG_STATIC, &game);
 	PTR_CHECK(NULL_CHECK, game);
 	I_NomadInit(argc, argv, game);
@@ -242,7 +240,6 @@ static void levelLoop(void)
 				M_RunThinker(mob_it);
 			}
 		}
-		// custom key-binds will be implemented in the future
 		char c;
 		if ((c = kb_hit()) != -1)
 			game->P_Ticker(c);

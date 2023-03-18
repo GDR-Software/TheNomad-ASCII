@@ -141,7 +141,7 @@ void Game::M_GenMobs(void)
 Mob* M_SpawnMob(void)
 {
 	game->m_Active.emplace_back();
-	game->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
+	game->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, NULL);
 	M_GenMob(game->m_Active.back());
 	return game->m_Active.back();
 }
@@ -200,18 +200,18 @@ Mob* M_MobAt(coord_t pos)
 //
 void M_KillMob(linked_list<Mob*>::iterator mob)
 {
+//	M_SpawnDrops(mob->val->c_mob.mdrops, mob->val->mpos);
 	game->m_Active.erase(mob);
-//	M_SpawnDrops((*mob)->c_mob.mdrops, (*mob)->mpos);
 	Z_Free(mob->val);
 }
 void M_KillMob(Mob* mob)
 {
-	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); ++it) {
-		if (it->val == mob) {
+//	M_SpawnDrops(mob->c_mob.mdrops, mob->mpos);
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
+		if (mob == it->val) {
 			game->m_Active.erase(it);
 		}
 	}
-//	M_SpawnDrops(mob->c_mob.mdrops, mob->mpos);
 	Z_Free(mob);
 }
 

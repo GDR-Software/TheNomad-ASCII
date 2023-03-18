@@ -279,7 +279,6 @@ void MobtAssigner(Game* const gptr)
 void M_DoMove(Mob* actor)
 {
 	if (!M_CanMove(actor) && !M_NewMoveDir(actor)) {
-		LOG_WARN("MOB CANNOT MOVE!!");
 		return;
 	}
 	else {

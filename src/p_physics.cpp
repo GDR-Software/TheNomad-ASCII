@@ -118,7 +118,7 @@ nomadbool_t G_CheckCollider(coord_t& point, Game* const game, collider_t& c)
 
 static Game* game;
 static Playr* playr;
-static linked_list<proj_t>* proj_list;
+static linked_list<proj_t*>* proj_list;
 
 void PhysicsAssigner(Game* const gptr)
 {
@@ -130,20 +130,21 @@ void PhysicsAssigner(Game* const gptr)
 void G_SpawnProjectile(proj_t proj)
 {
 	proj_list->emplace_back();
-	proj_list->back() = proj;
+	proj_list->back() = (proj_t *)Z_Malloc(sizeof(proj_t), TAG_STATIC, NULL);
+	*proj_list->back() = proj;
 }
-static void G_FreeProjectile(linked_list<proj_t>::iterator ptr)
+static void G_FreeProjectile(linked_list<proj_t*>::iterator ptr)
 {
 	if (ptr == NULL) {
 		LOG_WARN("G_FreeProjectile called on a nullptr, aborting");
 		return;
 	}
-	proj_list->free_node(ptr);
+	proj_list->erase(ptr);
 }
 
-static void G_ProjHitEntity(linked_list<proj_t>::iterator it)
+static void G_ProjHitEntity(linked_list<proj_t*>::iterator it)
 {
-	proj_t* ptr = &it->val;
+	proj_t* ptr = it->val;
 	if (playr->pos == ptr->pos) {
 		switch (ptr->type) {
 		case PROJ_ROCKET:
@@ -160,8 +161,8 @@ static void G_ProjHitEntity(linked_list<proj_t>::iterator it)
 
 void G_RunProjectiles()
 {
-	for (linked_list<proj_t>::iterator it = proj_list->begin(); it->next != proj_list->end(); it = it->next) {
-		proj_t* ptr = &it->val;
+	for (linked_list<proj_t*>::iterator it = proj_list->begin(); it != proj_list->end(); it = it->next) {
+		proj_t* ptr = it->val;
 		ptr->pos += ptr->speed;
 		switch (game->c_map[ptr->pos.y][ptr->pos.x]) {
 		case ' ':
