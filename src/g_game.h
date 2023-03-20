@@ -131,7 +131,8 @@ public: // map stuff
 	std::shared_ptr<Map> map_ptr;
 	std::shared_ptr<Level> lvlptr;
 public:
-	WINDOW* screen;
+	SDL_Window* SDL_screen;
+	WINDOW* TUI_screen;
 	WINDOW* hudwin[NUMHUDLAYERS];
 public:
 	Game();
@@ -178,6 +179,7 @@ void MobAssigner(Game* const gptr);
 //void NPCAssigner(Game* const gptr);
 //void NomadAssigner(Game* const gptr);
 void CampaignAssigner(Game* const gptr);
+void ctrl_c_handle(int signum);
 
 nomaduint_t G_GetNumMobs(const Game* const game);
 nomaduint_t G_GetNumBots(const Game* const game);

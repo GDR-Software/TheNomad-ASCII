@@ -45,13 +45,29 @@
 // the system
 //
 
-#define MEM_ALIGN  (sizeof(void *))
 #define UNOWNED    ((void **)666)
 #define ZONEID     0xa21d49
 
+#ifdef _NOMAD_DEBUG
+#define ZONEIDCHECK
+#define CHECKHEAP
+#define ZONEDEBUG
+#endif
+
+#if defined(_NOMAD_DEBUG) || defined(_NOMAD_LOGS)
+#define ZONE_HISTORY 4
+#define HEADER_SIZE 33
+#else
+#define HEADER_SIZE 29
+#endif
+#define CHUNK_SIZE HEADER_SIZE
+#define MEM_ALIGN  8
+#define RETRY_AMOUNT (256*1024)
+
+// 29 without id, 33 with id
 typedef struct memblock_s
 {
-#ifdef _NOMAD_DEBUG
+#if defined(_NOMAD_DEBUG) || defined(_NOMAD_LOGS)
 	nomadint_t id;
 #endif
 	nomadubyte_t tag;
@@ -75,6 +91,59 @@ typedef struct
 } memzone_t;
 
 memzone_t* mainzone;
+
+#if defined(_NOMAD_DEBUG) || defined(_NOMAD_LOGS)
+static nomadsize_t free_memory = 0;
+static nomadsize_t active_memory = 0;
+static nomadsize_t purgable_memory = 0;
+
+static void Z_PrintStats(void)
+{
+	nomadulong_t total_memory = free_memory + active_memory +
+								purgable_memory;
+	double s = 100.0 / total_memory;
+	fprintf(LOGGER_OUTFILE,
+		"[Zone Daemon Log]\n"
+		"\tlog type              => STATS\n"
+		"\tbytes alloc'd         => %lu\n"
+		"\tbytes to be freed     => %lu\n"
+		"\tbytes free'd          => %lu\n"
+		"\ttotal memory          => %lu\n",
+	active_memory, purgable_memory, free_memory, total_memory);
+}
+#endif
+
+#if defined(_NOMAD_DEBUG) || defined(_NOMAD_LOGS)
+enum {malloc_history, free_history, NUM_HISTORY_TYPES};
+
+static const char *file_history[NUM_HISTORY_TYPES][ZONE_HISTORY];
+static nomadint_t line_history[NUM_HISTORY_TYPES][ZONE_HISTORY];
+static nomadint_t history_index[NUM_HISTORY_TYPES];
+static const char *const desc[NUM_HISTORY_TYPES] = { "allocations", "deallocations" };
+
+void Z_DumpHistory(char *buf)
+{
+	nomadint_t i, j;
+	char s[1024];
+	strcat(buf, "\n");
+	for (i = 0; i < NUM_HISTORY_TYPES; ++i) {
+		sprintf(s, "\nLast several %s:\n\n", desc[i]);
+		strcat(buf, s);
+		for (j = 0; j < ZONE_HISTORY; ++i) {
+			nomadint_t k = (history_index[i] - j - 1) & (ZONE_HISTORY - 1);
+			if (file_history[i][k]) {
+				sprintf(s, "File: %s, Line: %d\n", file_history[i][k],
+					line_history[i][k]);
+				strcat(buf, s);
+			}
+		}
+	}
+}
+#else
+void Z_DumpHistory(char *buf)
+{
+}
+#endif
 
 extern "C" void Z_KillHeap(void)
 {
@@ -111,7 +180,16 @@ extern "C" void Z_Free(void *ptr)
 	
 	block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 	
-#ifdef _NOMAD_DEBUG
+//#ifdef CHECKHEAP
+//	Z_CheckHeap();
+//#endif
+#ifdef ZONEDEBUG
+	free_memory += block->size;
+	active_memory -= block->size;
+#endif
+#ifdef ZONEIDCHECK
+	if (block->tag >= TAG_PURGELEVEL && !block->user)
+		N_Error("Z_Free: an owner is required for purgable blocks");
 	if (block->id != ZONEID) {
 		LOG_WARN("Z_Free trying to free pointer without ZONEID, aborting.");
 		return;
@@ -126,7 +204,7 @@ extern "C" void Z_Free(void *ptr)
 	// mark as free
 	block->user = (void *)NULL;
 	block->tag = TAG_FREE;
-#ifdef _NOMAD_DEBUG
+#ifdef ZONEIDCHECK
 	block->id = 0;
 #endif
 	
@@ -181,7 +259,7 @@ extern "C" void Z_FileDumpHeap()
 	}
 }
 
-#define DEFAULT_SIZE (70*1024*1024) // 70 MiB
+#define DEFAULT_SIZE (68*1024*1024) // 68 MiB
 #define MIN_SIZE     (50*1024*1024) // 50 MiB
 
 byte *I_ZoneMemory(nomadint_t *size)
@@ -197,7 +275,7 @@ byte *I_ZoneMemory(nomadint_t *size)
 		
 		ptr = (byte *)malloc(current_size);
 		if (ptr == NULL) {
-			current_size--;
+			current_size -= RETRY_AMOUNT;
 		}
 	}
 	*size = current_size;
@@ -210,14 +288,14 @@ extern "C" void Z_Init()
 {
 	memblock_t* base;
 	nomadint_t size;
-	mainzone = (memzone_t*)((byte *)malloc(DEFAULT_SIZE));
+	mainzone = (memzone_t*)I_ZoneMemory(&size);
 	if (!mainzone)
 		N_Error("Z_Init: memory allocation failed");
 	
 	if (!initialized)
 		atexit(Z_KillHeap);
 	
-	mainzone->size = DEFAULT_SIZE;
+	mainzone->size = size;
 	
 	mainzone->blocklist.next = 
 	mainzone->blocklist.prev = 
@@ -231,7 +309,8 @@ extern "C" void Z_Init()
 	base->user = (void *)NULL;
 	base->size = mainzone->size - sizeof(memzone_t);
 	if (!initialized) {
-		printf("Allocated zone from %p -> %p\n", (void *)mainzone, (void *)(mainzone+mainzone->size));
+		printf("Allocated zone from %p -> %p, %d MiB allocated to zone\n", (void *)mainzone, (void *)(mainzone+mainzone->size),
+			size >> 20);
 		LOG_INFO("Initialzing Zone Allocation Daemon from addresses %p -> %p", (void *)mainzone, (void *)(mainzone+mainzone->size));
 	}
 	else
@@ -274,7 +353,7 @@ extern "C" void Z_ScanForBlock(void *start, void *end)
 extern "C" void Z_ChangeTag(void *ptr, nomadubyte_t tag)
 {
 	memblock_t* base = (memblock_t *)( (byte *)ptr - sizeof(memblock_t) );
-#ifdef _NOMAD_DEBUG
+#ifdef ZONEIDCHECK
 	if (base->id != ZONEID)
 		LOG_WARN("Z_ChangeTag: block %p has invalid zoneid", (void *)base);
 #endif
@@ -310,8 +389,8 @@ extern "C" void Z_ClearZone()
 // from within the zone without calling malloc
 extern "C" void* Z_Malloc(nomaduint_t size, nomadubyte_t tag, void* user)
 {
-	NOMAD_ASSERT(size > 0, "Z_Malloc: size was 0 or less");
-	NOMAD_ASSERT(tag < NUMTAGS, "Z_Malloc: tag given was invalid: %hu", tag);
+	if (!size)
+		return user ? user = NULL : NULL;
 	
 	memblock_t* rover;
 	memblock_t* newblock;
@@ -332,8 +411,13 @@ extern "C" void* Z_Malloc(nomaduint_t size, nomadubyte_t tag, void* user)
 
 	rover = base;
 	start = base->prev;
-	
-	do {
+
+//#ifdef CHECKHEAP
+//	Z_CheckHeap();
+//#endif
+
+	do
+	{
 		if (rover == start) {
 			LOG_WARN("zone size wasn't big enough for Z_Malloc size given, resizing zone");
 			// allocate a new zone twice as big
@@ -343,7 +427,6 @@ extern "C" void* Z_Malloc(nomaduint_t size, nomadubyte_t tag, void* user)
 			rover = base;
 			start = base->prev;
 		}
-		// old: (rover->user)
 		if (rover->tag != TAG_FREE) {
 			if (rover->tag < TAG_PURGELEVEL) {
 				// hit a block that can't be purged,
@@ -351,6 +434,10 @@ extern "C" void* Z_Malloc(nomaduint_t size, nomadubyte_t tag, void* user)
 				base = rover = rover->next;
 			}
 			else {
+#ifdef ZONEDEBUG
+				free_memory += rover->size;
+				active_memory -= rover->size;
+#endif
 				// free the rover block (adding to the size of the base)
 				// the rover can be the base block
 				base = base->prev;
@@ -365,6 +452,10 @@ extern "C" void* Z_Malloc(nomaduint_t size, nomadubyte_t tag, void* user)
 	} while (base->tag != TAG_FREE || base->size < size);
 	// old: (base->user || base->size < size)
 	
+#ifdef ZONEDEBUG
+	free_memory -= rover->size;
+	active_memory += rover->size;
+#endif
 	space = base->size - size;
 	
 	if (space > MIN_FRAGMENT) {
@@ -392,7 +483,7 @@ extern "C" void* Z_Malloc(nomaduint_t size, nomadubyte_t tag, void* user)
 	// next allocation will start looking here
 	mainzone->rover = base->next;
 	
-#ifdef _NOMAD_DEBUG
+#ifdef ZONEIDCHECK
 	base->id = ZONEID;
 #endif
 	
@@ -403,8 +494,17 @@ extern "C" void* Z_Realloc(void *user, nomaduint_t nsize)
 {
 	if (!user)
 		N_Error("Z_Realloc: NULL user given");
-	
+
 	memblock_t* block = (memblock_t *)((byte *)user - sizeof(memblock_t));
+#ifdef ZONEIDCHECK
+	if (block->id != ZONEID)
+		N_Error("Z_Realloc: block user ZONEID doesn't match ");
+#endif
+#ifdef ZONEDEBUG
+	free_memory += block->size;
+	free_memory -= nsize;
+	active_memory += nsize;
+#endif
 	void *ptr = Z_Malloc(nsize, block->tag, ptr);
 	memmove(ptr, user, nsize <= block->size ? nsize : block->size);
 	Z_Free(user);
@@ -413,11 +513,17 @@ extern "C" void* Z_Realloc(void *user, nomaduint_t nsize)
 
 extern "C" void* Z_Calloc(void *user, nomaduint_t nelem, nomaduint_t elemsize, nomadubyte_t tag)
 {
+#ifdef CHECKHEAP
+	Z_CheckHeap();
+#endif
 	return memset((Z_Malloc)(nelem * elemsize, tag, user), 0, nelem * elemsize);
 }
 
 extern "C" void Z_FreeTags(nomadubyte_t lowtag, nomadubyte_t hightag)
 {
+#ifdef CHECKHEAP
+	Z_CheckHeap();
+#endif
 	nomadint_t numblocks = 0;
 	nomadint_t size = 0;
 	memblock_t*	block;
@@ -497,7 +603,7 @@ extern "C" void Z_ChangeTag2(void *ptr, nomadubyte_t tag, const char *file, noma
 	
     memblock_t*	block;
     block = (memblock_t *) ((byte *)ptr - sizeof(memblock_t));
-#ifdef _NOMAD_DEBUG
+#ifdef ZONEIDCHECK
     if (block->id != ZONEID)
         LOG_WARN("%s:%i: Z_ChangeTag: block without a ZONEID!",
                 file, line);
@@ -518,7 +624,7 @@ extern "C" void Z_ChangeUser(void *ptr, void *user)
 	memblock_t*	block;
 	
 	block = (memblock_t *) ((byte *)ptr - sizeof(memblock_t));
-#ifdef _NOMAD_DEBUG
+#ifdef ZONEIDCHECK
 	if (block->id != ZONEID)
 		LOG_WARN("Z_ChangeUser: tried to change user for invalid block!");
 #endif

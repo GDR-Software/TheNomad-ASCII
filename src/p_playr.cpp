@@ -264,14 +264,24 @@ void P_UseWeapon()
 	};
 }
 
+
+static boost::mutex main_mutex;
 void Game::P_Ticker(nomadint_t input)
 {
+	boost::unique_lock<boost::mutex> lock{main_mutex};
 	--playr->pticker;
 //	playr->P_GetMode();
 	playr->P_RunTicker(input);
+	lock.unlock();
 }
 
 static nomadint_t input;
+
+void ctrl_c_handle(int signum)
+{
+	signal(SIGINT, ctrl_c_handle);
+	input = CTRL_c;
+}
 
 void Playr::P_RunTicker(nomadint_t finput)
 {

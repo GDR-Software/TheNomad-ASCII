@@ -44,7 +44,7 @@ void InvAssigner(Game* const gptr)
 #define SORT_PRICEY   (nomadubyte_t)0b0000000001 // sort based on monetary value
 #define SORT_WEIGHT   (nomadubyte_t)0b0000000010 // sort based on high-to-low weight
 
-inline void Inv_DisplayMercMissions(const eastl::vector<Mission>& m_ls);
+inline void Inv_DisplayMercMissions(const std::vector<Mission>& m_ls);
 inline void Inv_DisplayItems();
 
 static inline void Inv_SortItemsABC(void)
@@ -170,7 +170,7 @@ void G_DisplayInventory(void)
             break;
         }
         wrefresh(game->screen);
-        std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+        sleepfor(ticrate_mil);
 	}
 done:
     unpost_menu(menu);

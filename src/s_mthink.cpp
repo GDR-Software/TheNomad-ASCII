@@ -324,8 +324,11 @@ void M_PlayrKnockBack(nomadshort_t amount, nomadenum_t mdir)
 	M_DoPlayrDamage(damage);
 }
 
+static boost::mutex mob_lock;
+
 void M_RunThinker(linked_list<Mob*>::iterator it)
 {
+	boost::lock_guard<boost::mutex> lock{mob_lock};
 	Mob* const actor = it->val;
     --actor->mticker;
     if (actor->health < 0) {

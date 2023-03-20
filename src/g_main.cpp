@@ -165,8 +165,8 @@ int main(int argc, char* argv[])
 	signal(SIGTERM, signal_interrupt);
 	signal(SIGABRT, signal_unnatural_demise);
 	signal(SIGILL, signal_somethins_corrupt);
-	signal(SIGQUIT, signal_interrupt);
 	signal(SIGKILL, signal_interrupt);
+	signal(SIGINT, ctrl_c_handle);
 	signal(SIGBUS, signal_buss);
 	
 	//set_nonblock();

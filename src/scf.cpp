@@ -246,33 +246,39 @@ namespace scf {
     {
         puts("G_LoadSCF(): Loading SACE Configuration File...");
        	if (!strstr(filepath, ".scf")) {
-    		N_Error("SACE Configuration File (scf) isn't correct format! (must be suffixed with .scf)");
+    		N_Error("SACE Configuration File (scf) isn't correct format (must be suffixed with .scf)");
         }
+#ifdef __unix__
         LOG_INFO("Attempting to stat() .scf file");
         struct stat fdata;
         if (stat(filepath, &fdata) == -1) {
-            N_Error("Failed to get data from .scf file!");
+            N_Error("Failed to get data from .scf file");
         }
 	    LOG_INFO("Successful stat() of .scf file");
-        FILE* fp = fopen(filepath, "r");
+#endif
+        FILE *fp = fopen(filepath, "r");
         if (!fp) {
-            N_Error("Failed to open .scf file!");
+            N_Error("Failed to open .scf file");
         }
         assert(fp);
+        fseek(fp, 0L, SEEK_END);
+        nomadsize_t len = ftell(fp);
+        fseek(fp, 0L, SEEK_SET);
         LOG_INFO("Successful fopen() of .scf file");
-        const char* buffer = (char *)mmap(NULL, fdata.st_size, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
-	    if (!buffer) {
-            N_Error("Failed to read data from .scf file!");
+        char c = getc(fp);
+        char *buffer = (char *)Z_Malloc(len, TAG_PURGELEVEL, &buffer);
+        char *it = buffer;
+        while (c != EOF) {
+            *it++ = c;
+            c = getc(fp);
         }
-        assert(buffer);
         LOG_INFO("Successful read of .scf file");
         Lexer lex(buffer);
-        munmap(&buffer, fdata.st_size);
         fclose(fp);
         for (auto tok = lex.next(); !tok.is(Token::Kind::End); tok = lex.next()) {
             switch (tok.kind()) {
             case Token::Kind::Unexpected:
-                N_Error("Found unexpected token within .scf file!");
+                N_Error("Found unexpected token within .scf file");
                 break;
             case Token::Kind::Identifier:
                 SCF_ParseIdentifier(lex, tok, tok.lexeme());

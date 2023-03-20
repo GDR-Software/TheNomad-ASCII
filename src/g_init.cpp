@@ -31,16 +31,28 @@
 #include "g_playr.h"
 #include "g_game.h"
 
-static nomadbool_t ncurses_on;
+nomadbool_t ncurses_on = false;
+nomadbool_t gui_on = false;
 static Game* gptr;
 
 void N_Error(const char* err, ...)
 {
 	if (ncurses_on) {
 		clear();
+		delwin(gptr->screen);
 		refresh();
 		endwin();
+		ncurses_on = false;
 	}
+#if 0
+	if (gui_on) {
+		SDL_DestroyRenderer(game->SDL_renderer);
+		SDL_DestroyWindow(game->SDL_screen);
+		TTF_DestroyFont(game->Norm_Font);
+		TTF_Quit();
+		SDL_Quit();
+	}
+#endif
 	va_list argptr;
 	va_start(argptr, err);
 	fprintf(stderr, "Error: ");
@@ -108,7 +120,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	TUIAssigner(game);
 	CampaignAssigner(game);
 	puts(buf);
-	std::this_thread::sleep_for(std::chrono::milliseconds(750));
+	sleepfor(750);
 	printf("I_NomadInit(): Initializing Game...\n");
 	srand(time(NULL));
 	std::vector<char*> myargv;
@@ -131,7 +143,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	wrefresh(game->screen);
 	while (counter != 2) {
 		if (getc(stdin) == '\n' || ' ') break;
-		std::this_thread::sleep_for(1s);
+		sleepfor(1 * 1000 * 1000);
 		++counter;
 	}
 	counter = 0;
@@ -141,7 +153,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	wrefresh(game->screen);
 	while (counter != 4) {
 		if (getc(stdin) == '\n' || ' ') break;
-		std::this_thread::sleep_for(1s);
+		sleepfor(1 * 1000 * 1000);
 		++counter;
 	}
 #endif
@@ -172,6 +184,15 @@ void TUI_Init(Game* const game)
 	start_color();
 //	LOG_INFO("has_colors() = true");
 	ncurses_on = true;
+#if 0
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
+		N_Error();
+	}
+	TTF_Font* font = TTF_OpenFont("Files/game", 48);
+	SDL_ShowCursor(SDL_DISABLE);
+	game->SDL_screen = SDL_CreateWindow("The Nomad ASCII", );
+	game->SDL_renderer = SDL_CreateRenderer(game->SDL_screen, -1, SDL_RENDERER_ACCELERATED);
+#endif
 }
 
 static inline void E_Init(Game* const game)

@@ -70,7 +70,7 @@ public:
 	nomadsnd_t* snd_list;
 	nomadsnd_t* music;
 	nomadshort_t buffer[4096];
-	std::mutex lock;
+	boost::mutex lock;
 public:
 	void S_FreeSound(nomadsnd_t* ptr);
 	void S_AllocMusic(const char* name);
@@ -299,7 +299,7 @@ void S_PlayMusic(const char* name)
 
 void G_RunSound()
 {
-	std::scoped_lock lock{snd->lock};
+	boost::unique_lock<boost::mutex> lock{snd->lock};
 	// deal with the music data first
 	if (*music_on && snd->music->has_buffer && snd->music->has_source) {
 		nomadsnd_t* music = snd->music;
@@ -333,6 +333,7 @@ void G_RunSound()
             continue;
         }
 	}
+	lock.unlock();
 }
 
 static void S_PreAllocate()

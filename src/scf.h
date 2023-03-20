@@ -260,8 +260,7 @@ namespace scf {
 			ODST,
 			NUMMUSIC
 		};
-		constexpr const char* sfx_adb_shot       = "SHOTTYBLAST.wav";
-		constexpr const char* sfx_adb_reload     = "ADBRLD.wav";
+		constexpr const char* sfx_adb_shot       = "ADBSHOT.ogg";
 		constexpr const char* sfx_adb_jam        = "ADBJAM.wav";
 		constexpr const char* sfx_fab_shot       = "FABSHOT.wav";
 		constexpr const char* sfx_fab_reload     = "FABRLD.wav";

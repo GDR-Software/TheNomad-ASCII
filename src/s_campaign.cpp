@@ -123,7 +123,7 @@ static void G_StartupCampaign(nomadshort_t difficulty)
         }
     }
     game->difficulty = difficulty;
-    std::shared_ptr<Level> lvl = game->bff->levels[0];
+    std::shared_ptr<Level>& lvl = game->bff->levels[0];
     game->playr->pmode = P_MODE_MISSION;
     char mapbuffer[9][120][120];
     memset(mapbuffer, '#', sizeof(mapbuffer));
@@ -291,7 +291,7 @@ difselect:
             break;
         }
         wrefresh(game->screen);
-        std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+        sleepfor(ticrate_mil);
 	}
 done:
     game->gamestate = GS_MENU;

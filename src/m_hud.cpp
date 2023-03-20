@@ -45,13 +45,6 @@ static inline void Hud_InsertSprites();
 static Game* game;
 static Playr* playr;
 
-static inline void Hud_DisplayConsole();
-static inline void Hud_DisplayBarVitals();
-static inline void Hud_DisplayBodyVitals();
-static inline void Hud_DisplayCompass();
-static inline void Hud_DisplayVMatrix();
-static inline void Hud_DisplayWeapons();
-static inline void Hud_DisplayLocation();
 static inline const char* Hud_ArmorToStr(nomadenum_t armor)
 {
 	switch (armor) {
@@ -66,6 +59,50 @@ static nomadlong_t hudtics{};
 static std::string hudbuf;
 static constexpr uint16_t BUFFER_SIZE = 90;
 static char hudbuffer[BUFFER_SIZE];
+
+static inline void Hud_DisplayConsole();
+static inline void Hud_DisplayBarVitals();
+static inline void Hud_DisplayBodyVitals();
+static inline void Hud_DisplayCompass();
+static inline void Hud_DisplayVMatrix();
+static inline void Hud_DisplayWeapons();
+static inline void Hud_DisplayLocation();
+#if 0
+
+static SDL_Renderer* Hud_Renderer;
+static inline void Hud_SDL_ClearBuffer()
+{
+	SDL_RenderClear(game->SDL_renderer);
+}
+static inline void Hud_SDL_DisplayConsole();
+static inline void Hud_SDL_DisplayBarVitals();
+static inline void Hud_SDL_DisplayBodyVitals();
+static inline void Hud_SDL_DisplayCompass();
+static inline void Hud_SDL_DisplayVMartix();
+static inline void Hud_SDL_DisplayWeapons();
+static inline void Hud_SDL_DisplayLocation();
+static inline void Hud_SDL_FlushBuffer()
+{
+	SDL_RenderPresent(game->SDL_renderer);
+}
+
+enum
+{
+	DISPLAY_CLEAR_BUFFER,
+	DISPLAY_LOCATION,
+	DISPLAY_BAR_VITALS,
+	DISPLAY_BODY_VITALS,
+	DISPLAY_COMPASS,
+	DISPLAY_CONSOLE,
+	DISPLAY_WEAPONS,
+	DISPLAY_VMATRIX,
+	DISPLAY_FLUSH_BUFFER,
+	
+	NUM_RENDER_FUNCS
+};
+
+static std::function<void()> renderer[NUM_RENDER_FUNCS];
+#endif
 
 void Hud_Printf(const char* from, const char* msg, ...)
 {
@@ -302,6 +339,31 @@ static inline void Hud_DisplayBarVitals()
 	mvwprintw(game->screen, 32, 2, "ARMOR: %s", Hud_ArmorToStr(playr->armor));
 }
 
+static char wpnbuffer[120]={0};
+
+static inline const char* getstring(ammotype_t type)
+{
+	if (playr->ammunition[type] < 10) {
+		switch (playr->ammunition[type]) {
+		case 0: return "0";
+		case 1: return "1";
+		case 2: return "2";
+		case 3: return "3";
+		case 4: return "4";
+		case 5: return "5";
+		case 6: return "6";
+		case 7: return "7";
+		case 8: return "8";
+		case 9: return "9";
+		};
+	}
+	else
+		return std::to_string(playr->ammunition[type]).c_str();
+	
+	LOG_WARN("ammotype_t passed to getstring held an invalid integer within playr->ammuntion[type], returning \"unknown\"");
+	return "unknown";
+}
+
 static inline void Hud_DisplayWeapons()
 {
 	nomadenum_t num = 1;
@@ -317,10 +379,17 @@ static inline void Hud_DisplayWeapons()
 	mvwaddstr(game->screen, 8,  97, "[Weapon In Hand]:");
 	mvwaddstr(game->screen, 9,  97, playr->c_wpn->c_wpn.name);
 	mvwaddstr(game->screen, 11, 97, "[Ammunition]:");
-	mvwprintw(game->screen, 12, 97, "Shotgun Shells: %i", playr->ammunition[AT_SHELL]);
-	mvwprintw(game->screen, 13, 97, "Bullets: %i", playr->ammunition[AT_BULLET]);
-	mvwprintw(game->screen, 14, 97, "Fusion Metals: %i", playr->ammunition[AT_FUSION]);
-	mvwprintw(game->screen, 15, 97, "Plasma Batteries: %i", playr->ammunition[AT_PLASMA]);
+#ifdef _WIN32
+	mvwprintw(game->screen, 12, 97, "Shotgun Shells: %s",  itoa(playr->ammunition[AT_SHELL], wpnbuffer, 10));
+	mvwprintw(game->screen, 13, 97, "Bullets: %s", itoa(playr->ammunition[AT_BULLET], wpnbuffer, 10));
+	mvwprintw(game->screen, 14, 97, "Fusion Metals: %s", itoa(playr->ammunition[AT_FUSION], wpnbuffer, 10));
+	mvwprintw(game->screen, 15, 97, "Plasma Batteries: %s", itoa(playr->ammunition[AT_PLASMA], wpnbuffer, 10));
+#elif defined(__unix__)
+	mvwprintw(game->screen, 12, 97, "Shotgun Shells: %03i", playr->ammunition[AT_SHELL]);
+	mvwprintw(game->screen, 13, 97, "Bullets: %03i", playr->ammunition[AT_BULLET]);
+	mvwprintw(game->screen, 14, 97, "Fusion Metals: %03i", playr->ammunition[AT_FUSION]);
+	mvwprintw(game->screen, 15, 97, "Plasma Batteries: %03i", playr->ammunition[AT_PLASMA]);
+#endif
 }
 
 void Hud_DisplayWpnSlot(nomadenum_t wpn_slot)

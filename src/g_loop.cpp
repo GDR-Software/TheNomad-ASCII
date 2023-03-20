@@ -41,7 +41,7 @@ static void G_ShowAbout()
 	char c;
 	while (c != 'q') {
 		c = getc(stdin);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		sleepfor(ticrate_mil);
 	}
 	werase(game->screen);
 	return;
@@ -55,7 +55,7 @@ static void G_ShowCredits()
 	char c;
 	while (c != 'q') {
 		c = getc(stdin);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		sleepfor(ticrate_mil);
 	}
 	werase(game->screen);
 	return;
@@ -140,7 +140,7 @@ void mainLoop(int argc, char* argv[])
 				else {
 					game->gamestate = GS_TITLE;
 				}
-				std::this_thread::sleep_for(100ms);
+				sleepfor(100);
 			}
 		}
 		else if (game->gamestate == GS_CAMPAIGN) {
@@ -199,7 +199,7 @@ void mainLoop(int argc, char* argv[])
 							break;
 						};
 					}
-					std::this_thread::sleep_for(77ms);
+					sleepfor(77);
 				}
 				else {
 					game->gamestate = GS_LEVEL;
@@ -221,6 +221,14 @@ void LooperDelay(nomaduint_t numsecs)
 
 static linked_list<Mob*>::iterator mob_it;
 static linked_list<item_t*>::iterator item_it;
+static std::vector<std::future<void>> mob_async;
+
+void P_Ticker()
+{
+	char c;
+	if ((c = kb_hit()) != -1)
+		game->P_Ticker(c);
+}
 
 static void levelLoop(void)
 {
@@ -235,15 +243,18 @@ static void levelLoop(void)
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
 		snd_thread.join();
+		std::future<void> playr_thread = std::async(std::launch::async, P_Ticker);
 		if (game->m_Active.size() > 0) {
+			mob_async.reserve(game->m_Active.size());
 			for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); mob_it = mob_it->next) {
-				M_RunThinker(mob_it);
+				mob_async.emplace_back(std::async(std::launch::async, M_RunThinker, mob_it));
 			}
+			mob_async.clear();
 		}
-		char c;
-		if ((c = kb_hit()) != -1)
-			game->P_Ticker(c);
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+#if 0
+		sleepfor(MILLISECONDS(ticrate_mil));
+#endif
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(ticrate_mil));
 		++game->ticcount;
 		wrefresh(game->screen);
 	};
@@ -294,7 +305,7 @@ static void settingsLoop(void)
 			default: break;
 			};
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(ticrate_mil));
+		sleepfor(ticrate_mil);
 		wrefresh(game->screen);
 	};
 }

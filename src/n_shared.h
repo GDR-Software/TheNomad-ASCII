@@ -72,12 +72,11 @@
 #endif
 
 #include "nomaddef.h"
+#include "n_pch.h"
 
 #define __CFUNC__ extern "C"
 
 class Game;
-
-#include "n_pch.h"
 
 #include "n_stdlib.h"
 
@@ -392,6 +391,7 @@ str;})
 
 #define LOG_TRACE_VAR(var) LOG_DEBUG(#var " = %s (%s:%d)", std::to_string(var).c_str(), __FILE__, __LINE__)
 
+
 // pointer checks, they be givin' me them seggies
 #define NULL_CHECK 0
 #define PTR_CHECK(type, ptr)                                            \
@@ -459,7 +459,7 @@ inline char kb_hit()
 }
 
 #ifdef __unix__
-typedef __int128_t nomadllong_t;
+//typedef __int128_t nomadllong_t;
 typedef int64_t nomadlong_t;
 typedef int32_t nomadint_t;
 typedef int16_t nomadshort_t;
@@ -467,13 +467,13 @@ typedef int8_t nomadbyte_t;
 
 typedef uint_fast8_t nomadenum_t;
 
-typedef __uint128_t nomadullong_t;
+//typedef __uint128_t nomadullong_t;
 typedef uint64_t nomadulong_t;
 typedef uint32_t nomaduint_t;
 typedef uint16_t nomadushort_t;
 typedef uint8_t nomadubyte_t;
 #elif defined(_WIN32)
-typedef INT128 nomadllong_t;
+//typedef INT128 nomadllong_t;
 typedef INT64 nomadlong_t;
 typedef INT32 nomadint_t;
 typedef INT16 nomadshort_t;
@@ -481,7 +481,7 @@ typedef INT8 nomadbyte_t;
 
 typedef UINT8 nomadenum_t;
 
-typedef UINT128 nomadullong_t;
+//typedef UINT128 nomadullong_t;
 typedef UINT64 nomadulong_t;
 typedef UINT32 nomaduint_t;
 typedef UINT16 nomadushort_t;
@@ -542,6 +542,8 @@ struct filestream
 		}
 	}
 	~filestream() noexcept { fclose(fp); }
+	inline FILE* stream(void) noexcept
+	{ return fp; }
 	inline char getc(void) const noexcept
 	{ return ::getc(fp); }
 };
@@ -644,6 +646,9 @@ typedef struct coord_s
 	}
 } coord_t;
 
+extern nomadbool_t ncurses_on;
+extern nomadbool_t gui_on;
+
 typedef struct area_s
 {
 	coord_t tl;
@@ -715,6 +720,18 @@ typedef struct area_s
 		return tl;
 	}
 } area_t;
+
+#ifdef __unix__
+#define ONE_SECOND      (1000*1000)
+#define ONE_MILLISECOND (1000)
+#define sleepfor(x)     usleep((x))
+#elif defined(_WIN32)
+#define ONE_SECOND      (1000)
+#define ONE_MILLISECOND (1)
+#define sleepfor(x)     Sleep(x)
+#endif
+#define SECONDS(x)       ((x)*ONE_SECOND)
+#define MILLISECONDS(x)  ((x)*ONE_MILLISECOND)
 
 #define CHECK_STD_VALID(arg) if (!arg.valid()) N_Error("%s: memory failure with variable %s", __func__, #arg)
 

@@ -49,9 +49,16 @@ static void G_UnArchiveMobs(linked_list<Mob*>& m_Active, json& data, nomaduint_t
 
 void Game::G_SaveGame(const char* svfile)
 {
+#ifdef __unix__
 	struct stat svstat;
-	stat(svfile, &svstat);
+	nomadint_t ret = stat(svfile, &svstat);
+	if (ret == -1) {
+		LOG_INFO("Creating new save-file");
+	}
 	LOG_SAVEFILE();
+#elif defined(_WIN32)
+	LOG_INFO("Beginning save game procedures");
+#endif
 	json data;
 	data["header"] = {
 		{"version", NOMAD_VERSION},
@@ -72,11 +79,16 @@ void Game::G_SaveGame(const char* svfile)
 
 bool Game::G_LoadGame(const char* svfile)
 {
+#ifdef __unix__
 	struct stat svstat;
-	if (stat(svfile, &svstat) == -1) {
+	nomadint_t ret = stat(svfile, &svstat);
+	if (ret == -1) {
 		N_Error("failed to stat() save file!");
 	}
 	LOG_SAVEFILE();
+#elif defined(_WIN32)
+	LOG_INFO("Beginning load game procedures");
+#endif
 	std::ifstream file(svfile, std::ios::in);
 	json data = json::parse(file);
 	file.close();
@@ -117,7 +129,11 @@ static void G_ArchivePlayr(const Playr* playr, json& data)
 		{"lvl", playr->lvl},
 		{"sprite", playr->sprite},
 		{"sector_id", playr->sector_id},
-		{"pdir", playr->pdir}
+		{"pdir", playr->pdir},
+		{"at_shell", playr->ammunition[AT_SHELL]},
+		{"at_bullet", playr->ammunition[AT_BULLET]},
+		{"at_fusion", playr->ammunition[AT_FUSION]},
+		{"at_plasma", playr->ammunition[AT_PLASMA]},
 	};
 }
 
@@ -137,6 +153,10 @@ static void G_UnArchivePlayr(Playr* const playr, json& data)
 	playr->sprite = (sprite_t)data["playr"]["sprite"];
 	playr->sector_id = data["playr"]["sector_id"];
 	playr->pdir = data["playr"]["pdir"];
+	playr->ammunition[AT_SHELL] = data["playr"]["at_shell"];
+	playr->ammunition[AT_BULLET] = data["playr"]["at_bullet"];
+	playr->ammunition[AT_FUSION] = data["playr"]["at_fusion"];
+	playr->ammunition[AT_PLASMA] = data["playr"]["at_plasma"];
 }
 
 static void G_ArchiveMobs(linked_list<Mob*>& m_Active, json& data)

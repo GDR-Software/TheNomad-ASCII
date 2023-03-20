@@ -55,9 +55,11 @@ static void set_block(void)
 
 Game::~Game()
 {
-	delwin(screen);
-	endwin();
-//	set_block();
+	if (ncurses_on) {
+		delwin(screen);
+		endwin();
+	}
+	set_block();
 	// now we delete any of the runtime-only resources
 	remove("Files/gamedata/RUNTIME/mapfile.txt");
 }
