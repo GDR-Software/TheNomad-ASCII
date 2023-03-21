@@ -132,7 +132,7 @@ public: // map stuff
 	std::shared_ptr<Level> lvlptr;
 public:
 	SDL_Window* SDL_screen;
-	WINDOW* TUI_screen;
+	WINDOW* screen;
 	WINDOW* hudwin[NUMHUDLAYERS];
 public:
 	Game();

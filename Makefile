@@ -24,85 +24,83 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 
 CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS)
 
-ifdef release
+ifeq ($(build),debug)
+COMPILE_CC= $(CC) $(CFLAGS) -Og -g -o $@ -c $<
+COMPILE_EXE= $(CC) $(CFLAGS) -Og -g $(OBJS) -o $(EXE) $(LDFLAGS)
+EXE= nomadascii_debug
+else
 COMPILE_CC= $(CC) $(CFLAGS) -Ofast -s -o $@ -c $<
 COMPILE_EXE= $(CC) $(CFLAGS) -Ofast -s $(OBJS) -o $(EXE) $(LDFLAGS)
 EXE= nomadascii
 endif
-ifdef debug
-COMPILE_CC= $(CC) $(CFLAGS) -Og -g -o $@ -c $<
-COMPILE_EXE= $(CC) $(CFLAGS) -Og -g $(OBJS) -o $(EXE) $(LDFLAGS)
-EXE= nomadascii_debug
-endif
 
 all: $(EXE)
 
-ifdef release
+ifneq ($(build),debug)
 OBJS= \
-	$(O)/g_animation.$(SUFFIX).o \
-	$(O)/g_bff.$(SUFFIX).o \
-	$(O)/g_combat.$(SUFFIX).o \
-	$(O)/g_game.$(SUFFIX).o \
-	$(O)/g_init.$(SUFFIX).o \
-	$(O)/g_items.$(SUFFIX).o \
-	$(O)/g_loop.$(SUFFIX).o \
-	$(O)/g_main.$(SUFFIX).o \
-	$(O)/g_math.$(SUFFIX).o \
-	$(O)/g_rng.$(SUFFIX).o \
-	$(O)/g_sound.$(SUFFIX).o \
-	$(O)/g_zone.$(SUFFIX).o \
-	$(O)/info.$(SUFFIX).o \
-	$(O)/m_hud.$(SUFFIX).o \
-	$(O)/m_tuilib.$(SUFFIX).o \
-	$(O)/m_inventory.$(SUFFIX).o \
-	$(O)/n_cheats.$(SUFFIX).o \
-	$(O)/n_shared.$(SUFFIX).o \
-	$(O)/p_common.$(SUFFIX).o \
-	$(O)/p_physics.$(SUFFIX).o \
-	$(O)/p_playr.$(SUFFIX).o \
-	$(O)/s_mmisc.$(SUFFIX).o \
-	$(O)/s_campaign.$(SUFFIX).o \
-	$(O)/s_mthink.$(SUFFIX).o \
-	$(O)/s_saveg.$(SUFFIX).o \
-	$(O)/s_world.$(SUFFIX).o \
-	$(O)/scf.$(SUFFIX).o \
-	$(O)/scf_lexer.$(SUFFIX).o
-endif
-ifdef debug
+	$(O)/g_animation.o \
+	$(O)/g_bff.o \
+	$(O)/g_combat.o \
+	$(O)/g_game.o \
+	$(O)/g_init.o \
+	$(O)/g_items.o \
+	$(O)/g_loop.o \
+	$(O)/g_main.o \
+	$(O)/g_math.o \
+	$(O)/g_rng.o \
+	$(O)/g_sound.o \
+	$(O)/g_zone.o \
+	$(O)/info.o \
+	$(O)/m_hud.o \
+	$(O)/m_tuilib.o \
+	$(O)/m_inventory.o \
+	$(O)/n_cheats.o \
+	$(O)/n_shared.o \
+	$(O)/p_common.o \
+	$(O)/p_physics.o \
+	$(O)/p_playr.o \
+	$(O)/s_mmisc.o \
+	$(O)/s_campaign.o \
+	$(O)/s_mthink.o \
+	$(O)/s_saveg.o \
+	$(O)/s_world.o \
+	$(O)/scf.o \
+	$(O)/scf_lexer.o
+else
 OBJS= \
-	$(O)/g_animation.debug.$(SUFFIX).o \
-	$(O)/g_bff.debug.$(SUFFIX).o \
-	$(O)/g_combat.debug.$(SUFFIX).o \
-	$(O)/g_game.debug.$(SUFFIX).o \
-	$(O)/g_init.debug.$(SUFFIX).o \
-	$(O)/g_items.debug.$(SUFFIX).o \
-	$(O)/g_loop.debug.$(SUFFIX).o \
-	$(O)/g_main.debug.$(SUFFIX).o \
-	$(O)/g_math.debug.$(SUFFIX).o \
-	$(O)/g_rng.debug.$(SUFFIX).o \
-	$(O)/g_sound.debug.$(SUFFIX).o \
-	$(O)/g_zone.debug.$(SUFFIX).o \
-	$(O)/info.debug.$(SUFFIX).o \
-	$(O)/m_hud.debug.$(SUFFIX).o \
-	$(O)/m_tuilib.debug.$(SUFFIX).o \
-	$(O)/m_inventory.debug.$(SUFFIX).o \
-	$(O)/n_cheats.debug.$(SUFFIX).o \
-	$(O)/n_shared.debug.$(SUFFIX).o \
-	$(O)/p_common.debug.$(SUFFIX).o \
-	$(O)/p_physics.debug.$(SUFFIX).o \
-	$(O)/p_playr.debug.$(SUFFIX).o \
-	$(O)/s_mmisc.debug.$(SUFFIX).o \
-	$(O)/s_campaign.debug.$(SUFFIX).o \
-	$(O)/s_mthink.debug.$(SUFFIX).o \
-	$(O)/s_saveg.debug.$(SUFFIX).o \
-	$(O)/s_world.debug.$(SUFFIX).o \
-	$(O)/scf.debug.$(SUFFIX).o \
-	$(O)/scf_lexer.debug.$(SUFFIX).o
+	$(O)/g_animation.debug.o \
+	$(O)/g_bff.debug.o \
+	$(O)/g_combat.debug.o \
+	$(O)/g_game.debug.o \
+	$(O)/g_init.debug.o \
+	$(O)/g_items.debug.o \
+	$(O)/g_loop.debug.o \
+	$(O)/g_main.debug.o \
+	$(O)/g_math.debug.o \
+	$(O)/g_rng.debug.o \
+	$(O)/g_sound.debug.o \
+	$(O)/g_zone.debug.o \
+	$(O)/info.debug.o \
+	$(O)/m_hud.debug.o \
+	$(O)/m_tuilib.debug.o \
+	$(O)/m_inventory.debug.o \
+	$(O)/n_cheats.debug.o \
+	$(O)/n_shared.debug.o \
+	$(O)/p_common.debug.o \
+	$(O)/p_physics.debug.o \
+	$(O)/p_playr.debug.o \
+	$(O)/s_mmisc.debug.o \
+	$(O)/s_campaign.debug.o \
+	$(O)/s_mthink.debug.o \
+	$(O)/s_saveg.debug.o \
+	$(O)/s_world.debug.o \
+	$(O)/scf.debug.o \
+	$(O)/scf_lexer.debug.o
 endif
 
-$(O)/%.$(SUFFIX).o: $(SDIR)/%.cpp
+$(O)/%.o: $(SDIR)/%.cpp
 	$(COMPILE_CC)
-$(O)/%.debug.$(SUFFIX).o: $(SDIR)/%.cpp
+$(O)/%.debug.o: $(SDIR)/%.cpp
 	$(COMPILE_CC)
 $(EXE): $(OBJS)
 	$(COMPILE_EXE)

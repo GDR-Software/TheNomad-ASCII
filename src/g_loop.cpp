@@ -251,6 +251,7 @@ static void levelLoop(void)
 			}
 			mob_async.clear();
 		}
+//		P_AdaptiveSound();
 #if 0
 		sleepfor(MILLISECONDS(ticrate_mil));
 #endif

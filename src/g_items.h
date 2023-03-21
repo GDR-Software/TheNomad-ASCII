@@ -145,6 +145,18 @@ enum
 	M_NULL
 };
 
+typedef enum : nomadenum_t
+{
+	AT_SHELL,
+	AT_BULLET,
+	AT_PLASMA,
+	AT_FUSION,
+
+	NUMAMMOTYPES,
+	
+	AT_NULL, // for melee stuff
+} ammotype_t;
+
 const char* GetWeaponNameFromId(nomaduint_t id);
 
 typedef struct
@@ -162,11 +174,15 @@ typedef struct
 	nomadenum_t magsize;
 	// only ever used for shotguns
 	nomadenum_t numpellets;
-	nomadenum_t tbs; // time between shots (in ticks)
-	// reloading time, emptied (in ticks)
-	nomadenum_t tfrf;
-	// reloading time, with still unfired bullets
-	nomadenum_t tfrs;
+//	nomadenum_t tbs; // time between shots (in ticks)
+//	// reloading time, emptied (in ticks)
+//	nomadenum_t tfrf;
+//	// reloading time, with still unfired bullets
+//	nomadenum_t tfrs;
+	
+	const char *dryfire_sfx;
+	const char *shot_sfx;
+	ammotype_t ammotype;
 } weapon_t;
 
 //constexpr uint8_t MAXMATERIALS = 15;
@@ -202,16 +218,6 @@ typedef struct item_s
 
 extern std::vector<weapon_t> wpninfo;
 extern std::vector<item_t> iteminfo;
-
-typedef enum : nomadenum_t
-{
-	AT_SHELL,
-	AT_BULLET,
-	AT_PLASMA,
-	AT_FUSION,
-
-	NUMAMMOTYPES
-} ammotype_t;
 
 typedef struct ammopool_s
 {

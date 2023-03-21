@@ -71,6 +71,8 @@ public:
 	nomadsnd_t* music;
 	nomadshort_t buffer[4096];
 	boost::mutex lock;
+	char fname[180]; // queued music track
+	char musicfile[180]; // the currently playing music file
 public:
 	void S_FreeSound(nomadsnd_t* ptr);
 	void S_AllocMusic(const char* name);
@@ -397,9 +399,71 @@ void Snd_Init(Game* const gptr)
 	// pre-allocate all the buffers and sources
 	S_PreAllocate();
 	atexit(Snd_Kill);
-    S_PlayMusic("odst.wav");
+	N_memset(snd->musicfile, 0, sizeof(snd->musicfile));
+	S_PlayMusic("MUS00.ogg");
+}
+
+static nomadlong_t ticker =  0;
+
+static inline const char* Snd_GetNum(nomadenum_t intensity)
+{
+	static char buffer[2]={0};
+	switch (intensity) {
+	case 0: snprintf(buffer, sizeof(buffer), "%d", P_Random() & 1); break;
+	case 1: snprintf(buffer, sizeof(buffer), "%d", P_Random() & 2); break;
+	case 2: snprintf(buffer, sizeof(buffer), "%d", P_Random() & 3); break;
+	default:
+		N_Error("Snd_GetNum: variable intensity wasn't valid: %hu", intensity);
+		break;
+	};
+	return buffer;
 }
 
 void P_AdaptiveSound()
 {
+	if (ticker) {
+		--ticker;
+		return;
+	}
+	else
+		ticker = ticrate_base*2; // re-run every 2 seconds
+
+	N_memset(snd->fname, 0, sizeof(snd->fname));
+	N_strcpy(snd->fname, "MUS");
+	nomadint_t nummobs_far = 0;
+	nomadint_t nummobs_med = 0;
+	nomadint_t nummobs_short = 0;
+	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != NULL; it = it->next) {
+		if (disBetweenOBJ(it->val->mpos, playr->pos) < 16
+		&& disBetweenOBJ(it->val->mpos, playr->pos) > 10) {
+			++nummobs_far;
+		}
+		else if (disBetweenOBJ(it->val->mpos, playr->pos) < 11
+		&& disBetweenOBJ(it->val->mpos, playr->pos) > 5) {
+			++nummobs_med;
+		}
+		else if (disBetweenOBJ(it->val->mpos, playr->pos) < 6) {
+			++nummobs_short;
+		}
+	}
+	nomadenum_t intensity = 0;
+	if (nummobs_far >= nummobs_med || nummobs_med >= nummobs_short) {
+		strcat(snd->fname, "1");
+		intensity = 1;
+	}
+	else if (nummobs_short >= nummobs_far && nummobs_short >= nummobs_med) {
+		strcat(snd->fname, "2");
+		intensity = 2;
+	}
+	else {
+		strcat(snd->fname, "0");
+		intensity = 0;
+	}
+	strcat(snd->fname, Snd_GetNum(intensity));
+	
+	// dont re-allocate if its the same file, only redo allocations if necessary
+	if (!N_strcmp(snd->fname, snd->musicfile)) {
+		N_strcpy(snd->musicfile, snd->fname);
+		S_PlayMusic(snd->fname);
+	}
 }

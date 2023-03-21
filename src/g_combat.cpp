@@ -139,11 +139,17 @@ static nomadenum_t P_GetWpnIndex(Weapon* const wpn)
 	return 0;
 }
 
-static inline void P_SubAmmo(ammotype_t type, nomadenum_t amount)
+static inline nomadint_t P_SubAmmo(Weapon* const wpn)
 {
-	playr->ammunition[type] -= ammount;
-	if (playr->ammunition[type] < 0)
-		playr->ammunition[type] = 0;
+	// fixme - something about the ammotype is causing this to always trigger, even when its not true
+	if (playr->ammunition[wpn->c_wpn.ammotype] < 1) {
+		P_PlaySFX(wpn->c_wpn.dryfire_sfx);
+		playr->ammunition[wpn->c_wpn.ammotype] = 0;
+		return -1;
+	}
+	playr->ammunition[wpn->c_wpn.ammotype] -= wpn->c_wpn.numpellets;
+	P_PlaySFX(wpn->c_wpn.shot_sfx);
+	return 0;
 }
 
 void P_ShootShotty(Weapon* const wpn)
@@ -151,21 +157,8 @@ void P_ShootShotty(Weapon* const wpn)
 	if (playr->pticker > -1)
 		return;
 	
-	if (playr->ammunition[AT_SHELL] < 1) {
-		P_PlaySFX(scf::sounds::sfx_dry_fire[0]);
+	if (P_SubAmmo(wpn) == -1)
 		return;
-	}
-	switch (wpn->c_wpn.id) {
-	case W_SHOTTY_ADB:
-		P_PlaySFX(scf::sounds::sfx_adb_shot);
-		P_SubAmmo(AT_SHELL, 2);
-		break;
-	case W_SHOTTY_FAB:
-	case W_SHOTTY_QS:
-		P_PlaySFX(scf::sounds::sfx_fab_shot);
-		P_SubAmmo(AT_SHELL, 1);
-		break;
-	};
 
 	nomadenum_t spread = wpn->c_wpn.spread;
 	nomaduint_t range = wpn->c_wpn.range;
@@ -192,7 +185,10 @@ void P_ShootSingle(Weapon* const wpn)
 {
 	if (playr->pticker > -1)
 		return;
-
+	
+	if (P_SubAmmo(wpn) == -1)
+		return;
+	
 	nomaduint_t range = wpn->c_wpn.range;
 	coord_t endpoint;
 	switch (playr->pdir) {
@@ -212,37 +208,6 @@ void P_ShootSingle(Weapon* const wpn)
 		LOG_WARN("playr->pdir was invalid value %hu, setting to D_NORTH", playr->pdir);
 		playr->pdir = D_NORTH;
 		endpoint = {playr->pos.y - range, playr->pos.x};
-		break;
-	};
-	switch (wpn->c_wpn.id) {
-	case W_SIDE_AUP:
-		P_SubAmmo(AT_BULLET, 1);
-		break;
-	case W_SIDE_BOS:
-		P_SubAmmo(AT_BULLET, 1);
-		break;
-	case W_SIDE_FUSION:
-		P_SubAmmo(AT_FUSION, 1);
-		break;
-	case W_SIDE_PLASMA:
-		P_SubAmmo(AT_PLASMA, 1);
-		break;
-	case W_HSIDE_A8SHOT:
-		P_SubAmmo(AT_SHELL, 3);//SLUGS
-		break;
-	case W_PRIM_AK77:
-	case W_PRIM_M23C5:
-	case W_PRIM_RAG15:
-		P_PlaySFX(scf::sounds::sfx_rifle_shot);
-		P_SubAmmo(AT_BULLET, 1);
-		break;
-	case W_PRIM_PLASMASMG:
-		P_PlaySFX(scf::sounds::sfx_plasma_shot);
-		P_SubAmmo(AT_PLASMA, 1);
-		break;
-	case W_HPRIM_RAG13:
-		P_PlaySFX(scf::sounds::sfx_rag13_shot);
-		P_SubAmmo(AT_BULLET, 10);//10 bullets fused together, kinda like an actually portable and useful 50-cal
 		break;
 	};
 

@@ -37,13 +37,6 @@ static Game* gptr;
 
 void N_Error(const char* err, ...)
 {
-	if (ncurses_on) {
-		clear();
-		delwin(gptr->screen);
-		refresh();
-		endwin();
-		ncurses_on = false;
-	}
 #if 0
 	if (gui_on) {
 		SDL_DestroyRenderer(game->SDL_renderer);
@@ -53,6 +46,7 @@ void N_Error(const char* err, ...)
 		SDL_Quit();
 	}
 #endif
+	gptr->~Game();
 	va_list argptr;
 	va_start(argptr, err);
 	fprintf(stderr, "Error: ");
@@ -60,8 +54,6 @@ void N_Error(const char* err, ...)
 	fprintf(stderr, "\n");
 	va_end(argptr);
 	fflush(stderr);
-
-	gptr->~Game();
 
 	exit(-1);
 }

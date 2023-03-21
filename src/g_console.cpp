@@ -5,9 +5,9 @@
 constexpr const char* commands[] = {
 	"listcmds",
 	"listcvars",
-	"quit",
-	"crash",
-	"exit",
+	"quit", // duh
+	"crash", // also duh
+	"exit", // extra duh
 	"iamacheater", // enables cheat codes
 	"iamnotacheater", // disables cheat codes
 	"listcheats", // lists all cheat codes
