@@ -81,6 +81,13 @@ using zone_ptr = std::unique_ptr<_Tp, ZoneDeleter<fn>>;
 };
 #endif
 
+typedef enum : nomadenum_t
+{
+	PF_POS_OWNED,
+	PF_KILL_TICKER,
+	PF_WITH_TICKER
+} proj_flags_t;
+
 typedef struct proj_s
 {
 	void *owner;
@@ -88,6 +95,8 @@ typedef struct proj_s
 	coord_t pos;
 	nomadenum_t type;
 	nomadenum_t speed = 1;
+	proj_flags_t flags;
+	nomadlong_t ticker = 0;
 
 	inline proj_s& operator=(const proj_s& p) {
 		owner = p.owner;
@@ -100,6 +109,16 @@ typedef struct proj_s
 
 	inline proj_s(void *_owner, entitytype_t _et_owner, coord_t _pos, nomadenum_t _type, nomadenum_t _speed)
 		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed)
+	{
+	}
+	inline proj_s(void *_owner, entitytype_t _et_owner, const coord_t& _pos, nomadenum_t _type, nomadenum_t _speed,
+		proj_flags_t _flags)
+		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed), flags(_flags)
+	{
+	}
+	inline proj_s(void *_owner, entitytype_t _et_owner, const coord_t& _pos, nomadenum_t _type, nomadenum_t _speed,
+		proj_flags_t _flags, nomadlong_t _ticker)
+		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed), flags(_flags), ticker(_ticker)
 	{
 	}
 	inline proj_s() = default;
