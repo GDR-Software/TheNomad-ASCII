@@ -23,6 +23,23 @@
 #define INITIAL_MOBS_ACTIVE 200
 #define MAX_MOBS_ACTIVE 200
 
+typedef enum : nomadint_t
+{
+	MF_ATTACKING = 8, // currently attacking something
+	MF_DEAD = 16, // dead
+	MF_INFIGHT = 32, // is infighting
+	MF_INVL = 64, // cannot be killed
+	MF_JUST_ATTACKED = 128, // just attacked, same kinda stuff as doom, but with a twist
+	MF_BOSS = 225, // is a boss (literally, extra xp/gear)
+	MF_DEAF = 0xaf21, // scf::launch::deafmobs, but for a specific mob, specified by the BFF
+	MF_BLIND = 0xad21, // scf::launch::blindmobs, but for a specific mob, specified by the BFF
+	MF_FAST1 = 0xae21, // scf::launch::fastmobs1, but for a specific mob, specified by the BFF
+	MF_FAST2 = 0xac21, // same as MF_FAST1, but with scf::launch::fastmobs2
+	MF_FAST3 = 0xaff1, // you guessed it
+	MF_GHOST = 0xdefa, // can't be hit, its alive, but can't be hit, physics still apply to it
+	MF_COMMANDER = 0xac666, // marked as a slightly buffed version of a standard mob type
+} mobflags_t;
+
 // used for locating vars in the stateinfo array
 enum : nomaduint_t
 {
