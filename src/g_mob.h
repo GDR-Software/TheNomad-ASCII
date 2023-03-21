@@ -107,19 +107,18 @@ class Mob
 {
 public:
 	mobj_t c_mob;
-	nomadbool_t is_boss;
-	bossj_t c_boss;
 	
 	nomadlong_t mticker;
 	nomadint_t health;
 	nomadushort_t armor;
 	entityflag_t mobflags;
 
+	mobflags_t mflags;
 	nomadenum_t mdir;
 	sprite_t sprite;
 	coord_t mpos;
 	entitystate_t mstate;
-	nomadshort_t stepcounter;
+	nomadlong_t stepcounter;
 public:
 	Mob() = default;
 	~Mob() = default;
