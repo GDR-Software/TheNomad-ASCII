@@ -209,7 +209,7 @@ static void G_StartupCampaign(nomadshort_t difficulty)
 }
 
 
-void G_CampaignSelect()
+nomadint_t G_CampaignSelect()
 {
     MENU *menu;
 	nomadshort_t n_choices, i;
@@ -271,20 +271,29 @@ difselect:
             if (selector < 0)
                 selector = difs.size() - 1;
             menu_driver(menu, REQ_UP_ITEM);
+            P_PlaySFX(scf::sounds::sfx_menu_updown);
+            G_RunSound();
             break; }
         case KEY_s: {
             ++selector;
             if (selector >= difs.size())
                 selector = 0;
             menu_driver(menu, REQ_DOWN_ITEM);
+            P_PlaySFX(scf::sounds::sfx_menu_updown);
+            G_RunSound();
             break; }
         case ctrl('x'):
         case KEY_q:
+            P_PlaySFX(scf::sounds::sfx_menu_select);
+            G_RunSound();
             goto done;
             break;
         case '\n':
         case KEY_SPACE:
+            P_PlaySFX(scf::sounds::sfx_menu_select);
+            G_RunSound();
             G_StartupCampaign(selector);
+            return 1;
             break;
         default:
             continue;
@@ -300,4 +309,5 @@ done:
 		free_item(item_ls[i]);
 	}
 	free_menu(menu);
+    return 0;
 }

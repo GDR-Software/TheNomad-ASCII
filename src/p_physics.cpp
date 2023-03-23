@@ -163,7 +163,31 @@ void G_RunProjectiles()
 {
 	for (linked_list<proj_t*>::iterator it = proj_list->begin(); it != proj_list->end(); it = it->next) {
 		proj_t* ptr = it->val;
-		ptr->pos += ptr->speed;
+		if (ptr->flags & PF_WITH_TICKER) {
+			--ptr->ticker;
+			if (ptr->ticker <= -1) {
+				ptr->pos += ptr->speed;
+				ptr->ticker = ptr->base_ticker;
+				if (ptr->flags & PF_KILL_TICKER) {
+					--ptr->killticker;
+					if (ptr->killticker <= -1)
+						G_FreeProjectile(it);
+				}
+			}
+		}
+		else {
+			ptr->pos += ptr->speed;
+		}
+		if (ptr->flags & PF_POS_OWNED) {
+			switch (ptr->et_owner) {
+			case ET_MOB:
+				static_cast<Mob*>(ptr->owner)->mpos = ptr->pos;
+				break;
+			case ET_PLAYR:
+				game->playr->pos = ptr->pos;
+				break;
+			};
+		}
 		switch (game->c_map[ptr->pos.y][ptr->pos.x]) {
 		case ' ':
 		case '.':

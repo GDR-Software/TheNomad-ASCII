@@ -34,6 +34,7 @@
 #define PROJ_ROCKET            1
 #define PROJ_ROCKET_DMG        35
 #define PROJ_KNIFE             2
+#define PROJ_CUSTOM            3
 #define SHOTTY_HITSCAN_WIDTH   4
 
 #define M_HULK_SPRITE          'H'

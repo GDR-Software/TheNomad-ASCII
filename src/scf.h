@@ -191,6 +191,7 @@ namespace scf {
 	extern nomadbool_t sfx_on;
 	extern nomadfloat_t music_vol;
 	extern nomadfloat_t sfx_vol;
+//	extern nomadenum_t renderer; // for use in the future
 
 	extern nomadushort_t fov[2];
 	extern nomadushort_t mobspeed;
@@ -231,10 +232,6 @@ namespace scf {
 		kbExitToPause,
 		kbInteract,
 		
-#ifdef _NOMAD_DEBUG
-		kbOpenCMD,
-#endif
-		
 		NUMBINDS
 	};
 	
@@ -264,25 +261,32 @@ namespace scf {
 		constexpr const char* sfx_rifle_dryfire  = "PLDRYFR1.ogg";
 		constexpr const char* sfx_pistol_dryfire = "PLDRYFR2.ogg";
 
-		constexpr const char* sfx_adb_shot       = "ADBSHOT.ogg";
+		constexpr const char* sfx_adb_shot       = "ADBSHOT.wav";
 		constexpr const char* sfx_fab_shot       = "FABSHOT.ogg";
-		constexpr const char* sfx_rifle_shot     = "RFSHOT.ogg";
+		constexpr const char* sfx_qs_shot        = "QSSHOT.wav";
+//		constexpr const char* sfx_adb_shot0      = "ADBSHOT0.wav";
+//		constexpr const char* sfx_adb_shot1      = "ADBSHOT1.wav";
+//		constexpr const char* sfx_adb_shot2      = "ADBSHOT2.wav";
+//		constexpr const char* sfx_adb_shot3      = "ADBSHOT3.wav";
+		constexpr const char* sfx_rifle_shot     = "RFSHOT1.ogg";
 		constexpr const char* sfx_plasma_shot    = "PLASMASHOT.ogg";
 		constexpr const char* sfx_rag13_shot     = "RAG13SHOT.ogg";
 		constexpr const char* sfx_hb_melee       = "HBSWING.ogg";
 		constexpr const char* sfx_playr_hurt_0   = "PLGRNT0.ogg";
 		constexpr const char* sfx_playr_hurt_1   = "PLGRNT1.ogg";
 		constexpr const char* sfx_playr_hurt_2   = "PLGRNT2.ogg";
-		constexpr const char* sfx_playr_die      = "PLDIE.ogg";
+		constexpr const char* sfx_playr_die_rare = "PLDIE1.ogg";
+		constexpr const char* sfx_playr_die      = "PLDIE0.wav";
 		
 		// mobs
 		constexpr const char* sfx_mpistol_die    = "MPISTOLDIE.ogg";
 		constexpr const char* sfx_mpistol_wakeup = "MPISTOLWU.ogg";
-		constexpr const char* sfx_mpistol_wander = "MPISTOLWANDER.ogg";
-		constexpr const char* sfx_mpistol_fight  = "MPISTOLSHOT.ogg";
+		constexpr const char* sfx_mpistol_wander = "MPISTOLWND.wav";
+		constexpr const char* sfx_mpistol_shot   = "MPISTOLSHOT.ogg";
+		constexpr const char* sfx_mpistol_punch  = "MPISTOLMEL.wav";
 		constexpr const char* sfx_mshotty_die    = "MSHOTTYDIE.ogg";
 		constexpr const char* sfx_mshotty_wakeup = "MSHOTTYWU.ogg";
-		constexpr const char* sfx_mshotty_wander = "MSHOTTYWANDER.ogg";
+		constexpr const char* sfx_mshotty_wander = "MSHOTTYWND.wav";
 		constexpr const char* sfx_mshotty_fight  = "MSHOTTYSHOT,ogg";
 		constexpr const char* sfx_mhulk_die      = "MHULKDIE.ogg";
 		constexpr const char* sfx_mhulk_wakeup   = "MHULKWU.ogg";
@@ -296,6 +300,9 @@ namespace scf {
 		constexpr const char* sfx_readyup        = "PLRDYUP.ogg";
 		constexpr const char* sfx_stab           = "GSTAB.ogg";
 		constexpr const char* sfx_gibb           = "GGIBB.ogg";
+
+		constexpr const char* sfx_menu_updown    = "GMENU0.wav";
+		constexpr const char* sfx_menu_select    = "GMENU1.wav";
 		
 		constexpr nomadushort_t numsounds = NUMSFX;
 	};

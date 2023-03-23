@@ -24,12 +24,20 @@ typedef enum
 } bfftype_t;
 
 // only the official nomadascii bffs use this struct
-typedef struct defined_bff_t
+typedef struct defined_bff_s
 {
 	const char* fname;
 	bfftype_t type;
 	const char* rname;
-};
+} defined_bff_t;
+
+#define MAIN       0
+#define SHAREWARE  1
+#define DEMO       2
+#define BLOODBURNE 3
+#define PHANTOMSIX 4
+#define BBSHARE    5
+#define PSSHARE    6
 
 static defined_bff_t defined_bffs[] = {
 	{"nomadmain.bff",  commercial, "The Nomad: Tales From a Lost Land"},
@@ -120,7 +128,24 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	printf("G_LoadBFF: loading bff file into memory...\n");
 	LOG_INFO("Loading bff directory %s into memory", bffname);
 	std::ifstream in(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"), std::ios::in);
-	NOMAD_ASSERT(in.is_open(), "failed to open bff file %s!", bffname);
+	nomadenum_t bff_num = MAIN;
+	if (in.fail() && !N_strcmp(bffname, defined_bffs[MAIN].fname)) {
+		nomadbool_t good = false;
+		for (nomadenum_t i = 1; i < ARRAY_SIZE(defined_bffs) && !good; i++) {
+			strncpy(game->bffname, defined_bffs[i].fname, sizeof(game->bffname));
+			in.open(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"), std::ios::in);
+			if (in.is_open()) {
+				good = true;
+			}
+		}
+	}
+	bffname = game->bffname;
+	if (bff_num == MAIN || bff_num == SHAREWARE || bff_num == DEMO) {
+		printf("G_LoadBFF: BFF is an official/pre-defined bff: %s\n", defined_bffs[bff_num].rname);
+	}
+	else {
+		printf("G_LoadBFF: BFF is custom\n");
+	}
 	std::shared_ptr<BFF> file = std::make_shared<BFF>();
 	json data = json::parse(in);
 	file->Init(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"));

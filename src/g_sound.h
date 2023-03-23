@@ -20,7 +20,9 @@
 
 #pragma once
 
-
+void S_PlayMusic(const char* name);
+void Snd_RaiseMusic();
+void Snd_LowerMusic();
 void P_PlaySFX(const char* name);
 void Snd_Kill();
 void M_PlaySFX(const char* name, Mob* const actor);

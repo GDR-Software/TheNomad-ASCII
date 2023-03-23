@@ -871,7 +871,12 @@ inline auto strtodiff(const char* str) -> nomadenum_t {
 	return NUMDIFS;
 };
 
-inline auto strtobool(const char* str) -> nomadbool_t { return N_strcmp(str, "true") ? true : false; };
+inline nomadbool_t strtobool(const char *str) {
+	if (N_strcmp(str, "true") || N_strcmp(str, "TRUE"))
+		return true;
+	else
+		return false;
+}
 inline auto strtobool(const std::string& str) -> nomadbool_t { return str == "true" ? true : false; };
 inline auto booltostr(bool b) -> const char* { return b ? "true" : "false"; };
 inline auto oppositedir(nomadenum_t dir) -> nomadenum_t

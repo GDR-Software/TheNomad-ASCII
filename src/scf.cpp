@@ -38,8 +38,8 @@ static void SCF_ParseIdentifier(Lexer& lex, Token& tok, const std::string_view& 
 namespace scf {
     nomadbool_t music_on = false;
     nomadbool_t sfx_on = false;
-    nomadfloat_t music_vol = 0;
-    nomadfloat_t sfx_vol = 0;
+    nomadfloat_t music_vol = 0.9f;
+    nomadfloat_t sfx_vol = 1.1f;
     nomadushort_t mobspeed = MOB_SPEED_STD;
     nomadushort_t fov[2] = {MAX_VERT_FOV, MAX_HORZ_FOV};
     namespace launch {
@@ -57,42 +57,83 @@ namespace scf {
 		nomadbool_t bottomless_clip = false;
 		nomadbool_t devmode = false;
 	};
+    static paction_t GetSCFFunc(nomaduint_t bind)
+    {
+        switch (bind) {
+        case kbMove_n: return P_MoveN; break;
+        case kbStrafe_l: return P_MoveW; break;
+        case kbMove_s: return P_MoveS; break;
+        case kbStrafe_r: return P_MoveE; break;
+        case kbDash_n: return P_DashN; break;
+        case kbDash_w: return P_DashW; break;
+        case kbDash_s: return P_DashS; break;
+        case kbDash_e: return P_DashE; break;
+        case kbMelee: return P_UseMelee; break;
+        case kbExitToPause: return P_PauseMenu; break;
+        case kbLeftArm_use: P_UseLeftArm; break;
+        case kbRightArm_use: P_UseRightArm; break;
+        case kbSlide_n: return P_SlideN; break;
+        case kbSlide_w: return P_SlideW; break;
+        case kbSlide_s: return P_SlideS; break;
+        case kbSlide_e: return P_SlideE; break;
+        case kbUseWeapon: return P_UseWeapon; break;
+        case kbTurn_l: return P_ChangeDirL; break;
+        case kbTurn_r: return P_ChangeDirR; break;
+        case kbSwapWpn_1: return P_ChangeWeapon1; break;
+        case kbSwapWpn_2: return P_ChangeWeapon2; break;
+        case kbSwapWpn_3: return P_ChangeWeapon3; break;
+        case kbSwapWpn_4: return P_ChangeWeapon4; break;
+        case kbSwapWpn_5: return P_ChangeWeapon5; break;
+        case kbSwapWpn_6: return P_ChangeWeapon6; break;
+        case kbSwapWpn_7: return P_ChangeWeapon7; break;
+        case kbSwapWpn_8: return P_ChangeWeapon8; break;
+        case kbSwapWpn_9: return P_ChangeWeapon9; break;
+        case kbSwapWpn_10: return P_ChangeWeapon10; break;
+        case kbShowWpns: return P_ShowWeapons; break;
+        case kbQuickShot: return P_QuickShot; break;
+        case kbOpenConsole: return CommandConsole; break;
+        };
+        if (!false)
+            N_Error("G_LoadSCF::GetSCFFunc: invalid keybind detected: %i", bind);
+    }
     const char* GetSCFBind(nomaduint_t bind)
 	{
 		switch (bind) {
-		case kbMove_n: return "Move Forward";
-		case kbStrafe_l: return "Strafe Left";
-		case kbMove_s: return "Move Backwards";
-		case kbStrafe_r: return "Strafe Right";
-		case kbDash_n: return "Dash North";
-		case kbDash_w: return "Dash West";
-		case kbDash_s: return "Dash South";
-		case kbDash_e: return "Dash East";
-		case kbMelee: return "Use Melee";
-		case kbExitToPause: return "Exit to Pause Menu";
-		case kbSlide_n: return "Slide North";
-		case kbSlide_w: return "Slide West";
-		case kbSlide_s: return "Slide South";
-		case kbSlide_e: return "Slide East";
-		case kbUseWeapon: return "Use Current Weapon";
-		case kbTurn_l: return "Turn Left";
-		case kbTurn_r: return "Turn Right";
-		case kbSwapWpn_1: return "Swap To Right Arm";
-		case kbSwapWpn_2: return "Swap To Left Arm";
-		case kbSwapWpn_3: return "Swap To Sidearm";
-		case kbSwapWpn_4: return "Swap To Heavy Sidearm";
-		case kbSwapWpn_5: return "Swap To Primary";
-		case kbSwapWpn_6: return "Swap To Heavy Primary";
-		case kbSwapWpn_7: return "Swap To Shotgun";
-		case kbSwapWpn_8: return "Swap To Melee 1";
-		case kbSwapWpn_9: return "Swap To Melee 2";
-		case kbSwapWpn_10: return "Swap To Melee 3";
-		case kbShowWpns: return "Show All Weapons";
-		case kbQuickShot: return "Quick-Shot w/ Current Weapon";
-		case kbOpenConsole: return "Open Text/Command Console";
+		case kbMove_n: return "Move Forward"; break;
+		case kbStrafe_l: return "Strafe Left"; break;
+		case kbMove_s: return "Move Backwards"; break;
+		case kbStrafe_r: return "Strafe Right"; break;
+		case kbDash_n: return "Dash North"; break;
+		case kbDash_w: return "Dash West"; break;
+		case kbDash_s: return "Dash South"; break;
+		case kbDash_e: return "Dash East"; break;
+		case kbMelee: return "Use Melee"; break;
+		case kbExitToPause: return "Exit to Pause Menu"; break;
+		case kbSlide_n: return "Slide North"; break;
+		case kbSlide_w: return "Slide West"; break;
+		case kbSlide_s: return "Slide South"; break;
+		case kbSlide_e: return "Slide East"; break;
+		case kbUseWeapon: return "Use Current Weapon"; break;
+		case kbTurn_l: return "Turn Left"; break;
+		case kbTurn_r: return "Turn Right"; break;
+        case kbLeftArm_use: return "Use Left Arm Gadget"; break;
+        case kbRightArm_use: return "Use Right Arm Gadget"; break;
+		case kbSwapWpn_1: return "Swap To Right Arm"; break;
+		case kbSwapWpn_2: return "Swap To Left Arm"; break;
+		case kbSwapWpn_3: return "Swap To Sidearm"; break;
+		case kbSwapWpn_4: return "Swap To Heavy Sidearm"; break;
+		case kbSwapWpn_5: return "Swap To Primary"; break;
+		case kbSwapWpn_6: return "Swap To Heavy Primary"; break;
+		case kbSwapWpn_7: return "Swap To Shotgun"; break;
+		case kbSwapWpn_8: return "Swap To Melee 1"; break;
+		case kbSwapWpn_9: return "Swap To Melee 2"; break;
+		case kbSwapWpn_10: return "Swap To Melee 3"; break;
+		case kbShowWpns: return "Show All Weapons"; break;
+		case kbQuickShot: return "Quick-Shot w/ Current Weapon"; break;
+		case kbOpenConsole: return "Open Text/Command Console"; break;
 		};
-		assert(false);
-        return NULL;
+		if (!false)
+            N_Error("G_LoadSCF::GetSCFBind: invalid keybind detected: %i", bind);
 	}
 
     scfbind kbStrings[NUMBINDS] = { SCF_KB_STRINGS };
@@ -246,21 +287,12 @@ namespace scf {
     {
         puts("G_LoadSCF(): Loading SACE Configuration File...");
        	if (!strstr(filepath, ".scf")) {
-    		N_Error("SACE Configuration File (scf) isn't correct format (must be suffixed with .scf)");
+    		N_Error("G_LoadSCF: SACE Configuration File (scf) isn't correct format (must be suffixed with .scf)");
         }
-#ifdef __unix__
-        LOG_INFO("Attempting to stat() .scf file");
-        struct stat fdata;
-        if (stat(filepath, &fdata) == -1) {
-            N_Error("Failed to get data from .scf file");
-        }
-	    LOG_INFO("Successful stat() of .scf file");
-#endif
         FILE *fp = fopen(filepath, "r");
         if (!fp) {
-            N_Error("Failed to open .scf file");
+            N_Error("G_LoadSCF: failed to open .scf file");
         }
-        assert(fp);
         fseek(fp, 0L, SEEK_END);
         nomadsize_t len = ftell(fp);
         fseek(fp, 0L, SEEK_SET);
@@ -272,9 +304,9 @@ namespace scf {
             *it++ = c;
             c = getc(fp);
         }
+        fclose(fp);
         LOG_INFO("Successful read of .scf file");
         Lexer lex(buffer);
-        fclose(fp);
         for (auto tok = lex.next(); !tok.is(Token::Kind::End); tok = lex.next()) {
             switch (tok.kind()) {
             case Token::Kind::Unexpected:
@@ -285,11 +317,14 @@ namespace scf {
                 break;
             };
         }
-        nomaduint_t index = 0;
-        for (auto& i : kb_binds) {
-            i = binds[index];
-            ++index;
+        if (binds.size() < ARRAY_SIZE(kb_binds)) {
+            N_Error("G_LoadSCF: scf file must have all keybinds, it does not. Number of keybinds present: %li", binds.size());
         }
+        if (binds.size() > ARRAY_SIZE(kb_binds)) {
+            N_Error("G_LoadSCF: too many keybinds found in scf file, must have exactly %i keybinds", ARRAY_SIZE(kb_binds));
+        }
+        for (nomaduint_t i = 0; i < ARRAY_SIZE(kb_binds); ++i)
+            kb_binds[i] = binds[i];
     }
 };
 
@@ -305,6 +340,7 @@ static void SCF_GetBind(Lexer& lex, Token& tok)
     bind.bind = scf::kbMove_n;
     for (; bind.bind < scf::NUMBINDS; ++bind.bind) {
         if (scf::kbStrings[bind.bind].str == bindstr) {
+            bind.actionp = scf::kbStrings[bind.bind].actionp;
             break;
         }
     }
@@ -317,12 +353,31 @@ static void SCF_GetBind(Lexer& lex, Token& tok)
     binds.back() = bind;
 }
 
+static void SCF_GetOption(Lexer& lex, Token& tok)
+{
+    tok = lex.next();
+    const std::string_view var = tok.lexeme();
+    tok = lex.next();
+    const std::string_view value = tok.lexeme();
+
+    if (var == "music_vol")
+        scf::music_vol = (nomadfloat_t)atof(std::string(value).c_str());
+    else if (var == "sfx_vol")
+        scf::sfx_vol = (nomadfloat_t)atof(std::string(value).c_str());
+    else if (var == "music_on")
+        scf::music_on = strtobool(std::string(value).c_str());
+    else if (var == "sfx_on")
+        scf::sfx_on = strtobool(std::string(value).c_str());
+}
+
 static void SCF_ParseIdentifier(Lexer& lex, Token& tok, const std::string_view& str)
 {
     // found a keyboard bind
-    if (str == "bind") {
+    if (str == "bind")
         SCF_GetBind(lex, tok);
-    }
+    // found an option
+    else if (str == "option")
+        SCF_GetOption(lex, tok);
 }
 
 /* might use this... (in the future)

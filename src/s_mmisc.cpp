@@ -62,7 +62,6 @@ static void M_GenGroup()
 	mobj_t mob = mobinfo[rand() % (NUMMOBS - 2)];
 	leader = M_SpawnMob();
 	if (!leader) return; // max mob count has been met
-	leader->is_boss = false;
 	leader->c_mob = mob;
 	leader->mpos = origin;
 	leader->mstate = stateinfo[S_MOB_WANDER];
@@ -88,7 +87,6 @@ static void M_GenGroup()
 		} else {
 			m->mpos.x = origin.x - ((rand() % 10)+15);
 		}
-		m->is_boss = false;
 		m->c_mob = mob;
 		m->mstate = stateinfo[S_MOB_WANDER];
 		m->mticker = m->mstate.numticks;
@@ -126,7 +124,6 @@ void M_GenMob(Mob* const mob)
 	mob->mdir = P_Random() & 3;
 	mob->health = mob->c_mob.health;
 	mob->armor = mob->c_mob.armor;
-	mob->is_boss = false;
 	mob->stepcounter = (P_Random() & 25)+2;
 }
 
@@ -200,13 +197,13 @@ Mob* M_MobAt(coord_t pos)
 //
 void M_KillMob(linked_list<Mob*>::iterator mob)
 {
-//	M_SpawnDrops(mob->val->c_mob.mdrops, mob->val->mpos);
+	M_SpawnDrops(mob->val->c_mob.mdrops, mob->val->mpos);
 	game->m_Active.erase(mob);
 	Z_Free(mob->val);
 }
 void M_KillMob(Mob* mob)
 {
-//	M_SpawnDrops(mob->c_mob.mdrops, mob->mpos);
+	M_SpawnDrops(mob->c_mob.mdrops, mob->mpos);
 	for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 		if (mob == it->val) {
 			game->m_Active.erase(it);

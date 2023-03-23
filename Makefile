@@ -3,7 +3,7 @@ VERSION_UPDATE = 1
 VERSION_PATCH  = 2
 ADDFLAGS       =
 CC             = g++
-CFLAGS         = -std=c++17 -Isrc -finline-limit=10000000 # kinda stupid, yes, but SPEED IS KEY
+CFLAGS         = -std=c++17 -Isrc
 CFLAGS += $(ADDFLAGS)
 CFLAGS       += -I/usr/include -I/usr/local/include
 LIBDIR        = /usr/lib/x86_64-linux-gnu
@@ -14,6 +14,11 @@ SDIR           = src
 
 .PHONY: all clean clean.exe clean.objs
 
+# kinda stupid, yes, but SPEED IS KEY
+OPTIMIZERS     =-finline-limit=10000000 \
+				-fexpensive-optimizations \
+				-ffast-math
+
 ERRORS         = -Werror=type-limits \
 				-Werror=overflow \
 				-Werror=return-type \
@@ -22,16 +27,18 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_UPDATE=$(VERSION_UPDATE) \
 				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH) \
 
-CFLAGS += $(DEFINES) $(INCLUDE) $(ERRORS)
+CFLAGS += $(DEFINES) $(INCLUDE)
 
 ifeq ($(build),debug)
-COMPILE_CC= $(CC) $(CFLAGS) -Og -g -o $@ -c $<
-COMPILE_EXE= $(CC) $(CFLAGS) -Og -g $(OBJS) -o $(EXE) $(LDFLAGS)
-EXE= nomadascii_debug
+	OPTIMIZATION=-Og -g
+	COMPILE_CC= $(CC) $(CFLAGS) $(ERRORS) $(OPTIMIZATION) -o $@ -c $<
+	COMPILE_EXE= $(CC) $(CFLAGS) -Og -g $(OBJS) -o $(EXE) $(LDFLAGS)
+	EXE= nomadascii_debug
 else
-COMPILE_CC= $(CC) $(CFLAGS) -Ofast -s -o $@ -c $<
-COMPILE_EXE= $(CC) $(CFLAGS) -Ofast -s $(OBJS) -o $(EXE) $(LDFLAGS)
-EXE= nomadascii
+	OPTIMIZATION=-Ofast -s $(OPTIMIZERS)
+	COMPILE_CC= $(CC) $(CFLAGS) $(OPTIMIZATION) -o $@ -c $<
+	COMPILE_EXE= $(CC) $(CFLAGS) $(OPTIMIZATION) $(OBJS) -o $(EXE) $(LDFLAGS)
+	EXE= nomadascii
 endif
 
 all: $(EXE)
@@ -100,6 +107,8 @@ endif
 
 $(O)/%.o: $(SDIR)/%.cpp
 	$(COMPILE_CC)
+$(O)/scf.o: $(SDIR)/scf.cpp
+	$(CC) $(CFLAGS) -Werror=overflow -Werror=type-limits $(OPTIMIZATION) -o $@ -c $<
 $(O)/%.debug.o: $(SDIR)/%.cpp
 	$(COMPILE_CC)
 $(EXE): $(OBJS)

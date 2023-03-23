@@ -81,12 +81,12 @@ using zone_ptr = std::unique_ptr<_Tp, ZoneDeleter<fn>>;
 };
 #endif
 
-typedef enum : nomadenum_t
+enum
 {
-	PF_POS_OWNED,
-	PF_KILL_TICKER,
-	PF_WITH_TICKER
-} proj_flags_t;
+	PF_POS_OWNED = 0xa0, // the position on the map of the projectile is the same as the owner
+	PF_KILL_TICKER = 0xa1, // free the projectile after x amount of base_ticker loops have occured
+	PF_WITH_TICKER = 0xa2 // only move the projectile by its speed after x amount of ticks
+};
 
 typedef struct proj_s
 {
@@ -95,8 +95,10 @@ typedef struct proj_s
 	coord_t pos;
 	nomadenum_t type;
 	nomadenum_t speed = 1;
-	proj_flags_t flags;
+	nomadint_t flags;
 	nomadlong_t ticker = 0;
+	nomadlong_t base_ticker = 0;
+	nomadint_t killticker = 0;
 
 	inline proj_s& operator=(const proj_s& p) {
 		owner = p.owner;
@@ -112,13 +114,21 @@ typedef struct proj_s
 	{
 	}
 	inline proj_s(void *_owner, entitytype_t _et_owner, const coord_t& _pos, nomadenum_t _type, nomadenum_t _speed,
-		proj_flags_t _flags)
+		nomadint_t _flags)
 		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed), flags(_flags)
 	{
 	}
 	inline proj_s(void *_owner, entitytype_t _et_owner, const coord_t& _pos, nomadenum_t _type, nomadenum_t _speed,
-		proj_flags_t _flags, nomadlong_t _ticker)
-		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed), flags(_flags), ticker(_ticker)
+		nomadint_t _flags, nomadlong_t _ticker)
+		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed), flags(_flags), ticker(_ticker),
+		base_ticker(_ticker)
+	{
+	}
+	inline proj_s(void *_owner, entitytype_t _et_owner, const coord_t& _pos, nomadenum_t _type, nomadenum_t _speed,
+		nomadint_t _flags, nomadlong_t _ticker, nomadint_t _killticker)
+		: owner(_owner), et_owner(_et_owner), pos(_pos), type(_type), speed(_speed), flags(_flags), ticker(_ticker),
+		base_ticker(_ticker), killticker(_killticker)
+
 	{
 	}
 	inline proj_s() = default;
@@ -126,6 +136,34 @@ typedef struct proj_s
 	inline proj_s(const proj_s &) = delete;
 	inline ~proj_s() = default;
 } proj_t;
+
+inline std::array<coord_t, 2> G_DrawRay(const coord_t& from, nomadenum_t dir, nomaduint_t range)
+{
+	std::array<coord_t, 2> ray;
+	coord_t* start = &ray[0];
+	coord_t& end = ray[1];
+	switch (dir) {
+	case D_NORTH:
+		end = {from.y - range, from.x};
+		break;
+	case D_WEST:
+		end = {from.y, from.x - range};
+		break;
+	case D_SOUTH:
+		end = {from.y + range, from.x};
+		break;
+	case D_EAST:
+		end = {from.y, from.x + range};
+		break;
+	default:
+		LOG_WARN("invalid entity dir given to G_DrawRay: %hu, assigning default value of D_NORTH", dir);
+		end = {from.y - range, from.x};
+		break;
+	};
+	return ray;
+}
+
+void levelLoop();
 
 class Game
 {
@@ -150,7 +188,6 @@ public: // map stuff
 	std::shared_ptr<Map> map_ptr;
 	std::shared_ptr<Level> lvlptr;
 public:
-	SDL_Window* SDL_screen;
 	WINDOW* screen;
 	WINDOW* hudwin[NUMHUDLAYERS];
 public:
@@ -206,7 +243,7 @@ nomaduint_t G_GetNumBots(const Game* const game);
 void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
 	nomadenum_t spread);
 void TUI_Init(Game* const game);
-void G_CampaignSelect();
+nomadint_t G_CampaignSelect();
 void G_LoadBFF(const char* bffname, Game* const game);
 void I_NomadInit(int argc, char* argv[], Game* game);
 //void W_Init(Game* const gptr);

@@ -66,6 +66,9 @@ public:
 	ALCdevice* device;
 	ALCcontext* context;
 	ALenum error;
+
+	nomadbool_t done = false;
+	std::unique_ptr<boost::thread> snd_thread;
 	
 	nomadsnd_t* snd_list;
 	nomadsnd_t* music;
@@ -142,6 +145,8 @@ void Sound::S_AllocMusic(const char* name)
 	alBufferData(music->buffer, fdata.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
 		&rdbuf.front(), rdbuf.size() * sizeof(nomadshort_t), fdata.samplerate);
 	alSourcei(music->source, AL_BUFFER, music->buffer);
+	alSourcei(music->source, AL_LOOPING, AL_TRUE);
+	alSourcef(music->source, AL_GAIN, scf::music_vol);
     music->has_played = false;
     music->has_buffer = true;
     music->has_source = true;
@@ -200,6 +205,7 @@ void Sound::S_AllocSFX(const char* name)
 	alBufferData(end->buffer, fdata.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
 		&rdbuf.front(), rdbuf.size() * sizeof(nomadshort_t), fdata.samplerate);
 	alSourcei(end->source, AL_BUFFER, end->buffer);
+	alSourcef(end->source, AL_GAIN, scf::sfx_vol);
     end->has_played = false;
     end->buffer_bound = true;
     end->has_buffer = true;
@@ -209,6 +215,45 @@ void Sound::S_AllocSFX(const char* name)
 	if (end != snd_list) {
 		end->prev = end;
 		end->next = NULL;
+	}
+}
+
+void Snd_AdjustVolumeAll(nomadfloat_t volume)
+{
+	for (nomadsnd_t* it = snd->snd_list; it != NULL; it = it->next) {
+		alSourcef(it->source, AL_GAIN, volume);
+	}
+	alSourcef(snd->music->source, AL_GAIN, volume);
+}
+
+void Snd_AdjustVolumeSFX(nomadfloat_t volume)
+{
+	for (nomadsnd_t* it = snd->snd_list; it != NULL; it = it->next) {
+		alSourcef(it->source, AL_GAIN, volume);
+	}
+}
+
+void Snd_AdjustVolumeMusic(nomadfloat_t volume)
+{
+	alSourcef(snd->music->source, AL_GAIN, volume);
+}
+
+void Snd_LowerMusic()
+{
+	nomadfloat_t volume;
+	alGetSourcef(snd->music->source, AL_GAIN, &volume);
+	if (volume > scf::music_vol / 2) {
+		volume = scf::music_vol / 2;
+		alSourcef(snd->music->source, AL_GAIN, volume);
+	}
+}
+void Snd_RaiseMusic()
+{
+	nomadfloat_t volume;
+	alGetSourcef(snd->music->source, AL_GAIN, &volume);
+	if (volume < scf::music_vol) {
+		volume = scf::music_vol;
+		alSourcef(snd->music->source, AL_GAIN, volume);
 	}
 }
 
@@ -260,12 +305,13 @@ void Sound::S_FreeSound(nomadsnd_t* ptr)
 			N_Error("S_FreeSound: ptr->next has improper linkage");
 		}
 		ptr->has_played = false;
+		ptr->has_source = ptr->has_buffer = ptr->buffer_bound = false;
 		alSourcei(ptr->source, AL_BUFFER, 0);
         alDeleteBuffers(1, &ptr->buffer);
         alDeleteSources(1, &ptr->source);
-    	Z_Free(ptr);
 	}
 }
+
 
 void Snd_Kill()
 {
@@ -299,43 +345,51 @@ void S_PlayMusic(const char* name)
     snd->S_AllocMusic(name);
 }
 
-void G_RunSound()
+
+inline void S_RunMusic()
 {
-	boost::unique_lock<boost::mutex> lock{snd->lock};
+	if (!(*music_on))
+		return;
+
 	// deal with the music data first
 	if (*music_on && snd->music->has_buffer && snd->music->has_source) {
 		nomadsnd_t* music = snd->music;
 		if (!music) {
 			N_Error("G_RunSound: snd->music is NULL");
 		}
-        ALint state;
-        alGetSourcei(music->source, AL_SOURCE_STATE, &state);
-        if (state != AL_PLAYING && !music->has_played) {
-            music->has_played = true;
-            alSourcePlay(music->source);
-        }
-        else if (state != AL_PLAYING && music->has_played) {
-            snd->S_FreeSound(music);
-        }
+	    ALint state;
+	    alGetSourcei(music->source, AL_SOURCE_STATE, &state);
+	    if (state != AL_PLAYING && !music->has_played) {
+	        music->has_played = true;
+	        alSourcePlay(music->source);
+	    }
+	    else if (state != AL_PLAYING && music->has_played) {
+	        snd->S_FreeSound(music);
+			S_PlayMusic(std::string("MUS0"+std::to_string(P_Random() & 5)).c_str());
+	    }
 	}
+}
+
+void G_RunSound()
+{
+	boost::unique_lock<boost::mutex> lock{snd->lock};
+	S_RunMusic();
 	if (!(*sfx_on))
 		return;
-	
 	for (nomadsnd_t* it = snd->snd_list; it != NULL; it = it->next) {
 		ALint state;
-        alGetSourcei(it->source, AL_SOURCE_STATE, &state);
-        if (state != AL_PLAYING && !it->has_played) {
-            it->has_played = true;
-            alSourcePlay(it->source);
-        }
-        else if (state != AL_PLAYING && it->has_played) {
-            snd->S_FreeSound(it);
-        }
-        else {
-            continue;
-        }
+	    alGetSourcei(it->source, AL_SOURCE_STATE, &state);
+	    if (state != AL_PLAYING && !it->has_played) {
+	        it->has_played = true;
+	        alSourcePlay(it->source);
+	    }
+	    else if (state != AL_PLAYING && it->has_played) {
+	        snd->S_FreeSound(it);
+	    }
+	    else {
+	        continue;
+	    }
 	}
-	lock.unlock();
 }
 
 static void S_PreAllocate()
@@ -400,7 +454,7 @@ void Snd_Init(Game* const gptr)
 	S_PreAllocate();
 	atexit(Snd_Kill);
 	N_memset(snd->musicfile, 0, sizeof(snd->musicfile));
-	S_PlayMusic("MUS00.ogg");
+	S_PlayMusic("MUS11.ogg");
 }
 
 static nomadlong_t ticker =  0;

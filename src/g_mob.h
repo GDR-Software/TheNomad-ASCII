@@ -23,7 +23,7 @@
 #define INITIAL_MOBS_ACTIVE 200
 #define MAX_MOBS_ACTIVE 200
 
-typedef enum : nomadint_t
+enum
 {
 	MF_ATTACKING = 8, // currently attacking something
 	MF_DEAD = 16, // dead
@@ -38,7 +38,7 @@ typedef enum : nomadint_t
 	MF_FAST3 = 0xaff1, // you guessed it
 	MF_GHOST = 0xdefa, // can't be hit, its alive, but can't be hit, physics still apply to it
 	MF_COMMANDER = 0xac666, // marked as a slightly buffed version of a standard mob type
-} mobflags_t;
+};
 
 // used for locating vars in the stateinfo array
 enum : nomaduint_t
@@ -113,7 +113,7 @@ public:
 	nomadushort_t armor;
 	entityflag_t mobflags;
 
-	mobflags_t mflags;
+	nomadint_t mflags;
 	nomadenum_t mdir;
 	sprite_t sprite;
 	coord_t mpos;

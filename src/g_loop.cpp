@@ -28,6 +28,7 @@
 #include "s_world.h"
 #include "g_playr.h"
 #include "g_game.h"
+#include "g_rng.h"
 
 #if !defined(TESTING)
 static Game* game;
@@ -61,7 +62,6 @@ static void G_ShowCredits()
 	return;
 }
 
-static void levelLoop(void);
 static void settingsLoop(void);
 
 void mainLoop(int argc, char* argv[])
@@ -73,6 +73,7 @@ void mainLoop(int argc, char* argv[])
 	nomadushort_t c{};
 	while (1) {
 		if (game->gamestate == GS_TITLE) {
+			G_RunSound();
 			werase(game->screen);
 			game->DrawTitleScreen();
 			nomadshort_t c;
@@ -80,23 +81,24 @@ void mainLoop(int argc, char* argv[])
 			while (game->gamestate == GS_TITLE) {
 				if (c == '\n') {
 					game->gamestate = GS_MENU;
+					P_PlaySFX(scf::sounds::sfx_menu_select);
 				}
 				else if (c == ctrl('x')) {
+					P_PlaySFX(scf::sounds::sfx_menu_select);
 					game->~Game();
 					exit(1);
 				}
 				else if (c == 'q') {
+					P_PlaySFX(scf::sounds::sfx_menu_select);
 					game->~Game();
 					exit(1);
-				}
-				else {
-					continue;
 				}
 			}
 		}
 		else if (game->gamestate == GS_MENU) {
 			nomadshort_t s = 0;
 			while (game->gamestate == GS_MENU) {
+				G_RunSound();
 				werase(game->screen);
 				game->DrawMenuScreen(s);
 				char f = wgetch(game->screen);
@@ -105,14 +107,16 @@ void mainLoop(int argc, char* argv[])
 						// s behaves in strange and mysterious ways
 						s--;
 						if (s < 0) {
-							s = 7;
+							s = 4;
 						}
+						P_PlaySFX(scf::sounds::sfx_menu_updown);
 					}
 					else if (f == 's') {
 						s++;
-						if (s > 7) {
+						if (s > 4) {
 							s = 0;
 						}
+						P_PlaySFX(scf::sounds::sfx_menu_updown);
 					}
 					else if (f == '\n') {
 						switch (s) {
@@ -120,31 +124,36 @@ void mainLoop(int argc, char* argv[])
 							game->gamestate = GS_CAMPAIGN;
 							break;
 						case 1:
-							game->gamestate = GS_LEVEL;
+							game->G_LoadGame("nomadsv.ngd");
 							break;
-						case 5:
+						case 2:
 							G_ShowAbout();
 							break;
-						case 6:
+						case 3:
 							G_ShowCredits();
 							break;
-						case 7:
+						case 4:
 							game->~Game();
 							exit(1);
 							break;
 						default:
 							break;
 						};
+						P_PlaySFX(scf::sounds::sfx_menu_select);
 					}
 				}
 				else {
 					game->gamestate = GS_TITLE;
+					P_PlaySFX(scf::sounds::sfx_menu_select);
 				}
 				sleepfor(100);
 			}
 		}
 		else if (game->gamestate == GS_CAMPAIGN) {
-			G_CampaignSelect();
+			G_RunSound();
+			if (G_CampaignSelect() == 1) {
+				levelLoop();
+			}
 		}
 		else if (game->gamestate == GS_LEVEL) {
 			levelLoop();
@@ -153,7 +162,9 @@ void mainLoop(int argc, char* argv[])
 			settingsLoop();
 		}
 		else if (game->gamestate == GS_PAUSE) {
+			G_RunSound();
 			nomadshort_t s = 0;
+			Snd_LowerMusic();
 			while (game->gamestate == GS_PAUSE) {
 				werase(game->screen);
 				game->DrawPauseMenu(s);
@@ -165,12 +176,14 @@ void mainLoop(int argc, char* argv[])
 						if (s < 0) {
 							s = 5;
 						}
+						P_PlaySFX(scf::sounds::sfx_menu_updown);
 					}
 					else if (f == 's') {
 						s++;
 						if (s > 5) {
 							s = 0;
 						}
+						P_PlaySFX(scf::sounds::sfx_menu_updown);
 					}
 					else if (f == '\n') {
 						switch (s) {
@@ -198,11 +211,13 @@ void mainLoop(int argc, char* argv[])
 						default:
 							break;
 						};
+						P_PlaySFX(scf::sounds::sfx_menu_select);
 					}
 					sleepfor(77);
 				}
 				else {
 					game->gamestate = GS_LEVEL;
+					P_PlaySFX(scf::sounds::sfx_menu_select);
 				}
 			}
 		}
@@ -230,15 +245,37 @@ void P_Ticker()
 		game->P_Ticker(c);
 }
 
-static void levelLoop(void)
+static nomadbool_t playing = false;
+
+void levelLoop(void)
 {
+	if (!playing) {
+		S_PlayMusic("MUS01.ogg");
+		playing = true;
+	}
 	assert(game && game->playr);
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
 	assert(game->hudwin[HL_VMATRIX]);
 	werase(game->screen);
 	game->G_DisplayHUD();
 	wrefresh(game->hudwin[HL_VMATRIX]);
+	Snd_RaiseMusic();
 	while (game->gamestate == GS_LEVEL) {
+		if (game->playr->health < 1) {
+			if (P_Random() > 240)
+				P_PlaySFX(scf::sounds::sfx_playr_die_rare);
+			else
+				P_PlaySFX(scf::sounds::sfx_playr_die);
+			
+			G_RunSound();
+			werase(game->screen);
+			mvwprintw(game->screen, 0, 0, "YOU DIED!");
+			mvwprintw(game->screen, 1, 0, "press any key to exit...");
+			wrefresh(game->screen);
+			wgetch(game->screen);
+			game->~Game();
+			exit(EXIT_SUCCESS);
+		}
 		std::thread snd_thread(G_RunSound);
 		game->DrawMainWinBorder();
 		game->G_DisplayHUD();
@@ -251,7 +288,6 @@ static void levelLoop(void)
 			}
 			mob_async.clear();
 		}
-//		P_AdaptiveSound();
 #if 0
 		sleepfor(MILLISECONDS(ticrate_mil));
 #endif

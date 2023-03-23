@@ -256,7 +256,9 @@ void P_UseWeapon()
 	case W_HPRIM_HOSIG:
 	case W_HPRIM_RAG13:
 	case W_HPRIM_DR:
-//		P_ShootSingle(*wpn);
+	case W_PRIM_AK77:
+	case W_PRIM_M23C5:
+		P_ShootSingle(playr->c_wpn);
 		break;
 	default: {
 		LOG_WARN("P_UseWeapon unknown/invalid weapon id %hu, returning without using weapon", playr->c_wpn->c_wpn.id);

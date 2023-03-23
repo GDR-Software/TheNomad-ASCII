@@ -4,11 +4,8 @@
 |  |  \  /  |  /----\      |     |  \ |    |  \  /  | |---> |  \ | |     |   |
 |  |   \/   | /      \ <---|---> |   \|    |   \/   | |---> |   \| \-----/   |
 +============================================================================+
-| > Mission Select                                                           |
-| > Free-Play                                                                |
-| > Customize Character                                                      |
-| > Play Arcade (Coming Soon!)                                               |
-| > Change Settings                                                          |
+| > Play Game                                                                |
+| > Load Save                                                                |
 | > About                                                                    |
 | > Credits                                                                  |
 | > Quit Game                                                                |

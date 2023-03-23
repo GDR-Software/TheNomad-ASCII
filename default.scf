@@ -26,5 +26,10 @@ bind kbSwapWpn_10 KEY_0
 bind kbInteract KEY_ENTER
 bind kbExitToPause CTRL_X
 bind kbUseWeapon CTRL_v
-
-
+bind kbQuickShot CTRL_m
+bind kbSlide_n KEY_U
+bind kbSlide_w KEY_H
+bind kbSlide_s KEY_J
+bind kbSlide_e KEY_K
+option sfx_on true
+option music_on true

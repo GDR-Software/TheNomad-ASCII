@@ -94,6 +94,11 @@ void G_GetShottyArea(area_t* a, nomadenum_t dir, coord_t pos, nomaduint_t range,
 		bl = {pos.y + range, pos.x - spread};
 		br = {pos.y + range, pos.x + spread};
 		break;
+	case D_EAST:
+		tl = {pos.y - spread, pos.x};
+		tr = {pos.y - spread, pos.x + spread};
+		bl = {pos.y + spread, pos.x};
+		br = {pos.y + spread, pos.x + spread};
 	};
 	if (disBetweenOBJ(tmp, pos) < range) {
 		switch (dir) {
@@ -139,26 +144,28 @@ static nomadenum_t P_GetWpnIndex(Weapon* const wpn)
 	return 0;
 }
 
-static inline nomadint_t P_SubAmmo(Weapon* const wpn)
-{
-	// fixme - something about the ammotype is causing this to always trigger, even when its not true
-	if (playr->ammunition[wpn->c_wpn.ammotype] < 1) {
-		P_PlaySFX(wpn->c_wpn.dryfire_sfx);
-		playr->ammunition[wpn->c_wpn.ammotype] = 0;
-		return -1;
-	}
-	playr->ammunition[wpn->c_wpn.ammotype] -= wpn->c_wpn.numpellets;
-	P_PlaySFX(wpn->c_wpn.shot_sfx);
-	return 0;
-}
-
 void P_ShootShotty(Weapon* const wpn)
 {
 	if (playr->pticker > -1)
 		return;
 	
-	if (P_SubAmmo(wpn) == -1)
+	if (playr->ammunition[AT_SHELL] < 1) {
+		P_PlaySFX(scf::sounds::sfx_shotty_dryfire);
 		return;
+	}
+	switch (wpn->c_wpn.id) {
+	case W_SHOTTY_ADB:
+		P_PlaySFX(scf::sounds::sfx_adb_shot);
+		break;
+	case W_SHOTTY_FAB:
+	case W_SHOTTY_QS:
+		P_PlaySFX(scf::sounds::sfx_mshotty_fight);
+		break;
+	default: return; break;
+	};
+	playr->ammunition[AT_SHELL] -= wpn->c_wpn.numpellets;
+	if (playr->ammunition[AT_SHELL] < 0)
+		playr->ammunition[AT_SHELL] = 0;
 
 	nomadenum_t spread = wpn->c_wpn.spread;
 	nomaduint_t range = wpn->c_wpn.range;
@@ -180,41 +187,42 @@ void P_ShootShotty(Weapon* const wpn)
 	playr->pticker = playr->pstate.numticks;
 }
 
+static inline nomadint_t P_ShootRifle(void)
+{
+	if (playr->ammunition[AT_BULLET] < 1) {
+		P_PlaySFX(scf::sounds::sfx_rifle_dryfire);
+		return -1;
+	}
+	P_PlaySFX(scf::sounds::sfx_rifle_shot);
+	playr->ammunition[AT_BULLET] -= 1;
+	return 1;
+}
+
 // gonna need a ticker for this one, y'know, for delays between shots
 void P_ShootSingle(Weapon* const wpn)
 {
 	if (playr->pticker > -1)
 		return;
 	
-	if (P_SubAmmo(wpn) == -1)
-		return;
-	
-	nomaduint_t range = wpn->c_wpn.range;
-	coord_t endpoint;
-	switch (playr->pdir) {
-	case D_NORTH:
-		endpoint = {playr->pos.y - range, playr->pos.x};
+	nomadint_t ret;
+	switch (wpn->c_wpn.id) {
+	case W_PRIM_AK77:
+	case W_PRIM_M23C5:
+	case W_PRIM_RAG15:
+		ret = P_ShootRifle();
 		break;
-	case D_WEST:
-		endpoint = {playr->pos.y, playr->pos.x - range};
-		break;
-	case D_SOUTH:
-		endpoint = {playr->pos.y + range, playr->pos.x};
-		break;
-	case D_EAST:
-		endpoint = {playr->pos.y, playr->pos.x + range};
-		break;
-	default:
-		LOG_WARN("playr->pdir was invalid value %hu, setting to D_NORTH", playr->pdir);
-		playr->pdir = D_NORTH;
-		endpoint = {playr->pos.y - range, playr->pos.x};
-		break;
+	default: return; break;
 	};
+	if (ret == -1)
+		return;
+
+	nomaduint_t range = wpn->c_wpn.range;
+	std::array<coord_t, 2> ray = G_DrawRay(playr->pos, playr->pdir, range);
 
 	coord_t pos = game->E_GetDir(playr->pdir);
 	nomadshort_t y, x;
-	for (y = playr->pos.y; y != endpoint.y; y += pos.y) {
-		for (x = playr->pos.x; x != endpoint.x; x += pos.x) {
+	for (y = playr->pos.y; y != ray[1].y; y += pos.y) {
+		for (x = playr->pos.x; x != ray[1].x; x += pos.x) {
 			for (linked_list<Mob*>::iterator it = game->m_Active.begin(); it != game->m_Active.end(); it = it->next) {
 				Mob* const actor = it->val;
 				if (actor->mpos == coord_t(y, x)) {
