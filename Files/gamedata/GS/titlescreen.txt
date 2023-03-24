@@ -12,4 +12,4 @@
                               PRESS [ENTER] TO PLAY
 
 
-                                                               v0.1.2 Alpha
+                                                               v1.0.0 Alpha

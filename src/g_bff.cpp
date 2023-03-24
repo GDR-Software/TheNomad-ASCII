@@ -96,12 +96,13 @@ void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
 		for (auto& m : markers) {
 			if (i->et_type == ET_MOB) {
 				gptr->m_Active.emplace_back();
-				gptr->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, NULL);
+				gptr->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &gptr->m_Active.back());
 				Mob* const mob = gptr->m_Active.back();
 				i->et_ptr = (void *)mob;
 				for (auto& s : mobinfo) {
 					if (i->et_name == s.name) {
 						mob->c_mob = s;
+						break;
 					}
 				}
 				mob->mpos = m.pos;
@@ -115,7 +116,35 @@ void Level::G_LoadSpawners(std::shared_ptr<BFF>& bff, char c_map[9][120][120])
 				mob->mstate = stateinfo[S_MOB_WANDER];
 				mob->mticker = mob->mstate.numticks;
 			}
+			else if (i->et_type == ET_PLAYR) {
+				i->et_ptr = (void *)gptr->playr;
+				gptr->playr->pos = m.pos;
+				gptr->playr->pos.y += 201;
+				gptr->playr->pos.x += 201;
+			}
+			else if (i->et_type == ET_ITEM) {
+				nomaduint_t id = NUMITEMS;
+				for (const auto& s : iteminfo) {
+					if (s.name == i->et_name) {
+						break;
+					}
+				}
+				if (id == NUMITEMS) {
+					for (const auto& s : wpninfo) {
+						if (s.name == i->et_name) {
+
+						}
+					}
+				}
+				coord_t pos = m.pos;
+				pos.y += 201;
+				pos.x += 201;
+				G_SpawnItem(id, TICRATE_INFINITE, pos);
+			}
 			*m.spr = i->replacement;
+			if (i->et_type == ET_ITEM) {
+				*m.spr = '!';
+			}
 		}
 
 		markers.clear();
@@ -128,24 +157,7 @@ void G_LoadBFF(const char* bffname, Game* const game)
 	printf("G_LoadBFF: loading bff file into memory...\n");
 	LOG_INFO("Loading bff directory %s into memory", bffname);
 	std::ifstream in(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"), std::ios::in);
-	nomadenum_t bff_num = MAIN;
-	if (in.fail() && !N_strcmp(bffname, defined_bffs[MAIN].fname)) {
-		nomadbool_t good = false;
-		for (nomadenum_t i = 1; i < ARRAY_SIZE(defined_bffs) && !good; i++) {
-			strncpy(game->bffname, defined_bffs[i].fname, sizeof(game->bffname));
-			in.open(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"), std::ios::in);
-			if (in.is_open()) {
-				good = true;
-			}
-		}
-	}
-	bffname = game->bffname;
-	if (bff_num == MAIN || bff_num == SHAREWARE || bff_num == DEMO) {
-		printf("G_LoadBFF: BFF is an official/pre-defined bff: %s\n", defined_bffs[bff_num].rname);
-	}
-	else {
-		printf("G_LoadBFF: BFF is custom\n");
-	}
+	NOMAD_ASSERT(in.is_open(), "failed to open bff file!");
 	std::shared_ptr<BFF> file = std::make_shared<BFF>();
 	json data = json::parse(in);
 	file->Init(std::string("Files/gamedata/BFF/"+std::string(bffname)+"/entries.json"));
@@ -227,7 +239,7 @@ void BFF::BFF_LoadSectors(json& data)
 		for (nomadint_t s = 0; s < NUM_SECTORS; ++s) {
 			std::string node_name = "mapsector_"+std::to_string(s);
 			std::string map_node = "map_"+std::to_string(i);
-			maps[i]->sectors.emplace_back(static_cast<Sector*>(Z_Malloc(sizeof(Sector), TAG_STATIC, NULL)));
+			maps[i]->sectors.emplace_back(new Sector());
 			std::shared_ptr<Sector>& ptr = maps[i]->sectors.back();
 			ptr->map_link = maps[i];
 			ptr->sector_name = BFF_GetString(data["maps"][map_node][node_name]["name"]);
@@ -349,6 +361,11 @@ void BFF::BFF_LoadLevels(json& data)
 			}
 		}
 		{
+			for (auto& s : data["levels"][node_name]["playrspawners"]) {
+				lvl->playrspawners.push_back(s);
+			}
+		}
+		{
 			const std::string filename = data["levels"][node_name]["introfile"];
 			std::ifstream file(FILE_NAME(filename), std::ios::in);
 			NOMAD_ASSERT(file.is_open(), "failed to open level intro file %s!", filename.c_str());
@@ -396,6 +413,8 @@ void BFF::BFF_LinkSpawners(json& data)
 			spawn->et_type = ET_MOB;
 		} else if (et_type == "ET_PLAYR") {
 			spawn->et_type = ET_PLAYR;
+		} else if (et_type == "ET_ITEM") {
+			spawn->et_type = ET_ITEM;
 		}
 		spawn->et_name = BFF_GetString(data["data"]["spawners"][node_name]["name"]);
 		std::string marker = data["data"]["spawners"][node_name]["marker"];

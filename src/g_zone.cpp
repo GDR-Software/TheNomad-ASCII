@@ -48,11 +48,12 @@
 #define UNOWNED    ((void **)666)
 #define ZONEID     0xa21d49
 
-#ifdef _NOMAD_DEBUG
-#define ZONEIDCHECK
-#define CHECKHEAP
-#define ZONEDEBUG
-#endif
+
+//#ifdef _NOMAD_DEBUG
+//#define ZONEIDCHECK
+//#define CHECKHEAP
+//#define ZONEDEBUG
+//#endif
 
 #if defined(_NOMAD_DEBUG) || defined(_NOMAD_LOGS)
 #define ZONE_HISTORY 4

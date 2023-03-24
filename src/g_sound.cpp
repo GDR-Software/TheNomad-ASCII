@@ -454,7 +454,7 @@ void Snd_Init(Game* const gptr)
 	S_PreAllocate();
 	atexit(Snd_Kill);
 	N_memset(snd->musicfile, 0, sizeof(snd->musicfile));
-	S_PlayMusic("MUS11.ogg");
+	S_PlayMusic("MUS01.ogg");
 }
 
 static nomadlong_t ticker =  0;

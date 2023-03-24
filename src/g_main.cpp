@@ -118,7 +118,7 @@ void __attribute__((constructor)) profile_startup(void)
 {
 	std::string p_path = DBG_PATH;
 	p_path += "profile.log";
-	p_file = fopen(p_path.c_str(), "a");
+	p_file = fopen(p_path.c_str(), "w");
 	fprintf(p_file, "\n\n\n%s(APPENDING PREVIOUS PROFILING SESSION)%s\n\n", C_GREEN, C_RESET);
 	fprintf(p_file, "%s%s<--------------------[START PROFILE SESSION]-------------------->%s\n", C_BG_BR_BLACK, C_WHITE, C_RESET);
 }
@@ -132,7 +132,7 @@ void __attribute__((constructor)) debug_startup(void)
 {
 	std::string dbg_path = DBG_PATH;
 	dbg_path += "debug.log";
-	dbg_file = fopen(dbg_path.c_str(), "a");
+	dbg_file = fopen(dbg_path.c_str(), "w");
 	fprintf(dbg_file, "\n\n\n%s(APPENDING PREVIOUS LOG)%s\n\n", C_GREEN, C_RESET);
 	fprintf(dbg_file, "%s%s<--------------------[START LOG SESSION]-------------------->%s\n", C_BG_BR_BLACK, C_WHITE, C_RESET);
 }

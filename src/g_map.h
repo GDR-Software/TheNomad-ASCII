@@ -21,7 +21,6 @@
 #pragma once
 
 // these vars will most likely change with the version
-#if _NOMAD_VERSION == 0
 constexpr uint16_t MAP_MAX_Y          = 360;
 constexpr uint16_t MAP_MAX_X          = 360;
 constexpr uint_fast8_t SECTOR_MAX_Y   = 120;
@@ -36,7 +35,6 @@ constexpr uint_fast8_t SECTOR_SOS     = 5; // sea of sands
 constexpr uint_fast8_t SECTOR_DC      = 6; // demagel canyons
 constexpr uint_fast8_t SECTOR_FN      = 7; // frozen north
 constexpr uint_fast8_t SECTOR_TECOG   = 8; // the eternal city of galakas
-#endif
 
 class Map;
 class Spawner;
@@ -86,6 +84,7 @@ public:
 	std::vector<std::string> mobspawners;
 	std::vector<std::string> itemspawners;
 	std::vector<std::string> wpnspawners;
+	std::vector<std::string> playrspawners;
 	std::vector<std::shared_ptr<Spawner>>spawners;
 	
 	linked_list<Mob*> mspawners{};
@@ -136,7 +135,7 @@ public:
 	~Map() = default;
 };
 
-#define FILE_NAME(x) std::string("Files/gamedata/BFF/nomadmain.bff/")+std::string(x)
+#define FILE_NAME(x) std::string("Files/gamedata/BFF/")+std::string(gptr->bffname)+std::string("/")+std::string(x)
 #define JSON_DIAGNOSTICS
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;

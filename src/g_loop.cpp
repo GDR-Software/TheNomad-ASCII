@@ -237,6 +237,7 @@ void LooperDelay(nomaduint_t numsecs)
 static linked_list<Mob*>::iterator mob_it;
 static linked_list<item_t*>::iterator item_it;
 static std::vector<std::future<void>> mob_async;
+static boost::mutex playr_lock;
 
 void P_Ticker()
 {
@@ -249,10 +250,10 @@ static nomadbool_t playing = false;
 
 void levelLoop(void)
 {
-	if (!playing) {
-		S_PlayMusic("MUS01.ogg");
-		playing = true;
-	}
+//	if (!playing) {
+//		S_PlayMusic("MUS01.ogg");
+//		playing = true;
+//	}
 	assert(game && game->playr);
 	game->hudwin[HL_VMATRIX] = subwin(game->screen, MAX_VERT_FOV, MAX_HORZ_FOV, 4, 7);
 	assert(game->hudwin[HL_VMATRIX]);
@@ -261,13 +262,16 @@ void levelLoop(void)
 	wrefresh(game->hudwin[HL_VMATRIX]);
 	Snd_RaiseMusic();
 	while (game->gamestate == GS_LEVEL) {
+		std::thread snd_thread(G_RunSound);
+		game->DrawMainWinBorder();
+		game->G_DisplayHUD();
 		if (game->playr->health < 1) {
 			if (P_Random() > 240)
 				P_PlaySFX(scf::sounds::sfx_playr_die_rare);
 			else
 				P_PlaySFX(scf::sounds::sfx_playr_die);
 			
-			G_RunSound();
+//			G_RunSound();
 			werase(game->screen);
 			mvwprintw(game->screen, 0, 0, "YOU DIED!");
 			mvwprintw(game->screen, 1, 0, "press any key to exit...");
@@ -276,18 +280,25 @@ void levelLoop(void)
 			game->~Game();
 			exit(EXIT_SUCCESS);
 		}
-		std::thread snd_thread(G_RunSound);
-		game->DrawMainWinBorder();
-		game->G_DisplayHUD();
 		snd_thread.join();
-		std::future<void> playr_thread = std::async(std::launch::async, P_Ticker);
 		if (game->m_Active.size() > 0) {
-			mob_async.reserve(game->m_Active.size());
 			for (mob_it = game->m_Active.begin(); mob_it != game->m_Active.end(); mob_it = mob_it->next) {
-				mob_async.emplace_back(std::async(std::launch::async, M_RunThinker, mob_it));
+				M_RunThinker(mob_it);
 			}
-			mob_async.clear();
 		}
+		char c;
+		if ((c = kb_hit()) != -1)
+			game->P_Ticker(c);
+//		if (game->items.size() > 0) {
+//			for (item_it = game->items.begin(); item_it != game->items.end(); item_it = item_it->next) {
+//				--item_it->val->ticker;
+//				if (item_it->val->ticker <= -1) {
+//					item_t* item = item_it->val;
+//					game->items.erase(item_it);
+//					Z_Free(item);
+//				}
+//			}
+//		}
 #if 0
 		sleepfor(MILLISECONDS(ticrate_mil));
 #endif

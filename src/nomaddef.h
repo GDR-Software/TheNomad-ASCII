@@ -93,7 +93,7 @@
 #define SHELL_BOX_NUM          16
 #define BULLET_PACK_NUM        10
 #define BULLET_BOX_NUM         50
-#define PLAYR_SHELL_MAX        36
+#define PLAYR_SHELL_MAX        60
 #define PLAYR_BULLET_MAX       180
 
 #define GAIN_HEALTH(x)         "You gained "x" health"

@@ -179,7 +179,7 @@ mobj_t mobinfo[NUMMOBS] = {
 {
 	"Pistol Guy\0",
 	SPR(M_PISTOL_SPRITE),
-	49,
+	24,
 	18,
 	MT_PISTOL,
 	ET_MOB,
@@ -205,7 +205,7 @@ mobj_t mobinfo[NUMMOBS] = {
 {
 	"Shotgun Dude\0",
 	SPR(M_SHOTTY_SPRITE),
-	111,
+	36,
 	55,
 	MT_SHOTTY,
 	ET_MOB,
@@ -345,7 +345,7 @@ std::vector<weapon_t> wpninfo = {
 	BURST4_SPREAD,
 	SIDE_AUP_MAGSIZE,
 	3,
-	scf::sounds::sfx_mpistol_fight,
+	scf::sounds::sfx_mpistol_shot,
 	scf::sounds::sfx_pistol_dryfire,
 	AT_BULLET
 },
@@ -359,7 +359,7 @@ std::vector<weapon_t> wpninfo = {
 	SINGLE_SPREAD,
 	SIDE_BOS_MAGSIZE,
 	1,
-	scf::sounds::sfx_mpistol_fight,
+	scf::sounds::sfx_mpistol_shot,
 	scf::sounds::sfx_pistol_dryfire,
 	AT_BULLET
 },
@@ -373,7 +373,7 @@ std::vector<weapon_t> wpninfo = {
 	BURST2_SPREAD,
 	SIDE_FUSION_MAGSIZE,
 	1,
-	scf::sounds::sfx_mpistol_fight,
+	scf::sounds::sfx_mpistol_shot,
 	scf::sounds::sfx_pistol_dryfire,
 	AT_BULLET
 },
@@ -387,7 +387,7 @@ std::vector<weapon_t> wpninfo = {
 	SINGLE_SPREAD,
 	SIDE_ION_MAGSIZE,
 	1,
-	scf::sounds::sfx_mpistol_fight,
+	scf::sounds::sfx_mpistol_shot,
 	scf::sounds::sfx_pistol_dryfire,
 	AT_BULLET
 },
@@ -401,7 +401,7 @@ std::vector<weapon_t> wpninfo = {
 	SINGLE_SPREAD,
 	SIDE_PLASMA_MAGSIZE,
 	1,
-	scf::sounds::sfx_mpistol_fight,
+	scf::sounds::sfx_mpistol_shot,
 	scf::sounds::sfx_pistol_dryfire,
 	AT_BULLET
 },
@@ -626,18 +626,18 @@ coord_t botpos[] = {
 
 // name, id, weight, cost
 std::vector<item_t> iteminfo = {
-	{"Small Health Pack",     I_HEALTH_SMALL,   6,  13, 0},
-	{"Medium Health Pack",    I_HEALTH_NORM,    11, 45, 0},
-	{"Large Health Pack",     I_HEALTH_LARGE,   16, 88, 0},
-	{"Bandage",               I_BANDAGE,        4,  8,  0},
-	{"Street-Grade Armor",    I_ARMOR_STREET,   12, 5,  0},
-	{"Militarty-Grade Armor", I_ARMOR_MILITARY, 24, 26, 0},
-	{"Mercenary's Armor",     I_ARMOR_MERC,     39, 69, 0},
-	{"Piece of Flak",         I_FLAK,           9,  5,  0},
-	{"Shotgun Shells (6)",    I_SHELL_PACK,     4,  16, 0},
-	{"Bullets (15)",          I_BULLET_PACK,    6,  13, 0},
-	{"Box of Shotgun Shells", I_SHELL_BOX,      16, 54, 0},
-	{"Box of Bullets",        I_BULLET_BOX,     18, 43, 0},
+	{"Small Health Pack",     I_HEALTH_SMALL,   6,  13, 0, '!'},
+	{"Medium Health Pack",    I_HEALTH_NORM,    11, 45, 0, '!'},
+	{"Large Health Pack",     I_HEALTH_LARGE,   16, 88, 0, '!'},
+	{"Bandage",               I_BANDAGE,        4,  8,  0, '!'},
+	{"Street-Grade Armor",    I_ARMOR_STREET,   12, 5,  0, '!'},
+	{"Militarty-Grade Armor", I_ARMOR_MILITARY, 24, 26, 0, '!'},
+	{"Mercenary's Armor",     I_ARMOR_MERC,     39, 69, 0, '!'},
+	{"Piece of Flak",         I_FLAK,           9,  5,  0, '!'},
+	{"Shotgun Shells (6)",    I_SHELL_PACK,     4,  16, 0, '!'},
+	{"Bullets (15)",          I_BULLET_PACK,    6,  13, 0, '!'},
+	{"Box of Shotgun Shells", I_SHELL_BOX,      16, 54, 0, '!'},
+	{"Box of Bullets",        I_BULLET_BOX,     18, 43, 0, '!'},
 };
 
 const char* logosplash =

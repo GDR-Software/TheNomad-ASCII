@@ -136,73 +136,39 @@ static void G_StartupCampaign(nomadshort_t difficulty)
     lvl->G_LoadSpawners(game->bff, mapbuffer);
     LOG_INFO("Initializing spawners");
     FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
+    NOMAD_ASSERT(fp, "failed to open Files/gamedata/RUNTIME/mapfile.txt!");
 	for (y = 0; y < 80; ++y) {
-		for (x = 0; x < MAP_MAX_X+160; ++x) {
-			fprintf(fp, "#");
-		}
+		for (x = 0; x < MAP_MAX_X+160; ++x) { fprintf(fp, "#"); }
 		fprintf(fp, "\n");
 	}
 	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; x++) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[0][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[7][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[6][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
+		for (x = 0; x < 80; x++) { fprintf(fp, "#"); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[0][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[7][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[6][y][x]); }
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
 		fprintf(fp, "\n");
 	}
 	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; x++) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[1][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[8][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[5][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
+		for (x = 0; x < 80; x++) { fprintf(fp, "#"); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[1][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[8][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[5][y][x]); }
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
 		fprintf(fp, "\n");
 	}
 	for (y = 0; y < SECTOR_MAX_Y; ++y) {
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[2][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[3][y][x]);
-		}
-		for (x = 0; x < SECTOR_MAX_X; ++x) {
-			fprintf(fp, "%c", mapbuffer[4][y][x]);
-		}
-		for (x = 0; x < 80; ++x) {
-			fprintf(fp, "#");
-		}
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[2][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[3][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[4][y][x]); }
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
 		fprintf(fp, "\n");
 	}
     for (y = 0; y < 80; ++y) {
-		for (x = 0; x < MAP_MAX_X+160; ++x) {
-			fprintf(fp, "#");
-		}
+		for (x = 0; x < MAP_MAX_X+160; ++x) { fprintf(fp, "#"); }
 		fprintf(fp, "\n");
 	}
-    NOMAD_ASSERT(fp, "failed to open Files/gamedata/RUNTIME/mapfile.txt!");
     fclose(fp);
     inlvl = true;
     game->gamestate = GS_LEVEL;

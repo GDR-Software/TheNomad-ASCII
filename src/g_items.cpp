@@ -81,11 +81,35 @@ const char* GetWeaponNameFromId(nomaduint_t id)
 	return nullptr;
 }
 
+static inline nomadbool_t validItem(nomaduint_t id)
+{
+    for (const auto& i : iteminfo) {
+        if (id == i.item_id) {
+            return true;
+        }
+    }
+    return false;
+}
+static inline nomadbool_t validWeapon(nomaduint_t id)
+{
+    for (const auto& i : wpninfo) {
+        if (id == i.id) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void G_SpawnItem(nomaduint_t itemid, nomadlong_t ticker, coord_t& pos)
 {
     game->items.emplace_back();
-    game->items.back() = (item_t *)Z_Malloc(sizeof(item_t), TAG_STATIC, NULL);
-    *game->items.back() = iteminfo[itemid];
+    game->items.back() = (item_t *)Z_Malloc(sizeof(item_t), TAG_STATIC, &game->items.back());
+    if (validWeapon(itemid)) {
+        game->items.back()->wpn = &wpninfo[itemid];
+    }
+    else {
+        *game->items.back() = iteminfo[itemid];
+    }
     game->items.back()->ticker = ticker;
     game->items.back()->pos = pos;
 }

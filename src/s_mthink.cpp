@@ -708,7 +708,7 @@ static boost::mutex mob_mutex;
 
 void M_RunThinker(linked_list<Mob*>::iterator it)
 {
-	boost::unique_lock<boost::mutex> lock{mob_mutex};
+//	boost::unique_lock<boost::mutex> lock{mob_mutex};
 	Mob* const actor = it->val;
     --actor->mticker;
 	if (actor->health < 1) {

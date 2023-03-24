@@ -211,9 +211,11 @@ typedef struct item_s
 
 	// in gold coins
 	nomaduint_t item_cost;
+	sprite_t sprite;
 
 	nomadlong_t ticker = 0;
 	coord_t pos{0,0};
+	weapon_t* wpn = NULL;
 } item_t;
 
 extern std::vector<weapon_t> wpninfo;

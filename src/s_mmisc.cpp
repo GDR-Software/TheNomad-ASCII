@@ -138,7 +138,7 @@ void Game::M_GenMobs(void)
 Mob* M_SpawnMob(void)
 {
 	game->m_Active.emplace_back();
-	game->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, NULL);
+	game->m_Active.back() = (Mob *)Z_Malloc(sizeof(Mob), TAG_STATIC, &game->m_Active.back());
 	M_GenMob(game->m_Active.back());
 	return game->m_Active.back();
 }

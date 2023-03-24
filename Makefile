@@ -1,6 +1,6 @@
-VERSION        = 0
-VERSION_UPDATE = 1
-VERSION_PATCH  = 2
+VERSION        = 1
+VERSION_UPDATE = 0
+VERSION_PATCH  = 0
 ADDFLAGS       =
 CC             = g++
 CFLAGS         = -std=c++17 -Isrc
@@ -28,6 +28,8 @@ DEFINES        = -D_NOMAD_VERSION=$(VERSION) \
 				-D_NOMAD_VERSION_PATCH=$(VERSION_PATCH) \
 
 CFLAGS += $(DEFINES) $(INCLUDE)
+
+
 
 ifeq ($(build),debug)
 	OPTIMIZATION=-Og -g
@@ -111,6 +113,8 @@ $(O)/scf.o: $(SDIR)/scf.cpp
 	$(CC) $(CFLAGS) -Werror=overflow -Werror=type-limits $(OPTIMIZATION) -o $@ -c $<
 $(O)/%.debug.o: $(SDIR)/%.cpp
 	$(COMPILE_CC)
+$(O)/scf.debug.o: $(SDIR)/scf.cpp
+	$(CC) $(CFLAGS) -Werror=overflow -Werror=type-limits $(OPTIMIZATION) -o $@ -c $<
 $(EXE): $(OBJS)
 	$(COMPILE_EXE)
 

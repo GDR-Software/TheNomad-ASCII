@@ -577,6 +577,11 @@ static inline void Hud_GetVMatrix()
 			game->c_map[it->val->mpos.y][it->val->mpos.x] = it->val->sprite;
 		}
 	}
+	if (game->items.size() > 0) {
+		for (linked_list<item_t*>::iterator it = game->items.begin(); it != game->items.end(); it = it->next) {
+			game->c_map[it->val->pos.y][it->val->pos.x] = '!';
+		}
+	}
 //	for (const auto* const i : game->items) {
 //		game->c_map[i->pos.y][i->pos.x] = sprites[SPR_PICKUP];
 //	}

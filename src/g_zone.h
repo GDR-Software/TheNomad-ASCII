@@ -155,13 +155,14 @@ public:
 	typedef linked_list_node* iterator;
 	typedef const linked_list_node* const_iterator;
 	typedef std::size_t size_type;
+	typedef T value_type;
 private:
 	linked_list<T>::node ptr_list = NULL;
 	std::size_t _size = 0;
 	
 	linked_list<T>::node alloc_node(void) {
 		linked_list<T>::node ptr = (linked_list<T>::node)Z_Malloc(
-			sizeof(linked_list<T>::list_node), TAG_STATIC, NULL);
+			sizeof(linked_list<T>::list_node), TAG_STATIC, &ptr);
 		if (ptr == NULL)
 			N_Error("linked_list::alloc_node: memory allocation failed");
 		

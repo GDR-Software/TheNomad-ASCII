@@ -97,6 +97,16 @@ static void P_DoorInteract(nomadint_t input)
 #define ITEM_HEALTH 2
 #define ITEM_ARMOR  3
 
+static inline nomadbool_t P_HasWpn(nomaduint_t id)
+{
+	for (const auto& i : playr->P_wpns) {
+		if (i.c_wpn.id == id) {
+			return true;
+		}
+	}
+	return false;
+}
+
 static void P_ItemInteract(nomadint_t input)
 {
 	nomadbool_t done = false;
@@ -104,23 +114,19 @@ static void P_ItemInteract(nomadint_t input)
 	linked_list<item_t*>::iterator i;
 	for (i = game->items.begin(); i != game->items.end(); i = i->next) {
 		item_t *it = i->val;
-		if (input == KEY_w &&
-		(playr->pos.y - 1 == it->pos.y && playr->pos.x == it->pos.x)) {
+		if (input == KEY_w && game->c_map[playr->pos.y - 1][playr->pos.x] == '!') {
 			ptr = it;
 			break;
 		}
-		else if (input == KEY_a &&
-		(playr->pos.y == it->pos.y && playr->pos.x - 1 == it->pos.x)) {
+		else if (input == KEY_a && game->c_map[playr->pos.y][playr->pos.x - 1] == '!') {
 			ptr = it;
 			break;
 		}
-		else if (input == KEY_s &&
-		(playr->pos.y + 1 == it->pos.y && playr->pos.x == it->pos.x)) {
+		else if (input == KEY_s && game->c_map[playr->pos.y + 1][playr->pos.x] == '!') {
 			ptr = it;
 			break;
 		}
-		else if (input == KEY_d &&
-		(playr->pos.y == it->pos.y && playr->pos.x + 1 == it->pos.x)) {
+		else if (input == KEY_d && game->c_map[playr->pos.y][playr->pos.x + 1] == '!') {
 			ptr = it;
 			break;
 		}
@@ -129,46 +135,143 @@ static void P_ItemInteract(nomadint_t input)
 		LOG_WARN("P_ItemInteract called but could not pair item_t* with an element in game->items, aborting");
 		return;
 	}
-	switch (ptr->item_id) {
-	case I_SHELL_BOX:
-		Hud_Printf("System", "You picked up a Box of Shotgun Shells");
-		playr->ammunition[AT_SHELL] += SHELL_BOX_NUM;
-		if (playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX)
-			playr->ammunition[AT_SHELL] = PLAYR_SHELL_MAX;
-		break;
-	case I_SHELL_PACK:
-		Hud_Printf("System", "You picked up a Pack of Shotgun Shells");
-		playr->ammunition[AT_SHELL] += SHELL_PACK_NUM;
-		if (playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX)
-			playr->ammunition[AT_SHELL] = PLAYR_SHELL_MAX;
-		break;
-	case I_BULLET_BOX:
-		Hud_Printf("System", "You picked up a Box of Bullets");
-		playr->ammunition[AT_BULLET] += BULLET_BOX_NUM;
-		if (playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX)
-			playr->ammunition[AT_BULLET] = PLAYR_BULLET_MAX;
-		break;
-	case I_BULLET_PACK:
-		Hud_Printf("System", "You picked up a Pack of Bullets");
-		playr->ammunition[AT_BULLET] += BULLET_PACK_NUM;
-		if (playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX)
-			playr->ammunition[AT_BULLET] = PLAYR_BULLET_MAX;
-		break;
-//	case I_BANDAGE:
-//	case I_HEALTH_SMALL:
-//	case I_HEALTH_NORM:
-//	case I_HEALTH_LARGE:
-//
-//		break;
-//	case I_FLAK:
-//	case I_ARMOR_STREET:
-//	case I_ARMOR_MILITARY:
-//	case I_ARMOR_MERC:
-//
-//		break;
-	};
-	game->items.free_node(i);
-	Z_Free(ptr);
+	if (ptr->wpn != NULL) {
+		switch (ptr->wpn->id) {
+		case W_SHOTTY_ADB:
+			if (P_HasWpn(ptr->wpn->id))
+				playr->ammunition[AT_SHELL] += 8;
+			playr->ammunition[AT_SHELL] = playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX ? PLAYR_SHELL_MAX : playr->ammunition[AT_SHELL];
+			break;
+		case W_SHOTTY_FAB:
+			if (P_HasWpn(ptr->wpn->id))
+				playr->ammunition[AT_SHELL] += 12;
+			playr->ammunition[AT_SHELL] = playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX ? PLAYR_SHELL_MAX : playr->ammunition[AT_SHELL];
+			break;
+		case W_SHOTTY_QS:
+			if (P_HasWpn(ptr->wpn->id))
+				playr->ammunition[AT_SHELL] += 16;
+			playr->ammunition[AT_SHELL] = playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX ? PLAYR_SHELL_MAX : playr->ammunition[AT_SHELL];
+			break;
+		case W_PRIM_AK77:
+			if (P_HasWpn(ptr->wpn->id))
+				playr->ammunition[AT_BULLET] += 30;
+			playr->ammunition[AT_BULLET] = playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX ? PLAYR_BULLET_MAX : playr->ammunition[AT_BULLET];
+			break;
+		case W_PRIM_M23C5:
+			if (P_HasWpn(ptr->wpn->id))
+				playr->ammunition[AT_BULLET] += 36;
+			playr->ammunition[AT_BULLET] = playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX ? PLAYR_BULLET_MAX : playr->ammunition[AT_BULLET];
+			break;
+		};
+	}
+	else {
+		switch (ptr->item_id) {
+		case I_SHELL_BOX:
+			Hud_Printf("System", "You picked up a Box of Shotgun Shells");
+			playr->ammunition[AT_SHELL] += SHELL_BOX_NUM;
+			playr->ammunition[AT_SHELL] =
+				playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX ? PLAYR_SHELL_MAX : playr->ammunition[AT_SHELL];
+			break;
+		case I_SHELL_PACK:
+			Hud_Printf("System", "You picked up a Pack of Shotgun Shells");
+			playr->ammunition[AT_SHELL] += SHELL_PACK_NUM;
+			playr->ammunition[AT_SHELL] =
+				playr->ammunition[AT_SHELL] > PLAYR_SHELL_MAX ? PLAYR_SHELL_MAX : playr->ammunition[AT_SHELL];
+			break;
+		case I_BULLET_BOX:
+			Hud_Printf("System", "You picked up a Box of Bullets");
+			playr->ammunition[AT_BULLET] += BULLET_BOX_NUM;
+			playr->ammunition[AT_BULLET] =
+				playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX ? PLAYR_BULLET_MAX : playr->ammunition[AT_BULLET];
+			break;
+		case I_BULLET_PACK:
+			Hud_Printf("System", "You picked up a Pack of Bullets");
+			playr->ammunition[AT_BULLET] += BULLET_PACK_NUM;
+			playr->ammunition[AT_BULLET] =
+				playr->ammunition[AT_BULLET] > PLAYR_BULLET_MAX ? PLAYR_BULLET_MAX : playr->ammunition[AT_BULLET];
+			break;
+		case I_BANDAGE:
+			Hud_Printf("System", "You picked up a Bandage");
+			playr->health += 10;
+			playr->health = playr->health > 100 ? 100 : playr->health;
+			break;
+		case I_HEALTH_SMALL:
+			Hud_Printf("System", "You picked up a Small Health Pack");
+			playr->health += 20;
+			playr->health = playr->health > 100 ? 100 : playr->health;
+			break;
+		case I_HEALTH_NORM:
+			Hud_Printf("System", "You picked up a Health Pack");
+			playr->health += 45;
+			playr->health = playr->health > 100 ? 100 : playr->health;
+			break;
+		case I_HEALTH_LARGE:
+			Hud_Printf("System", "You picked up a Large Health Pack");
+			playr->health += 75;
+			playr->health = playr->health > 100 ? 100 : playr->health;
+			break;
+		case I_ARMOR_STREET:
+			Hud_Printf("System", "You picked up Street-Grade Armor");
+			playr->armor = ARMOR_STREET;
+			break;
+		case I_ARMOR_MILITARY:
+			Hud_Printf("System", "You picked up Military-Grade Armor");
+			playr->armor = ARMOR_MILITARY;
+			break;
+		case I_ARMOR_MERC:
+			Hud_Printf("System", "You picked up Mercenary-Grade Armor");
+			playr->armor = ARMOR_MERC;
+			break;
+		};
+	}
+	char mapbuffer[9][120][120];
+	N_memset(mapbuffer, 0, sizeof(mapbuffer));
+	N_memcpy(mapbuffer[8], game->lvlptr->lvl_map, sizeof(game->lvlptr->lvl_map));
+	for (nomaduint_t y = 0; y < 120; ++y) {
+		for (nomaduint_t x = 0; x < 120; ++x) {
+			if (mapbuffer[8][y][x] == '!') {
+				mapbuffer[8][y][x] = '.';
+				goto done;
+			}
+		}
+	}
+done:
+	nomaduint_t y{}, x{};
+	FILE* fp = fopen("Files/gamedata/RUNTIME/mapfile.txt", "w");
+	NOMAD_ASSERT(fp, "failed to open Files/gamedata/RUNTIME/mapfile.txt!");
+	for (y = 0; y < 80; ++y) {
+		for (x = 0; x < MAP_MAX_X+160; ++x) { fprintf(fp, "#"); }
+		fprintf(fp, "\n");
+	}
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; x++) { fprintf(fp, "#"); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[0][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[7][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[6][y][x]); }
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
+		fprintf(fp, "\n");
+	}
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; x++) { fprintf(fp, "#"); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[1][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[8][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[5][y][x]); }
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
+		fprintf(fp, "\n");
+	}
+	for (y = 0; y < SECTOR_MAX_Y; ++y) {
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[2][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[3][y][x]); }
+		for (x = 0; x < SECTOR_MAX_X; ++x) { fprintf(fp, "%c", mapbuffer[4][y][x]); }
+		for (x = 0; x < 80; ++x) { fprintf(fp, "#"); }
+		fprintf(fp, "\n");
+	}
+    for (y = 0; y < 80; ++y) {
+		for (x = 0; x < MAP_MAX_X+160; ++x) { fprintf(fp, "#"); }
+		fprintf(fp, "\n");
+	}
+    fclose(fp);
 }
 static void P_RugInteract();
 static void P_BedInteract();
@@ -412,7 +515,7 @@ void P_MoveN()
 	case '_':
 		P_DoorInteract(input);
 		break;
-	case sprites[SPR_PICKUP]:
+	case '!':
 		P_ItemInteract(input);
 		break;
 	case ' ':
@@ -433,7 +536,7 @@ void P_MoveW()
 	case '_':
 		P_DoorInteract(input);
 		break;
-	case sprites[SPR_PICKUP]:
+	case '!':
 		P_ItemInteract(input);
 		break;
 	case '.':
@@ -454,7 +557,7 @@ void P_MoveS()
 	case '_':
 		P_DoorInteract(input);
 		break;
-	case sprites[SPR_PICKUP]:
+	case '!':
 		P_ItemInteract(input);
 		break;
 	case '.':
@@ -475,7 +578,7 @@ void P_MoveE()
 	case '_':
 		P_DoorInteract(input);
 		break;
-	case sprites[SPR_PICKUP]:
+	case '!':
 		P_ItemInteract(input);
 		break;
 	case '.':
@@ -494,13 +597,13 @@ void P_MoveE()
 static nomadbool_t P_CanMove(coord_t& pos)
 {
 	switch (game->c_map[playr->pos.y+pos.y][playr->pos.x+pos.x]) {
-	case sprites[SPR_FLOOR_INSIDE]:
+	case '.':
 		return true;
 		break;
-	case sprites[SPR_FLOOR_OUTSIDE]:
+	case ' ':
 		return true;
 		break;
-	case sprites[SPR_PICKUP]:
+	case '!':
 		P_ItemInteract(input);
 		return false;
 		break;

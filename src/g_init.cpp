@@ -75,7 +75,7 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 	game->difficulty = DIF_NOOB;
 	game->ticcount = 0;
 	char buf[256];
-	strncpy(game->bffname, "nomadmain.bff", sizeof(game->bffname));
+	strncpy(game->bffname, "nomaddemo.bff", sizeof(game->bffname));
 	strncpy(game->scfname, "default.scf", sizeof(game->scfname));
 	strncpy(game->svfile, "nomadsv.ngd", sizeof(game->svfile));
 	switch (_NOMAD_VERSION) {
@@ -92,18 +92,21 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 			"  Version: Alpha (v%i.%i.%i)  \n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
+		break;
 	case 2:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
 			"  Version: Beta (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
+		break;
 	case 3:
 		snprintf(buf, sizeof(buf),
 			"+==============================+\n"
 			"  Version: (v%i.%i.%i)\n"
 			"+==============================+\n",
 		_NOMAD_VERSION, _NOMAD_VERSION_UPDATE, _NOMAD_VERSION_PATCH);
+		break;
 	default: // should theoretically never happen
 		printf("(ERROR: Fatal) Invalid Version!\n");
 		exit(EXIT_FAILURE);
@@ -154,24 +157,24 @@ void I_NomadInit(int argc, char* argv[], Game* game)
 void TUI_Init(Game* const game)
 {
 //	PTR_CHECK(NULL_CHECK, game);
-	puts("TUI_Init(): Initializing Screen And NCurses/Curses Libraries...");
+	puts("TUI_Init(): Initializing screen and NCurses/Curses libraries...");
 	setlocale(LC_ALL, "");
 	initscr();
 	raw();
 	cbreak();
 	noecho();
 	curs_set(0);
+	if (getmaxy(stdscr) < 34 || getmaxx(stdscr) < 129)
+		N_Error("TUI_Init: screen is too small for nomadascii, must be at least 129x34 (x, y)");
 	game->screen = newwin(34, 129, 0, 0);
 	stdscr = game->screen;
 //	PTR_CHECK(NULL_CHECK, game->screen);
 //	LOG_INFO("game->screen allocated successfully");
 	keypad(game->screen, TRUE);
-	
-	if (getmaxy(game->screen) < 30 && getmaxx(game->screen) < 45)
-		N_Error("Screen Too Small For nomadascii!");
+
 	// change this in the future, this game doesn't "require" colors
 	if (has_colors() == FALSE)
-		N_Error("Terminal Must Support Colors!");
+		N_Error("TUI_Init: terminal must support colors, it does not");
 	
 	start_color();
 //	LOG_INFO("has_colors() = true");
